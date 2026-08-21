@@ -5,8 +5,8 @@ module RecordingStudioSupport
     class Section < RecordingStudioAdmin::Section
       key "support"
       icon :lifebuoy
-      title { RecordingStudioSupport.configuration.admin_section_title }
-      subtitle { RecordingStudioSupport.configuration.admin_section_subtitle }
+      title { RecordingStudioSupport.configuration.admin_help_title }
+      subtitle { RecordingStudioSupport.configuration.admin_help_subtitle }
 
       link :open_pages,
            text: "Open help pages",

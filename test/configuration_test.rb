@@ -13,20 +13,20 @@ class ConfigurationTest < Minitest::Test
       timeout: 9,
       enable_feature_x: true,
       pages_path: "/help",
-      pages_title: "Guides",
-      pages_subtitle: "Short answers.",
-      admin_section_title: "Guides",
-      admin_section_subtitle: "Staff view of those answers."
+      help_title: "Guides",
+      help_subtitle: "Short answers.",
+      admin_help_title: "Guides",
+      admin_help_subtitle: "Staff view of those answers."
     )
 
     assert_equal "abc123", @configuration.api_key
     assert_equal 9, @configuration.timeout
     assert_equal true, @configuration.enable_feature_x
     assert_equal "/help", @configuration.pages_path
-    assert_equal "Guides", @configuration.pages_title
-    assert_equal "Short answers.", @configuration.pages_subtitle
-    assert_equal "Guides", @configuration.admin_section_title
-    assert_equal "Staff view of those answers.", @configuration.admin_section_subtitle
+    assert_equal "Guides", @configuration.help_title
+    assert_equal "Short answers.", @configuration.help_subtitle
+    assert_equal "Guides", @configuration.admin_help_title
+    assert_equal "Staff view of those answers.", @configuration.admin_help_subtitle
   end
 
   def test_merge_ignores_unknown_keys
@@ -58,10 +58,12 @@ class ConfigurationTest < Minitest::Test
     assert_equal 5, configuration.timeout
     assert_equal "/support", configuration.pages_path
     assert_equal "/help", configuration.public_pages_path
-    assert_equal "Help", configuration.pages_title
-    assert_equal "Answers you can share.", configuration.pages_subtitle
-    assert_equal "Help", configuration.admin_section_title
-    assert_equal "Pages people use when they get stuck.", configuration.admin_section_subtitle
+    assert_equal "Help", configuration.help_title
+    assert_equal "Answers you can share.", configuration.help_subtitle
+    assert_equal "Help", configuration.public_help_title
+    assert_equal "Answers you can read.", configuration.public_help_subtitle
+    assert_equal "Help", configuration.admin_help_title
+    assert_equal "Pages people use when they get stuck.", configuration.admin_help_subtitle
     assert_instance_of RecordingStudio::Hooks, configuration.hooks
   ensure
     ENV["RECORDING_STUDIO_SUPPORT_API_KEY"] = previous_value

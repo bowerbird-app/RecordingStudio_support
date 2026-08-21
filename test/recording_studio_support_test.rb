@@ -126,6 +126,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes default_layout_head, "recording_studio_root_switch_dropdown"
     assert_includes default_layout_head, "recording_studio_page_nav_right"
     assert_includes default_layout_head, "user_signed_in?"
+    assert_includes default_layout_head, "RecordingStudioSupport::"
     assert_includes default_layout_head, "Sign out"
     assert_includes default_layout_head, "destroy_user_session_path"
     assert_includes default_layout_head, "turbo_method: :delete"
@@ -186,7 +187,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "Support page"
     assert_includes readme, "tag: \"2.0.0\""
     assert_includes readme, "/support"
-    assert_includes readme, "pages_title"
+    assert_includes readme, "help_title"
     assert_includes readme, "flat-pack--tiptap"
     assert_includes readme, "section :support"
     assert_includes readme, "RecordingStudio::Capabilities::Attachable.to"
@@ -196,6 +197,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "tag: \"0.2.0\""
     assert_includes readme, "/help"
     assert_includes readme, 'public_layout: "recording_studio/default_layout"'
+    assert_includes readme, "config.help_title"
     refute_includes readme, 'public_layout: "recording_studio_publishable/application"'
     refute_includes readme, "v3 declarations"
     refute_includes readme, "RecordingStudio v3"
@@ -251,8 +253,8 @@ class RecordingStudioSupportTest < Minitest::Test
 
     assert_includes admin, "RecordingStudioAdmin.register_section"
     assert_includes section, 'key "support"'
-    assert_includes section, "admin_section_title"
-    assert_includes section, "admin_section_subtitle"
+    assert_includes section, "configuration.admin_help_title"
+    assert_includes section, "configuration.admin_help_subtitle"
     refute_includes section, "recordable"
   end
 

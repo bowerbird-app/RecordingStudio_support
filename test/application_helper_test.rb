@@ -30,7 +30,18 @@ class ApplicationHelperTest < Minitest::Test
     refute_includes source, "recording_studio_publishable/application"
     refute_match(/^\s*layout\s/, source)
     assert_includes source, "Pages.public_indexable"
+    assert_includes source, "@query = params[:q]"
     assert_includes source, "@publishable&.publish_at"
+  end
+
+  def test_help_copy_helpers_read_configuration
+    helper = Object.new.extend(load_helper)
+
+    assert_equal "Help", helper.support_help_title
+    assert_equal "Answers you can share.", helper.support_help_subtitle
+    assert_equal "Help", helper.support_public_help_title
+    assert_equal "Answers you can read.", helper.support_public_help_subtitle
+    assert_equal "/help", helper.support_public_help_path
   end
 
   private

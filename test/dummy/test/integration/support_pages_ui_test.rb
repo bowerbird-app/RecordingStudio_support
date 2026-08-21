@@ -23,22 +23,24 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "flat-pack-page-nav"
     assert_includes response.body, "Help"
     assert_includes response.body, "Answers you can share."
+    refute_includes response.body, "Studio Workspace"
     assert_includes response.body, "flat_pack/application"
     assert_select "body[data-theme='rounded']"
     assert_select "a[aria-label='Close'][href='/']"
-    refute_select ".flat-pack-page-nav a", text: /Sign out/
-    refute_includes response.body, "Studio Workspace"
+    refute_includes response.body, "Sign out"
     refute_includes response.body, "/users/sign_out"
     refute_includes response.body, "recordable"
     refute_includes response.body, "This app proves the support gem"
+    assert_select "form[role='search'][class~='w-full']"
     assert_select "input[name='q']"
+    assert_includes response.body, "max-w-none"
   end
 
   test "index uses configured help titles" do
-    previous_title = RecordingStudioSupport.configuration.pages_title
-    previous_subtitle = RecordingStudioSupport.configuration.pages_subtitle
-    RecordingStudioSupport.configuration.pages_title = "Guides"
-    RecordingStudioSupport.configuration.pages_subtitle = "Short answers."
+    previous_title = RecordingStudioSupport.configuration.help_title
+    previous_subtitle = RecordingStudioSupport.configuration.help_subtitle
+    RecordingStudioSupport.configuration.help_title = "Guides"
+    RecordingStudioSupport.configuration.help_subtitle = "Short answers."
 
     get "/support"
 
@@ -47,8 +49,8 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Short answers."
     refute_includes response.body, "Answers you can share."
   ensure
-    RecordingStudioSupport.configuration.pages_title = previous_title
-    RecordingStudioSupport.configuration.pages_subtitle = previous_subtitle
+    RecordingStudioSupport.configuration.help_title = previous_title
+    RecordingStudioSupport.configuration.help_subtitle = previous_subtitle
   end
 
   test "index ILIKE search matches title and body" do
@@ -86,7 +88,7 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     close = css_select("a[aria-label='Close']").first
     assert close
     assert_match(%r{\A/support/?\z}, close["href"])
-    refute_select ".flat-pack-page-nav a", text: /Sign out/
+    refute_includes response.body, "Sign out"
     refute_includes response.body, "Studio Workspace"
     assert_includes response.body, "Edit"
     assert_includes response.body, "Publish"

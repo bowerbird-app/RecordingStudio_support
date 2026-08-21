@@ -13,7 +13,7 @@ Staff UI:
 2. Search the list with a full-width ?q= box (authenticated only)
 3. Publish a page from the page's Publish screen
 4. Enable `section :support` on your admin root and open /admin
-   Change Help words with pages_title / pages_subtitle / admin_section_title
+   Change Help words with help_title / public_help_title / admin_help_title
 5. Keep Sign out and Root Switchable off Support screens
 6. For the body editor, pin Flatpack TipTap packages and register
    controllers/flat_pack/tiptap_controller as flat-pack--tiptap

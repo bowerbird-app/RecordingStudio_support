@@ -21,6 +21,8 @@ Public help pages through Publishable 0.2.
 5. Point `/help` at `RecordingStudioSupport::PublicPagesController.action(:index)`.
 6. Use `SupportPage.indexable` for the public list. Staff still manage pages at `/support`.
 7. Keep writes on `record` / `revise` and Publishable's Update helper. Do not insert Recording rows by hand.
+8. Set help titles on `RecordingStudioSupport.configure` if you do not want the defaults. Support screens keep default-layout back/close only.
+9. Public `/help?q=` searches indexable pages with the same Flatpack Search widget as staff. Do not add Elasticsearch.
 
 Do not enable Publishable on Folder or Page just because the gem is installed. Do not use `recording_studio_publishable/application`. Do not invent a Support-only public shell.
 

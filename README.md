@@ -124,25 +124,28 @@ mount RecordingStudioPublishable::Engine, at: "/"
 get "/help", to: RecordingStudioSupport::PublicPagesController.action(:index), as: :public_help
 ```
 
-Hosts can change the Help words:
-
-```ruby
-RecordingStudioSupport.configure do |config|
-  config.pages_path = "/support"
-  config.pages_title = "Help"
-  config.pages_subtitle = "Answers you can share."
-  config.admin_section_title = "Help"
-  config.admin_section_subtitle = "Pages people use when they get stuck."
-end
-```
-
 Page reads are logs (`recording_studio_support_page_views`), not extra pages in the tree.
 
 ## Public help
 
 Logged-out people can read live pages. Drafts 404.
 
-The public list is `SupportPage.indexable` — currently published, not hidden from search, with a public URL. Do not copy that logic. Public and staff help use Recording Studio's default layout (`UsesDefaultLayout` / `recording_studio/default_layout`). Point Publishable `public_layout` at that layout. Do not use `recording_studio_publishable/application`.
+The public list is `SupportPage.indexable` — currently published, not hidden from search, with a public URL. Do not copy that logic. Public `/help?q=` and staff `/support?q=` both ILIKE title and body. Public search stays on indexable pages. Both lists use Flatpack Search at full width (`max_width: :none`). Public and staff help use Recording Studio's default layout (`UsesDefaultLayout` / `recording_studio/default_layout`). Point Publishable `public_layout` at that layout. Do not use `recording_studio_publishable/application`.
+
+Help titles come from `RecordingStudioSupport.configure`. Defaults stay “Help” / “Answers you can share.” for staff, “Answers you can read.” for public, and “Pages people use when they get stuck.” for the admin section.
+
+```ruby
+RecordingStudioSupport.configure do |config|
+  config.pages_path = "/support"
+  config.public_pages_path = "/help"
+  config.help_title = "Help"
+  config.help_subtitle = "Answers you can share."
+  config.public_help_title = "Help"
+  config.public_help_subtitle = "Answers you can read."
+  config.admin_help_title = "Help"
+  config.admin_help_subtitle = "Pages people use when they get stuck."
+end
+```
 
 Public show is Publishable's published route (`/help/:uuid/:slug`). It renders Support's public page template. Last updated comes from the publishable `publish_at` time.
 
@@ -180,7 +183,7 @@ The section shows how many help pages you have, the latest pages, and how many t
 
 `test/dummy/` is a host that proves the gem. It is not the product.
 
-Dummy help pages — public and staff — use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Dummy does not copy that layout. Support screens stay back/close only — no Sign out, Root Switchable, or login CTA. Dummy home and Admin can still show Sign out next to the workspace switcher. Devise sign-in keeps `layouts/application` (`html data-theme="rounded"`). Core puts `rounded` on `<body>`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`); dummy Stimulus registers `flat-pack--tiptap` on first paint.
+Dummy help pages — public and staff — use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Dummy does not copy that layout. Support screens keep that chrome only. Dummy Sign out and Root Switchable stay on dummy host pages, not on `/support` or `/help`. Do not put a login button there. Devise sign-in keeps `layouts/application` (`html data-theme="rounded"`). Core puts `rounded` on `<body>`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`); dummy Stimulus registers `flat-pack--tiptap` on first paint.
 
 Public and staff help both set `html data-theme="rounded"`.
 

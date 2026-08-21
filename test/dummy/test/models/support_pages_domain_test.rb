@@ -102,6 +102,8 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
 
     assert_includes titles, "How do I sign in?"
     refute_includes titles, "How do I change my password?"
+    assert_equal ["How do I sign in?"], RecordingStudioSupport::Pages.public_indexable(query: "sign in").map(&:title)
+    assert_empty RecordingStudioSupport::Pages.public_indexable(query: "password")
     assert live.recordable.indexable?
     refute draft.recordable.indexable?
   end

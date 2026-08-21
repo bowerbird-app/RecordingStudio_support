@@ -13,8 +13,8 @@ module RecordingStudioSupport
       apply_query(relation, query).preload(:recordable)
     end
 
-    def public_indexable
-      SupportPage.indexable.order(:title)
+    def public_indexable(query: nil)
+      apply_page_query(SupportPage.indexable, query).order(:title)
     end
 
     def find_for_root!(root_recording:, id:)
@@ -57,11 +57,25 @@ module RecordingStudioSupport
       term = query.to_s.strip
       return relation if term.blank?
 
-      pattern = "%#{ActiveRecord::Base.sanitize_sql_like(term)}%"
+      pattern = page_query_pattern(term)
       relation.joins(support_page_join_sql).where(
         "recording_studio_support_pages.title ILIKE :q OR recording_studio_support_pages.body ILIKE :q",
         q: pattern
       )
+    end
+
+    def apply_page_query(relation, query)
+      term = query.to_s.strip
+      return relation if term.blank?
+
+      relation.where(
+        "title ILIKE :q OR body ILIKE :q",
+        q: page_query_pattern(term)
+      )
+    end
+
+    def page_query_pattern(term)
+      "%#{ActiveRecord::Base.sanitize_sql_like(term)}%"
     end
 
     def support_page_join_sql

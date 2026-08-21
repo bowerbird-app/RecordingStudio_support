@@ -20,8 +20,8 @@ class PagesTest < Minitest::Test
     assert_includes index, 'name: "q"'
     assert_includes index, "max_width: :none"
     assert_includes index, 'class: "w-full"'
-    assert_includes index, "support_pages_title"
-    assert_includes index, "support_pages_subtitle"
+    assert_includes index, "support_help_title"
+    assert_includes index, "support_help_subtitle"
     assert_includes index, "Nothing matches that"
     refute_includes index, "Elasticsearch"
     refute_includes index, "searchkick"
@@ -36,9 +36,12 @@ class PagesTest < Minitest::Test
     support_page = File.read(File.expand_path("../app/models/recording_studio_support/support_page.rb", __dir__))
 
     assert_includes pages, "SupportPage.indexable"
+    assert_includes pages, "def public_indexable(query: nil)"
     refute_includes pages, "meta_robots"
     refute_includes pages, "noindex"
-    assert_includes public_index, "Help"
+    assert_includes public_index, "FlatPack::Search::Component"
+    assert_includes public_index, "max_width: :none"
+    assert_includes public_index, "support_public_help_title"
     refute_includes public_index, "recordable"
     assert_includes support_page, "RecordingStudio::Capabilities::Publishable.to"
   end

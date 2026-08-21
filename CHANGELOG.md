@@ -18,10 +18,14 @@ Logged-out people can read live help pages. Drafts stay hidden. Staff publish th
 - Staff draft preview on the authenticated show, plus a Publish button to Publishable's management screen
 - Dummy GitHub pin `recording_studio_publishable` tag `v0.2.0` and gemspec `~> 0.2`
 - Dummy seed publishes “How do I sign in?” and leaves “How do I change my password?” as a draft
+- Host-configurable help titles and subtitles on `RecordingStudioSupport.configure`
+- Public `/help` search of indexable pages (title + body ILIKE) with the same full-width Flatpack Search widget as staff
 
 ### Changed
 - Dummy mounts Publishable at `/`
 - Public and staff help use Recording Studio's default layout (`UsesDefaultLayout` / `recording_studio/default_layout`). Publishable `public_layout` points there. Do not use `recording_studio_publishable/application`.
+- Support screens keep default-layout back/close only. Dummy Sign out and Root Switchable stay off those screens.
+- Staff and public help lists use `FlatPack::Search::Component` at `max_width: :none`
 
 ### Upgrade notes
 - Add `recording_studio_publishable`, `~> 0.2` (dummy GitHub tag `v0.2.0`)
@@ -41,6 +45,9 @@ include RecordingStudio::Capabilities::Publishable.to(
 - Point `/help` at `RecordingStudioSupport::PublicPagesController.action(:index)`
 - Use `SupportPage.indexable` / `indexable?` for public lists. Do not copy that logic
 - Keep public and staff screens on `UsesDefaultLayout`. Point Publishable `public_layout` at `recording_studio/default_layout`. Do not use Publishable's own application layout. Do not enable Publishable on Folder or Page just because the gem is installed
+- Set help copy on `RecordingStudioSupport.configure` (`help_title`, `help_subtitle`, `public_help_title`, `public_help_subtitle`, `admin_help_title`, `admin_help_subtitle`) if the defaults are not your words
+- Keep Sign out and Root Switchable off Support screens. Core owns back/close
+- Point public `/help?q=` at `Pages.public_indexable(query:)`. Do not add Elasticsearch or a new search gem
 - Do not add tickets, email, messaging, Embeddable, Users, Billing, Webhooks, Notifications, or `recording_studio_api` in this slice
 
 ## [0.5.0] - 2026-08-21

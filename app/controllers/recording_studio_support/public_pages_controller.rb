@@ -9,7 +9,8 @@ module RecordingStudioSupport
     helper RecordingStudioPublishable::ApplicationHelper if defined?(RecordingStudioPublishable::ApplicationHelper)
 
     def index
-      @pages = Pages.public_indexable
+      @query = params[:q].to_s.strip
+      @pages = Pages.public_indexable(query: @query)
     end
 
     def show

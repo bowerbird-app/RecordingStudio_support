@@ -1,15 +1,25 @@
 <% recording_studio_page_nav(
-     title: "Help",
+     title: support_public_help_title,
      page_nav_anchor_url: (main_app.root_path if main_app.respond_to?(:root_path)),
      page_nav_anchor_label: "Close"
    ) %>
 
 <div class="flex w-full flex-col gap-6">
   <%= render FlatPack::PageTitle::Component.new(
-    title: "Help",
-    subtitle: "Answers you can read.",
+    title: support_public_help_title,
+    subtitle: support_public_help_subtitle,
     variant: :h1
   ) %>
+
+  <%= form_with url: support_public_help_path, method: :get, html: { role: "search", class: "w-full" } do %>
+    <%= render FlatPack::Search::Component.new(
+      name: "q",
+      value: @query,
+      placeholder: "Find a page",
+      max_width: :none,
+      class: "w-full"
+    ) %>
+  <% end %>
 
   <% if @pages.any? %>
     <div class="flex flex-col gap-3">
@@ -32,6 +42,15 @@
         <% end %>
       <% end %>
     </div>
+  <% elsif @query.present? %>
+    <%= render FlatPack::Card::Component.new(style: :outlined) do |card| %>
+      <% card.body do %>
+        <%= render FlatPack::SectionTitle::Component.new(
+          title: "Nothing matches that",
+          subtitle: "Try another word."
+        ) %>
+      <% end %>
+    <% end %>
   <% else %>
     <%= render FlatPack::Card::Component.new(style: :outlined) do |card| %>
       <% card.body do %>

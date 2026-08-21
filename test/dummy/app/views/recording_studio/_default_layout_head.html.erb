@@ -1,5 +1,6 @@
 <%= stylesheet_link_tag "flat_pack/application", "data-turbo-track": "reload" %>
-<% unless controller.is_a?(RecordingStudioSupport::ApplicationController) %>
+<% support_action_view = controller.class.name.start_with?("RecordingStudioSupport::") %>
+<% if user_signed_in? && !support_action_view %>
   <% recording_studio_page_nav_right do %>
     <%= render FlatPack::Button::Component.new(
       text: "Sign out",

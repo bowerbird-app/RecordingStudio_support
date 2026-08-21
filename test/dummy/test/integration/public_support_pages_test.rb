@@ -30,6 +30,9 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "Open help pages"
     refute_includes response.body, "recordable"
     assert_includes response.body, "flat_pack/application"
+    assert_select "form[role='search'][class~='w-full']"
+    assert_select "input[name='q']"
+    assert_includes response.body, "max-w-none"
   end
 
   test "logged out visitors can read a published page" do
@@ -83,9 +86,27 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "How do I change my password?"
     assert_includes response.body, "Not live yet. This preview is just for you."
     assert_includes response.body, "Publish"
-    assert_includes response.body, "Sign out"
+    refute_includes response.body, "Sign out"
+    refute_includes response.body, "Studio Workspace"
     assert_includes response.body, "/recordings/#{recording.id}/publishable/edit"
     refute_includes response.body, "recordable"
+  end
+
+  test "logged out visitors can search indexable help pages" do
+    get "/help", params: { q: "sign in" }
+
+    assert_response :success
+    assert_select "form[role='search']"
+    assert_includes response.body, "How do I sign in?"
+    refute_includes response.body, "How do I change my password?"
+    assert_select "input[name='q'][value='sign in']"
+    refute_includes response.body, "Sign out"
+
+    get "/help", params: { q: "no-such-help-page" }
+
+    assert_response :success
+    assert_includes response.body, "Nothing matches that"
+    refute_includes response.body, "How do I sign in?"
   end
 
   test "logged out visitors are asked to sign in for authenticated help" do
