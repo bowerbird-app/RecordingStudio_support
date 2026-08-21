@@ -33,7 +33,6 @@ previous_actor = Current.actor
 Current.actor = user
 
 begin
-  # Create the root recording
   root_recording = RecordingStudio.root_recording_for(workspace)
   accessible_root_recording = RecordingStudio.root_recording_for(accessible_workspace)
   private_root_recording = RecordingStudio.root_recording_for(private_workspace)
@@ -41,6 +40,20 @@ begin
   folder_recording = find_or_record_child.call(folder, root_recording, root_recording)
 
   find_or_record_child.call(page, root_recording, folder_recording)
+
+  support_page_recording = RecordingStudio::Recording.find_by(
+    root_recording: root_recording,
+    parent_recording: root_recording,
+    recordable_type: "RecordingStudioSupport::SupportPage",
+    trashed_at: nil
+  )
+
+  if support_page_recording.nil?
+    root_recording.record(RecordingStudioSupport::SupportPage) do |support_page|
+      support_page.title = "How do I sign in?"
+      support_page.body = "Use the email and password you were given. Still stuck? Ask a teammate who already has access."
+    end
+  end
 ensure
   Current.actor = previous_actor
 end
@@ -50,3 +63,4 @@ puts "Seeded: Workspace '#{workspace.name}' with root recording ##{root_recordin
 puts "Seeded: Workspace '#{accessible_workspace.name}' with root recording ##{accessible_root_recording.id}"
 puts "Seeded: Workspace '#{private_workspace.name}' with root recording ##{private_root_recording.id}"
 puts "Seeded: Folder '#{folder.name}' and page '#{page.title}'"
+puts "Seeded: Support page 'How do I sign in?'"
