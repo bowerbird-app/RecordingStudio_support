@@ -7,6 +7,9 @@ Rails.application.routes.draw do
   mount RecordingStudio::Engine, at: "/recording_studio"
   mount RecordingStudioRootSwitchable::Engine, at: "/recording_studio_root_switchable"
   mount RecordingStudioSupport::Engine, at: "/support"
+  mount RecordingStudioPublishable::Engine, at: "/"
+  mount RecordingStudioAttachable::Engine, at: "/recording_studio_attachable"
+  get "/help", to: RecordingStudioSupport::PublicPagesController.action(:index), as: :public_help
   mount RecordingStudioAccessible::Engine, at: "/admin/access"
   recording_studio_admin_for :admin, at: "/admin", root_section: :support
 

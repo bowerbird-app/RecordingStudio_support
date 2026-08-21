@@ -89,6 +89,8 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     refute_select ".flat-pack-page-nav a", text: /Sign out/
     refute_includes response.body, "Studio Workspace"
     assert_includes response.body, "Edit"
+    assert_includes response.body, "Publish"
+    assert_includes response.body, "This page is live."
     assert_includes response.body, "Move to trash"
     assert RecordingStudioSupport::PageView.exists?(recording_id: recording.id)
   end

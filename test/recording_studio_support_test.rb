@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.5.0", ::RecordingStudioSupport::VERSION
+    assert_equal "0.6.0", ::RecordingStudioSupport::VERSION
   end
 
   def test_engine_exists
@@ -20,7 +20,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemspec, 'spec.add_dependency "recording_studio_attachable", "~> 0.4"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_trashable", "~> 0.4"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_orderable", "~> 0.2"'
-    refute_includes gemspec, 'spec.add_dependency "recording_studio_publishable"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_publishable", "~> 0.2"'
     refute_includes gemspec, 'spec.add_dependency "recording_studio_api"'
   end
 
@@ -33,10 +33,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "0.4.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "0.4.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_orderable", tag: "0.2.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.133"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "0.4.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_orderable", tag: "0.2.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.2.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.0"'
     assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.133"'
     refute_includes gemfile, "recording_studio/v3.0.0"
@@ -64,6 +61,11 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes source, "RecordingStudio::Capabilities::Attachable.to"
     assert_includes source, "RecordingStudio::Capabilities::Trashable.to"
     assert_includes source, "RecordingStudio::Capabilities::Orderable.to"
+    assert_includes source, "RecordingStudio::Capabilities::Publishable.to"
+    assert_includes source, "public_controller: \"recording_studio_support/public_pages\""
+    assert_includes source, "public_action: :show"
+    assert_includes source, "public_layout: \"recording_studio_publishable/application\""
+    assert_includes source, "path: \"/help/:uuid/:slug\""
     assert_includes source, 'allows: ["RecordingStudioAttachable::Attachment"]'
     refute_includes source, "Recordable"
     refute_match(/label:\s*"[^"]*Recordable/, source)
@@ -150,6 +152,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes initializer_source, "config.require_recordable_declarations = true"
     assert_includes initializer_source, '"RecordingStudioSupport::SupportPage"'
     assert_includes initializer_source, '"RecordingStudioAttachable::Attachment"'
+    assert_includes initializer_source, '"RecordingStudioPublishable::Publishable"'
     assert_includes initializer_source, '"AdminRoot"'
     refute_includes initializer_source, "config.include_children"
     refute_includes initializer_source, "config.features."
@@ -163,6 +166,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme_source, "This Rails app exists to prove Recording Studio Support"
     assert_includes readme_source, "/recording_studio"
     assert_includes readme_source, "/support"
+    assert_includes readme_source, "/help"
     assert_includes readme_source, "/admin"
     assert_includes readme_source, "redirects to `/`"
     assert_includes readme_source, "flat-pack--tiptap"
@@ -185,8 +189,11 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "flat-pack--tiptap"
     assert_includes readme, "section :support"
     assert_includes readme, "RecordingStudio::Capabilities::Attachable.to"
+    assert_includes readme, "RecordingStudio::Capabilities::Publishable.to"
+    assert_includes readme, "tag: \"v0.2.0\""
     assert_includes readme, "tag: \"0.4.0\""
     assert_includes readme, "tag: \"0.2.0\""
+    assert_includes readme, "/help"
     refute_includes readme, "v3 declarations"
     refute_includes readme, "RecordingStudio v3"
     refute_includes readme, "ExampleService"
@@ -220,11 +227,12 @@ class RecordingStudioSupportTest < Minitest::Test
     assert File.exist?(File.expand_path("../app/views/recording_studio_support/pages/show.html.erb", __dir__))
     assert File.exist?(File.expand_path("../app/views/recording_studio_support/pages/new.html.erb", __dir__))
     assert File.exist?(File.expand_path("../app/views/recording_studio_support/pages/edit.html.erb", __dir__))
+    assert File.exist?(File.expand_path("../app/views/recording_studio_support/public_pages/index.html.erb", __dir__))
+    assert File.exist?(File.expand_path("../app/views/recording_studio_support/public_pages/show.html.erb", __dir__))
 
     routes = File.read(File.expand_path("../config/routes.rb", __dir__))
     assert_includes routes, "RecordingStudioSupport::Engine.routes.draw"
     assert_includes routes, "resources :pages"
-    refute_includes routes, "publish"
   end
 
   def test_dummy_defaults_to_studio_workspace_for_help_pages
@@ -251,7 +259,9 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes routes, 'mount RecordingStudioSupport::Engine, at: "/support"'
     assert_includes routes, "recording_studio_admin_for :admin, at: \"/admin\", root_section: :support"
     assert_includes routes, 'mount RecordingStudioAccessible::Engine, at: "/admin/access"'
-    refute_includes routes, "publish"
+    assert_includes routes, 'mount RecordingStudioPublishable::Engine, at: "/"'
+    assert_includes routes, "RecordingStudioSupport::PublicPagesController.action(:index)"
+    assert_includes routes, 'get "/help"'
   end
 
   def test_dummy_folder_and_page_do_not_opt_into_support_mixins
@@ -261,8 +271,10 @@ class RecordingStudioSupportTest < Minitest::Test
     refute_includes folder_source, "Capabilities::Attachable"
     refute_includes folder_source, "Capabilities::Trashable"
     refute_includes folder_source, "Capabilities::Orderable"
+    refute_includes folder_source, "Capabilities::Publishable"
     refute_includes page_source, "Capabilities::Attachable"
     refute_includes page_source, "Capabilities::Trashable"
     refute_includes page_source, "Capabilities::Orderable"
+    refute_includes page_source, "Capabilities::Publishable"
   end
 end

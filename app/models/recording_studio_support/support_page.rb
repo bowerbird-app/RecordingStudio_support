@@ -16,6 +16,12 @@ module RecordingStudioSupport
     include RecordingStudio::Capabilities::Orderable.to(
       allows: ["RecordingStudioAttachable::Attachment"]
     )
+    include RecordingStudio::Capabilities::Publishable.to(
+      public_controller: "recording_studio_support/public_pages",
+      public_action: :show,
+      public_layout: "recording_studio_publishable/application",
+      path: "/help/:uuid/:slug"
+    )
 
     validates :title, presence: true
   end

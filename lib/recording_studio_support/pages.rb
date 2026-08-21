@@ -13,6 +13,10 @@ module RecordingStudioSupport
       apply_query(relation, query).preload(:recordable)
     end
 
+    def public_indexable
+      SupportPage.indexable.order(:title)
+    end
+
     def find_for_root!(root_recording:, id:)
       kept_pages(root_recording).includes(:recordable).find(id)
     end

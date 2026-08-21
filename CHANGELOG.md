@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.6.0] - 2026-08-21
+
+Logged-out people can read live help pages. Drafts stay hidden. Staff publish through Publishable.
+
+### Added
+- Publishable on `SupportPage` only through `.to` (`public_controller`, `public_action`, `public_layout`, `path`)
+- Public help list at `/help` using `SupportPage.indexable`
+- Public show through Publishable at `/help/:uuid/:slug`, with last updated from `publish_at`
+- Staff draft preview on the authenticated show, plus a Publish button to Publishable's management screen
+- Dummy GitHub pin `recording_studio_publishable` tag `v0.2.0` and gemspec `~> 0.2`
+- Dummy seed publishes “How do I sign in?” and leaves “How do I change my password?” as a draft
+
+### Changed
+- Dummy mounts Publishable at `/` and keeps authenticated screens on Recording Studio's default layout
+- Public chrome comes from Publishable's public layout, not a Support-only shell
+
+### Upgrade notes
+- Add `recording_studio_publishable`, `~> 0.2` (dummy GitHub tag `v0.2.0`)
+- Run `bin/rails generate recording_studio_publishable:install` (or mount the engine at `/` and run its migrations)
+- Register `"RecordingStudioPublishable::Publishable"` in `RecordingStudio.configure`
+- Enable Publishable only on Support pages:
+
+```ruby
+include RecordingStudio::Capabilities::Publishable.to(
+  public_controller: "recording_studio_support/public_pages",
+  public_action: :show,
+  public_layout: "recording_studio_publishable/application",
+  path: "/help/:uuid/:slug"
+)
+```
+
+- Point `/help` at `RecordingStudioSupport::PublicPagesController.action(:index)`
+- Use `SupportPage.indexable` / `indexable?` for public lists. Do not copy that logic
+- Keep staff screens on `UsesDefaultLayout`. Do not enable Publishable on Folder or Page just because the gem is installed
+- Do not add tickets, email, messaging, Embeddable, Users, Billing, Webhooks, Notifications, or `recording_studio_api` in this slice
+
 ## [0.5.0] - 2026-08-21
 
 Staff can write and read help pages, and open an Admin Support section. Still no public pages or Publishable.
@@ -134,7 +170,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.6.0
 [0.5.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.5.0
 [0.4.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.4.0
 [0.3.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.3.0

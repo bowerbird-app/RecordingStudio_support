@@ -8,7 +8,7 @@ class PagesTest < Minitest::Test
   end
 
   def test_pages_helpers_exist
-    %i[for_root find_for_root! create! revise! trash! recording_for].each do |method_name|
+    %i[for_root find_for_root! create! revise! trash! recording_for public_indexable].each do |method_name|
       assert RecordingStudioSupport::Pages.respond_to?(method_name), "expected Pages.#{method_name}"
     end
   end
@@ -26,6 +26,21 @@ class PagesTest < Minitest::Test
     refute_includes index, "Elasticsearch"
     refute_includes index, "searchkick"
     refute_includes index, "SearchPage"
+  end
+
+  def test_public_index_uses_indexable_pages_not_copied_logic
+    pages = File.read(File.expand_path("../lib/recording_studio_support/pages.rb", __dir__))
+    public_index = File.read(
+      File.expand_path("../app/views/recording_studio_support/public_pages/index.html.erb", __dir__)
+    )
+    support_page = File.read(File.expand_path("../app/models/recording_studio_support/support_page.rb", __dir__))
+
+    assert_includes pages, "SupportPage.indexable"
+    refute_includes pages, "meta_robots"
+    refute_includes pages, "noindex"
+    assert_includes public_index, "Help"
+    refute_includes public_index, "recordable"
+    assert_includes support_page, "RecordingStudio::Capabilities::Publishable.to"
   end
 
   def test_page_view_model_is_a_log_table

@@ -126,6 +126,36 @@ begin
     raise "Failed to attach sign-in.png" if attachment.blank?
   end
 
+  ensure_publish_state = lambda do |page_recording, slug:, status:, **attributes|
+    current = page_recording.current_publishable
+    if current && current.slug == slug && current.status == status
+      next page_recording.publishable_child_recording
+    end
+
+    result = RecordingStudioPublishable::Services::Publishables::Update.call(
+      parent_recording: page_recording,
+      actor: user,
+      attributes: { slug: slug, status: status }.merge(attributes)
+    )
+    raise "Failed to set publish state: #{result.error}" if result.failure?
+
+    result.value
+  end
+
+  ensure_publish_state.call(
+    sign_in_page,
+    slug: "how-do-i-sign-in",
+    status: "published",
+    seo_title: "How do I sign in?",
+    seo_description: "Use the email and password you were given.",
+    meta_robots: "index,follow"
+  )
+  ensure_publish_state.call(
+    password_page,
+    slug: "how-do-i-change-my-password",
+    status: "draft"
+  )
+
   [sign_in_page, password_page].each do |support_recording|
     next if RecordingStudioSupport::PageView.exists?(recording_id: support_recording.id)
 
@@ -142,5 +172,5 @@ puts "Seeded: Workspace '#{workspace.name}' with root recording ##{root_recordin
 puts "Seeded: Workspace '#{accessible_workspace.name}' with root recording ##{accessible_root_recording.id}"
 puts "Seeded: Workspace '#{private_workspace.name}' with root recording ##{private_root_recording.id}"
 puts "Seeded: Folder '#{folder.name}' and page '#{page.title}'"
-puts "Seeded: Support pages 'How do I sign in?' and 'How do I change my password?'"
+puts "Seeded: Support pages 'How do I sign in?' (live) and 'How do I change my password?' (draft)"
 puts "Seeded: Admin root with owner access for admin@admin.com"

@@ -8,8 +8,9 @@ This Rails app exists to prove Recording Studio Support in a real host. It is no
 - `Current.actor` wiring for Recording Studio events
 - Root workspace plus seeded help pages, one with an image
 - Authenticated Support screens mounted at `/support`
+- Public help at `/help` for logged-out visitors (Publishable chrome, indexable pages only)
 - Admin Support section mounted at `/admin` on an admin root (switch to **Admin** in the top control first — Admin 2.0 gates staff screens on that root)
-- Support pages opt into Attachable, Trashable, and Orderable. Dummy Folder and Page do not.
+- Support pages opt into Attachable, Trashable, Orderable, and Publishable. Dummy Folder and Page do not.
 - Recording Studio default layout from core (back/close chrome; dummy does not copy the layout file), Flatpack CSS/JS, Turbo, Tailwind source scanning, and Flatpack's built-in `rounded` theme (login `html`, core layout `<body>`)
 - Root Switchable in the default-layout chrome, not a host-only shell
 - Mounted `RecordingStudio::Engine` route behavior inside a host app
@@ -34,6 +35,8 @@ Then open the app and sign in with:
 
 Authenticated pages include `RecordingStudio::UsesDefaultLayout` and render core's `recording_studio/default_layout`. That layout owns the back/close chrome and Flatpack flash alerts. Dummy does not copy the layout.
 
+Public help uses Publishable's public layout. Do not invent a Support-only public shell.
+
 Devise sign-in keeps `layouts/application` so the login card can stay centered. That layout still loads:
 
 - `flat_pack/variables`
@@ -45,13 +48,15 @@ The host injects `flat_pack/application` through `app/views/recording_studio/_de
 
 Help-page edit uses Flatpack `TextArea` with `rich_text: true`. Importmap pins TipTap packages plus `controllers/flat_pack/tiptap_controller`. `app/javascript/application.js` imports `controllers`, and `controllers/index.js` registers `flat-pack--tiptap` so the toolbar and body HTML hydrate on first paint. Do not add Trix or Action Text. Images stay Attachable children (`uploads: false`).
 
-Login `layouts/application` sets `<html data-theme="rounded">`. Core default layout puts `rounded` on `<body>`. Do not invent a custom theme or copy the core layout into dummy.
+Login `layouts/application` sets `<html data-theme="rounded">`. Core default layout puts `rounded` on `<body>`. Publishable's public layout already sets that attribute. Do not invent a custom theme or copy the core layout into dummy.
 
-Tailwind scans dummy views plus Flatpack, Recording Studio, Admin, and Support gem files. On boot, Root Switchable's source linker plus dummy vendor links make a local `bin/rails tailwindcss:build` see those classes. Rebuild Tailwind after changing views.
+Tailwind scans dummy views plus Flatpack, Recording Studio, Admin, Support, and Publishable gem files. On boot, Root Switchable's source linker plus dummy vendor links make a local `bin/rails tailwindcss:build` see those classes. Rebuild Tailwind after changing views.
 
 ## Useful Routes
 
 - `/` - dummy host home page
+- `/help` - public help list (no sign-in)
+- `/help/:uuid/:slug` - public help page through Publishable
 - `/support` - authenticated help-page list (add `?q=` to search)
 - `/admin` - Admin Support section (pick **Admin** in the top control first)
 - `/recording_studio` - redirects to `/` while the mounted Recording Studio engine stays available under that prefix for non-root routes
@@ -60,8 +65,8 @@ Tailwind scans dummy views plus Flatpack, Recording Studio, Admin, and Support g
 
 ## Why This App Exists
 
-Use this app to click through help pages and the Admin Support section. If a layout, route, asset source, or Recording Studio initializer change breaks here, the gem likely needs adjustment before reuse.
+Use this app to click through public help, staff help pages, and the Admin Support section. If a layout, route, asset source, or Recording Studio initializer change breaks here, the gem likely needs adjustment before reuse.
 
-Seeds two help pages under Studio Workspace, attaches a tiny image to one, and logs a few page reads so admin widgets are not empty.
+Seeds two help pages under Studio Workspace: **How do I sign in?** is live, **How do I change my password?** stays a draft. One page has a tiny image. A few page reads are logged so admin widgets are not empty.
 
-Authenticated pages use Recording Studio's shared default layout. Devise sign-in keeps `layouts/application`. Both put Flatpack's built-in `rounded` theme on `<html>`.
+Authenticated pages use Recording Studio's shared default layout. Public help uses Publishable's public layout. Devise sign-in keeps `layouts/application`. All put Flatpack's built-in `rounded` theme on `<html>`.

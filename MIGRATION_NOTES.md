@@ -1,5 +1,37 @@
 # Upgrade notes
 
+## 0.6.0
+
+Public help pages through Publishable 0.2.
+
+- Recording Studio `~> 4.2` (dummy GitHub tag `v4.2.0`)
+- Accessible `~> 0.6` (dummy GitHub tag `v0.6.1`)
+- Admin `~> 2.0` (dummy GitHub tag `2.0.0`)
+- Attachable `~> 0.4` (dummy GitHub tag `0.4.0`)
+- Trashable `~> 0.4` (dummy GitHub tag `0.4.0`)
+- Orderable `~> 0.2` (dummy GitHub tag `0.2.0`)
+- Publishable `~> 0.2` (dummy GitHub tag `v0.2.0`)
+
+### Host app
+
+1. Add Publishable 0.2 next to Support. Follow the Publishable 0.2 README.
+2. Run `bin/rails generate recording_studio_publishable:install` (mount at `/` and install migrations).
+3. Register `"RecordingStudioPublishable::Publishable"` next to `"RecordingStudioSupport::SupportPage"`.
+4. Enable Publishable only on Support pages with `.to` (`public_controller`, `public_action`, `public_layout`, `path`).
+5. Point `/help` at `RecordingStudioSupport::PublicPagesController.action(:index)`.
+6. Use `SupportPage.indexable` for the public list. Staff still manage pages at `/support`.
+7. Keep writes on `record` / `revise` and Publishable's Update helper. Do not insert Recording rows by hand.
+
+Do not enable Publishable on Folder or Page just because the gem is installed. Do not invent a Support-only public shell.
+
+### Verify
+
+```bash
+bundle install
+BUNDLE_GEMFILE=test/dummy/Gemfile bundle install
+bundle exec rake test:all
+```
+
 ## 0.5.0
 
 Authenticated help screens and an Admin Support section.

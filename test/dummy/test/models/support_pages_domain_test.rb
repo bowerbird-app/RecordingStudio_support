@@ -81,7 +81,41 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
     assert_empty titles.call("no-such-help-page")
   end
 
+  test "public_indexable uses Publishable indexable and hides drafts" do
+    live = RecordingStudioSupport::Pages.create!(
+      root_recording: @root_recording,
+      title: "How do I sign in?",
+      body: "Use the email you were given.",
+      actor: @user
+    )
+    draft = RecordingStudioSupport::Pages.create!(
+      root_recording: @root_recording,
+      title: "How do I change my password?",
+      body: "Pick a new one.",
+      actor: @user
+    )
+
+    publish!(live, slug: "how-do-i-sign-in", status: "published")
+    publish!(draft, slug: "how-do-i-change-my-password", status: "draft")
+
+    titles = RecordingStudioSupport::Pages.public_indexable.map(&:title)
+
+    assert_includes titles, "How do I sign in?"
+    refute_includes titles, "How do I change my password?"
+    assert live.recordable.indexable?
+    refute draft.recordable.indexable?
+  end
+
   private
+
+  def publish!(page_recording, slug:, status:)
+    result = RecordingStudioPublishable::Services::Publishables::Update.call(
+      parent_recording: page_recording,
+      actor: @user,
+      attributes: { slug: slug, status: status }
+    )
+    raise result.error if result.failure?
+  end
 
   def grant_admin!(recording, actor)
     original = RecordingStudioAccessible.configuration.access_management_authorizer

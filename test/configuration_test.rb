@@ -57,6 +57,7 @@ class ConfigurationTest < Minitest::Test
     assert_equal false, configuration.enable_feature_x
     assert_equal 5, configuration.timeout
     assert_equal "/support", configuration.pages_path
+    assert_equal "/help", configuration.public_pages_path
     assert_equal "Help", configuration.pages_title
     assert_equal "Answers you can share.", configuration.pages_subtitle
     assert_equal "Help", configuration.admin_section_title

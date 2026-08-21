@@ -12,14 +12,44 @@
   ) do |page_title| %>
     <% if can_edit_support_pages? %>
       <% page_title.slot do %>
-        <%= render FlatPack::Button::Component.new(
-          text: "Edit",
-          style: :secondary,
-          size: :md,
-          href: edit_page_path(@page_recording)
-        ) %>
+        <div class="flex flex-wrap items-center gap-2">
+          <% publish_href = support_publish_path(@page_recording) %>
+          <% if publish_href.present? %>
+            <%= render FlatPack::Button::Component.new(
+              text: "Publish",
+              style: :secondary,
+              size: :md,
+              href: publish_href
+            ) %>
+          <% end %>
+          <%= render FlatPack::Button::Component.new(
+            text: "Edit",
+            style: :secondary,
+            size: :md,
+            href: edit_page_path(@page_recording)
+          ) %>
+        </div>
       <% end %>
     <% end %>
+  <% end %>
+
+  <% live = @page_recording.respond_to?(:currently_published?) && @page_recording.currently_published? %>
+  <% if live && @page.respond_to?(:published_url) && @page.published_url.present? %>
+    <%= render FlatPack::Alert::Component.new(
+      description: "This page is live.",
+      style: :success
+    ) %>
+    <%= render FlatPack::Button::Component.new(
+      text: "Open live page",
+      style: :secondary,
+      size: :md,
+      href: @page.published_url
+    ) %>
+  <% elsif can_edit_support_pages? %>
+    <%= render FlatPack::Alert::Component.new(
+      description: "Not live yet. This preview is just for you.",
+      style: :info
+    ) %>
   <% end %>
 
   <%= render FlatPack::Card::Component.new(style: :default) do |card| %>

@@ -1,0 +1,41 @@
+<% content_for :title, "Help" %>
+
+<div class="mx-auto flex w-full max-w-4xl flex-col gap-6">
+  <%= render FlatPack::PageTitle::Component.new(
+    title: "Help",
+    subtitle: "Answers you can read without signing in.",
+    variant: :h1
+  ) %>
+
+  <% if @pages.any? %>
+    <div class="flex flex-col gap-3">
+      <% @pages.each do |page| %>
+        <% href = page.published_url %>
+        <% next if href.blank? %>
+        <%= render FlatPack::Card::Component.new(style: :outlined) do |card| %>
+          <% card.body(class: "flex flex-wrap items-center justify-between gap-3") do %>
+            <%= render FlatPack::SectionTitle::Component.new(
+              title: page.title,
+              subtitle: nil
+            ) %>
+            <%= render FlatPack::Button::Component.new(
+              text: "Read",
+              style: :secondary,
+              size: :md,
+              href: href
+            ) %>
+          <% end %>
+        <% end %>
+      <% end %>
+    </div>
+  <% else %>
+    <%= render FlatPack::Card::Component.new(style: :outlined) do |card| %>
+      <% card.body do %>
+        <%= render FlatPack::SectionTitle::Component.new(
+          title: "Nothing live yet",
+          subtitle: "Check back soon."
+        ) %>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>

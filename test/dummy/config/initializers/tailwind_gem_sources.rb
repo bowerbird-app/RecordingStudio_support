@@ -13,7 +13,7 @@ if defined?(RecordingStudioRootSwitchable::TailwindSourceLinker)
   RecordingStudioRootSwitchable::TailwindSourceLinker.link!(rails_root: Rails.root) if missing_link
 end
 
-%w[recording_studio_admin recording_studio_support].each do |gem_name|
+%w[recording_studio_admin recording_studio_support recording_studio_publishable].each do |gem_name|
   destination = Rails.root.join("vendor", gem_name)
   next if File.symlink?(destination) && File.exist?(destination)
 

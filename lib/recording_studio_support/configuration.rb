@@ -2,7 +2,7 @@
 
 module RecordingStudioSupport
   class Configuration
-    attr_accessor :api_key, :enable_feature_x, :timeout, :pages_path,
+    attr_accessor :api_key, :enable_feature_x, :timeout, :pages_path, :public_pages_path,
                   :pages_title, :pages_subtitle, :admin_section_title, :admin_section_subtitle
     attr_reader :hooks
 
@@ -11,6 +11,7 @@ module RecordingStudioSupport
       @enable_feature_x = false
       @timeout = 5
       @pages_path = "/support"
+      @public_pages_path = "/help"
       @pages_title = "Help"
       @pages_subtitle = "Answers you can share."
       @admin_section_title = "Help"
@@ -24,6 +25,7 @@ module RecordingStudioSupport
         enable_feature_x: enable_feature_x,
         timeout: timeout,
         pages_path: pages_path,
+        public_pages_path: public_pages_path,
         pages_title: pages_title,
         pages_subtitle: pages_subtitle,
         admin_section_title: admin_section_title,
