@@ -1,6 +1,9 @@
-<% content_for :title, (publishable_document_title if respond_to?(:publishable_document_title)) || @page&.title %>
+<% recording_studio_page_nav(
+     title: @page.title,
+     page_nav_back_url: (main_app.public_help_path if main_app.respond_to?(:public_help_path))
+   ) %>
 
-<div class="mx-auto flex w-full max-w-4xl flex-col gap-6">
+<div class="flex w-full flex-col gap-6">
   <%= render FlatPack::PageTitle::Component.new(
     title: @page.title,
     subtitle: support_page_updated_on(@published_at),

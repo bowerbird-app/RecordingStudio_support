@@ -6,8 +6,6 @@ module RecordingStudioSupport
     skip_before_action :set_current_actor, raise: false
     skip_before_action :require_support_root!, raise: false
 
-    layout "recording_studio_publishable/application"
-
     helper RecordingStudioPublishable::ApplicationHelper if defined?(RecordingStudioPublishable::ApplicationHelper)
 
     def index

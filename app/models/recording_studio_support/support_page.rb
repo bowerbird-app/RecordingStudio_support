@@ -19,7 +19,7 @@ module RecordingStudioSupport
     include RecordingStudio::Capabilities::Publishable.to(
       public_controller: "recording_studio_support/public_pages",
       public_action: :show,
-      public_layout: "recording_studio_publishable/application",
+      public_layout: "recording_studio/default_layout",
       path: "/help/:uuid/:slug"
     )
 

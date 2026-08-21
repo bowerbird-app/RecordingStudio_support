@@ -20,8 +20,8 @@ Logged-out people can read live help pages. Drafts stay hidden. Staff publish th
 - Dummy seed publishes “How do I sign in?” and leaves “How do I change my password?” as a draft
 
 ### Changed
-- Dummy mounts Publishable at `/` and keeps authenticated screens on Recording Studio's default layout
-- Public chrome comes from Publishable's public layout, not a Support-only shell
+- Dummy mounts Publishable at `/`
+- Public and staff help use Recording Studio's default layout (`UsesDefaultLayout` / `recording_studio/default_layout`). Publishable `public_layout` points there. Do not use `recording_studio_publishable/application`.
 
 ### Upgrade notes
 - Add `recording_studio_publishable`, `~> 0.2` (dummy GitHub tag `v0.2.0`)
@@ -33,14 +33,14 @@ Logged-out people can read live help pages. Drafts stay hidden. Staff publish th
 include RecordingStudio::Capabilities::Publishable.to(
   public_controller: "recording_studio_support/public_pages",
   public_action: :show,
-  public_layout: "recording_studio_publishable/application",
+  public_layout: "recording_studio/default_layout",
   path: "/help/:uuid/:slug"
 )
 ```
 
 - Point `/help` at `RecordingStudioSupport::PublicPagesController.action(:index)`
 - Use `SupportPage.indexable` / `indexable?` for public lists. Do not copy that logic
-- Keep staff screens on `UsesDefaultLayout`. Do not enable Publishable on Folder or Page just because the gem is installed
+- Keep public and staff screens on `UsesDefaultLayout`. Point Publishable `public_layout` at `recording_studio/default_layout`. Do not use Publishable's own application layout. Do not enable Publishable on Folder or Page just because the gem is installed
 - Do not add tickets, email, messaging, Embeddable, Users, Billing, Webhooks, Notifications, or `recording_studio_api` in this slice
 
 ## [0.5.0] - 2026-08-21

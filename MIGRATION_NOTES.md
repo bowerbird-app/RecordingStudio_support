@@ -17,12 +17,12 @@ Public help pages through Publishable 0.2.
 1. Add Publishable 0.2 next to Support. Follow the Publishable 0.2 README.
 2. Run `bin/rails generate recording_studio_publishable:install` (mount at `/` and install migrations).
 3. Register `"RecordingStudioPublishable::Publishable"` next to `"RecordingStudioSupport::SupportPage"`.
-4. Enable Publishable only on Support pages with `.to` (`public_controller`, `public_action`, `public_layout`, `path`).
+4. Enable Publishable only on Support pages with `.to`. Set `public_layout` to `recording_studio/default_layout` (Publishable's own default is a second shell).
 5. Point `/help` at `RecordingStudioSupport::PublicPagesController.action(:index)`.
 6. Use `SupportPage.indexable` for the public list. Staff still manage pages at `/support`.
 7. Keep writes on `record` / `revise` and Publishable's Update helper. Do not insert Recording rows by hand.
 
-Do not enable Publishable on Folder or Page just because the gem is installed. Do not invent a Support-only public shell.
+Do not enable Publishable on Folder or Page just because the gem is installed. Do not use `recording_studio_publishable/application`. Do not invent a Support-only public shell.
 
 ### Verify
 

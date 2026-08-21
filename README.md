@@ -82,7 +82,7 @@ include RecordingStudio::Capabilities::Orderable.to(
 include RecordingStudio::Capabilities::Publishable.to(
   public_controller: "recording_studio_support/public_pages",
   public_action: :show,
-  public_layout: "recording_studio_publishable/application",
+  public_layout: "recording_studio/default_layout",
   path: "/help/:uuid/:slug"
 )
 ```
@@ -116,7 +116,7 @@ page_recording.import_attachment(
 
 Authenticated screens call the same helpers. Access uses `grant_access` / `authorized?` on the workspace root (`:view` to read, `:edit` to write). Public read uses Publishable `indexable` / `indexable?`. This gem does not invent its own ACL.
 
-Mount the screens and keep staff ones on Recording Studio's default layout:
+Mount the screens. Public and staff help both use Recording Studio's default layout:
 
 ```ruby
 mount RecordingStudioSupport::Engine, at: "/support"
@@ -142,7 +142,7 @@ Page reads are logs (`recording_studio_support_page_views`), not extra pages in 
 
 Logged-out people can read live pages. Drafts 404.
 
-The public list is `SupportPage.indexable` — currently published, not hidden from search, with a public URL. Do not copy that logic. Public chrome is Publishable's public layout, not a Support-only shell.
+The public list is `SupportPage.indexable` — currently published, not hidden from search, with a public URL. Do not copy that logic. Public and staff help use Recording Studio's default layout (`UsesDefaultLayout` / `recording_studio/default_layout`). Point Publishable `public_layout` at that layout. Do not use `recording_studio_publishable/application`.
 
 Public show is Publishable's published route (`/help/:uuid/:slug`). It renders Support's public page template. Last updated comes from the publishable `publish_at` time.
 
@@ -180,9 +180,9 @@ The section shows how many help pages you have, the latest pages, and how many t
 
 `test/dummy/` is a host that proves the gem. It is not the product.
 
-Authenticated dummy pages use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Dummy does not copy that layout. Support screens stay back/close only — no Sign out, Root Switchable, or login CTA. Dummy home and Admin can still show Sign out next to the workspace switcher. Devise sign-in keeps `layouts/application` (`html data-theme="rounded"`). Core puts `rounded` on `<body>`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`); dummy Stimulus registers `flat-pack--tiptap` on first paint.
+Dummy help pages — public and staff — use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Dummy does not copy that layout. Support screens stay back/close only — no Sign out, Root Switchable, or login CTA. Dummy home and Admin can still show Sign out next to the workspace switcher. Devise sign-in keeps `layouts/application` (`html data-theme="rounded"`). Core puts `rounded` on `<body>`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`); dummy Stimulus registers `flat-pack--tiptap` on first paint.
 
-Public help uses Publishable's public layout (`html data-theme="rounded"`).
+Public and staff help both set `html data-theme="rounded"`.
 
 | Field    | Value           |
 |----------|-----------------|

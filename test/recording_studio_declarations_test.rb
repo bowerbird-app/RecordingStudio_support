@@ -192,7 +192,7 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     )
     assert_equal "recording_studio_support/public_pages", publishable_options[:public_controller]
     assert_equal :show, publishable_options[:public_action]
-    assert_equal "recording_studio_publishable/application", publishable_options[:public_layout]
+    assert_equal "recording_studio/default_layout", publishable_options[:public_layout]
     assert_equal "/help/:uuid/:slug", publishable_options[:path]
   end
 

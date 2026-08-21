@@ -2,7 +2,7 @@
 
 RecordingStudioPublishable.configure do |config|
   # Staff publish screens stay on Recording Studio's default layout.
-  # Public help uses Publishable's public layout via SupportPage `.to`.
+  # Public help uses the same default layout via SupportPage `.to`.
   config.layout = "recording_studio/default_layout"
 
   config.management_authorizer = lambda do |recording:, actor:, **|

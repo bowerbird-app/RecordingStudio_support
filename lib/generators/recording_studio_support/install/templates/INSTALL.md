@@ -9,7 +9,7 @@ Next steps:
 5. Apply the migrations with `bin/rails db:migrate`.
 6. Run `bin/rails tailwindcss:build` if you use Tailwind CSS.
 7. Authenticated Support screens are mounted at the configured path (default `/support`). Keep `RecordingStudio::UsesDefaultLayout` on those screens and authorize with Accessible on the workspace root (`:view` to read, `:edit` to write). The help list uses a full-width Flatpack Search (`?q=`) and filters title and body with SQL ILIKE. Change Help words with `pages_title`, `pages_subtitle`, `admin_section_title`, and `admin_section_subtitle`. Keep Sign out and Root Switchable off Support screens. For the body editor, follow Flatpack's TextArea `rich_text` install: pin TipTap packages and register `controllers/flat_pack/tiptap_controller` as `flat-pack--tiptap`. Do not add Trix or Action Text. Keep `uploads: false` — images stay Attachable children.
-8. Public help is logged-out read of indexable Support pages. Mount Publishable at `/` and point `/help` at `RecordingStudioSupport::PublicPagesController.action(:index)`. Public chrome comes from Publishable. Enable Publishable only on `SupportPage`.
+8. Public help is logged-out read of indexable Support pages. Mount Publishable at `/` and point `/help` at `RecordingStudioSupport::PublicPagesController.action(:index)`. Keep public and staff help on `UsesDefaultLayout` / `recording_studio/default_layout` (set Publishable `public_layout` to that layout). Do not use `recording_studio_publishable/application`. Enable Publishable only on `SupportPage`.
 9. Enable the Admin Support section on your admin root:
 
 ```ruby

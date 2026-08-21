@@ -19,10 +19,14 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Help"
     assert_includes response.body, "How do I sign in?"
     refute_includes response.body, "How do I change my password?"
-    refute_includes response.body, "data-recording-studio-default-layout"
+    assert_select "body[data-recording-studio-default-layout='true']", count: 1
+    assert_includes response.body, "flat-pack-page-nav"
+    refute_includes response.body, "flat-pack-top-nav"
+    refute_includes response.body, "recording_studio_publishable/application"
     refute_includes response.body, "Sign out"
+    refute_includes response.body, 'href="/users/sign_in"'
+    refute_includes response.body, "Dummy host"
     refute_includes response.body, "recordable"
-    assert_includes response.body, "flat-pack-top-nav"
     assert_includes response.body, "flat_pack/application"
   end
 
@@ -40,10 +44,14 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Use the email and password you were given"
     assert_includes response.body, "Updated"
     refute_includes response.body, "How do I change my password?"
-    refute_includes response.body, "data-recording-studio-default-layout"
+    assert_select "body[data-recording-studio-default-layout='true']", count: 1
+    assert_includes response.body, "flat-pack-page-nav"
+    refute_includes response.body, "flat-pack-top-nav"
+    refute_includes response.body, "recording_studio_publishable/application"
     refute_includes response.body, "Sign out"
+    refute_includes response.body, 'href="/users/sign_in"'
+    refute_includes response.body, "Dummy host"
     refute_includes response.body, "recordable"
-    assert_includes response.body, "flat-pack-top-nav"
   end
 
   test "logged out visitors cannot read a draft page" do

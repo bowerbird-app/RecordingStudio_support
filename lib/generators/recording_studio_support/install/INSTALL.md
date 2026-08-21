@@ -3,7 +3,7 @@
 RecordingStudioSupport has been installed successfully!
 
 Authenticated help screens are mounted at /support.
-Public help is at /help. Publishable owns the public chrome.
+Public help is at /help. Public and staff help use Recording Studio's default layout.
 
 If you use Tailwind CSS:
 1. Run 'bin/rails tailwindcss:build' to rebuild your CSS with RecordingStudioSupport styles

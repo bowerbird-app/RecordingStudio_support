@@ -17,13 +17,18 @@ class ApplicationHelperTest < Minitest::Test
     assert_nil helper.support_publish_path(Object.new)
   end
 
-  def test_public_pages_controller_uses_publishable_chrome
+  def test_public_pages_controller_uses_default_layout
     source = File.read(
       File.expand_path("../app/controllers/recording_studio_support/public_pages_controller.rb", __dir__)
     )
+    application = File.read(
+      File.expand_path("../app/controllers/recording_studio_support/application_controller.rb", __dir__)
+    )
 
+    assert_includes application, "include RecordingStudio::UsesDefaultLayout"
     assert_includes source, "skip_before_action :authenticate_user!"
-    assert_includes source, 'layout "recording_studio_publishable/application"'
+    refute_includes source, "recording_studio_publishable/application"
+    refute_match(/^\s*layout\s/, source)
     assert_includes source, "Pages.public_indexable"
     assert_includes source, "@publishable&.publish_at"
   end

@@ -64,7 +64,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes source, "RecordingStudio::Capabilities::Publishable.to"
     assert_includes source, "public_controller: \"recording_studio_support/public_pages\""
     assert_includes source, "public_action: :show"
-    assert_includes source, "public_layout: \"recording_studio_publishable/application\""
+    assert_includes source, "public_layout: \"recording_studio/default_layout\""
     assert_includes source, "path: \"/help/:uuid/:slug\""
     assert_includes source, 'allows: ["RecordingStudioAttachable::Attachment"]'
     refute_includes source, "Recordable"
@@ -125,6 +125,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes default_layout_head, "RecordingStudioSupport::ApplicationController"
     assert_includes default_layout_head, "recording_studio_root_switch_dropdown"
     assert_includes default_layout_head, "recording_studio_page_nav_right"
+    assert_includes default_layout_head, "user_signed_in?"
     assert_includes default_layout_head, "Sign out"
     assert_includes default_layout_head, "destroy_user_session_path"
     assert_includes default_layout_head, "turbo_method: :delete"
@@ -194,6 +195,8 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "tag: \"0.4.0\""
     assert_includes readme, "tag: \"0.2.0\""
     assert_includes readme, "/help"
+    assert_includes readme, 'public_layout: "recording_studio/default_layout"'
+    refute_includes readme, "recording_studio_publishable/application"
     refute_includes readme, "v3 declarations"
     refute_includes readme, "RecordingStudio v3"
     refute_includes readme, "ExampleService"

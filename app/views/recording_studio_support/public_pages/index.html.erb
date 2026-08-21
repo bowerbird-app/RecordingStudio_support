@@ -1,9 +1,9 @@
-<% content_for :title, "Help" %>
+<% recording_studio_page_nav(title: "Help") %>
 
-<div class="mx-auto flex w-full max-w-4xl flex-col gap-6">
+<div class="flex w-full flex-col gap-6">
   <%= render FlatPack::PageTitle::Component.new(
     title: "Help",
-    subtitle: "Answers you can read without signing in.",
+    subtitle: "Answers you can read.",
     variant: :h1
   ) %>
 
