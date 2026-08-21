@@ -17,13 +17,19 @@
 
     <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "flat_pack/variables", "data-turbo-track": "reload" %>
-    <%= stylesheet_link_tag "flat_pack/rich_text", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "flat_pack/application", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
   </head>
 
   <body class="m-0 min-h-screen bg-[var(--surface-page-background-color)] text-[var(--surface-content-color)]">
-    <main class="mx-auto flex min-h-screen w-full max-w-md items-center justify-center p-6">
+    <main class="mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-center gap-4 p-6">
+      <% if flash[:notice].present? %>
+        <%= render FlatPack::Alert::Component.new(description: flash[:notice], style: :success, class: "w-full") %>
+      <% end %>
+      <% if flash[:alert].present? %>
+        <%= render FlatPack::Alert::Component.new(description: flash[:alert], style: :danger, class: "w-full") %>
+      <% end %>
       <%= yield %>
     </main>
   </body>

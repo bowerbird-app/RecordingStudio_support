@@ -8,7 +8,8 @@ This Rails app exists to prove Recording Studio Support in a real host. It is no
 - `Current.actor` wiring for Recording Studio events
 - Root workspace plus a seeded support page
 - Support pages opt into Attachable, Trashable, and Orderable. Dummy Folder and Page do not.
-- Recording Studio default layout, FlatPack assets, and Tailwind source scanning
+- Recording Studio default layout (back/close chrome), Flatpack CSS/JS, Turbo, and Tailwind source scanning
+- Root Switchable in the default-layout chrome, not a host-only shell
 - Mounted `RecordingStudio::Engine` route behavior inside a host app
 
 ## Quick Start
@@ -26,6 +27,19 @@ Then open the app and sign in with:
 
 - Email: `admin@admin.com`
 - Password: `Password`
+
+## Layouts and assets
+
+Authenticated pages include `RecordingStudio::UsesDefaultLayout` and render `recording_studio/default_layout`. That layout owns the back/close chrome and Flatpack flash alerts.
+
+Devise sign-in keeps `layouts/application` so the login card can stay centered. That layout still loads:
+
+- `flat_pack/variables`
+- `flat_pack/application`
+- `tailwind`
+- Importmap JS, including `@hotwired/turbo-rails`
+
+The host injects `flat_pack/application` and the Root Switchable control through `app/views/recording_studio/_default_layout_head.html.erb`. Do not put the switcher or a Sign out button in the home view body.
 
 ## Useful Routes
 

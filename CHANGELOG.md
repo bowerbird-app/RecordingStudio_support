@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Dummy authenticated pages use Recording Studio's default layout chrome and load Flatpack CSS/JS (including `flat_pack/application` and Turbo). Devise sign-in keeps its own layout and still loads those assets. Root Switchable sits in the default-layout chrome instead of a host `dummy_page_nav`.
+
+### Upgrade notes
+- Dummy-only. No gem API or host migration.
+
 ## [0.4.0] - 2026-08-21
 
 Support pages can hold image children, move to trash, and sort those images. Folder and Page in a host still stay plain unless that host opts them in.
@@ -23,6 +29,13 @@ Support pages can hold image children, move to trash, and sort those images. Fol
 - Keep `include RecordingStudio::Capabilities::Attachable.to(...)`, `Trashable.to`, and `Orderable.to(...)` on Support pages only. Do not copy that onto Folder or Page just because the gems are installed.
 - Images are Attachable children. Do not add a support image type or put files in the page body.
 - This slice still has no public pages, admin, Publishable, or API.
+=======
+### Changed
+- Dummy authenticated pages use Recording Studio's default layout chrome and load Flatpack CSS/JS (including `flat_pack/application` and Turbo). Devise sign-in keeps its own layout and still loads those assets. Root Switchable sits in the default-layout chrome instead of a host `dummy_page_nav`.
+
+### Upgrade notes
+- Dummy-only. No gem API or host migration.
+>>>>>>> 3285305 (fix: load Flatpack and default-layout chrome in the dummy host)
 
 ## [0.3.0] - 2026-08-21
 

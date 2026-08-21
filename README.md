@@ -109,6 +109,8 @@ Access later uses `grant_access` / `authorized?` on recordings. This gem does no
 
 `test/dummy/` is a host that proves the gem. It is not the product.
 
+Authenticated dummy pages use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Root Switchable sits in that chrome. Devise sign-in keeps `layouts/application` and still loads Flatpack CSS/JS plus Turbo.
+
 | Field    | Value           |
 |----------|-----------------|
 | Email    | admin@admin.com |
