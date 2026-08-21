@@ -25,7 +25,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "recording_studio_publishable/application"
     refute_includes response.body, "Sign out"
     refute_includes response.body, 'href="/users/sign_in"'
-    refute_includes response.body, "Dummy host"
+    refute_includes response.body, "Open help pages"
     refute_includes response.body, "recordable"
     assert_includes response.body, "flat_pack/application"
   end
@@ -50,7 +50,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "recording_studio_publishable/application"
     refute_includes response.body, "Sign out"
     refute_includes response.body, 'href="/users/sign_in"'
-    refute_includes response.body, "Dummy host"
+    refute_includes response.body, "Open help pages"
     refute_includes response.body, "recordable"
   end
 
