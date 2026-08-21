@@ -12,6 +12,9 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     assert_equal ["Workspace"], RecordingStudio.root_recordable_types
     assert_equal %w[Workspace Folder], RecordingStudio.allowed_parent_types_for("Folder")
     assert_equal %w[Workspace Folder], RecordingStudio.allowed_parent_types_for(Page)
+    assert_equal ["Workspace"], RecordingStudio.allowed_parent_types_for("RecordingStudioSupport::SupportPage")
+    assert_equal "Support page", RecordingStudio.recordable_type_label("RecordingStudioSupport::SupportPage")
+    refute RecordingStudio.root_allowed?("RecordingStudioSupport::SupportPage")
   end
 
   test "root recordable creates a root recording" do
@@ -82,15 +85,81 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     assert_equal "Page cannot be recorded under Page", error.message
   end
 
-  test "accessible is enabled on workspace and example mixin stays opt-in" do
+  test "support page can be recorded under the host workspace root" do
+    root_recording = RecordingStudio.root_recording_for(Workspace.create!(name: unique_name("Support Workspace")))
+
+    assert RecordingStudio.parent_allowed?(
+      child_type: "RecordingStudioSupport::SupportPage",
+      parent_recording: root_recording
+    )
+
+    recording = root_recording.record(RecordingStudioSupport::SupportPage) do |page|
+      page.title = unique_name("How do I reset my password?")
+      page.body = "Ask a teammate who already has access."
+    end
+
+    assert_equal root_recording, recording.parent_recording
+    assert_equal root_recording, recording.root_recording
+    assert_kind_of RecordingStudioSupport::SupportPage, recording.recordable
+    assert_equal "recording_studio_support_pages", recording.recordable.class.table_name
+  end
+
+  test "support page cannot be created as a root" do
+    support_page = RecordingStudioSupport::SupportPage.create!(
+      title: unique_name("Root Rejected Support Page")
+    )
+
+    assert_raises(RecordingStudio::RootNotAllowed) do
+      RecordingStudio.root_recording_for(support_page)
+    end
+  end
+
+  test "support page cannot be recorded under a folder" do
+    workspace = Workspace.create!(name: unique_name("Support Parent Workspace"))
+    root_recording = RecordingStudio.root_recording_for(workspace)
+    folder_recording = record_child(Folder.new(name: unique_name("Support Folder")), root_recording, root_recording)
+
+    refute RecordingStudio.parent_allowed?(
+      child_type: "RecordingStudioSupport::SupportPage",
+      parent_recording: folder_recording
+    )
+
+    error = assert_raises(RecordingStudio::InvalidParent) do
+      root_recording.record(
+        RecordingStudioSupport::SupportPage,
+        parent_recording: folder_recording
+      ) do |page|
+        page.title = unique_name("Nested Support Page")
+      end
+    end
+
+    assert_equal "RecordingStudioSupport::SupportPage cannot be recorded under Folder", error.message
+  end
+
+  test "support page revise creates a new snapshot" do
+    root_recording = RecordingStudio.root_recording_for(Workspace.create!(name: unique_name("Revise Workspace")))
+    recording = root_recording.record(RecordingStudioSupport::SupportPage) do |page|
+      page.title = unique_name("Office hours")
+      page.body = "Tuesday mornings."
+    end
+    original_id = recording.recordable_id
+
+    recording.log_event!(action: "viewed")
+    root_recording.revise(recording) do |page|
+      page.body = "Wednesday mornings."
+    end
+
+    recording.reload
+    assert_not_equal original_id, recording.recordable_id
+    assert_equal "Wednesday mornings.", recording.recordable.body
+    assert_equal 1, recording.events.where(action: "viewed").count
+  end
+
+  test "accessible is enabled on workspace only" do
     assert RecordingStudio.capability_enabled?(:accessible, for: "Workspace")
     refute RecordingStudio.capability_enabled?(:accessible, for: "Folder")
     refute RecordingStudio.capability_enabled?(:accessible, for: "Page")
-
-    assert RecordingStudio.capability_enabled?(:example, for: "Workspace")
-    refute RecordingStudio.capability_enabled?(:example, for: "Folder")
-    refute RecordingStudio.capability_enabled?(:example, for: "Page")
-    assert_equal({ label: "dummy workspace" }, RecordingStudio.capability_options(:example, for: "Workspace"))
+    refute RecordingStudio.capability_enabled?(:accessible, for: "RecordingStudioSupport::SupportPage")
   end
 
   private

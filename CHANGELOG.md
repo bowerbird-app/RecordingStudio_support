@@ -7,14 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-08-21
+
+First product release of Recording Studio Support. Staff write help pages under a workspace. People help themselves. No tickets, inbox, or chat.
+
+### Added
+- `RecordingStudioSupport::SupportPage` nested recordable under the host root (`Workspace` in dummy)
+- Title and body on the page snapshot table `recording_studio_support_pages`
+- Dummy seed for one support article
+- Gemspec dependencies `recording_studio`, `~> 4.2` and `recording_studio_accessible`, `~> 0.6`
+
+### Changed
+- Renamed the engine from the addon template to `recording_studio_support`
+- Dummy GitHub tags: Recording Studio `v4.2.0`, Accessible `v0.6.1`, Root Switchable `v0.5.0`, FlatPack `v0.1.133`
+
+### Removed
+- Leftover template identity in the public README and gemspec
+- Dummy starter docs pages
+- Template example capability mixin
+- Engine sample home controller
+
+### Upgrade notes
+- Point host and dummy Gemfiles at Recording Studio `v4.2.0` and Accessible `v0.6.1`
+- Declare `spec.add_dependency "recording_studio", "~> 4.2"` and `spec.add_dependency "recording_studio_accessible", "~> 0.6"`
+- Register `"RecordingStudioSupport::SupportPage"` in `RecordingStudio.configure`
+- Install engine migrations and keep writes on `record` / `revise` / `log_event!`
+- Do not enable Publishable, Attachable, Trashable, Orderable, or API in this slice
+
 ## [0.2.0] - 2026-08-21
 
-New addons copied from this template are born on Recording Studio 4.x.
+Addon starting point on Recording Studio 4.x, before this repo became Support.
 
 ### Added
 - Gemspec dependency `recording_studio`, `~> 4.1`
-- Dummy host wiring for Accessible (`enable_capability(:accessible, on: Workspace)`) and an opt-in `RecordingStudio::Capabilities::Example.to` mixin. `.to` wraps core 4.2.0 `include_for` (not a fourth verb, and not a raw `enable_capability` / `set_capability_options` path). Installing the gem does not enable the mixin globally; only dummy Workspace opts in.
-- `bin/rename_gem` leftover-identity rewrite/verification for README, homepage, and changelog URLs that still say `GemTemplate` or point at `bowerbird-app/gem_template`
+- Dummy host wiring for Accessible (`enable_capability(:accessible, on: Workspace)`)
+- `bin/rename_gem` leftover-identity rewrite/verification for README, homepage, and changelog URLs
 
 ### Changed
 - Dummy GitHub tags: Recording Studio `v4.2.0`, Accessible `v0.6.0`, Root Switchable `v0.5.0`, FlatPack `v0.1.133`
@@ -23,8 +50,8 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Require `RecordingStudio::Hooks` and `RecordingStudio::Services::BaseService` from core instead of shipping copies
 
 ### Removed
-- Copied `lib/gem_template/hooks.rb` and `lib/gem_template/services/base_service.rb`
-- Product-shipped `ExampleService`
+- Copied Hooks and BaseService files
+- Product-shipped example service
 - Custom `flat_pack_sidebar` authenticated shell
 
 ### Upgrade notes
@@ -32,7 +59,7 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Add `spec.add_dependency "recording_studio", "~> 4.1"` to addon gemspecs
 - Include `RecordingStudio::UsesDefaultLayout` (or set `layout "recording_studio/default_layout"`) for authenticated screens
 - Delete any copied Hooks or BaseService files and require the core classes
-- Keep recordable declarations; they are required, not a v3-only concern
+- Keep recordable declarations; they are required
 - If Accessible is bundled, call `RecordingStudio.enable_capability(:accessible, on: Workspace)` (or your root type)
 
 ## [0.1.2] - 2026-07-21
@@ -58,8 +85,9 @@ New addons copied from this template are born on Recording Studio 4.x.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_gem_template/compare/v0.2.0...HEAD
-[0.2.0]: https://github.com/bowerbird-app/RecordingStudio_gem_template/releases/tag/v0.2.0
-[0.1.2]: https://github.com/bowerbird-app/RecordingStudio_gem_template/releases/tag/v0.1.2
-[0.1.1]: https://github.com/bowerbird-app/RecordingStudio_gem_template/releases/tag/v0.1.1
-[0.1.0]: https://github.com/bowerbird-app/RecordingStudio_gem_template/releases/tag/v0.1.0
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.3.0
+[0.2.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.2.0
+[0.1.2]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.1.2
+[0.1.1]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.1.1
+[0.1.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.1.0
