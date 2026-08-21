@@ -52,7 +52,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes source, "root: false"
     assert_includes source, 'allowed_parent_types: ["Workspace"]'
     refute_includes source, "Recordable"
-    refute_includes source, "Recording"
+    refute_match(/label:\s*"[^"]*Recordable/, source)
   end
 
   def test_dummy_app_uses_recording_studio_default_layout

@@ -1,4 +1,3 @@
 # frozen_string_literal: true
 
-RecordingStudioSupport::Engine.routes.draw do
-end
+# Slice 1 has no mounted screens. Hosts still mount the engine after install.

@@ -115,7 +115,8 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
   end
 
   test "support page cannot be recorded under a folder" do
-    root_recording = RecordingStudio.root_recording_for(Workspace.create!(name: unique_name("Support Parent Workspace")))
+    workspace = Workspace.create!(name: unique_name("Support Parent Workspace"))
+    root_recording = RecordingStudio.root_recording_for(workspace)
     folder_recording = record_child(Folder.new(name: unique_name("Support Folder")), root_recording, root_recording)
 
     refute RecordingStudio.parent_allowed?(
@@ -132,7 +133,7 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
       end
     end
 
-    assert_match(/Support page cannot be recorded under Folder/i, error.message)
+    assert_equal "RecordingStudioSupport::SupportPage cannot be recorded under Folder", error.message
   end
 
   test "support page revise creates a new snapshot" do
