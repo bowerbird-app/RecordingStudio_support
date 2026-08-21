@@ -21,6 +21,8 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "How do I change my password?"
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_includes response.body, "flat-pack-page-nav"
+    assert_select "[aria-label='Go back']"
+    assert_select "[aria-label='Close']"
     refute_includes response.body, "flat-pack-top-nav"
     refute_includes response.body, "recording_studio_publishable/application"
     refute_includes response.body, "Sign out"
@@ -46,6 +48,8 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "How do I change my password?"
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_includes response.body, "flat-pack-page-nav"
+    assert_select "[aria-label='Go back']"
+    assert_select "[aria-label='Close']"
     refute_includes response.body, "flat-pack-top-nav"
     refute_includes response.body, "recording_studio_publishable/application"
     refute_includes response.body, "Sign out"

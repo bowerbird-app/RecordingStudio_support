@@ -1,4 +1,8 @@
-<% recording_studio_page_nav(title: "Help") %>
+<% recording_studio_page_nav(
+     title: "Help",
+     page_nav_anchor_url: (main_app.root_path if main_app.respond_to?(:root_path)),
+     page_nav_anchor_label: "Close"
+   ) %>
 
 <div class="flex w-full flex-col gap-6">
   <%= render FlatPack::PageTitle::Component.new(
