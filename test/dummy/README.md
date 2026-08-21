@@ -41,6 +41,8 @@ Devise sign-in keeps `layouts/application` so the login card can stay centered. 
 
 The host injects `flat_pack/application` and the Root Switchable control through `app/views/recording_studio/_default_layout_head.html.erb`. Do not put the switcher or a Sign out button in the home view body.
 
+Tailwind scans dummy views plus Flatpack and Recording Studio gem files. On boot, Root Switchable's source linker adds `vendor/flat_pack` and `vendor/recording_studio` so a local `bin/rails tailwindcss:build` sees those classes. Rebuild Tailwind after changing views.
+
 ## Useful Routes
 
 - `/` - dummy host home page

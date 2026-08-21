@@ -31,6 +31,15 @@ class DefaultLayoutAssetsTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "Sign out"
   end
 
+  test "tailwind build includes Flatpack alert and page-nav utilities" do
+    css = Rails.root.join("app/assets/builds/tailwind.css").read
+
+    assert_includes css, "alert-success-background-color"
+    assert_includes css, "alert-danger-background-color"
+    assert_includes css, "button-secondary-background-color"
+    assert_includes css, "button-ghost-background-color"
+  end
+
   test "devise sign in keeps its layout while still loading Flatpack CSS and JS" do
     get new_user_session_path
 

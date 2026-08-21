@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-- Dummy authenticated pages use Recording Studio's default layout chrome and load Flatpack CSS/JS (including `flat_pack/application` and Turbo). Devise sign-in keeps its own layout and still loads those assets. Root Switchable sits in the default-layout chrome instead of a host `dummy_page_nav`.
+- Dummy authenticated pages use Recording Studio's default layout chrome and load Flatpack CSS/JS (including `flat_pack/application` and Turbo). Devise sign-in keeps its own layout and still loads those assets. Root Switchable sits in the default-layout chrome instead of a host `dummy_page_nav`. Dummy Tailwind now scans Flatpack and Recording Studio gem files so Alert, Button, and page-nav utilities are actually generated.
 
 ### Upgrade notes
 - Dummy-only. No gem API or host migration.
