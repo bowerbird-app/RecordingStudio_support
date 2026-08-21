@@ -13,6 +13,17 @@ class PagesTest < Minitest::Test
     end
   end
 
+  def test_index_view_uses_flatpack_search
+    index = File.read(File.expand_path("../app/views/recording_studio_support/pages/index.html.erb", __dir__))
+
+    assert_includes index, "FlatPack::Search::Component"
+    assert_includes index, 'name: "q"'
+    assert_includes index, "Nothing matches that"
+    refute_includes index, "Elasticsearch"
+    refute_includes index, "searchkick"
+    refute_includes index, "SearchPage"
+  end
+
   def test_page_view_model_is_a_log_table
     source = File.read(File.expand_path("../app/models/recording_studio_support/page_view.rb", __dir__))
 

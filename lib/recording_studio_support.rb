@@ -12,6 +12,8 @@ require "recording_studio_support/engine"
 require "recording_studio_support/configuration"
 require "recording_studio_support/pages"
 require "recording_studio_support/admin"
+require "recording_studio_support/page_nav_compat"
+require "recording_studio_support/body"
 
 module RecordingStudioSupport
   class << self

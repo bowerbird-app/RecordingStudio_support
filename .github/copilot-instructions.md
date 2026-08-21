@@ -5,7 +5,7 @@
 - This repository is Recording Studio Support: staff write help pages, people help themselves.
 - Preserve engine namespace isolation under `RecordingStudioSupport`.
 - Treat `docs/gem_template/` as architectural reference material. The public README is the product. The dummy app is a host that proves the gem.
-- Keep changes small and scoped. Support pages opt into Attachable, Trashable, and Orderable. Authenticated Support UI and Admin Support ship in this slice. Public pages, Publishable, search, and API do not.
+- Keep changes small and scoped. Support pages opt into Attachable, Trashable, and Orderable. Authenticated Support UI and Admin Support ship in this slice. Public pages, Publishable, public search, and API do not. Authenticated `/support` can filter pages with an ILIKE query.
 
 ## UI Conventions
 

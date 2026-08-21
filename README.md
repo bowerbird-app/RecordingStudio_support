@@ -2,7 +2,7 @@
 
 Staff write help pages. People help themselves. No tickets, no inbox, no chat.
 
-Support pages sit under your workspace as a flat list. Each page has a title and a body. A page can hold images, go to trash, and sort those images. Staff use authenticated screens at `/support`. An Admin Support section shows page counts, recent pages, and reads. This gem does not ship public pages, Publishable, search, or an API yet.
+Support pages sit under your workspace as a flat list. Each page has a title and a body. A page can hold images, go to trash, and sort those images. Staff use authenticated screens at `/support`, including a search box on the help list. An Admin Support section shows page counts, recent pages, and reads. This gem does not ship public pages, Publishable, public search, or an API yet.
 
 ## Install
 
@@ -148,7 +148,7 @@ The section shows how many help pages you have, the latest pages, and how many t
 
 `test/dummy/` is a host that proves the gem. It is not the product.
 
-Authenticated dummy pages use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Root Switchable sits in that chrome. Devise sign-in keeps `layouts/application` and still loads Flatpack CSS/JS plus Turbo.
+Authenticated dummy pages use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Root Switchable and Sign out sit in that chrome. Devise sign-in keeps `layouts/application` and still loads Flatpack CSS/JS plus Turbo.
 
 | Field    | Value           |
 |----------|-----------------|
@@ -174,7 +174,7 @@ bin/rails db:setup
 bin/dev
 ```
 
-Then open `/support` for help pages. For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root.
+Then open `/support` for help pages. Search the list with `?q=`. Dummy uses Flatpack's built-in `rounded` theme (`html data-theme="rounded"`). For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root.
 
 ## Engine internals
 

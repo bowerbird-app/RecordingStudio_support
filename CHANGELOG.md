@@ -13,6 +13,7 @@ Staff can write and read help pages, and open an Admin Support section. Still no
 
 ### Added
 - Authenticated Support screens at `/support`: list, show, new, and edit
+- Help index search (`q`) with SQL ILIKE on title and body, using Flatpack Search
 - Admin Support section and help-pages screen with page count, latest pages, and reads
 - Page reads stored as logs (`recording_studio_support_page_views`), not extra pages
 - Dummy AdminRoot, `/admin` mount, workspace grants, two seeded help pages, and one image child
@@ -21,6 +22,9 @@ Staff can write and read help pages, and open an Admin Support section. Still no
 
 ### Changed
 - Dummy Tailwind also scans Admin and Support gem views so admin widgets and help screens get Flatpack utilities
+- Default-layout chrome includes PageNav close plus Sign out next to the workspace switcher
+- Dummy host uses Flatpack's built-in `rounded` theme on `<html>`
+- Page body uses Flatpack `TextArea` `rich_text: true` (headings and lists). Images stay Attachable children. Show renders sanitized HTML.
 
 ### Upgrade notes
 - Add `recording_studio_admin`, `~> 2.0` (dummy GitHub tag `2.0.0`)
@@ -28,7 +32,9 @@ Staff can write and read help pages, and open an Admin Support section. Still no
 - Run `bin/rails generate recording_studio_support:migrations` for the page-view log table
 - Enable `section :support` on your admin root and mount `recording_studio_admin_for` at `/admin`
 - Grant Accessible access on the workspace root for help screens and on the admin root for `/admin`
-- Do not add Publishable, public pages, or `recording_studio_api` in this slice
+- Put Sign out in `app/views/recording_studio/_default_layout_head.html.erb` with `recording_studio_page_nav_right` (Devise `destroy_user_session_path`, `turbo_method: :delete`)
+- Hosts that want the body editor to boot should follow Flatpack's install pins for `flat_pack/tiptap` (this is Flatpack rich text, not a new editor gem)
+- Do not add Publishable, public pages, public search, or `recording_studio_api` in this slice
 
 ## [0.4.0] - 2026-08-21
 

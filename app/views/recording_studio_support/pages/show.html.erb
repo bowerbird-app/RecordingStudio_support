@@ -1,7 +1,8 @@
 <% recording_studio_page_nav(
      title: @page.title,
      page_nav_back_url: pages_path,
-     page_nav_anchor_url: (main_app.root_path if main_app.respond_to?(:root_path))
+     page_nav_anchor_url: pages_path,
+     page_nav_anchor_label: "Close"
    ) %>
 
 <div class="flex w-full flex-col gap-6">
@@ -25,7 +26,7 @@
     <% card.body do %>
       <% if @page.body.present? %>
         <div class="text-base leading-7 text-(--surface-content-color)">
-          <%= simple_format(h(@page.body)) %>
+          <%= support_page_body_html(@page.body) %>
         </div>
       <% else %>
         <p class="text-sm text-(--surface-content-color)">This page is still waiting on the words.</p>

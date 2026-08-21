@@ -9,6 +9,7 @@ If you use Tailwind CSS:
 
 Staff UI:
 1. Sign in, then visit http://localhost:3000/support
-2. Enable `section :support` on your admin root and open /admin
+2. Search the list with ?q= (authenticated only)
+3. Enable `section :support` on your admin root and open /admin
 
 ===============================================================================

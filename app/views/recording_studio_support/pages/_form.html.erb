@@ -12,8 +12,13 @@
       name: "page[body]",
       label: "Body",
       value: @page.body,
-      rows: 10,
-      help_text: "Words only. Pictures live under the page, not in this box."
+      rich_text: true,
+      rich_text_options: {
+        preset: :minimal,
+        toolbar: :standard,
+        format: :html,
+        uploads: false
+      }
     ) %>
 
     <%= render FlatPack::Button::Component.new(

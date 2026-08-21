@@ -6,10 +6,11 @@ module RecordingStudioSupport
 
     SUPPORT_PAGE_TYPE = "RecordingStudioSupport::SupportPage"
 
-    def for_root(root_recording)
+    def for_root(root_recording, query: nil)
       return RecordingStudio::Recording.none unless root_recording
 
-      kept_pages(root_recording).includes(:recordable).order(created_at: :desc)
+      relation = kept_pages(root_recording).order(created_at: :desc)
+      apply_query(relation, query).preload(:recordable)
     end
 
     def find_for_root!(root_recording:, id:)
@@ -20,7 +21,7 @@ module RecordingStudioSupport
       assign_actor(actor) do
         root_recording.record(SupportPage) do |page|
           page.title = title.to_s.strip
-          page.body = body
+          page.body = Body.sanitize(body)
         end
       end
     end
@@ -29,7 +30,7 @@ module RecordingStudioSupport
       assign_actor(actor) do
         recording.root_recording.revise(recording) do |page|
           page.title = title.to_s.strip
-          page.body = body
+          page.body = Body.sanitize(body)
         end
       end
     end
@@ -46,6 +47,25 @@ module RecordingStudioSupport
         recordable_type: SUPPORT_PAGE_TYPE,
         trashed_at: nil
       )
+    end
+
+    def apply_query(relation, query)
+      term = query.to_s.strip
+      return relation if term.blank?
+
+      pattern = "%#{ActiveRecord::Base.sanitize_sql_like(term)}%"
+      relation.joins(support_page_join_sql).where(
+        "recording_studio_support_pages.title ILIKE :q OR recording_studio_support_pages.body ILIKE :q",
+        q: pattern
+      )
+    end
+
+    def support_page_join_sql
+      table = RecordingStudio::Recording.table_name
+      type = ActiveRecord::Base.connection.quote(SUPPORT_PAGE_TYPE)
+      "INNER JOIN recording_studio_support_pages " \
+        "ON recording_studio_support_pages.id = #{table}.recordable_id " \
+        "AND #{table}.recordable_type = #{type}"
     end
 
     def kept_pages(root_recording)

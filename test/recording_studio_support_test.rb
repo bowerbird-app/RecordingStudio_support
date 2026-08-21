@@ -77,6 +77,11 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes controller_source, '"recording_studio/default_layout"'
     assert_includes controller_source, "return \"application\" if devise_controller?"
     refute_includes controller_source, "flat_pack_sidebar"
+    dummy_default_layout = File.read(
+      File.expand_path("dummy/app/views/layouts/recording_studio/default_layout.html.erb", __dir__)
+    )
+    assert_includes dummy_default_layout, '<html data-theme="rounded">'
+    assert_includes dummy_default_layout, "recording_studio/default_layout_head"
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack_sidebar.html.erb", __dir__))
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack/_sidebar.html.erb", __dir__))
   end
@@ -101,6 +106,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes application_js, 'import "@hotwired/turbo-rails"'
     refute_includes application_js, 'import { application } from "controllers/application"'
     assert_includes importmap, 'pin "@hotwired/turbo-rails", to: "turbo.min.js"'
+    assert_includes importmap, "flat_pack/tiptap"
   end
 
   def test_dummy_default_layout_head_loads_flatpack_and_root_switch_chrome
@@ -110,7 +116,9 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes default_layout_head, 'stylesheet_link_tag "flat_pack/application"'
     assert_includes default_layout_head, "recording_studio_root_switch_dropdown"
     assert_includes default_layout_head, "recording_studio_page_nav_right"
-    refute_includes default_layout_head, "Sign out"
+    assert_includes default_layout_head, "Sign out"
+    assert_includes default_layout_head, "destroy_user_session_path"
+    assert_includes default_layout_head, "turbo_method: :delete"
     refute_includes default_layout_head, "dummy_page_nav"
   end
 

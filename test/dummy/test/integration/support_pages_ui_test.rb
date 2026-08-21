@@ -23,8 +23,36 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "flat-pack-page-nav"
     assert_includes response.body, "Studio Workspace"
     assert_includes response.body, "flat_pack/application"
+    assert_select "html[data-theme='rounded']"
+    assert_select "body[data-theme='rounded']"
+    assert_select "a[aria-label='Close'][href='/']"
+    assert_select ".flat-pack-page-nav a", text: /Sign out/
+    assert_includes response.body, "/users/sign_out"
+    assert_includes response.body, "data-turbo-method=\"delete\""
     refute_includes response.body, "recordable"
     refute_includes response.body, "This app proves the support gem"
+    assert_select "input[name='q']"
+  end
+
+  test "index ILIKE search matches title and body" do
+    get "/support", params: { q: "sign in" }
+
+    assert_response :success
+    assert_select "html[data-theme='rounded']"
+    assert_select "form[role='search']"
+    assert_includes response.body, "How do I sign in?"
+    refute_includes response.body, "How do I change my password?"
+    assert_select "input[name='q'][value='sign in']"
+  end
+
+  test "index search empty state is human" do
+    get "/support", params: { q: "no-such-help-page" }
+
+    assert_response :success
+    assert_includes response.body, "Nothing matches that"
+    assert_includes response.body, "Try another word."
+    refute_includes response.body, "How do I sign in?"
+    refute_includes response.body, "recordable"
   end
 
   test "show renders title, body, and attached image" do
@@ -37,9 +65,30 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Use the email and password you were given"
     assert_includes response.body, "sign-in.png"
     assert_select "img[alt='sign-in.png']"
+    close = css_select("a[aria-label='Close']").first
+    assert close
+    assert_match(%r{\A/support/?\z}, close["href"])
+    assert_select ".flat-pack-page-nav a", text: /Sign out/
     assert_includes response.body, "Edit"
     assert_includes response.body, "Move to trash"
     assert RecordingStudioSupport::PageView.exists?(recording_id: recording.id)
+  end
+
+  test "show renders sanitized HTML and drops inline images" do
+    recording = RecordingStudioSupport::Pages.create!(
+      root_recording: RecordingStudio.root_recording_for(Workspace.find_by!(name: "Studio Workspace")),
+      title: "Printer jam",
+      body: "<p>Turn it off.</p><h2>Then on</h2><img src=\"https://example.test/x.png\" alt=\"nope\">",
+      actor: @user
+    )
+
+    get "/support/#{recording.id}"
+
+    assert_response :success
+    assert_select "p", text: "Turn it off."
+    assert_select "h2", text: "Then on"
+    refute_includes response.body, "&lt;p&gt;"
+    refute_select "img[alt='nope']"
   end
 
   test "new and create go through public record helper" do
@@ -48,7 +97,11 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "New page"
     assert_select "input[name='page[title]']"
-    assert_select "textarea[name='page[body]']"
+    assert_select "input[type='hidden'][name='page[body]']"
+    assert_includes response.body, "flat-pack-richtext-wrapper"
+    assert_includes response.body, "flat-pack--tiptap"
+    refute_includes response.body, "Words only"
+    refute_includes response.body, "Pictures live under the page"
 
     assert_difference -> { RecordingStudioSupport::SupportPage.count }, 1 do
       post "/support", params: {
@@ -74,6 +127,10 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Edit page"
+    refute_includes response.body, "Fix the wording"
+    refute_includes response.body, "Keep the pictures where they are"
+    refute_includes response.body, "Words only"
+    assert_includes response.body, "flat-pack-richtext-wrapper"
     assert_select "input[name='page[title]']"
 
     patch "/support/#{recording.id}", params: {

@@ -12,5 +12,9 @@ module RecordingStudioSupport
     def support_page_image_name(image_recording)
       image_recording.recordable&.original_filename.presence || "Image"
     end
+
+    def support_page_body_html(body)
+      Body.sanitize(body).html_safe
+    end
   end
 end

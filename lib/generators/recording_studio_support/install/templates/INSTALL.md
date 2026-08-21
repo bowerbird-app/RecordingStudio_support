@@ -8,7 +8,7 @@ Next steps:
 4. Install mixin migrations with `bin/rails generate recording_studio_attachable:migrations`, `bin/rails generate recording_studio_trashable:migrations`, and `bin/rails generate recording_studio_orderable:migrations`. Support pages use those mixins for images, trash/restore, and sibling order.
 5. Apply the migrations with `bin/rails db:migrate`.
 6. Run `bin/rails tailwindcss:build` if you use Tailwind CSS.
-7. Authenticated Support screens are mounted at the configured path (default `/support`). Keep `RecordingStudio::UsesDefaultLayout` on those screens and authorize with Accessible on the workspace root (`:view` to read, `:edit` to write).
+7. Authenticated Support screens are mounted at the configured path (default `/support`). Keep `RecordingStudio::UsesDefaultLayout` on those screens and authorize with Accessible on the workspace root (`:view` to read, `:edit` to write). The help list accepts `?q=` and filters title and body with SQL ILIKE. Do not add public search yet.
 8. Enable the Admin Support section on your admin root:
 
 ```ruby

@@ -19,6 +19,7 @@ class DefaultLayoutAssetsTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
+    assert_select "html[data-theme='rounded']"
     assert_includes response.body, "Signed in successfully."
     assert_select "[role='alert']", text: /Signed in successfully/
     assert_includes response.body, "alert-success-background-color"
@@ -28,7 +29,8 @@ class DefaultLayoutAssetsTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "/assets/tailwind"
     assert_includes response.body, "@hotwired/turbo-rails"
     refute_includes response.body, "dummy_page_nav"
-    refute_includes response.body, "Sign out"
+    assert_includes response.body, "Sign out"
+    assert_includes response.body, "/users/sign_out"
   end
 
   test "tailwind build includes Flatpack alert and page-nav utilities" do
@@ -45,6 +47,7 @@ class DefaultLayoutAssetsTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     refute_includes response.body, "data-recording-studio-default-layout"
+    assert_select "html[data-theme='rounded']"
     assert_includes response.body, "flat_pack/application"
     assert_includes response.body, "flat_pack/variables"
     assert_includes response.body, "/assets/tailwind"

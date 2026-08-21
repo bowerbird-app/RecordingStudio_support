@@ -39,8 +39,8 @@ class RootSwitchDropdownTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "flat_pack/application"
     assert_includes response.body, "@hotwired/turbo-rails"
     assert_includes response.body, "flat-pack-page-nav"
-    refute_includes response.body, "Sign out"
-    refute_includes response.body, 'href="/users/sign_out"'
+    assert_includes response.body, "Sign out"
+    assert_includes response.body, 'href="/users/sign_out"'
   end
 
   test "root switch page renders with the host default layout" do

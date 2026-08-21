@@ -58,6 +58,29 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
     refute_includes RecordingStudio.configuration.recordable_types, "RecordingStudioSupport::PageView"
   end
 
+  test "for_root ILIKE filters title and body" do
+    RecordingStudioSupport::Pages.create!(
+      root_recording: @root_recording,
+      title: "How do I sign in?",
+      body: "Use the email you were given.",
+      actor: @user
+    )
+    RecordingStudioSupport::Pages.create!(
+      root_recording: @root_recording,
+      title: "How do I change my password?",
+      body: "Pick a new one.",
+      actor: @user
+    )
+
+    titles = lambda do |query|
+      RecordingStudioSupport::Pages.for_root(@root_recording, query: query).map { |recording| recording.recordable.title }
+    end
+
+    assert_equal ["How do I sign in?"], titles.call("sign in")
+    assert_equal ["How do I change my password?"], titles.call("Pick a new")
+    assert_empty titles.call("no-such-help-page")
+  end
+
   private
 
   def grant_admin!(recording, actor)

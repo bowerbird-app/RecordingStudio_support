@@ -27,7 +27,15 @@ find_or_record_support_page = lambda do |root_recording, title:, body:|
     trashed_at: nil
   ).find { |recording| recording.recordable.title == title }
 
-  return existing if existing
+  if existing
+    if existing.recordable.body != body
+      root_recording.revise(existing) do |page|
+        page.title = title
+        page.body = body
+      end
+    end
+    return existing.reload
+  end
 
   root_recording.record(RecordingStudioSupport::SupportPage) do |page|
     page.title = title
@@ -105,7 +113,7 @@ begin
   password_page = find_or_record_support_page.call(
     root_recording,
     title: "How do I change my password?",
-    body: "Open your account settings and pick a new password. Then sign in again with the new one."
+    body: "Open your account settings and pick a new password. Then use the new one next time."
   )
 
   if sign_in_page.images.none?

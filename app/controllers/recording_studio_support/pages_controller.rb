@@ -8,7 +8,8 @@ module RecordingStudioSupport
     before_action :set_page_recording, only: %i[show edit update trash]
 
     def index
-      @page_recordings = Pages.for_root(current_support_root_recording)
+      @query = params[:q].to_s.strip
+      @page_recordings = Pages.for_root(current_support_root_recording, query: @query)
     end
 
     def show
