@@ -43,6 +43,8 @@ Devise sign-in keeps `layouts/application` so the login card can stay centered. 
 
 The host injects `flat_pack/application`, Sign out, and the Root Switchable control through `app/views/recording_studio/_default_layout_head.html.erb`. Do not put the switcher or a Sign out button in the home view body.
 
+Help-page edit uses Flatpack `TextArea` with `rich_text: true`. Importmap pins TipTap packages plus `controllers/flat_pack/tiptap_controller`. `app/javascript/application.js` imports `controllers`, and `controllers/index.js` registers `flat-pack--tiptap` so the toolbar and body HTML hydrate on first paint. Do not add Trix or Action Text. Images stay Attachable children (`uploads: false`).
+
 Dummy copies Recording Studio's default layout so `<html data-theme="rounded">` uses Flatpack's built-in rounded theme. Login `layouts/application` already sets that attribute. Do not invent a custom theme.
 
 Tailwind scans dummy views plus Flatpack, Recording Studio, Admin, and Support gem files. On boot, Root Switchable's source linker plus dummy vendor links make a local `bin/rails tailwindcss:build` see those classes. Rebuild Tailwind after changing views.

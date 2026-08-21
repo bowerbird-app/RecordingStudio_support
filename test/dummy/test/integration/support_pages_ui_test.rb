@@ -131,7 +131,13 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "Keep the pictures where they are"
     refute_includes response.body, "Words only"
     assert_includes response.body, "flat-pack-richtext-wrapper"
+    assert_includes response.body, "flat-pack--tiptap"
+    assert_includes response.body, "Open your account settings and pick a new password"
+    assert_includes File.read(Rails.root.join("app/javascript/controllers/index.js")),
+                    'application.register("flat-pack--tiptap", TiptapController)'
     assert_select "input[name='page[title]']"
+    assert_select "input[type='hidden'][name='page[body]']"
+    refute_match(/<textarea[^>]*name="page\[body\]"/, response.body)
 
     patch "/support/#{recording.id}", params: {
       page: {

@@ -101,12 +101,20 @@ class RecordingStudioSupportTest < Minitest::Test
 
   def test_dummy_pins_turbo_and_loads_flatpack_js
     application_js = File.read(File.expand_path("dummy/app/javascript/application.js", __dir__))
+    controllers_js = File.read(File.expand_path("dummy/app/javascript/controllers/index.js", __dir__))
     importmap = File.read(File.expand_path("dummy/config/importmap.rb", __dir__))
 
     assert_includes application_js, 'import "@hotwired/turbo-rails"'
+    assert_includes application_js, 'import "controllers"'
     refute_includes application_js, 'import { application } from "controllers/application"'
     assert_includes importmap, 'pin "@hotwired/turbo-rails", to: "turbo.min.js"'
     assert_includes importmap, "flat_pack/tiptap"
+    assert_includes importmap, 'pin "controllers/flat_pack/tiptap_controller"'
+    assert_includes importmap, 'pin "@tiptap/core"'
+    assert_includes importmap, 'pin "@tiptap/starter-kit"'
+    assert_includes controllers_js, "eagerLoadControllersFrom"
+    assert_includes controllers_js, 'from "controllers/flat_pack/tiptap_controller"'
+    assert_includes controllers_js, 'application.register("flat-pack--tiptap", TiptapController)'
   end
 
   def test_dummy_default_layout_head_loads_flatpack_and_root_switch_chrome
@@ -158,6 +166,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme_source, "/support"
     assert_includes readme_source, "/admin"
     assert_includes readme_source, "redirects to `/`"
+    assert_includes readme_source, "flat-pack--tiptap"
     refute_includes readme_source, "flat_pack_sidebar"
     refute_includes readme_source, "/docs/"
   end
@@ -172,6 +181,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "Support page"
     assert_includes readme, "tag: \"2.0.0\""
     assert_includes readme, "/support"
+    assert_includes readme, "flat-pack--tiptap"
     assert_includes readme, "section :support"
     assert_includes readme, "RecordingStudio::Capabilities::Attachable.to"
     assert_includes readme, "tag: \"0.4.0\""

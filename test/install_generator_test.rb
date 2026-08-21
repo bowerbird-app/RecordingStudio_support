@@ -177,6 +177,9 @@ class InstallGeneratorTest < Minitest::Test
     assert_includes install_guide, "Authenticated Support screens"
     assert_includes install_guide, "section :support"
     assert_includes install_guide, "recording_studio_admin_for"
+    assert_includes install_guide, "controllers/flat_pack/tiptap_controller"
+    assert_includes install_guide, "flat-pack--tiptap"
+    assert_includes install_guide, "Do not add Trix or Action Text"
     refute_includes install_guide, "publish routes"
     refute_includes install_guide, "RecordingStudio v3"
   end

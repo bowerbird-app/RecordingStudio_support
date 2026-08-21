@@ -26,6 +26,7 @@ class DefaultLayoutAssetsTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "flat-pack-page-nav"
     assert_includes response.body, "flat_pack/application"
     assert_includes response.body, "flat_pack/variables"
+    assert_includes response.body, "flat_pack/rich_text"
     assert_includes response.body, "/assets/tailwind"
     assert_includes response.body, "@hotwired/turbo-rails"
     refute_includes response.body, "dummy_page_nav"

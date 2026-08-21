@@ -148,7 +148,7 @@ The section shows how many help pages you have, the latest pages, and how many t
 
 `test/dummy/` is a host that proves the gem. It is not the product.
 
-Authenticated dummy pages use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Root Switchable and Sign out sit in that chrome. Devise sign-in keeps `layouts/application` and still loads Flatpack CSS/JS plus Turbo.
+Authenticated dummy pages use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Root Switchable and Sign out sit in that chrome. Devise sign-in keeps `layouts/application` and still loads Flatpack CSS/JS plus Turbo. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`); dummy Stimulus registers `flat-pack--tiptap` on first paint.
 
 | Field    | Value           |
 |----------|-----------------|
