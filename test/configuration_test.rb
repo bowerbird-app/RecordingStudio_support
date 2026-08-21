@@ -8,11 +8,12 @@ class ConfigurationTest < Minitest::Test
   end
 
   def test_merge_updates_known_attributes
-    @configuration.merge!(api_key: "abc123", timeout: 9, enable_feature_x: true)
+    @configuration.merge!(api_key: "abc123", timeout: 9, enable_feature_x: true, pages_path: "/help")
 
     assert_equal "abc123", @configuration.api_key
     assert_equal 9, @configuration.timeout
     assert_equal true, @configuration.enable_feature_x
+    assert_equal "/help", @configuration.pages_path
   end
 
   def test_merge_ignores_unknown_keys
@@ -42,6 +43,7 @@ class ConfigurationTest < Minitest::Test
     assert_equal "env-token", configuration.api_key
     assert_equal false, configuration.enable_feature_x
     assert_equal 5, configuration.timeout
+    assert_equal "/support", configuration.pages_path
     assert_instance_of RecordingStudio::Hooks, configuration.hooks
   ensure
     ENV["RECORDING_STUDIO_SUPPORT_API_KEY"] = previous_value

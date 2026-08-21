@@ -2,16 +2,17 @@
 
 Staff write help pages. People help themselves. No tickets, no inbox, no chat.
 
-Support pages sit under your workspace as a flat list. Each page has a title and a body. A page can hold images, go to trash, and sort those images. This gem does not ship public pages, admin, search, or an API yet.
+Support pages sit under your workspace as a flat list. Each page has a title and a body. A page can hold images, go to trash, and sort those images. Staff use authenticated screens at `/support`. An Admin Support section shows page counts, recent pages, and reads. This gem does not ship public pages, Publishable, search, or an API yet.
 
 ## Install
 
-Add the gem next to Recording Studio 4.2, Accessible, and the mixin gems Support pages use. GitHub hosting is not a reason to skip the gemspec pins.
+Add the gem next to Recording Studio 4.2, Accessible, Admin 2.0, and the mixin gems Support pages use. GitHub hosting is not a reason to skip the gemspec pins.
 
 ```ruby
 # Gemfile
 gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.2.0"
 gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.6.1"
+gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "2.0.0"
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "0.4.0"
 gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "0.4.0"
 gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderable", tag: "0.2.0"
@@ -22,6 +23,7 @@ gem "recording_studio_support", github: "bowerbird-app/RecordingStudio_support"
 # gemspec / host Gemfile constraints
 gem "recording_studio", "~> 4.2"
 gem "recording_studio_accessible", "~> 0.6"
+gem "recording_studio_admin", "~> 2.0"
 gem "recording_studio_attachable", "~> 0.4"
 gem "recording_studio_trashable", "~> 0.4"
 gem "recording_studio_orderable", "~> 0.2"
@@ -41,14 +43,17 @@ bin/rails db:migrate
 
 Install Active Storage if the host does not already have it. Images live as Attachable children, not in the page body.
 
+The install generator mounts authenticated Support screens at `/support` and, when an `AdminRoot` model is present, enables `section :support`.
+
 ## Support pages
 
-Register the type next to your host root. Dummy uses `Workspace`. Attachable registers its own image child type.
+Register the type next to your host root. Dummy uses `Workspace`. Attachable registers its own image child type. Dummy also registers `AdminRoot` for staff admin.
 
 ```ruby
 RecordingStudio.configure do |config|
   config.recordable_types = [
     "Workspace",
+    "AdminRoot",
     "RecordingStudioSupport::SupportPage"
   ]
   config.require_recordable_declarations = true
@@ -99,11 +104,45 @@ page_recording.recording_studio_orderable_reorder!(
 
 page_recording.recording_studio_trashable_trash!(actor: current_user)
 page_recording.recording_studio_trashable_restore!(actor: current_user)
-
-page_recording.log_event!(action: "viewed")
 ```
 
-Access later uses `grant_access` / `authorized?` on recordings. This gem does not invent its own ACL.
+Authenticated screens call the same helpers. Access uses `grant_access` / `authorized?` on the workspace root (`:view` to read, `:edit` to write). This gem does not invent its own ACL.
+
+Mount the screens and keep them on Recording Studio's default layout:
+
+```ruby
+mount RecordingStudioSupport::Engine, at: "/support"
+```
+
+Page reads are logs (`recording_studio_support_page_views`), not extra pages in the tree.
+
+## Admin Support
+
+Staff operations live on an **admin root**, not `user.admin?`. Grant Accessible access on that root. Enable the Support section:
+
+```ruby
+class AdminRoot < ApplicationRecord
+  recording_studio_recordable label: "Admin", root: true, shared: false
+  RecordingStudio.enable_capability(:accessible, on: self)
+  include RecordingStudioAdmin::AllowsAdminSections
+
+  recording_studio_admin_sections do
+    section :support
+  end
+end
+```
+
+```ruby
+mount RecordingStudioAccessible::Engine, at: "/admin/access"
+recording_studio_admin_for :admin, at: "/admin", root_section: :support
+
+RecordingStudioAccessible.bootstrap_owner_access!(
+  recording: RecordingStudio.root_recording_for(admin_root),
+  actor: first_staff_user
+)
+```
+
+The section shows how many help pages you have, the latest pages, and how many times those pages were opened. Draft preview is the authenticated show — everything stays unpublished until Publishable exists.
 
 ## Dummy host
 
@@ -122,6 +161,7 @@ Dummy kit pins:
 |-----|-----|
 | Recording Studio | `v4.2.0` |
 | Accessible | `v0.6.1` |
+| Admin | `2.0.0` |
 | Attachable | `0.4.0` |
 | Trashable | `0.4.0` |
 | Orderable | `0.2.0` |
@@ -134,7 +174,7 @@ bin/rails db:setup
 bin/dev
 ```
 
-Seeds one signed-in article so later indexes are not empty. That seed does not attach images.
+Then open `/support` for help pages. For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root.
 
 ## Engine internals
 

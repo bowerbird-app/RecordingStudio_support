@@ -1,0 +1,15 @@
+<% recording_studio_page_nav(
+     title: "Edit page",
+     page_nav_back_url: page_path(@page_recording),
+     page_nav_anchor_url: (main_app.root_path if main_app.respond_to?(:root_path))
+   ) %>
+
+<div class="flex w-full flex-col gap-6">
+  <%= render FlatPack::PageTitle::Component.new(
+    title: "Edit page",
+    subtitle: "Fix the wording. Keep the pictures where they are.",
+    variant: :h1
+  ) %>
+
+  <%= render "form", url: page_path(@page_recording), method: :patch, submit_text: "Save" %>
+</div>

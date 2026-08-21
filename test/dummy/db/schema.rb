@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_21_060006) do
+ActiveRecord::Schema[8.1].define(version: 2026_08_21_080001) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -41,6 +41,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_21_060006) do
     t.uuid "blob_id", null: false
     t.string "variation_digest", null: false
     t.index ["blob_id", "variation_digest"], name: "index_active_storage_variant_records_uniqueness", unique: true
+  end
+
+  create_table "admin_roots", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", default: "Admin", null: false
+    t.datetime "updated_at", null: false
   end
 
   create_table "folders", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -138,6 +144,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_21_060006) do
     t.index ["actor_type", "actor_id", "device_key", "scope_key"], name: "idx_rs_root_switchable_actor_device_scope", unique: true, where: "(actor_id IS NOT NULL)"
     t.index ["device_key", "scope_key"], name: "idx_rs_root_switchable_anonymous_device_scope", unique: true, where: "(actor_id IS NULL)"
     t.index ["root_recording_id"], name: "idx_rs_root_switchable_root_recording"
+  end
+
+  create_table "recording_studio_support_page_views", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "actor_id"
+    t.string "actor_type"
+    t.datetime "created_at", null: false
+    t.uuid "recording_id", null: false
+    t.index ["created_at"], name: "index_recording_studio_support_page_views_on_created_at"
+    t.index ["recording_id"], name: "index_recording_studio_support_page_views_on_recording_id"
   end
 
   create_table "recording_studio_support_pages", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

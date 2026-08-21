@@ -1,5 +1,35 @@
 # Upgrade notes
 
+## 0.5.0
+
+Authenticated help screens and an Admin Support section.
+
+- Recording Studio `~> 4.2` (dummy GitHub tag `v4.2.0`)
+- Accessible `~> 0.6` (dummy GitHub tag `v0.6.1`)
+- Admin `~> 2.0` (dummy GitHub tag `2.0.0`)
+- Attachable `~> 0.4` (dummy GitHub tag `0.4.0`)
+- Trashable `~> 0.4` (dummy GitHub tag `0.4.0`)
+- Orderable `~> 0.2` (dummy GitHub tag `0.2.0`)
+
+### Host app
+
+1. Add Admin 2.0 next to Support. Follow the Admin 2.0 README, not 1.x.
+2. Mount authenticated screens: `mount RecordingStudioSupport::Engine, at: "/support"`.
+3. Run `bin/rails generate recording_studio_support:migrations` for the page-view log table.
+4. Create an admin root, enable `section :support`, and mount `recording_studio_admin_for :admin, at: "/admin"`.
+5. Grant Accessible access on the workspace root (`:view` to read, `:edit` to write) and `bootstrap_owner_access!` on the admin root.
+6. Keep writes on `record` / `revise` / `log_event!` and mixin helpers. Page reads go to `RecordingStudioSupport::PageView`, not a new page type.
+
+Do not add Publishable, public pages, or an API in this slice.
+
+### Verify
+
+```bash
+bundle install
+BUNDLE_GEMFILE=test/dummy/Gemfile bundle install
+bundle exec rake test:all
+```
+
 ## 0.4.0
 
 Support pages can attach images, go to trash, and sort those images.

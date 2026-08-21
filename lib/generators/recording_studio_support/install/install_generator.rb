@@ -12,8 +12,8 @@ module RecordingStudioSupport
       class_option(
         :mount_path,
         type: :string,
-        default: "/recording_studio_support",
-        desc: "Route prefix used when mounting the engine"
+        default: "/support",
+        desc: "Route prefix used when mounting the authenticated Support screens"
       )
 
       def mount_engine
@@ -22,6 +22,19 @@ module RecordingStudioSupport
 
       def copy_initializer
         template "recording_studio_support_initializer.rb", "config/initializers/recording_studio_support.rb"
+      end
+
+      def enable_admin_support_section
+        admin_root_path = File.join(destination_root, "app/models/admin_root.rb")
+        return unless File.exist?(admin_root_path)
+
+        contents = File.read(admin_root_path)
+        return if contents.include?("section :support")
+        return unless contents.include?("recording_studio_admin_sections")
+
+        inject_into_file "app/models/admin_root.rb", after: "recording_studio_admin_sections do\n" do
+          "    section :support\n"
+        end
       end
 
       def add_yaml_config

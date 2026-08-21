@@ -120,5 +120,11 @@ module RecordingStudioSupport
         end
       end
     end
+
+    initializer "recording_studio_support.admin" do
+      config.to_prepare do
+        RecordingStudioSupport::Admin.register!
+      end
+    end
   end
 end

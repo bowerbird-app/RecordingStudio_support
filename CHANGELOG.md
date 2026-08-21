@@ -7,11 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-08-21
+
+Staff can write and read help pages, and open an Admin Support section. Still no public pages or Publishable.
+
+### Added
+- Authenticated Support screens at `/support`: list, show, new, and edit
+- Admin Support section and help-pages screen with page count, latest pages, and reads
+- Page reads stored as logs (`recording_studio_support_page_views`), not extra pages
+- Dummy AdminRoot, `/admin` mount, workspace grants, two seeded help pages, and one image child
+- Gemspec pin `recording_studio_admin ~> 2.0` (dummy GitHub tag `2.0.0`)
+- Install generator mounts `/support` and enables `section :support` on an existing admin root
+
 ### Changed
-- Dummy authenticated pages use Recording Studio's default layout chrome and load Flatpack CSS/JS (including `flat_pack/application` and Turbo). Devise sign-in keeps its own layout and still loads those assets. Root Switchable sits in the default-layout chrome instead of a host `dummy_page_nav`. Dummy Tailwind now scans Flatpack and Recording Studio gem files so Alert, Button, and page-nav utilities are actually generated.
+- Dummy Tailwind also scans Admin and Support gem views so admin widgets and help screens get Flatpack utilities
 
 ### Upgrade notes
-- Dummy-only. No gem API or host migration.
+- Add `recording_studio_admin`, `~> 2.0` (dummy GitHub tag `2.0.0`)
+- Run `bin/rails generate recording_studio_support:install` (or mount `RecordingStudioSupport::Engine` at `/support`)
+- Run `bin/rails generate recording_studio_support:migrations` for the page-view log table
+- Enable `section :support` on your admin root and mount `recording_studio_admin_for` at `/admin`
+- Grant Accessible access on the workspace root for help screens and on the admin root for `/admin`
+- Do not add Publishable, public pages, or `recording_studio_api` in this slice
 
 ## [0.4.0] - 2026-08-21
 
@@ -108,7 +125,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.5.0...HEAD
+[0.5.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.5.0
 [0.4.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.4.0
 [0.3.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.3.0
 [0.2.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.2.0

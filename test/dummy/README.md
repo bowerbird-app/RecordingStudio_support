@@ -6,7 +6,9 @@ This Rails app exists to prove Recording Studio Support in a real host. It is no
 
 - Devise authentication with a seeded admin user
 - `Current.actor` wiring for Recording Studio events
-- Root workspace plus a seeded support page
+- Root workspace plus seeded help pages, one with an image
+- Authenticated Support screens mounted at `/support`
+- Admin Support section mounted at `/admin` on an admin root (switch to **Admin** in the top control first — Admin 2.0 gates staff screens on that root)
 - Support pages opt into Attachable, Trashable, and Orderable. Dummy Folder and Page do not.
 - Recording Studio default layout (back/close chrome), Flatpack CSS/JS, Turbo, and Tailwind source scanning
 - Root Switchable in the default-layout chrome, not a host-only shell
@@ -41,19 +43,21 @@ Devise sign-in keeps `layouts/application` so the login card can stay centered. 
 
 The host injects `flat_pack/application` and the Root Switchable control through `app/views/recording_studio/_default_layout_head.html.erb`. Do not put the switcher or a Sign out button in the home view body.
 
-Tailwind scans dummy views plus Flatpack and Recording Studio gem files. On boot, Root Switchable's source linker adds `vendor/flat_pack` and `vendor/recording_studio` so a local `bin/rails tailwindcss:build` sees those classes. Rebuild Tailwind after changing views.
+Tailwind scans dummy views plus Flatpack, Recording Studio, Admin, and Support gem files. On boot, Root Switchable's source linker plus dummy vendor links make a local `bin/rails tailwindcss:build` see those classes. Rebuild Tailwind after changing views.
 
 ## Useful Routes
 
 - `/` - dummy host home page
+- `/support` - authenticated help-page list
+- `/admin` - Admin Support section (pick **Admin** in the top control first)
 - `/recording_studio` - redirects to `/` while the mounted Recording Studio engine stays available under that prefix for non-root routes
 - `/users/sign_in` - Devise sign-in page
 - `/up` - Rails health check
 
 ## Why This App Exists
 
-Use this app to verify Support pages boot in a host. If a layout, route, asset source, or Recording Studio initializer change breaks here, the gem likely needs adjustment before reuse.
+Use this app to click through help pages and the Admin Support section. If a layout, route, asset source, or Recording Studio initializer change breaks here, the gem likely needs adjustment before reuse.
 
-The seeded article has no images. This dummy host does not mount Attachable, Trashable, or Orderable screens.
+Seeds two help pages under Studio Workspace, attaches a tiny image to one, and logs a few page reads so admin widgets are not empty.
 
 Authenticated pages use Recording Studio's shared default layout. Devise sign-in keeps `layouts/application`.

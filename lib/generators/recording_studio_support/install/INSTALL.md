@@ -2,13 +2,13 @@
 
 RecordingStudioSupport has been installed successfully!
 
-The engine has been mounted at /recording_studio_support in your application.
+Authenticated help screens are mounted at /support.
 
 If you use Tailwind CSS:
 1. Run 'bin/rails tailwindcss:build' to rebuild your CSS with RecordingStudioSupport styles
 
-To use the engine:
-1. Start your Rails server
-2. Visit http://localhost:3000/recording_studio_support
+Staff UI:
+1. Sign in, then visit http://localhost:3000/support
+2. Enable `section :support` on your admin root and open /admin
 
 ===============================================================================
