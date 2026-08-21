@@ -77,11 +77,9 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes controller_source, '"recording_studio/default_layout"'
     assert_includes controller_source, "return \"application\" if devise_controller?"
     refute_includes controller_source, "flat_pack_sidebar"
-    dummy_default_layout = File.read(
+    refute File.exist?(
       File.expand_path("dummy/app/views/layouts/recording_studio/default_layout.html.erb", __dir__)
     )
-    assert_includes dummy_default_layout, '<html data-theme="rounded">'
-    assert_includes dummy_default_layout, "recording_studio/default_layout_head"
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack_sidebar.html.erb", __dir__))
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack/_sidebar.html.erb", __dir__))
   end
@@ -122,6 +120,7 @@ class RecordingStudioSupportTest < Minitest::Test
     default_layout_head = File.read(head_path)
 
     assert_includes default_layout_head, 'stylesheet_link_tag "flat_pack/application"'
+    assert_includes default_layout_head, "RecordingStudioSupport::ApplicationController"
     assert_includes default_layout_head, "recording_studio_root_switch_dropdown"
     assert_includes default_layout_head, "recording_studio_page_nav_right"
     assert_includes default_layout_head, "Sign out"
@@ -167,6 +166,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme_source, "/admin"
     assert_includes readme_source, "redirects to `/`"
     assert_includes readme_source, "flat-pack--tiptap"
+    assert_includes readme_source, "does not copy the layout"
     refute_includes readme_source, "flat_pack_sidebar"
     refute_includes readme_source, "/docs/"
   end
@@ -181,6 +181,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "Support page"
     assert_includes readme, "tag: \"2.0.0\""
     assert_includes readme, "/support"
+    assert_includes readme, "pages_title"
     assert_includes readme, "flat-pack--tiptap"
     assert_includes readme, "section :support"
     assert_includes readme, "RecordingStudio::Capabilities::Attachable.to"
@@ -239,7 +240,8 @@ class RecordingStudioSupportTest < Minitest::Test
 
     assert_includes admin, "RecordingStudioAdmin.register_section"
     assert_includes section, 'key "support"'
-    assert_includes section, 'title "Help"'
+    assert_includes section, "admin_section_title"
+    assert_includes section, "admin_section_subtitle"
     refute_includes section, "recordable"
   end
 

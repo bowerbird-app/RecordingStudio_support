@@ -19,7 +19,7 @@ class DefaultLayoutAssetsTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
-    assert_select "html[data-theme='rounded']"
+    assert_select "body[data-theme='rounded']"
     assert_includes response.body, "Signed in successfully."
     assert_select "[role='alert']", text: /Signed in successfully/
     assert_includes response.body, "alert-success-background-color"

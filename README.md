@@ -2,7 +2,7 @@
 
 Staff write help pages. People help themselves. No tickets, no inbox, no chat.
 
-Support pages sit under your workspace as a flat list. Each page has a title and a body. A page can hold images, go to trash, and sort those images. Staff use authenticated screens at `/support`, including a search box on the help list. An Admin Support section shows page counts, recent pages, and reads. This gem does not ship public pages, Publishable, public search, or an API yet.
+Support pages sit under your workspace as a flat list. Each page has a title and a body. A page can hold images, go to trash, and sort those images. Staff use authenticated screens at `/support`, including a full-width search box on the help list. An Admin Support section shows page counts, recent pages, and reads. This gem does not ship public pages, Publishable, public search, or an API yet.
 
 ## Install
 
@@ -114,6 +114,18 @@ Mount the screens and keep them on Recording Studio's default layout:
 mount RecordingStudioSupport::Engine, at: "/support"
 ```
 
+Hosts can change the Help words:
+
+```ruby
+RecordingStudioSupport.configure do |config|
+  config.pages_path = "/support"
+  config.pages_title = "Help"
+  config.pages_subtitle = "Answers you can share."
+  config.admin_section_title = "Help"
+  config.admin_section_subtitle = "Pages people use when they get stuck."
+end
+```
+
 Page reads are logs (`recording_studio_support_page_views`), not extra pages in the tree.
 
 ## Admin Support
@@ -148,7 +160,7 @@ The section shows how many help pages you have, the latest pages, and how many t
 
 `test/dummy/` is a host that proves the gem. It is not the product.
 
-Authenticated dummy pages use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Root Switchable and Sign out sit in that chrome. Devise sign-in keeps `layouts/application` and still loads Flatpack CSS/JS plus Turbo. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`); dummy Stimulus registers `flat-pack--tiptap` on first paint.
+Authenticated dummy pages use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Dummy does not copy that layout. Support screens stay back/close only — no Sign out, Root Switchable, or login CTA. Dummy home and Admin can still show Sign out next to the workspace switcher. Devise sign-in keeps `layouts/application` (`html data-theme="rounded"`). Core puts `rounded` on `<body>`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`); dummy Stimulus registers `flat-pack--tiptap` on first paint.
 
 | Field    | Value           |
 |----------|-----------------|
@@ -174,7 +186,7 @@ bin/rails db:setup
 bin/dev
 ```
 
-Then open `/support` for help pages. Search the list with `?q=`. Dummy uses Flatpack's built-in `rounded` theme (`html data-theme="rounded"`). For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root.
+Then open `/support` for help pages. Search the list with `?q=`. For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root.
 
 ## Engine internals
 

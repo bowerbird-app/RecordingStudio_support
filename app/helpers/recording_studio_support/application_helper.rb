@@ -16,5 +16,13 @@ module RecordingStudioSupport
     def support_page_body_html(body)
       Body.sanitize(body).html_safe
     end
+
+    def support_pages_title
+      RecordingStudioSupport.configuration.pages_title
+    end
+
+    def support_pages_subtitle
+      RecordingStudioSupport.configuration.pages_subtitle
+    end
   end
 end

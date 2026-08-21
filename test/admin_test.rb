@@ -5,9 +5,11 @@ require "test_helper"
 class AdminTest < Minitest::Test
   def test_support_section_is_help_not_jargon
     assert_equal "support", RecordingStudioSupport::Admin::Section.key
-    assert_equal "Help", RecordingStudioSupport::Admin::Section.title
-    refute_includes RecordingStudioSupport::Admin::Section.title, "recordable"
-    refute_includes RecordingStudioSupport::Admin::Section.subtitle, "recordable"
+    assert_equal "Help", evaluate_admin_copy(RecordingStudioSupport::Admin::Section.title)
+    assert_equal "Pages people use when they get stuck.",
+                 evaluate_admin_copy(RecordingStudioSupport::Admin::Section.subtitle)
+    refute_includes evaluate_admin_copy(RecordingStudioSupport::Admin::Section.title), "recordable"
+    refute_includes evaluate_admin_copy(RecordingStudioSupport::Admin::Section.subtitle), "recordable"
   end
 
   def test_help_pages_screen_lists_pages
@@ -34,5 +36,25 @@ class AdminTest < Minitest::Test
     assert_includes called, RecordingStudioSupport::Admin::Section
     assert_includes called, RecordingStudioSupport::Admin::PagesScreen
     assert_equal 5, called.size
+  end
+
+  def test_section_copy_follows_configuration
+    previous_title = RecordingStudioSupport.configuration.admin_section_title
+    previous_subtitle = RecordingStudioSupport.configuration.admin_section_subtitle
+    RecordingStudioSupport.configuration.admin_section_title = "Guides"
+    RecordingStudioSupport.configuration.admin_section_subtitle = "Staff view of those answers."
+
+    assert_equal "Guides", evaluate_admin_copy(RecordingStudioSupport::Admin::Section.title)
+    assert_equal "Staff view of those answers.",
+                 evaluate_admin_copy(RecordingStudioSupport::Admin::Section.subtitle)
+  ensure
+    RecordingStudioSupport.configuration.admin_section_title = previous_title
+    RecordingStudioSupport.configuration.admin_section_subtitle = previous_subtitle
+  end
+
+  private
+
+  def evaluate_admin_copy(value)
+    RecordingStudioAdmin::Definitions::Base.evaluate(value, nil)
   end
 end

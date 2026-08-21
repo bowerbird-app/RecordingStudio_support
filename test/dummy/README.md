@@ -10,7 +10,7 @@ This Rails app exists to prove Recording Studio Support in a real host. It is no
 - Authenticated Support screens mounted at `/support`
 - Admin Support section mounted at `/admin` on an admin root (switch to **Admin** in the top control first — Admin 2.0 gates staff screens on that root)
 - Support pages opt into Attachable, Trashable, and Orderable. Dummy Folder and Page do not.
-- Recording Studio default layout (back/close chrome, Sign out next to the workspace switcher), Flatpack CSS/JS, Turbo, Tailwind source scanning, and Flatpack's built-in `rounded` theme on `<html>`
+- Recording Studio default layout from core (back/close chrome; dummy does not copy the layout file), Flatpack CSS/JS, Turbo, Tailwind source scanning, and Flatpack's built-in `rounded` theme (login `html`, core layout `<body>`)
 - Root Switchable in the default-layout chrome, not a host-only shell
 - Mounted `RecordingStudio::Engine` route behavior inside a host app
 
@@ -32,7 +32,7 @@ Then open the app and sign in with:
 
 ## Layouts and assets
 
-Authenticated pages include `RecordingStudio::UsesDefaultLayout` and render `recording_studio/default_layout`. That layout owns the back/close chrome and Flatpack flash alerts.
+Authenticated pages include `RecordingStudio::UsesDefaultLayout` and render core's `recording_studio/default_layout`. That layout owns the back/close chrome and Flatpack flash alerts. Dummy does not copy the layout.
 
 Devise sign-in keeps `layouts/application` so the login card can stay centered. That layout still loads:
 
@@ -41,11 +41,11 @@ Devise sign-in keeps `layouts/application` so the login card can stay centered. 
 - `tailwind`
 - Importmap JS, including `@hotwired/turbo-rails`
 
-The host injects `flat_pack/application`, Sign out, and the Root Switchable control through `app/views/recording_studio/_default_layout_head.html.erb`. Do not put the switcher or a Sign out button in the home view body.
+The host injects `flat_pack/application` through `app/views/recording_studio/_default_layout_head.html.erb`. Sign out and Root Switchable stay there for dummy home and Admin. They do not appear on Support screens. Do not put the switcher or a Sign out button in the home view body.
 
 Help-page edit uses Flatpack `TextArea` with `rich_text: true`. Importmap pins TipTap packages plus `controllers/flat_pack/tiptap_controller`. `app/javascript/application.js` imports `controllers`, and `controllers/index.js` registers `flat-pack--tiptap` so the toolbar and body HTML hydrate on first paint. Do not add Trix or Action Text. Images stay Attachable children (`uploads: false`).
 
-Dummy copies Recording Studio's default layout so `<html data-theme="rounded">` uses Flatpack's built-in rounded theme. Login `layouts/application` already sets that attribute. Do not invent a custom theme.
+Login `layouts/application` sets `<html data-theme="rounded">`. Core default layout puts `rounded` on `<body>`. Do not invent a custom theme or copy the core layout into dummy.
 
 Tailwind scans dummy views plus Flatpack, Recording Studio, Admin, and Support gem files. On boot, Root Switchable's source linker plus dummy vendor links make a local `bin/rails tailwindcss:build` see those classes. Rebuild Tailwind after changing views.
 

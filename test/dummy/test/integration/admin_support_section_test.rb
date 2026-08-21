@@ -18,7 +18,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
-    assert_select "html[data-theme='rounded']"
+    assert_select "body[data-theme='rounded']"
     assert_includes response.body, "Help"
     assert_includes response.body, "How do I sign in?"
     assert_includes response.body, "How do I change my password?"

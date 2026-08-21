@@ -18,6 +18,10 @@ class PagesTest < Minitest::Test
 
     assert_includes index, "FlatPack::Search::Component"
     assert_includes index, 'name: "q"'
+    assert_includes index, "max_width: :none"
+    assert_includes index, 'class: "w-full"'
+    assert_includes index, "support_pages_title"
+    assert_includes index, "support_pages_subtitle"
     assert_includes index, "Nothing matches that"
     refute_includes index, "Elasticsearch"
     refute_includes index, "searchkick"

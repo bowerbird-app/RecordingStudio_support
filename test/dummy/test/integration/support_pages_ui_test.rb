@@ -21,25 +21,43 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "How do I change my password?"
     assert_includes response.body, "New page"
     assert_includes response.body, "flat-pack-page-nav"
-    assert_includes response.body, "Studio Workspace"
+    assert_includes response.body, "Help"
+    assert_includes response.body, "Answers you can share."
     assert_includes response.body, "flat_pack/application"
-    assert_select "html[data-theme='rounded']"
     assert_select "body[data-theme='rounded']"
     assert_select "a[aria-label='Close'][href='/']"
-    assert_select ".flat-pack-page-nav a", text: /Sign out/
-    assert_includes response.body, "/users/sign_out"
-    assert_includes response.body, "data-turbo-method=\"delete\""
+    refute_select ".flat-pack-page-nav a", text: /Sign out/
+    refute_includes response.body, "Studio Workspace"
+    refute_includes response.body, "/users/sign_out"
     refute_includes response.body, "recordable"
     refute_includes response.body, "This app proves the support gem"
     assert_select "input[name='q']"
+  end
+
+  test "index uses configured help titles" do
+    previous_title = RecordingStudioSupport.configuration.pages_title
+    previous_subtitle = RecordingStudioSupport.configuration.pages_subtitle
+    RecordingStudioSupport.configuration.pages_title = "Guides"
+    RecordingStudioSupport.configuration.pages_subtitle = "Short answers."
+
+    get "/support"
+
+    assert_response :success
+    assert_includes response.body, "Guides"
+    assert_includes response.body, "Short answers."
+    refute_includes response.body, "Answers you can share."
+  ensure
+    RecordingStudioSupport.configuration.pages_title = previous_title
+    RecordingStudioSupport.configuration.pages_subtitle = previous_subtitle
   end
 
   test "index ILIKE search matches title and body" do
     get "/support", params: { q: "sign in" }
 
     assert_response :success
-    assert_select "html[data-theme='rounded']"
-    assert_select "form[role='search']"
+    assert_select "body[data-theme='rounded']"
+    assert_select "form[role='search'][class~='w-full']"
+    assert_includes response.body, "max-w-none"
     assert_includes response.body, "How do I sign in?"
     refute_includes response.body, "How do I change my password?"
     assert_select "input[name='q'][value='sign in']"
@@ -68,7 +86,8 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     close = css_select("a[aria-label='Close']").first
     assert close
     assert_match(%r{\A/support/?\z}, close["href"])
-    assert_select ".flat-pack-page-nav a", text: /Sign out/
+    refute_select ".flat-pack-page-nav a", text: /Sign out/
+    refute_includes response.body, "Studio Workspace"
     assert_includes response.body, "Edit"
     assert_includes response.body, "Move to trash"
     assert RecordingStudioSupport::PageView.exists?(recording_id: recording.id)
