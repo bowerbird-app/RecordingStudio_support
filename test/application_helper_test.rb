@@ -18,7 +18,9 @@ class ApplicationHelperTest < Minitest::Test
   end
 
   def test_public_pages_controller_uses_publishable_chrome
-    source = File.read(File.expand_path("../app/controllers/recording_studio_support/public_pages_controller.rb", __dir__))
+    source = File.read(
+      File.expand_path("../app/controllers/recording_studio_support/public_pages_controller.rb", __dir__)
+    )
 
     assert_includes source, "skip_before_action :authenticate_user!"
     assert_includes source, 'layout "recording_studio_publishable/application"'

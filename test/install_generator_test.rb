@@ -36,7 +36,7 @@ class InstallGeneratorTest < Minitest::Test
 
     assert_includes routes, "mount RecordingStudioSupport::Engine, at: \"/addons/recording\""
     assert_includes routes, "mount RecordingStudioPublishable::Engine, at: \"/\""
-    assert_includes routes, "get \"/help\", to: RecordingStudioSupport::PublicPagesController.action(:index), as: :public_help"
+    assert_includes routes, public_help_route
   end
 
   def test_mount_engine_defaults_to_support
@@ -49,7 +49,7 @@ class InstallGeneratorTest < Minitest::Test
 
     assert_includes routes, "mount RecordingStudioSupport::Engine, at: \"/support\""
     assert_includes routes, "mount RecordingStudioPublishable::Engine, at: \"/\""
-    assert_includes routes, "get \"/help\", to: RecordingStudioSupport::PublicPagesController.action(:index), as: :public_help"
+    assert_includes routes, public_help_route
   end
 
   def test_enable_admin_support_section_injects_section_on_admin_root
@@ -202,6 +202,10 @@ class InstallGeneratorTest < Minitest::Test
     tailwind_source_lines.each do |line|
       assert_equal count, css.scan(line).size
     end
+  end
+
+  def public_help_route
+    'get "/help", to: RecordingStudioSupport::PublicPagesController.action(:index), as: :public_help'
   end
 
   def tailwind_source_lines

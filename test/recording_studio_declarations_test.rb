@@ -183,6 +183,9 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
                  RecordingStudio.capability_options(:attachable, for: "RecordingStudioSupport::SupportPage")[:allowed_content_types]
     assert_equal %i[image],
                  RecordingStudio.capability_options(:attachable, for: "RecordingStudioSupport::SupportPage")[:enabled_attachment_kinds]
+  end
+
+  test "publishable to options are registered on support pages only" do
     publishable_options = RecordingStudio.capability_options(
       :publishable,
       for: "RecordingStudioSupport::SupportPage"
