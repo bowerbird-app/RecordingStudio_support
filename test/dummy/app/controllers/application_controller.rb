@@ -8,6 +8,7 @@ class ApplicationController < ActionController::Base
   # Changes to the importmap will invalidate the etag for HTML responses
   stale_when_importmap_changes
 
+  # Devise keeps layouts/application. Every other host page uses core default layout.
   layout :application_layout
 
   before_action :authenticate_user!
@@ -16,7 +17,9 @@ class ApplicationController < ActionController::Base
   private
 
   def application_layout
-    devise_controller? ? "application" : "recording_studio/default_layout"
+    return "application" if devise_controller?
+
+    "recording_studio/default_layout"
   end
 
   def set_current_actor

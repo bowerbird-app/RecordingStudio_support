@@ -68,7 +68,7 @@ class RecordingStudioSupportTest < Minitest::Test
 
     assert_includes controller_source, "include RecordingStudio::UsesDefaultLayout"
     assert_includes controller_source, '"recording_studio/default_layout"'
-    assert_includes controller_source, 'devise_controller? ? "application"'
+    assert_includes controller_source, "return \"application\" if devise_controller?"
     refute_includes controller_source, "flat_pack_sidebar"
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack_sidebar.html.erb", __dir__))
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack/_sidebar.html.erb", __dir__))
@@ -79,10 +79,32 @@ class RecordingStudioSupportTest < Minitest::Test
 
     assert_includes application_layout, '<html data-theme="rounded">'
     assert_includes application_layout, 'stylesheet_link_tag "flat_pack/variables"'
+    assert_includes application_layout, 'stylesheet_link_tag "flat_pack/application"'
     assert_includes application_layout, "javascript_importmap_tags"
+    assert_includes application_layout, "FlatPack::Alert::Component"
     assert_includes application_layout, "min-h-screen"
     refute_includes application_layout, "mt-28"
     refute_includes application_layout, "flat_pack_sidebar"
+  end
+
+  def test_dummy_pins_turbo_and_loads_flatpack_js
+    application_js = File.read(File.expand_path("dummy/app/javascript/application.js", __dir__))
+    importmap = File.read(File.expand_path("dummy/config/importmap.rb", __dir__))
+
+    assert_includes application_js, 'import "@hotwired/turbo-rails"'
+    refute_includes application_js, 'import { application } from "controllers/application"'
+    assert_includes importmap, 'pin "@hotwired/turbo-rails", to: "turbo.min.js"'
+  end
+
+  def test_dummy_default_layout_head_loads_flatpack_and_root_switch_chrome
+    head_path = File.expand_path("dummy/app/views/recording_studio/_default_layout_head.html.erb", __dir__)
+    default_layout_head = File.read(head_path)
+
+    assert_includes default_layout_head, 'stylesheet_link_tag "flat_pack/application"'
+    assert_includes default_layout_head, "recording_studio_root_switch_dropdown"
+    assert_includes default_layout_head, "recording_studio_page_nav_right"
+    refute_includes default_layout_head, "Sign out"
+    refute_includes default_layout_head, "dummy_page_nav"
   end
 
   def test_dummy_tailwind_keeps_flatpack_theme_selection_in_flatpack
@@ -92,6 +114,8 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes tailwind_source, "flatpack-*/app/components/**/*.{rb,erb}"
     assert_includes tailwind_source, "../../../vendor/bundle/**/recording_studio/app/views/**/*.erb"
     assert_includes tailwind_source, "recordingstudio-*/app/views/**/*.erb"
+    assert_includes tailwind_source, "../../../vendor/flat_pack/app/components/**/*.rb"
+    assert_includes tailwind_source, "home/*/.local/share/mise/installs/ruby"
     refute_includes tailwind_source, "@theme"
     refute_includes tailwind_source, ":root {"
     refute_includes tailwind_source, "--color-fp-primary"
@@ -144,7 +168,10 @@ class RecordingStudioSupportTest < Minitest::Test
 
     assert_includes view_source, 'title: "Dummy host"'
     assert_includes view_source, "FlatPack::Card::Component"
-    assert_includes view_source, "dummy_page_nav"
+    assert_includes view_source, "recording_studio_page_nav"
+    refute_includes view_source, "dummy_page_nav"
+    refute_includes view_source, "Sign out"
+    refute_includes view_source, "recording_studio_root_switch_dropdown"
     refute_includes view_source, "Template Demo"
     refute_includes view_source, "FlatPack::Breadcrumb::Component"
   end
