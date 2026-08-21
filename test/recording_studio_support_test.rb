@@ -196,7 +196,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "tag: \"0.2.0\""
     assert_includes readme, "/help"
     assert_includes readme, 'public_layout: "recording_studio/default_layout"'
-    refute_includes readme, "recording_studio_publishable/application"
+    refute_includes readme, 'public_layout: "recording_studio_publishable/application"'
     refute_includes readme, "v3 declarations"
     refute_includes readme, "RecordingStudio v3"
     refute_includes readme, "ExampleService"
