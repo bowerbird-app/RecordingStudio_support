@@ -2,9 +2,8 @@
 # development, test). The code here should be idempotent so that it can be executed at any point in every environment.
 # The data can then be loaded with the bin/rails db:seed command (or created alongside the database with bin/rails db:setup).
 
-ONE_PIXEL_PNG = Base64.decode64(
-  "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
-).freeze unless defined?(ONE_PIXEL_PNG)
+SIGN_IN_IMAGE_PATH = Rails.root.join("db/seed_assets/help-sign-in.png") unless defined?(SIGN_IN_IMAGE_PATH)
+SIGN_IN_PNG = File.binread(SIGN_IN_IMAGE_PATH).freeze unless defined?(SIGN_IN_PNG)
 
 find_or_record_child = lambda do |recordable, root_recording, parent_recording|
   RecordingStudio::Recording.find_by(
@@ -111,7 +110,7 @@ begin
 
   if sign_in_page.images.none?
     attachment = sign_in_page.import_attachment(
-      io: StringIO.new(ONE_PIXEL_PNG),
+      io: StringIO.new(SIGN_IN_PNG),
       filename: "sign-in.png",
       content_type: "image/png",
       actor: user
