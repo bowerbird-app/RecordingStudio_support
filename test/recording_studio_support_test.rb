@@ -97,7 +97,8 @@ class RecordingStudioSupportTest < Minitest::Test
   end
 
   def test_dummy_default_layout_head_loads_flatpack_and_root_switch_chrome
-    default_layout_head = File.read(File.expand_path("dummy/app/views/recording_studio/_default_layout_head.html.erb", __dir__))
+    head_path = File.expand_path("dummy/app/views/recording_studio/_default_layout_head.html.erb", __dir__)
+    default_layout_head = File.read(head_path)
 
     assert_includes default_layout_head, 'stylesheet_link_tag "flat_pack/application"'
     assert_includes default_layout_head, "recording_studio_root_switch_dropdown"
