@@ -7,6 +7,7 @@ This Rails app exists to prove Recording Studio Support in a real host. It is no
 - Devise authentication with a seeded admin user
 - `Current.actor` wiring for Recording Studio events
 - Root workspace plus a seeded support page
+- Support pages opt into Attachable, Trashable, and Orderable. Dummy Folder and Page do not.
 - Recording Studio default layout, FlatPack assets, and Tailwind source scanning
 - Mounted `RecordingStudio::Engine` route behavior inside a host app
 
@@ -36,5 +37,7 @@ Then open the app and sign in with:
 ## Why This App Exists
 
 Use this app to verify Support pages boot in a host. If a layout, route, asset source, or Recording Studio initializer change breaks here, the gem likely needs adjustment before reuse.
+
+The seeded article has no images. This dummy host does not mount Attachable, Trashable, or Orderable screens.
 
 Authenticated pages use Recording Studio's shared default layout. Devise sign-in keeps `layouts/application`.

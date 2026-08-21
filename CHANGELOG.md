@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.4.0] - 2026-08-21
+
+Support pages can hold image children, move to trash, and sort those images. Folder and Page in a host still stay plain unless that host opts them in.
+
+### Added
+- Attachable, Trashable, and Orderable on `RecordingStudioSupport::SupportPage` through `.to` / `include_for`
+- Gemspec pins `recording_studio_attachable ~> 0.4`, `recording_studio_trashable ~> 0.4`, and `recording_studio_orderable ~> 0.2`
+- Dummy GitHub tags Attachable `0.4.0`, Trashable `0.4.0`, and Orderable `0.2.0`
+
+### Upgrade notes
+- Add the three mixin gems next to Support. GitHub hosting is not a reason to skip gemspec pins.
+- Point dummy or host Gemfiles at Attachable `0.4.0`, Trashable `0.4.0`, and Orderable `0.2.0`.
+- Run each mixin gem's migrations generator, plus Active Storage if the host does not have it yet.
+- Keep `include RecordingStudio::Capabilities::Attachable.to(...)`, `Trashable.to`, and `Orderable.to(...)` on Support pages only. Do not copy that onto Folder or Page just because the gems are installed.
+- Images are Attachable children. Do not add a support image type or put files in the page body.
+- This slice still has no public pages, admin, Publishable, or API.
+
 ## [0.3.0] - 2026-08-21
 
 First product release of Recording Studio Support. Staff write help pages under a workspace. People help themselves. No tickets, inbox, or chat.
@@ -85,7 +102,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.4.0...HEAD
+[0.4.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.4.0
 [0.3.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.3.0
 [0.2.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.2.0
 [0.1.2]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.1.2

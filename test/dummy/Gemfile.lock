@@ -16,6 +16,25 @@ GIT
       recording_studio (~> 4.1)
 
 GIT
+  remote: https://github.com/bowerbird-app/RecordingStudio_attachable.git
+  revision: d0a845eb1ad1fea8a562b81ecf3bd8f8b08676ef
+  tag: 0.4.0
+  specs:
+    recording_studio_attachable (0.4.0)
+      rails (~> 8.1.0)
+      recording_studio (~> 4.2)
+
+GIT
+  remote: https://github.com/bowerbird-app/RecordingStudio_orderable.git
+  revision: 57da28916966670404c2ac909db91c605e6bba2a
+  tag: 0.2.0
+  specs:
+    recording_studio_orderable (0.2.0)
+      flat_pack (>= 0.1.74)
+      rails (~> 8.1.0)
+      recording_studio (~> 4.1)
+
+GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_root_switchable.git
   revision: 98be393513dea19e5cd633ef83616e282c92b6ea
   tag: v0.5.0
@@ -25,6 +44,16 @@ GIT
       rails (~> 8.1.0)
       recording_studio (~> 4.1)
       recording_studio_accessible (~> 0.6)
+
+GIT
+  remote: https://github.com/bowerbird-app/RecordingStudio_trashable.git
+  revision: e8a74208665e267051358dad2b0d81c5aaf3c484
+  tag: 0.4.0
+  specs:
+    recording_studio_trashable (0.4.0)
+      flat_pack (>= 0.1.74)
+      rails (~> 8.1.0)
+      recording_studio (~> 4.2)
 
 GIT
   remote: https://github.com/bowerbird-app/flatpack.git
@@ -40,10 +69,13 @@ GIT
 PATH
   remote: ../..
   specs:
-    recording_studio_support (0.3.0)
+    recording_studio_support (0.4.0)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
       recording_studio_accessible (~> 0.6)
+      recording_studio_attachable (~> 0.4)
+      recording_studio_orderable (~> 0.2)
+      recording_studio_trashable (~> 0.4)
 
 GEM
   remote: https://rubygems.org/
@@ -467,8 +499,11 @@ DEPENDENCIES
   rails (~> 8.1.1)
   recording_studio!
   recording_studio_accessible!
+  recording_studio_attachable!
+  recording_studio_orderable!
   recording_studio_root_switchable!
   recording_studio_support!
+  recording_studio_trashable!
   rubocop-rails-omakase
   solid_cable
   solid_cache
@@ -595,8 +630,11 @@ CHECKSUMS
   rdoc (8.0.0) sha256=03bf8c08a9639658855a0cfd77c0abca8325c227693f7f33f82957811348c469
   recording_studio (4.2.0)
   recording_studio_accessible (0.6.1)
+  recording_studio_attachable (0.4.0)
+  recording_studio_orderable (0.2.0)
   recording_studio_root_switchable (0.5.0)
-  recording_studio_support (0.3.0)
+  recording_studio_support (0.4.0)
+  recording_studio_trashable (0.4.0)
   regexp_parser (2.11.3) sha256=ca13f381a173b7a93450e53459075c9b76a10433caadcb2f1180f2c741fc55a4
   reline (0.6.3) sha256=1198b04973565b36ec0f11542ab3f5cfeeec34823f4e54cebde90968092b1835
   responders (3.2.0) sha256=89c2d6ac0ae16f6458a11524cae4a8efdceba1a3baea164d28ee9046bd3df55a

@@ -8,6 +8,15 @@ module RecordingStudioSupport
                                 root: false,
                                 allowed_parent_types: ["Workspace"]
 
+    include RecordingStudio::Capabilities::Attachable.to(
+      allowed_content_types: ["image/*"],
+      enabled_attachment_kinds: %i[image]
+    )
+    include RecordingStudio::Capabilities::Trashable.to
+    include RecordingStudio::Capabilities::Orderable.to(
+      allows: ["RecordingStudioAttachable::Attachment"]
+    )
+
     validates :title, presence: true
   end
 end

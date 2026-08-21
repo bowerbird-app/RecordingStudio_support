@@ -4,22 +4,22 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.3.0", ::RecordingStudioSupport::VERSION
+    assert_equal "0.4.0", ::RecordingStudioSupport::VERSION
   end
 
   def test_engine_exists
     assert_kind_of Class, ::RecordingStudioSupport::Engine
   end
 
-  def test_gemspec_pins_recording_studio_and_accessible
+  def test_gemspec_pins_recording_studio_kit_and_support_mixins
     gemspec = File.read(File.expand_path("../recording_studio_support.gemspec", __dir__))
 
     assert_includes gemspec, 'spec.add_dependency "recording_studio", "~> 4.2"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_accessible", "~> 0.6"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_attachable", "~> 0.4"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_trashable", "~> 0.4"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_orderable", "~> 0.2"'
     refute_includes gemspec, 'spec.add_dependency "recording_studio_publishable"'
-    refute_includes gemspec, 'spec.add_dependency "recording_studio_attachable"'
-    refute_includes gemspec, 'spec.add_dependency "recording_studio_trashable"'
-    refute_includes gemspec, 'spec.add_dependency "recording_studio_orderable"'
     refute_includes gemspec, 'spec.add_dependency "recording_studio_api"'
   end
 
@@ -28,6 +28,9 @@ class RecordingStudioSupportTest < Minitest::Test
 
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.2.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.6.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "0.4.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "0.4.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_orderable", tag: "0.2.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.0"'
     assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.133"'
     refute_includes gemfile, "recording_studio/v3.0.0"
@@ -51,6 +54,10 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes source, 'label: "Support page"'
     assert_includes source, "root: false"
     assert_includes source, 'allowed_parent_types: ["Workspace"]'
+    assert_includes source, "RecordingStudio::Capabilities::Attachable.to"
+    assert_includes source, "RecordingStudio::Capabilities::Trashable.to"
+    assert_includes source, "RecordingStudio::Capabilities::Orderable.to"
+    assert_includes source, 'allows: ["RecordingStudioAttachable::Attachment"]'
     refute_includes source, "Recordable"
     refute_match(/label:\s*"[^"]*Recordable/, source)
   end
@@ -96,6 +103,7 @@ class RecordingStudioSupportTest < Minitest::Test
 
     assert_includes initializer_source, "config.require_recordable_declarations = true"
     assert_includes initializer_source, '"RecordingStudioSupport::SupportPage"'
+    assert_includes initializer_source, '"RecordingStudioAttachable::Attachment"'
     refute_includes initializer_source, "config.include_children"
     refute_includes initializer_source, "config.features."
     refute_includes initializer_source, "v3"
@@ -120,6 +128,9 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "v0.6.1"
     assert_includes readme, "v0.1.133"
     assert_includes readme, "Support page"
+    assert_includes readme, "RecordingStudio::Capabilities::Attachable.to"
+    assert_includes readme, "tag: \"0.4.0\""
+    assert_includes readme, "tag: \"0.2.0\""
     refute_includes readme, "v3 declarations"
     refute_includes readme, "RecordingStudio v3"
     refute_includes readme, "ExampleService"
@@ -147,5 +158,17 @@ class RecordingStudioSupportTest < Minitest::Test
     view_path = File.expand_path("../app/views/recording_studio_support/home/index.html.erb", __dir__)
 
     refute File.exist?(view_path)
+  end
+
+  def test_dummy_folder_and_page_do_not_opt_into_support_mixins
+    folder_source = File.read(File.expand_path("dummy/app/models/folder.rb", __dir__))
+    page_source = File.read(File.expand_path("dummy/app/models/page.rb", __dir__))
+
+    refute_includes folder_source, "Capabilities::Attachable"
+    refute_includes folder_source, "Capabilities::Trashable"
+    refute_includes folder_source, "Capabilities::Orderable"
+    refute_includes page_source, "Capabilities::Attachable"
+    refute_includes page_source, "Capabilities::Trashable"
+    refute_includes page_source, "Capabilities::Orderable"
   end
 end

@@ -162,6 +162,28 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     refute RecordingStudio.capability_enabled?(:accessible, for: "RecordingStudioSupport::SupportPage")
   end
 
+  test "attachable trashable and orderable are enabled on support pages only" do
+    %i[attachable trashable orderable].each do |capability|
+      assert RecordingStudio.capability_enabled?(capability, for: "RecordingStudioSupport::SupportPage"),
+             "#{capability} should be enabled on SupportPage"
+      refute RecordingStudio.capability_enabled?(capability, for: "Workspace"),
+             "#{capability} should not be enabled on Workspace"
+      refute RecordingStudio.capability_enabled?(capability, for: "Folder"),
+             "#{capability} should not be enabled on Folder"
+      refute RecordingStudio.capability_enabled?(capability, for: "Page"),
+             "#{capability} should not be enabled on Page"
+    end
+
+    assert_equal(
+      ["RecordingStudioAttachable::Attachment"],
+      RecordingStudio.capability_options(:orderable, for: "RecordingStudioSupport::SupportPage")[:allows]
+    )
+    assert_equal ["image/*"],
+                 RecordingStudio.capability_options(:attachable, for: "RecordingStudioSupport::SupportPage")[:allowed_content_types]
+    assert_equal %i[image],
+                 RecordingStudio.capability_options(:attachable, for: "RecordingStudioSupport::SupportPage")[:enabled_attachment_kinds]
+  end
+
   private
 
   def record_child(recordable, root_recording, parent_recording)

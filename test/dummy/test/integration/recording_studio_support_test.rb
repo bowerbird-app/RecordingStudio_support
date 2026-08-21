@@ -27,6 +27,11 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert connection.column_exists?(:recording_studio_support_pages, :title)
     assert connection.column_exists?(:recording_studio_support_pages, :body)
     refute connection.column_exists?(:recording_studio_support_pages, :updated_at)
+    assert connection.table_exists?(:recording_studio_attachable_attachments)
+    assert connection.table_exists?(:active_storage_blobs)
+    assert connection.table_exists?(:recording_studio_trashable_retention_settings)
+    assert connection.column_exists?(:recording_studio_recordings, :trash_root)
+    assert connection.column_exists?(:recording_studio_recordings, :recording_studio_orderable_position)
     refute connection.table_exists?(:recording_studio_access_boundaries)
     refute connection.table_exists?(:recording_studio_device_sessions)
   end
@@ -82,6 +87,15 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     refute RecordingStudio.capability_enabled?(:accessible, for: Folder)
     refute RecordingStudio.capability_enabled?(:accessible, for: Page)
     refute RecordingStudio.capability_enabled?(:accessible, for: RecordingStudioSupport::SupportPage)
+    assert RecordingStudio.capability_enabled?(:attachable, for: RecordingStudioSupport::SupportPage)
+    assert RecordingStudio.capability_enabled?(:trashable, for: RecordingStudioSupport::SupportPage)
+    assert RecordingStudio.capability_enabled?(:orderable, for: RecordingStudioSupport::SupportPage)
+    refute RecordingStudio.capability_enabled?(:attachable, for: Folder)
+    refute RecordingStudio.capability_enabled?(:trashable, for: Folder)
+    refute RecordingStudio.capability_enabled?(:orderable, for: Folder)
+    refute RecordingStudio.capability_enabled?(:attachable, for: Page)
+    refute RecordingStudio.capability_enabled?(:trashable, for: Page)
+    refute RecordingStudio.capability_enabled?(:orderable, for: Page)
     assert_includes ApplicationController.ancestors, RecordingStudio::UsesDefaultLayout
   end
 end

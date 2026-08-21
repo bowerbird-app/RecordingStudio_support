@@ -5,7 +5,8 @@ RecordingStudio.configure do |config|
     "Workspace",
     "Folder",
     "Page",
-    "RecordingStudioSupport::SupportPage"
+    "RecordingStudioSupport::SupportPage",
+    "RecordingStudioAttachable::Attachment"
   ]
 
   config.require_recordable_declarations = true
