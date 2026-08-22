@@ -43,12 +43,12 @@ class ApplicationHelperTest < Minitest::Test
     assert_nil helper.support_recording_title(nil)
   end
 
-  def test_support_page_count_label_uses_pages
+  def test_support_page_count_label_is_the_number
     helper = Object.new.extend(load_helper)
 
-    assert_equal "0 pages", helper.support_page_count_label(0)
-    assert_equal "1 page", helper.support_page_count_label(1)
-    assert_equal "2 pages", helper.support_page_count_label(2)
+    assert_equal "0", helper.support_page_count_label(0)
+    assert_equal "1", helper.support_page_count_label(1)
+    assert_equal "2", helper.support_page_count_label(2)
   end
 
   def test_support_page_count_badge_uses_the_flatpack_badge
@@ -61,6 +61,7 @@ class ApplicationHelperTest < Minitest::Test
     assert_includes source, "style: :default"
     assert_includes source, "size: :sm"
     refute_includes source, "removable: true"
+    refute_includes source, "pluralize"
   end
 
   def test_support_list_chevron_uses_the_flatpack_icon

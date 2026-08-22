@@ -73,7 +73,7 @@ module RecordingStudioSupport
     end
 
     def support_page_count_label(page_count)
-      "#{page_count} #{'page'.pluralize(page_count)}"
+      page_count.to_s
     end
 
     def support_page_count_badge(page_count)

@@ -27,7 +27,7 @@ Help pages live in a section. Staff pick the section by moving the page.
 - `Pages.create!` takes `parent_recording:` (the section). Writes still go through `record` / `revise` / `log_event!`
 - Public home search matches section names. Page search stays on a section show
 - Public and staff section lists, and the page lists on section show, share one Flatpack List (`divider: true`) with a `chevron-right` trailing icon. The List sits in a Card body (Feature List kit pattern). No Read / Open buttons and no List border API
-- Public and staff Help section rows show a Flatpack Badge with the page count (`1 page` / `2 pages`). Public counts published pages only. Staff counts draft and published. Section show and the Admin hub do not get this badge
+- Public and staff Help section rows show a Flatpack Badge with the page count (`1` / `2`). Public counts published pages only. Staff counts draft and published. Section show and the Admin hub do not get this badge
 
 ### Upgrade notes
 - Register `"RecordingStudioSupport::SupportSection"` next to `"RecordingStudioSupport::SupportPage"`

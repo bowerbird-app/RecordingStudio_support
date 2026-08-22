@@ -39,8 +39,10 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_select "ul[role='list']"
     assert_select "li[role='listitem']"
     assert_includes response.body, "chevron-right"
-    assert_includes response.body, "1 page"
-    assert_includes response.body, "2 pages"
+    assert_select "[class*='badge-default-background-color']", text: "1", count: 2
+    assert_select "[class*='badge-default-background-color']", text: "2", count: 1
+    refute_includes response.body, "1 page"
+    refute_includes response.body, "2 pages"
     refute_includes response.body, "<span>Open</span>"
     refute_includes response.body, "<span>Read</span>"
   end
