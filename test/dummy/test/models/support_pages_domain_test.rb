@@ -82,36 +82,32 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
   end
 
   test "public_indexable uses Publishable indexable and hides drafts" do
+    token = SecureRandom.hex(4)
     live = RecordingStudioSupport::Pages.create!(
       root_recording: @root_recording,
-      title: "How do I sign in?",
-      body: "Use the email you were given.",
+      title: "Live help #{token}",
+      body: "Use the live token #{token}.",
       actor: @user
     )
     draft = RecordingStudioSupport::Pages.create!(
       root_recording: @root_recording,
-      title: "How do I change my password?",
-      body: "Pick a new one.",
+      title: "Draft help #{token}",
+      body: "Hidden draft token #{token}-draft.",
       actor: @user
     )
 
-    publish!(live, slug: "how-do-i-sign-in", status: "published")
-    publish!(draft, slug: "how-do-i-change-my-password", status: "draft")
+    publish!(live, slug: "live-help-#{token}", status: "published")
+    publish!(draft, slug: "draft-help-#{token}", status: "draft")
 
-    created_ids = [live.recordable_id, draft.recordable_id]
-    titles = RecordingStudioSupport::Pages.public_indexable.filter_map do |page|
-      page.title if created_ids.include?(page.id)
-    end
-    matched = lambda do |query|
-      RecordingStudioSupport::Pages.public_indexable(query: query).select do |page|
-        created_ids.include?(page.id)
-      end
-    end
+    titles = RecordingStudioSupport::Pages.public_indexable.map(&:title)
 
-    assert_equal ["How do I sign in?"], titles
-    refute_includes titles, "How do I change my password?"
-    assert_equal ["How do I sign in?"], matched.call("sign in").map(&:title)
-    assert_empty matched.call("password")
+    assert_includes titles, "Live help #{token}"
+    refute_includes titles, "Draft help #{token}"
+    assert_equal(
+      [live.recordable.id],
+      RecordingStudioSupport::Pages.public_indexable(query: "Live help #{token}").map(&:id)
+    )
+    assert_empty RecordingStudioSupport::Pages.public_indexable(query: "#{token}-draft")
     assert live.recordable.indexable?
     refute draft.recordable.indexable?
   end

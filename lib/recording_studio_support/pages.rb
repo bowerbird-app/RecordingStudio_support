@@ -14,7 +14,7 @@ module RecordingStudioSupport
     end
 
     def public_indexable(query: nil)
-      apply_page_query(SupportPage.indexable, query).order(:title)
+      apply_page_query(SupportPage.indexable, query).distinct.order(:title)
     end
 
     def find_for_root!(root_recording:, id:)
@@ -68,8 +68,9 @@ module RecordingStudioSupport
       term = query.to_s.strip
       return relation if term.blank?
 
+      table = SupportPage.table_name
       relation.where(
-        "title ILIKE :q OR body ILIKE :q",
+        "#{table}.title ILIKE :q OR #{table}.body ILIKE :q",
         q: page_query_pattern(term)
       )
     end

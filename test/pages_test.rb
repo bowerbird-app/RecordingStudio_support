@@ -37,6 +37,7 @@ class PagesTest < Minitest::Test
 
     assert_includes pages, "SupportPage.indexable"
     assert_includes pages, "def public_indexable(query: nil)"
+    assert_includes pages, ".distinct.order(:title)"
     refute_includes pages, "meta_robots"
     refute_includes pages, "noindex"
     assert_includes public_index, "FlatPack::Search::Component"
