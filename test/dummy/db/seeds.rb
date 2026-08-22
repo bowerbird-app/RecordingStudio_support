@@ -19,15 +19,33 @@ find_or_record_child = lambda do |recordable, root_recording, parent_recording|
   ).recording
 end
 
-find_or_record_support_page = lambda do |root_recording, title:, body:|
+find_or_record_support_section = lambda do |root_recording, title:|
   existing = RecordingStudio::Recording.where(
     root_recording: root_recording,
     parent_recording: root_recording,
+    recordable_type: "RecordingStudioSupport::SupportSection",
+    trashed_at: nil
+  ).find { |recording| recording.recordable.title == title }
+
+  return existing if existing
+
+  root_recording.record(RecordingStudioSupport::SupportSection) do |section|
+    section.title = title
+  end
+end
+
+find_or_record_support_page = lambda do |root_recording, parent_recording, title:, body:|
+  existing = RecordingStudio::Recording.where(
+    root_recording: root_recording,
     recordable_type: "RecordingStudioSupport::SupportPage",
     trashed_at: nil
   ).find { |recording| recording.recordable.title == title }
 
   if existing
+    if existing.parent_recording_id != parent_recording.id
+      existing.move_to!(new_parent: parent_recording, actor: Current.actor)
+      existing.reload
+    end
     if existing.recordable.body != body
       root_recording.revise(existing) do |page|
         page.title = title
@@ -37,7 +55,7 @@ find_or_record_support_page = lambda do |root_recording, title:, body:|
     return existing.reload
   end
 
-  root_recording.record(RecordingStudioSupport::SupportPage) do |page|
+  root_recording.record(RecordingStudioSupport::SupportPage, parent_recording: parent_recording) do |page|
     page.title = title
     page.body = body
   end
@@ -105,15 +123,33 @@ begin
     grant_workspace_access.call(recording, user)
   end
 
+  billing_section = find_or_record_support_section.call(root_recording, title: "Billing")
+  developers_section = find_or_record_support_section.call(root_recording, title: "Developers")
+  getting_started_section = find_or_record_support_section.call(root_recording, title: "Getting started")
+
   sign_in_page = find_or_record_support_page.call(
     root_recording,
+    getting_started_section,
     title: "How do I sign in?",
     body: "Use the email and password you were given. Still stuck? Ask a teammate who already has access."
   )
   password_page = find_or_record_support_page.call(
     root_recording,
+    getting_started_section,
     title: "How do I change my password?",
     body: "Open your account settings and pick a new password. Then use the new one next time."
+  )
+  billing_page = find_or_record_support_page.call(
+    root_recording,
+    billing_section,
+    title: "How do I update payment details?",
+    body: "Open billing and save the card you want us to use."
+  )
+  developers_page = find_or_record_support_page.call(
+    root_recording,
+    developers_section,
+    title: "Where do I find my API key?",
+    body: "Open your developer settings. The key is on that page."
   )
 
   if sign_in_page.images.none?
@@ -155,8 +191,22 @@ begin
     slug: "how-do-i-change-my-password",
     status: "draft"
   )
+  ensure_publish_state.call(
+    billing_page,
+    slug: "how-do-i-update-payment-details",
+    status: "published",
+    seo_title: "How do I update payment details?",
+    seo_description: "Open billing and save the card you want us to use."
+  )
+  ensure_publish_state.call(
+    developers_page,
+    slug: "where-do-i-find-my-api-key",
+    status: "published",
+    seo_title: "Where do I find my API key?",
+    seo_description: "Open your developer settings. The key is on that page."
+  )
 
-  [sign_in_page, password_page].each do |support_recording|
+  [sign_in_page, password_page, billing_page, developers_page].each do |support_recording|
     next if RecordingStudioSupport::PageView.exists?(recording_id: support_recording.id)
 
     3.times do
@@ -172,5 +222,6 @@ puts "Seeded: Workspace '#{workspace.name}' with root recording ##{root_recordin
 puts "Seeded: Workspace '#{accessible_workspace.name}' with root recording ##{accessible_root_recording.id}"
 puts "Seeded: Workspace '#{private_workspace.name}' with root recording ##{private_root_recording.id}"
 puts "Seeded: Folder '#{folder.name}' and page '#{page.title}'"
-puts "Seeded: Support pages 'How do I sign in?' (live) and 'How do I change my password?' (draft)"
+puts "Seeded: Help sections Billing, Developers, Getting started"
+puts "Seeded: Support pages 'How do I sign in?' (live) and 'How do I change my password?' (draft) under Getting started"
 puts "Seeded: Admin root with owner access for admin@admin.com"

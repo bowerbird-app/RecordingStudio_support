@@ -7,6 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-08-22
+
+Help pages live in a section. Staff pick the section by moving the page.
+
+### Added
+- `RecordingStudioSupport::SupportSection` in this gem. Tree is host root → SupportSection → SupportPage
+- Moveable on SupportPage through `.to`. Staff change section with `move_to!` (same root). No `section_id` column
+- Orderable on SupportSection sorts its pages. Trashable on a section cascade-trashes its pages; empty sections trash cleanly
+- Public `/help` lists sections. `/help/sections/:id` lists published pages only
+- Staff `/support` lists sections. A section show lists its pages for read and publish preview
+- Admin Support hub keeps Latest pages and See every page, and adds a Sections widget (list + New)
+- Admin help-pages table adds a section filter and column, plus Move through Moveable
+- Dummy seeds Billing, Developers, and Getting started. Existing pages sit under Getting started. Billing and Developers each have one live page so those lists are not empty
+- Dummy GitHub pin `recording_studio_moveable` tag `3.0.0` and gemspec `~> 3.0`
+
+### Changed
+- SupportPage `allowed_parent_types` is SupportSection only, not Workspace. Break in place
+- `Pages.create!` takes `parent_recording:` (the section). Writes still go through `record` / `revise` / `log_event!`
+- Public home search matches section names. Page search stays on a section show
+
+### Upgrade notes
+- Register `"RecordingStudioSupport::SupportSection"` next to `"RecordingStudioSupport::SupportPage"`
+- Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate`
+- Add `recording_studio_moveable`, `~> 3.0` (dummy GitHub tag `3.0.0`) and mount it at `/recording_studio_moveable`
+- Enable Moveable only on Support pages: `include RecordingStudio::Capabilities::Moveable.to`
+- Enable Orderable and Trashable on SupportSection. Do not enable Attachable or Publishable on the section
+- Point `/help/sections/:id` at `RecordingStudioSupport::PublicSectionsController.action(:show)`
+- Create pages under a section. Move them with `recording.move_to!(new_parent: section, actor: current_user)`
+- Do not add a `section_id` column, a categories gem, or a second Admin section
+
+## [0.6.0] - 2026-08-21
+
 ### Changed
 - Staff Edit and New live on the Admin help-pages table (every page, draft or live). Workspace `/support` and owner preview stay for reading and publish preview
 - Edit and New still use the Support page controllers. Pages are found even when the current root is Admin, and staff with an admin-root grant can write. New pages still land under a workspace.
@@ -28,8 +60,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Keep Sign out and Root Switchable off Support and Admin Support screens. Access can stay on Admin
 - Drop Help pages and Reads count cards from the Admin Support hub. Keep Latest pages and See every page. Do not replace those cards with another total of the same fact
 - Add search and Published/Draft on the Admin help-pages table with `table { filter ... }`. Hide the table heading and row count with the table DSL (`title` / `hide_count`). Do not add a custom search form or CSS hide
-
-## [0.6.0] - 2026-08-21
 
 Logged-out people can read live help pages. Drafts stay hidden. Staff publish through Publishable.
 
@@ -199,7 +229,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.7.0
 [0.6.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.6.0
 [0.5.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.5.0
 [0.4.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.4.0

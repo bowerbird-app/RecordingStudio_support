@@ -11,13 +11,15 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     @user = User.find_by!(email: "admin@admin.com")
   end
 
-  test "logged out visitors see only indexable help pages" do
+  test "logged out visitors see help sections" do
     get "/help"
 
     assert_response :success
     assert_select "body[data-theme='rounded']"
     assert_includes response.body, "Help"
-    assert_includes response.body, "How do I sign in?"
+    assert_includes response.body, "Getting started"
+    assert_includes response.body, "Billing"
+    assert_includes response.body, "Developers"
     refute_includes response.body, "How do I change my password?"
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_includes response.body, "flat-pack-page-nav"
@@ -92,21 +94,37 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "recordable"
   end
 
-  test "logged out visitors can search indexable help pages" do
-    get "/help", params: { q: "sign in" }
+  test "logged out visitors can search help sections" do
+    get "/help", params: { q: "Getting started" }
 
     assert_response :success
     assert_select "form[role='search']"
-    assert_includes response.body, "How do I sign in?"
-    refute_includes response.body, "How do I change my password?"
-    assert_select "input[name='q'][value='sign in']"
+    assert_includes response.body, "Getting started"
+    refute_includes response.body, "Billing"
+    assert_select "input[name='q'][value='Getting started']"
     refute_includes response.body, "Sign out"
 
-    get "/help", params: { q: "no-such-help-page" }
+    get "/help", params: { q: "no-such-help-section" }
 
     assert_response :success
     assert_includes response.body, "Nothing matches that"
-    refute_includes response.body, "How do I sign in?"
+    refute_includes response.body, "Getting started"
+  end
+
+  test "logged out visitors see published pages on a section and drafts stay hidden" do
+    section = seeded_section("Getting started")
+
+    get "/help/sections/#{section.id}"
+
+    assert_response :success
+    assert_includes response.body, "Getting started"
+    assert_includes response.body, "How do I sign in?"
+    refute_includes response.body, "How do I change my password?"
+    assert_select "body[data-recording-studio-default-layout='true']", count: 1
+    assert_select "html[data-theme='rounded']"
+    refute_includes response.body, "Sign out"
+    refute_includes response.body, 'href="/users/sign_in"'
+    refute_includes response.body, "recordable"
   end
 
   test "logged out visitors are asked to sign in for authenticated help" do
@@ -116,12 +134,4 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_match "/users/sign_in", response.redirect_url
   end
 
-  private
-
-  def seeded_page(title)
-    RecordingStudio::Recording.where(
-      recordable_type: "RecordingStudioSupport::SupportPage",
-      trashed_at: nil
-    ).find { |recording| recording.recordable.title == title }
-  end
 end

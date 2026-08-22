@@ -2,6 +2,42 @@
 
 ## Unreleased
 
+## 0.7.0
+
+Help pages live in a section. Staff pick the section by moving the page.
+
+- Recording Studio `~> 4.2` (dummy GitHub tag `v4.2.0`)
+- Accessible `~> 0.6` (dummy GitHub tag `v0.6.1`)
+- Admin `~> 2.0` (dummy GitHub tag `2.0.0`)
+- Attachable `~> 0.4` (dummy GitHub tag `0.4.0`)
+- Trashable `~> 0.4` (dummy GitHub tag `0.4.0`)
+- Orderable `~> 0.2` (dummy GitHub tag `0.2.0`)
+- Publishable `~> 0.2` (dummy GitHub tag `v0.2.0`)
+- Moveable `~> 3.0` (dummy GitHub tag `3.0.0`)
+
+### Host app
+
+1. Register `"RecordingStudioSupport::SupportSection"` next to `"RecordingStudioSupport::SupportPage"`.
+2. Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate`.
+3. Add Moveable 3.0 and mount it at `/recording_studio_moveable`.
+4. Enable Moveable only on Support pages with `.to`. Parent rules stay on `allowed_parent_types`.
+5. Enable Orderable and Trashable on SupportSection. Do not enable Attachable or Publishable on the section.
+6. Point `/help/sections/:id` at `PublicSectionsController`. Public `/help` lists sections.
+7. Create pages under a section (`Pages.create!(parent_recording: section, ...)`). Move them with `move_to!`.
+8. Keep one Admin Support section. Add a sections widget and a section filter on the help-pages table.
+
+Do not add a `section_id` column, nested sections, or a second Admin app. Trashing a section cascade-trashes its pages (Trashable subtree). Empty sections trash cleanly.
+
+### Verify
+
+```bash
+bundle install
+BUNDLE_GEMFILE=test/dummy/Gemfile bundle install
+bundle exec rake test:all
+```
+
+## 0.6.0
+
 Staff edit help pages from the Admin help-pages table.
 
 ### Host app

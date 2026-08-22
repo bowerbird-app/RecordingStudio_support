@@ -54,6 +54,23 @@ module RecordingStudioSupport
       RecordingStudioSupport.configuration.public_pages_path
     end
 
+    def support_public_section_path(recording)
+      if respond_to?(:main_app) && main_app.respond_to?(:public_help_section_path)
+        return main_app.public_help_section_path(recording)
+      end
+
+      "#{support_public_help_path}/sections/#{recording.id}"
+    end
+
+    def support_section_options(section_recordings)
+      Array(section_recordings).filter_map do |recording|
+        title = recording.recordable&.title
+        next if title.blank?
+
+        [title, recording.id]
+      end
+    end
+
     private
 
     def publishable_engine_routes

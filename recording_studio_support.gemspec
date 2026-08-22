@@ -27,6 +27,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "recording_studio_accessible", "~> 0.6"
   spec.add_dependency "recording_studio_admin", "~> 2.0"
   spec.add_dependency "recording_studio_attachable", "~> 0.4"
+  spec.add_dependency "recording_studio_moveable", "~> 3.0"
   spec.add_dependency "recording_studio_orderable", "~> 0.2"
   spec.add_dependency "recording_studio_publishable", "~> 0.2"
   spec.add_dependency "recording_studio_trashable", "~> 0.4"

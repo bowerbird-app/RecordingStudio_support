@@ -35,6 +35,24 @@ GIT
       recording_studio (~> 4.2)
 
 GIT
+  remote: https://github.com/bowerbird-app/RecordingStudio_icons.git
+  revision: 7c32c08d4c0a28dca5cfcb624d1beb03632f79b0
+  specs:
+    recording_studio_icons (0.1.0)
+      rails (>= 8.1.0)
+
+GIT
+  remote: https://github.com/bowerbird-app/RecordingStudio_moveable.git
+  revision: 708e9def4c4f01607312bc3e5c82f55f77bc5479
+  tag: 3.0.0
+  specs:
+    recording_studio_moveable (3.0.0)
+      rails (>= 8.1.0, < 9.0)
+      recording_studio (~> 4.2)
+      recording_studio_accessible (~> 0.6)
+      recording_studio_icons (>= 0.1.0)
+
+GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_orderable.git
   revision: 57da28916966670404c2ac909db91c605e6bba2a
   tag: 0.2.0
@@ -89,12 +107,13 @@ GIT
 PATH
   remote: ../..
   specs:
-    recording_studio_support (0.6.0)
+    recording_studio_support (0.7.0)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
       recording_studio_accessible (~> 0.6)
       recording_studio_admin (~> 2.0)
       recording_studio_attachable (~> 0.4)
+      recording_studio_moveable (~> 3.0)
       recording_studio_orderable (~> 0.2)
       recording_studio_publishable (~> 0.2)
       recording_studio_trashable (~> 0.4)
@@ -523,6 +542,8 @@ DEPENDENCIES
   recording_studio_accessible!
   recording_studio_admin!
   recording_studio_attachable!
+  recording_studio_icons!
+  recording_studio_moveable!
   recording_studio_orderable!
   recording_studio_publishable!
   recording_studio_root_switchable!
@@ -656,10 +677,12 @@ CHECKSUMS
   recording_studio_accessible (0.6.1)
   recording_studio_admin (2.0.0)
   recording_studio_attachable (0.4.0)
+  recording_studio_icons (0.1.0)
+  recording_studio_moveable (3.0.0)
   recording_studio_orderable (0.2.0)
   recording_studio_publishable (0.2.0)
   recording_studio_root_switchable (0.5.0)
-  recording_studio_support (0.6.0)
+  recording_studio_support (0.7.0)
   recording_studio_trashable (0.4.0)
   regexp_parser (2.11.3) sha256=ca13f381a173b7a93450e53459075c9b76a10433caadcb2f1180f2c741fc55a4
   reline (0.6.3) sha256=1198b04973565b36ec0f11542ab3f5cfeeec34823f4e54cebde90968092b1835

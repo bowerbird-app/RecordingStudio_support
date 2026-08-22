@@ -29,7 +29,7 @@ class ApplicationHelperTest < Minitest::Test
     assert_includes source, "skip_before_action :authenticate_user!"
     refute_includes source, "recording_studio_publishable/application"
     refute_match(/^\s*layout\s/, source)
-    assert_includes source, "Pages.public_indexable"
+    assert_includes source, "Sections.public_index"
     assert_includes source, "@query = params[:q]"
     assert_includes source, "@publishable&.publish_at"
   end

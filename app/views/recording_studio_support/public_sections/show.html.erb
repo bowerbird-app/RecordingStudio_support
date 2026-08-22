@@ -1,40 +1,42 @@
 <% recording_studio_page_nav(
-     title: support_public_help_title,
-     page_nav_anchor_url: (main_app.root_path if main_app.respond_to?(:root_path)),
+     title: @section.title,
+     page_nav_back_url: support_public_help_path,
+     page_nav_anchor_url: support_public_help_path,
      page_nav_anchor_label: "Close"
    ) %>
 
 <div class="flex w-full flex-col gap-6">
   <%= render FlatPack::PageTitle::Component.new(
-    title: support_public_help_title,
-    subtitle: support_public_help_subtitle,
+    title: @section.title,
     variant: :h1
   ) %>
 
-  <%= form_with url: support_public_help_path, method: :get, html: { role: "search", class: "w-full" } do %>
+  <%= form_with url: support_public_section_path(@section_recording), method: :get, html: { role: "search", class: "w-full" } do %>
     <%= render FlatPack::Search::Component.new(
       name: "q",
       value: @query,
-      placeholder: "Find a section",
+      placeholder: "Find a page",
       max_width: :none,
       class: "w-full"
     ) %>
   <% end %>
 
-  <% if @section_recordings.any? %>
+  <% if @pages.any? %>
     <div class="flex flex-col gap-3">
-      <% @section_recordings.each do |recording| %>
+      <% @pages.each do |page| %>
+        <% href = page.published_url %>
+        <% next if href.blank? %>
         <%= render FlatPack::Card::Component.new(style: :outlined) do |card| %>
           <% card.body(class: "flex flex-wrap items-center justify-between gap-3") do %>
             <%= render FlatPack::SectionTitle::Component.new(
-              title: recording.recordable.title,
+              title: page.title,
               subtitle: nil
             ) %>
             <%= render FlatPack::Button::Component.new(
               text: "Read",
               style: :secondary,
               size: :md,
-              href: support_public_section_path(recording)
+              href: href
             ) %>
           <% end %>
         <% end %>

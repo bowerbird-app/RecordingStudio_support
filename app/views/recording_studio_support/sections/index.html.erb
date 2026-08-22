@@ -1,17 +1,17 @@
 <% recording_studio_page_nav(
-     title: support_public_help_title,
+     title: support_help_title,
      page_nav_anchor_url: (main_app.root_path if main_app.respond_to?(:root_path)),
      page_nav_anchor_label: "Close"
    ) %>
 
 <div class="flex w-full flex-col gap-6">
   <%= render FlatPack::PageTitle::Component.new(
-    title: support_public_help_title,
-    subtitle: support_public_help_subtitle,
+    title: support_help_title,
+    subtitle: support_help_subtitle,
     variant: :h1
   ) %>
 
-  <%= form_with url: support_public_help_path, method: :get, html: { role: "search", class: "w-full" } do %>
+  <%= form_with url: root_path, method: :get, html: { role: "search", class: "w-full" } do %>
     <%= render FlatPack::Search::Component.new(
       name: "q",
       value: @query,
@@ -31,10 +31,10 @@
               subtitle: nil
             ) %>
             <%= render FlatPack::Button::Component.new(
-              text: "Read",
+              text: "Open",
               style: :secondary,
               size: :md,
-              href: support_public_section_path(recording)
+              href: section_path(recording)
             ) %>
           <% end %>
         <% end %>
@@ -53,8 +53,8 @@
     <%= render FlatPack::Card::Component.new(style: :outlined) do |card| %>
       <% card.body do %>
         <%= render FlatPack::SectionTitle::Component.new(
-          title: "Nothing live yet",
-          subtitle: "Check back soon."
+          title: "Nothing here yet",
+          subtitle: "Add a section to get going."
         ) %>
       <% end %>
     <% end %>

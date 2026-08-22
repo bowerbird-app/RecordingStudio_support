@@ -5,17 +5,19 @@ require "test_helper"
 class PagesTest < Minitest::Test
   def test_support_page_type_is_the_one_product_type
     assert_equal "RecordingStudioSupport::SupportPage", RecordingStudioSupport::Pages::SUPPORT_PAGE_TYPE
+    assert_equal "RecordingStudioSupport::SupportSection",
+                 RecordingStudioSupport::Sections::SUPPORT_SECTION_TYPE
   end
 
   def test_pages_helpers_exist
-    %i[for_root find_for_root! find_kept! create! revise! trash! recording_for public_indexable
-       allowed_parent_root? default_parent_root parent_root_for].each do |method_name|
+    %i[for_root for_section find_for_root! find_kept! create! revise! trash! move! recording_for
+       public_indexable public_for_section default_section_for section_for].each do |method_name|
       assert RecordingStudioSupport::Pages.respond_to?(method_name), "expected Pages.#{method_name}"
     end
   end
 
   def test_index_view_uses_flatpack_search
-    index = File.read(File.expand_path("../app/views/recording_studio_support/pages/index.html.erb", __dir__))
+    index = File.read(File.expand_path("../app/views/recording_studio_support/sections/index.html.erb", __dir__))
 
     assert_includes index, "FlatPack::Search::Component"
     assert_includes index, 'name: "q"'
@@ -48,6 +50,7 @@ class PagesTest < Minitest::Test
 
     assert_includes pages, "SupportPage.indexable"
     assert_includes pages, "def public_indexable(query: nil)"
+    assert_includes pages, "def public_for_section"
     assert_includes pages, ".distinct.order(:title)"
     refute_includes pages, "meta_robots"
     refute_includes pages, "noindex"
@@ -56,6 +59,7 @@ class PagesTest < Minitest::Test
     assert_includes public_index, "support_public_help_title"
     refute_includes public_index, "recordable"
     assert_includes support_page, "RecordingStudio::Capabilities::Publishable.to"
+    assert_includes support_page, "RecordingStudio::Capabilities::Moveable.to"
   end
 
   def test_page_view_model_is_a_log_table

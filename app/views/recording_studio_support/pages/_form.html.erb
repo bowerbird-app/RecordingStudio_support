@@ -1,5 +1,15 @@
 <%= form_with url: url, method: method, scope: :page do %>
   <div class="flex flex-col gap-4">
+    <% if local_assigns[:section_choices] %>
+      <%= render FlatPack::Select::Component.new(
+        name: "page[section_id]",
+        label: "Section",
+        options: support_section_options(section_choices),
+        value: local_assigns[:selected_section_id],
+        required: true
+      ) %>
+    <% end %>
+
     <%= render FlatPack::TextInput::Component.new(
       name: "page[title]",
       label: "Title",

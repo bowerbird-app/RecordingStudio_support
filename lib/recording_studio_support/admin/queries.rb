@@ -12,6 +12,10 @@ module RecordingStudioSupport
         )
       end
 
+      def kept_section_recordings
+        Sections.kept.includes(:recordable).order(:created_at)
+      end
+
       def recent_page_recordings(limit: 8)
         kept_page_recordings.includes(:recordable).order(created_at: :desc).limit(limit)
       end
@@ -28,6 +32,18 @@ module RecordingStudioSupport
         "#{pages_prefix}/new"
       end
 
+      def move_page_path(recording)
+        "#{moveable_prefix}/move/#{recording.id}"
+      end
+
+      def section_path(recording)
+        "#{pages_prefix}/sections/#{recording.id}"
+      end
+
+      def new_section_path
+        "#{pages_prefix}/sections/new"
+      end
+
       def page_status(recording)
         if recording.respond_to?(:currently_published?) && recording.currently_published?
           "Published"
@@ -38,6 +54,10 @@ module RecordingStudioSupport
 
       def page_status_badge_style(status)
         status.to_s == "Published" ? :success : :info
+      end
+
+      def page_section_title(recording)
+        Pages.section_for(recording)&.recordable&.title
       end
 
       def search_page_recordings(relation, value)
@@ -57,8 +77,26 @@ module RecordingStudioSupport
         end
       end
 
+      def filter_page_recordings_by_section(relation, value)
+        title = value.to_s.strip
+        return relation if title.blank?
+
+        section_ids = kept_section_recordings.filter_map do |recording|
+          recording.id if recording.recordable&.title == title
+        end
+        relation.where(parent_recording_id: section_ids)
+      end
+
+      def section_filter_options
+        kept_section_recordings.filter_map { |recording| recording.recordable&.title }.uniq.sort
+      end
+
       def pages_prefix
         RecordingStudioSupport.configuration.pages_path.to_s.chomp("/")
+      end
+
+      def moveable_prefix
+        "/recording_studio_moveable"
       end
     end
   end

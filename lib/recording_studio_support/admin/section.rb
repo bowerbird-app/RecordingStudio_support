@@ -13,6 +13,7 @@ module RecordingStudioSupport
            url: ->(context) { context.admin_screen_path("help_pages") },
            style: :primary
 
+      widget "widgets.support.sections"
       widget "widgets.support.recent_pages"
     end
   end

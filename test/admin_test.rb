@@ -26,6 +26,7 @@ class AdminTest < Minitest::Test
     assert_includes action_names, :edit
     refute_includes action_names, :open
     assert_includes column_keys, :title
+    assert_includes column_keys, :section
     assert_includes column_keys, :status
     assert_includes column_keys, :updated_at
     assert_equal :new_page, buttons.first.name
@@ -36,8 +37,10 @@ class AdminTest < Minitest::Test
     filter_keys = table.filters.map(&:key)
     assert_includes filter_keys, :search
     assert_includes filter_keys, :status
+    assert_includes filter_keys, :section
     status_filter = table.filters.find { |filter| filter.key == :status }
     assert_equal %w[Published Draft], status_filter.allowed_values
+    assert_includes action_names, :move
   end
 
   def test_section_links_to_the_help_pages_table
@@ -73,6 +76,9 @@ class AdminTest < Minitest::Test
 
     assert queries.respond_to?(:search_page_recordings)
     assert queries.respond_to?(:filter_page_recordings_by_status)
+    assert queries.respond_to?(:filter_page_recordings_by_section)
+    assert queries.respond_to?(:section_filter_options)
+    assert queries.respond_to?(:move_page_path)
   end
 
   def test_register_is_safe_when_admin_is_defined
@@ -87,10 +93,11 @@ class AdminTest < Minitest::Test
 
     assert_includes called, RecordingStudioSupport::Admin::Section
     assert_includes called, RecordingStudioSupport::Admin::PagesScreen
+    assert_includes called, RecordingStudioSupport::Admin::Widgets::SECTIONS
     assert_includes called, RecordingStudioSupport::Admin::Widgets::RECENT_PAGES
     refute_includes called.map { |item| item.try(:key) }, "widgets.support.page_count"
     refute_includes called.map { |item| item.try(:key) }, "widgets.support.page_views"
-    assert_equal 3, called.size
+    assert_equal 4, called.size
   end
 
   def test_section_copy_follows_configuration

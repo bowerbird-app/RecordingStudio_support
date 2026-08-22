@@ -1,0 +1,18 @@
+<%= form_with url: url, method: method, scope: :section do %>
+  <div class="flex flex-col gap-4">
+    <%= render FlatPack::TextInput::Component.new(
+      name: "section[title]",
+      label: "Name",
+      value: @section.title,
+      required: true,
+      error: @section.errors[:title].presence&.to_sentence
+    ) %>
+
+    <%= render FlatPack::Button::Component.new(
+      text: submit_text,
+      style: :primary,
+      size: :md,
+      type: "submit"
+    ) %>
+  </div>
+<% end %>

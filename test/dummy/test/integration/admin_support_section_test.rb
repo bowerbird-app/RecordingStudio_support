@@ -23,6 +23,11 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "How do I sign in?"
     assert_includes response.body, "How do I change my password?"
     assert_includes response.body, "Latest pages"
+    assert_includes response.body, "Sections"
+    assert_includes response.body, "Getting started"
+    assert_includes response.body, "Billing"
+    assert_includes response.body, "Developers"
+    assert_includes response.body, "New section"
     assert_includes response.body, "See every page"
     refute_includes response.body, "Reads"
     refute_match(/>\s*Help pages\s*</, response.body)
@@ -40,6 +45,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "/support/new"
     assert_includes response.body, 'name="search"'
     assert_includes response.body, 'name="status"'
+    assert_includes response.body, 'name="section"'
     assert_includes response.body, "Published"
     assert_includes response.body, "Draft"
     refute_includes response.body, "Sign out"
@@ -95,6 +101,19 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "How do I change my password?"
+    refute_includes response.body, "How do I sign in?"
+
+    get "/admin/screens/help_pages/table", params: { section: "Getting started" }
+
+    assert_response :success
+    assert_includes response.body, "How do I sign in?"
+    assert_includes response.body, "How do I change my password?"
+    refute_includes response.body, "How do I update payment details?"
+
+    get "/admin/screens/help_pages/table", params: { section: "Billing" }
+
+    assert_response :success
+    assert_includes response.body, "How do I update payment details?"
     refute_includes response.body, "How do I sign in?"
   end
 
@@ -190,10 +209,4 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     RecordingStudioAccessible.configuration.access_management_authorizer = original
   end
 
-  def seeded_page(title)
-    RecordingStudio::Recording.where(
-      recordable_type: "RecordingStudioSupport::SupportPage",
-      trashed_at: nil
-    ).find { |recording| recording.recordable.title == title }
-  end
 end

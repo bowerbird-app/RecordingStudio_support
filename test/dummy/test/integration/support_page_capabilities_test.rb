@@ -18,10 +18,13 @@ class SupportPageCapabilitiesTest < ActiveSupport::TestCase
       Workspace.create!(name: "Support mixins #{SecureRandom.hex(4)}")
     )
     grant_admin!(@root_recording, @user)
-    @page_recording = @root_recording.record(RecordingStudioSupport::SupportPage) do |page|
-      page.title = "How do I attach a screenshot?"
-      page.body = "Add the picture under this article."
-    end
+    @section_recording = record_support_section(@root_recording)
+    @page_recording = record_support_page(
+      @root_recording,
+      @section_recording,
+      title: "How do I attach a screenshot?",
+      body: "Add the picture under this article."
+    )
   end
 
   teardown do
