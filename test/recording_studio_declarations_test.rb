@@ -161,7 +161,8 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
   end
 
   test "support section cannot nest under another support section" do
-    root_recording = RecordingStudio.root_recording_for(Workspace.create!(name: unique_name("Nested Section Workspace")))
+    workspace = Workspace.create!(name: unique_name("Nested Section Workspace"))
+    root_recording = RecordingStudio.root_recording_for(workspace)
     section_recording = root_recording.record(RecordingStudioSupport::SupportSection) do |section|
       section.title = unique_name("Getting started")
     end
@@ -219,7 +220,7 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     refute RecordingStudio.capability_enabled?(:accessible, for: "RecordingStudioSupport::SupportPage")
   end
 
-  test "attachable trashable orderable and publishable are enabled on support pages only" do
+  test "attachable trashable orderable publishable and movable are enabled on support pages only" do
     %i[attachable trashable orderable publishable movable].each do |capability|
       assert RecordingStudio.capability_enabled?(capability, for: "RecordingStudioSupport::SupportPage"),
              "#{capability} should be enabled on SupportPage"
@@ -230,13 +231,14 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
       refute RecordingStudio.capability_enabled?(capability, for: "Page"),
              "#{capability} should not be enabled on Page"
     end
+  end
 
+  test "support sections enable trashable and orderable only" do
     assert RecordingStudio.capability_enabled?(:trashable, for: "RecordingStudioSupport::SupportSection")
     assert RecordingStudio.capability_enabled?(:orderable, for: "RecordingStudioSupport::SupportSection")
     refute RecordingStudio.capability_enabled?(:attachable, for: "RecordingStudioSupport::SupportSection")
     refute RecordingStudio.capability_enabled?(:publishable, for: "RecordingStudioSupport::SupportSection")
     refute RecordingStudio.capability_enabled?(:movable, for: "RecordingStudioSupport::SupportSection")
-
     assert_equal(
       ["RecordingStudioAttachable::Attachment"],
       RecordingStudio.capability_options(:orderable, for: "RecordingStudioSupport::SupportPage")[:allows]
@@ -245,10 +247,9 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
       ["RecordingStudioSupport::SupportPage"],
       RecordingStudio.capability_options(:orderable, for: "RecordingStudioSupport::SupportSection")[:allows]
     )
-    assert_equal ["image/*"],
-                 RecordingStudio.capability_options(:attachable, for: "RecordingStudioSupport::SupportPage")[:allowed_content_types]
-    assert_equal %i[image],
-                 RecordingStudio.capability_options(:attachable, for: "RecordingStudioSupport::SupportPage")[:enabled_attachment_kinds]
+    page_attachable = RecordingStudio.capability_options(:attachable, for: "RecordingStudioSupport::SupportPage")
+    assert_equal ["image/*"], page_attachable[:allowed_content_types]
+    assert_equal %i[image], page_attachable[:enabled_attachment_kinds]
   end
 
   test "publishable to options are registered on support pages only" do

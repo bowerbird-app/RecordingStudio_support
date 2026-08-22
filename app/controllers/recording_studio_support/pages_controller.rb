@@ -22,15 +22,9 @@ module RecordingStudioSupport
 
     def create
       section = page_parent_section_recording
-      if section.blank?
-        return render_missing_section
-      end
+      return render_missing_section if section.blank?
 
-      @page_recording = Pages.create!(
-        parent_recording: section,
-        **page_write_attrs
-      )
-      redirect_to page_path(@page_recording), notice: "Saved. That should help someone."
+      create_page!(section)
     rescue ActiveRecord::RecordInvalid => e
       render_invalid_page(e, template: :new)
     end
@@ -65,6 +59,14 @@ module RecordingStudioSupport
 
     def page_params
       params.fetch(:page, {}).permit(:title, :body, :section_id)
+    end
+
+    def create_page!(section)
+      @page_recording = Pages.create!(
+        parent_recording: section,
+        **page_write_attrs
+      )
+      redirect_to page_path(@page_recording), notice: "Saved. That should help someone."
     end
 
     def page_write_attrs
