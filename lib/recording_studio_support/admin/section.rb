@@ -8,14 +8,10 @@ module RecordingStudioSupport
       title { RecordingStudioSupport.configuration.admin_help_title }
       subtitle { RecordingStudioSupport.configuration.admin_help_subtitle }
 
-      link :open_pages,
-           text: "Open help pages",
-           url: ->(_context) { RecordingStudioSupport.configuration.pages_path },
-           style: :primary
       link :page_list,
            text: "See every page",
            url: ->(context) { context.admin_screen_path("help_pages") },
-           style: :secondary
+           style: :primary
 
       widget "widgets.support.page_count", view_variant: :compact
       widget "widgets.support.page_views", view_variant: :compact

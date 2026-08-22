@@ -2,7 +2,7 @@
 
 Staff write help pages. People help themselves. No tickets, no inbox, no chat.
 
-Support pages sit under your workspace as a flat list. Each page has a title and a body. A page can hold images, go to trash, and sort those images. Staff use authenticated screens at `/support`, including a full-width search box on the help list. Logged-out visitors read live pages at `/help`. Drafts stay hidden. An Admin Support section shows page counts, recent pages, and reads. This gem does not ship tickets, email, messaging, or an API.
+Support pages sit under your workspace as a flat list. Each page has a title and a body. A page can hold images, go to trash, and sort those images. Staff read and preview pages at `/support`, including a full-width search box on the help list. Logged-out visitors read live pages at `/help`. Drafts stay hidden. An Admin Support section is the hub. Staff open its help-pages table to see every page (draft and live) and to Edit or add New. Workspace `/support` is for reading and publish preview. This gem does not ship tickets, email, messaging, or an API.
 
 ## Install
 
@@ -177,13 +177,13 @@ RecordingStudioAccessible.bootstrap_owner_access!(
 )
 ```
 
-The section shows how many help pages you have, the latest pages, and how many times those pages were opened. Draft preview is the authenticated show.
+The section is a hub: how many pages you have, how many times they were opened, and the latest titles. The help-pages screen is the job — a Flatpack table of every page, draft or live, with **Edit** on each row and **New** at the top. Those buttons open the existing Support page forms (`/support/new`, `/support/:id/edit`). Workspace `/support` and owner preview stay for reading and publish preview. Do not put Edit on the owner preview.
 
 ## Dummy host
 
 `test/dummy/` is a host that proves the gem. It is not the product.
 
-Dummy help pages — public and staff — use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Dummy does not copy that layout. Support screens keep that chrome only. Dummy Sign out and Root Switchable stay on dummy host pages, not on `/support` or `/help`. Do not put a login button there. Devise sign-in keeps `layouts/application` (`html data-theme="rounded"`). Core puts `rounded` on `<body>`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`); dummy Stimulus registers `flat-pack--tiptap` on first paint.
+Dummy help pages — public and staff — use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Dummy does not copy that layout. Support screens and Admin Support screens keep that chrome only. Dummy Sign out and Root Switchable stay on dummy host pages, not on `/support`, `/help`, or `/admin`. Access can stay on Admin. Do not put a login button there. Devise sign-in keeps `layouts/application` (`html data-theme="rounded"`). Core puts `rounded` on `<body>`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`); dummy Stimulus registers `flat-pack--tiptap` on first paint.
 
 Public and staff help both set `html data-theme="rounded"`.
 
@@ -212,7 +212,7 @@ bin/rails db:setup
 bin/dev
 ```
 
-Then open `/help` without signing in, or `/support` after you sign in. Search the staff list with `?q=`. For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root.
+Then open `/help` without signing in, or `/support` after you sign in. Search the staff list with `?q=`. Dummy uses Flatpack's built-in `rounded` theme (`html data-theme="rounded"`). For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root. Edit and New live on the Admin help-pages table, not on owner preview.
 
 Seeds two help pages: **How do I sign in?** is live, **How do I change my password?** stays a draft.
 

@@ -9,18 +9,7 @@
     title: support_help_title,
     subtitle: support_help_subtitle,
     variant: :h1
-  ) do |page_title| %>
-    <% if can_edit_support_pages? %>
-      <% page_title.slot do %>
-        <%= render FlatPack::Button::Component.new(
-          text: "New page",
-          style: :primary,
-          size: :md,
-          href: new_page_path
-        ) %>
-      <% end %>
-    <% end %>
-  <% end %>
+  ) %>
 
   <%= form_with url: pages_path, method: :get, html: { role: "search", class: "w-full" } do %>
     <%= render FlatPack::Search::Component.new(

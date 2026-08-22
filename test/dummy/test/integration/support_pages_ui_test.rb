@@ -19,7 +19,7 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_includes response.body, "How do I sign in?"
     assert_includes response.body, "How do I change my password?"
-    assert_includes response.body, "New page"
+    refute_includes response.body, "New page"
     assert_includes response.body, "flat-pack-page-nav"
     assert_includes response.body, "Help"
     assert_includes response.body, "Answers you can share."
@@ -75,6 +75,21 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "recordable"
   end
 
+  test "owner preview has no edit button or form" do
+    recording = seeded_page("How do I change my password?")
+
+    get "/support/#{recording.id}"
+
+    assert_response :success
+    assert_includes response.body, "How do I change my password?"
+    assert_includes response.body, "Not live yet. This preview is just for you."
+    refute_includes response.body, "Edit page"
+    refute_includes response.body, "href=\"/support/#{recording.id}/edit\""
+    refute_match(/<a[^>]*>\s*Edit\s*<\/a>/, response.body)
+    refute_select "input[name='page[title]']"
+    refute_includes response.body, "flat-pack-richtext-wrapper"
+  end
+
   test "show renders title, body, and attached image" do
     recording = seeded_page("How do I sign in?")
 
@@ -90,7 +105,9 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_match(%r{\A/support/?\z}, close["href"])
     refute_includes response.body, "Sign out"
     refute_includes response.body, "Studio Workspace"
-    assert_includes response.body, "Edit"
+    refute_includes response.body, ">Edit<"
+    refute_includes response.body, "href=\"/support/#{recording.id}/edit\""
+    refute_includes response.body, "Edit page"
     assert_includes response.body, "Publish"
     assert_includes response.body, "This page is live."
     assert_includes response.body, "Move to trash"

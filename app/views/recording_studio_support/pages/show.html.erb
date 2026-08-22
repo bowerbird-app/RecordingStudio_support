@@ -12,23 +12,15 @@
   ) do |page_title| %>
     <% if can_edit_support_pages? %>
       <% page_title.slot do %>
-        <div class="flex flex-wrap items-center gap-2">
-          <% publish_href = support_publish_path(@page_recording) %>
-          <% if publish_href.present? %>
-            <%= render FlatPack::Button::Component.new(
-              text: "Publish",
-              style: :secondary,
-              size: :md,
-              href: publish_href
-            ) %>
-          <% end %>
+        <% publish_href = support_publish_path(@page_recording) %>
+        <% if publish_href.present? %>
           <%= render FlatPack::Button::Component.new(
-            text: "Edit",
+            text: "Publish",
             style: :secondary,
             size: :md,
-            href: edit_page_path(@page_recording)
+            href: publish_href
           ) %>
-        </div>
+        <% end %>
       <% end %>
     <% end %>
   <% end %>

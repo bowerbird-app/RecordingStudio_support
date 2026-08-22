@@ -1,5 +1,25 @@
 # Upgrade notes
 
+## Unreleased
+
+Staff edit help pages from the Admin help-pages table.
+
+### Host app
+
+1. Keep the existing Admin Support section. The child screen at `/admin/screens/help_pages` is the table of every page (draft and live).
+2. Open Edit and New from that table. Those buttons still hit the Support page controllers (`/support/new`, `/support/:id/edit`). Do not add a second mutation stack. Writes still go through `record` / `revise`.
+3. Take Edit off owner preview. Workspace `/support` stays for reading and publish preview.
+4. Keep Sign out and Root Switchable off Support and Admin Support screens. Access can stay on Admin.
+5. Staff with Accessible access on the admin root can edit from the table even when the current root is Admin. New pages still belong under a workspace.
+
+### Verify
+
+```bash
+bundle install
+BUNDLE_GEMFILE=test/dummy/Gemfile bundle install
+bundle exec rake test:all
+```
+
 ## 0.6.0
 
 Public help pages through Publishable 0.2.

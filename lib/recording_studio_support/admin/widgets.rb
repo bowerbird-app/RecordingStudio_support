@@ -25,7 +25,7 @@ module RecordingStudioSupport
       RECENT_PAGES = RecordingStudioAdmin::Widget.new("widgets.support.recent_pages") do
         type :list
         title "Latest pages"
-        info "Newest help pages first. Open one to read it."
+        info "Newest help pages first. Open the list to edit one."
         list_options({ divider: true, hover: true, compact_preview: :text_summary })
         items do |_context|
           Queries.recent_page_recordings.map do |recording|

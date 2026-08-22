@@ -81,6 +81,25 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
     assert_empty titles.call("no-such-help-page")
   end
 
+  test "find_kept finds a page without the current root" do
+    recording = RecordingStudioSupport::Pages.create!(
+      root_recording: @root_recording,
+      title: "Office Wi-Fi",
+      body: "Ask the front desk.",
+      actor: @user
+    )
+
+    found = RecordingStudioSupport::Pages.find_kept!(id: recording.id)
+    admin_root = RecordingStudio.root_recording_for(AdminRoot.find_or_create_by!(name: "Admin"))
+
+    assert_equal recording.id, found.id
+    refute RecordingStudioSupport::Pages.allowed_parent_root?(admin_root)
+    assert RecordingStudioSupport::Pages.allowed_parent_root?(@root_recording)
+    assert RecordingStudioSupport::Pages.allowed_parent_root?(
+      RecordingStudioSupport::Pages.parent_root_for(admin_root)
+    )
+  end
+
   test "public_indexable uses Publishable indexable and hides drafts" do
     token = SecureRandom.hex(4)
     live = RecordingStudioSupport::Pages.create!(

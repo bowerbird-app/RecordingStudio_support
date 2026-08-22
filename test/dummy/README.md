@@ -11,8 +11,8 @@ This Rails app exists to prove Recording Studio Support in a real host. It is no
 - Public help at `/help` for logged-out visitors (default-layout chrome, indexable pages only)
 - Admin Support section mounted at `/admin` on an admin root (switch to **Admin** in the top control first — Admin 2.0 gates staff screens on that root)
 - Support pages opt into Attachable, Trashable, Orderable, and Publishable. Dummy Folder and Page do not.
-- Recording Studio default layout from core (back/close chrome on Support screens; dummy does not copy the layout file; Sign out and the workspace switcher on dummy host pages only), Flatpack CSS/JS, Turbo, Tailwind source scanning, and Flatpack's built-in `rounded` theme (login `html`, core layout `<body>`)
-- Root Switchable in dummy host chrome, not on Support screens
+- Recording Studio default layout from core (back/close chrome on Support and Admin Support screens; dummy does not copy the layout file; Sign out and the workspace switcher on dummy host pages only), Flatpack CSS/JS, Turbo, Tailwind source scanning, and Flatpack's built-in `rounded` theme (login `html`, core layout `<body>`)
+- Root Switchable in dummy host chrome, not on Support or Admin Support screens
 - Mounted `RecordingStudio::Engine` route behavior inside a host app
 
 ## Quick Start
@@ -35,7 +35,7 @@ Then open the app and sign in with:
 
 Authenticated pages include `RecordingStudio::UsesDefaultLayout` and render core's `recording_studio/default_layout`. That layout owns the back/close chrome and Flatpack flash alerts. Dummy does not copy the layout.
 
-Public and staff help use the same default layout. Do not use Publishable's application layout or invent a Support-only public shell. Support screens are back/close only. Sign out and the workspace switcher stay off `/support` and `/help`. Do not put a login button in that chrome.
+Public and staff help use the same default layout. Do not use Publishable's application layout or invent a Support-only public shell. Support and Admin Support screens are back/close only. Sign out and the workspace switcher stay off `/support`, `/help`, and `/admin`. Access can stay on Admin. Do not put a login button in that chrome.
 
 Devise sign-in keeps `layouts/application` so the login card can stay centered. That layout still loads:
 
@@ -44,7 +44,7 @@ Devise sign-in keeps `layouts/application` so the login card can stay centered. 
 - `tailwind`
 - Importmap JS, including `@hotwired/turbo-rails`
 
-The host injects `flat_pack/application` through `app/views/recording_studio/_default_layout_head.html.erb`. Sign out and Root Switchable sit in that partial for dummy host pages only, not Support screens. Do not put the switcher or a Sign out button in the home view body.
+The host injects `flat_pack/application` through `app/views/recording_studio/_default_layout_head.html.erb`. Sign out and Root Switchable sit in that partial for dummy host pages only, not Support or Admin Support screens. Do not put the switcher or a Sign out button in the home view body.
 
 Help-page edit uses Flatpack `TextArea` with `rich_text: true`. Importmap pins TipTap packages plus `controllers/flat_pack/tiptap_controller`. `app/javascript/application.js` imports `controllers`, and `controllers/index.js` registers `flat-pack--tiptap` so the toolbar and body HTML hydrate on first paint. Do not add Trix or Action Text. Images stay Attachable children (`uploads: false`).
 
@@ -57,8 +57,9 @@ Tailwind scans dummy views plus Flatpack, Recording Studio, Admin, Support, and 
 - `/` - dummy host home page
 - `/help` - public help list (no sign-in)
 - `/help/:uuid/:slug` - public help page through Publishable
-- `/support` - authenticated help-page list (add `?q=` to search)
-- `/admin` - Admin Support section (pick **Admin** in the top control first)
+- `/support` - authenticated help-page list and publish preview (add `?q=` to search)
+- `/admin` - Admin Support hub (pick **Admin** in the top control first)
+- `/admin/screens/help_pages` - table of every help page; Edit and New open from here
 - `/recording_studio` - redirects to `/` while the mounted Recording Studio engine stays available under that prefix for non-root routes
 - `/users/sign_in` - Devise sign-in page
 - `/up` - Rails health check

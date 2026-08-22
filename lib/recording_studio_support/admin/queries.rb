@@ -27,8 +27,31 @@ module RecordingStudioSupport
       end
 
       def page_path(recording)
-        prefix = RecordingStudioSupport.configuration.pages_path.to_s.chomp("/")
-        "#{prefix}/#{recording.id}"
+        "#{pages_prefix}/#{recording.id}"
+      end
+
+      def edit_page_path(recording)
+        "#{page_path(recording)}/edit"
+      end
+
+      def new_page_path
+        "#{pages_prefix}/new"
+      end
+
+      def page_status(recording)
+        if recording.respond_to?(:currently_published?) && recording.currently_published?
+          "Published"
+        else
+          "Draft"
+        end
+      end
+
+      def page_status_badge_style(status)
+        status.to_s == "Published" ? :success : :info
+      end
+
+      def pages_prefix
+        RecordingStudioSupport.configuration.pages_path.to_s.chomp("/")
       end
     end
   end

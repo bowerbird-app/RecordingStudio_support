@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
+require_relative "pages/lookups"
+
 module RecordingStudioSupport
   module Pages
+    extend Lookups
+
     module_function
 
     SUPPORT_PAGE_TYPE = "RecordingStudioSupport::SupportPage"

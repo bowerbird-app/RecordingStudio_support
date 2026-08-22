@@ -17,10 +17,47 @@ class AdminTest < Minitest::Test
     assert_equal "Help pages", RecordingStudioSupport::Admin::PagesScreen.title
   end
 
+  def test_help_pages_screen_opens_edit_and_new
+    table = RecordingStudioSupport::Admin::PagesScreen.table_value
+    action_names = table.actions.map(&:name)
+    column_keys = table.columns.map(&:key)
+    buttons = RecordingStudioSupport::Admin::PagesScreen.buttons_value
+
+    assert_includes action_names, :edit
+    refute_includes action_names, :open
+    assert_includes column_keys, :title
+    assert_includes column_keys, :status
+    assert_includes column_keys, :updated_at
+    assert_equal :new_page, buttons.first.name
+    assert_equal "New", buttons.first.text
+  end
+
+  def test_section_links_to_the_help_pages_table
+    links = RecordingStudioSupport::Admin::Section.links
+    names = links.map(&:name)
+
+    assert_includes names, :page_list
+    refute_includes names, :open_pages
+  end
+
   def test_queries_build_authenticated_page_paths
     recording = Struct.new(:id).new("page-123")
 
     assert_equal "/support/page-123", RecordingStudioSupport::Admin::Queries.page_path(recording)
+    assert_equal "/support/page-123/edit", RecordingStudioSupport::Admin::Queries.edit_page_path(recording)
+    assert_equal "/support/new", RecordingStudioSupport::Admin::Queries.new_page_path
+  end
+
+  def test_queries_label_published_and_draft_pages
+    published = Object.new
+    draft = Object.new
+    published.define_singleton_method(:currently_published?) { true }
+    draft.define_singleton_method(:currently_published?) { false }
+
+    assert_equal "Published", RecordingStudioSupport::Admin::Queries.page_status(published)
+    assert_equal "Draft", RecordingStudioSupport::Admin::Queries.page_status(draft)
+    assert_equal :success, RecordingStudioSupport::Admin::Queries.page_status_badge_style("Published")
+    assert_equal :info, RecordingStudioSupport::Admin::Queries.page_status_badge_style("Draft")
   end
 
   def test_register_is_safe_when_admin_is_defined

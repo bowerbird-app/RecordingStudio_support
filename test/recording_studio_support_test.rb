@@ -127,6 +127,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes default_layout_head, "recording_studio_page_nav_right"
     assert_includes default_layout_head, "user_signed_in?"
     assert_includes default_layout_head, "RecordingStudioSupport::"
+    assert_includes default_layout_head, "RecordingStudioAdmin::"
     assert_includes default_layout_head, "Sign out"
     assert_includes default_layout_head, "destroy_user_session_path"
     assert_includes default_layout_head, "turbo_method: :delete"
@@ -256,6 +257,13 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes section, "configuration.admin_help_title"
     assert_includes section, "configuration.admin_help_subtitle"
     refute_includes section, "recordable"
+
+    screen = File.read(File.expand_path("../lib/recording_studio_support/admin/pages_screen.rb", __dir__))
+    assert_includes screen, 'key "help_pages"'
+    assert_includes screen, "button :new_page"
+    assert_includes screen, "action :edit"
+    assert_includes screen, "column :status"
+    refute_includes screen, "action :open"
   end
 
   def test_dummy_mounts_support_and_admin

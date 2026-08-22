@@ -6,21 +6,39 @@ module RecordingStudioSupport
       key "help_pages"
       icon :document_text
       title "Help pages"
-      subtitle "Every help page still in play."
-      query { |_context| Queries.kept_page_recordings.includes(:recordable).order(created_at: :desc) }
+      subtitle "Every help page, draft or live."
+
+      button :new_page,
+             text: "New",
+             url: ->(_context) { Queries.new_page_path },
+             style: :primary
+
+      query { |_context| Queries.kept_page_recordings.includes(:recordable).order(updated_at: :desc) }
 
       table do
-        column :page,
-               title: "Page",
+        column :title,
+               title: "Title",
                sortable: false,
                value: ->(row, _context) { row.recordable&.title }
-        column :created_at, title: "Added"
-        action :open,
-               text: "Open",
-               icon: "arrow-top-right-on-square",
-               url: ->(row, _context) { Queries.page_path(row) }
+        column :status,
+               title: "Status",
+               sortable: false,
+               display: :badge,
+               display_options: lambda { |_row, _context, value|
+                 {
+                   text: value,
+                   style: Queries.page_status_badge_style(value),
+                   size: :sm
+                 }
+               },
+               value: ->(row, _context) { Queries.page_status(row) }
+        column :updated_at, title: "Updated"
+        action :edit,
+               text: "Edit",
+               icon: "pencil-square",
+               url: ->(row, _context) { Queries.edit_page_path(row) }
         paginate per_page: 25
-        default_sort :created_at, direction: :desc
+        default_sort :updated_at, direction: :desc
       end
     end
   end

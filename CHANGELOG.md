@@ -7,10 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Staff Edit and New live on the Admin help-pages table (every page, draft or live). Workspace `/support` and owner preview stay for reading and publish preview
+- Edit and New still use the Support page controllers. Pages are found even when the current root is Admin, and staff with an admin-root grant can write. New pages still land under a workspace.
+- Dummy Sign out and Root Switchable stay off Admin Support screens as well as Support screens. Access can stay on Admin
+
 ### Fixed
 - RuboCop method-length on help configuration and modifier-if on the public help path helper
 - Dummy `public_indexable` test uses unique titles so a seeded published sign-in page cannot double the result
 - Dummy `test:dummy` prepares the test schema only (`RAILS_ENV=test`), so `db:prepare` does not seed the suite
+
+### Upgrade notes
+- Open Edit and New from the Admin help-pages table. Take Edit off owner preview. Workspace `/support` stays for reading and publish preview
+- Do not add a second mutation stack. The table still opens `/support/new` and `/support/:id/edit`
+- Keep Sign out and Root Switchable off Support and Admin Support screens. Access can stay on Admin
 
 ## [0.6.0] - 2026-08-21
 

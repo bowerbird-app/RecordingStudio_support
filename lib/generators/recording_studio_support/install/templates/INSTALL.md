@@ -18,5 +18,5 @@ recording_studio_admin_sections do
 end
 ```
 
-Mount Admin with `recording_studio_admin_for :admin, at: "/admin"` and grant access on the admin root (`bootstrap_owner_access!` for the first owner).
+Mount Admin with `recording_studio_admin_for :admin, at: "/admin"` and grant access on the admin root (`bootstrap_owner_access!` for the first owner). Staff edit from the Admin help-pages table. Workspace `/support` stays for reading and publish preview.
 10. Register `"RecordingStudioSupport::SupportPage"` and `"RecordingStudioPublishable::Publishable"` next to your workspace type and keep `recording_studio_recordable(...)` on every configured type before running `RecordingStudio.validate_recordable_declarations!`.

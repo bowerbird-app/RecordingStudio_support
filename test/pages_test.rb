@@ -8,7 +8,8 @@ class PagesTest < Minitest::Test
   end
 
   def test_pages_helpers_exist
-    %i[for_root find_for_root! create! revise! trash! recording_for public_indexable].each do |method_name|
+    %i[for_root find_for_root! find_kept! create! revise! trash! recording_for public_indexable
+       allowed_parent_root? default_parent_root parent_root_for].each do |method_name|
       assert RecordingStudioSupport::Pages.respond_to?(method_name), "expected Pages.#{method_name}"
     end
   end
@@ -26,6 +27,16 @@ class PagesTest < Minitest::Test
     refute_includes index, "Elasticsearch"
     refute_includes index, "searchkick"
     refute_includes index, "SearchPage"
+    refute_includes index, "New page"
+    refute_includes index, "new_page_path"
+  end
+
+  def test_owner_preview_has_no_edit
+    show = File.read(File.expand_path("../app/views/recording_studio_support/pages/show.html.erb", __dir__))
+
+    refute_includes show, "edit_page_path"
+    refute_includes show, 'text: "Edit"'
+    assert_includes show, "Publish"
   end
 
   def test_public_index_uses_indexable_pages_not_copied_logic
