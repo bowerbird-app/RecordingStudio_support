@@ -16,16 +16,6 @@ module RecordingStudioSupport
         kept_page_recordings.includes(:recordable).order(created_at: :desc).limit(limit)
       end
 
-      def page_count
-        kept_page_recordings.count
-      end
-
-      def page_view_count
-        return 0 unless defined?(PageView) && PageView.table_exists?
-
-        PageView.count
-      end
-
       def page_path(recording)
         "#{pages_prefix}/#{recording.id}"
       end

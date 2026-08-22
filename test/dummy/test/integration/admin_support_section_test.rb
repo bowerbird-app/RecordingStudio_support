@@ -13,7 +13,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     switch_to_admin_root!
   end
 
-  test "admin support section lists pages and non-zero widgets" do
+  test "admin support section lists latest pages without vanity counts" do
     get "/admin"
 
     assert_response :success
@@ -22,11 +22,12 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Help"
     assert_includes response.body, "How do I sign in?"
     assert_includes response.body, "How do I change my password?"
-    assert_includes response.body, "Help pages"
-    assert_includes response.body, "Reads"
+    assert_includes response.body, "Latest pages"
+    assert_includes response.body, "See every page"
+    refute_includes response.body, "Reads"
+    refute_match(/>\s*Help pages\s*</, response.body)
     assert_includes response.body, "flat_pack/application"
     refute_includes response.body, "recordable"
-    assert_operator RecordingStudioSupport::PageView.count, :>=, 1
   end
 
   test "admin help pages table lists draft and published pages" do

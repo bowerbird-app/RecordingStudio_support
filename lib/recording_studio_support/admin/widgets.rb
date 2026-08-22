@@ -3,25 +3,6 @@
 module RecordingStudioSupport
   module Admin
     module Widgets
-      PAGE_COUNT = RecordingStudioAdmin::Widget.new("widgets.support.page_count") do
-        type :number
-        title "Help pages"
-        info "How many help pages are live right now."
-        hide_change
-        hide_period
-        value { |_context| Queries.page_count }
-        link_to { |context| context.admin_screen_path("help_pages") }
-      end
-
-      PAGE_VIEWS = RecordingStudioAdmin::Widget.new("widgets.support.page_views") do
-        type :number
-        title "Reads"
-        info "Times someone opened a help page. These are notes, not extra pages."
-        hide_change
-        hide_period
-        value { |_context| Queries.page_view_count }
-      end
-
       RECENT_PAGES = RecordingStudioAdmin::Widget.new("widgets.support.recent_pages") do
         type :list
         title "Latest pages"

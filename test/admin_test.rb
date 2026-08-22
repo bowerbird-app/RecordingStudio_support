@@ -72,7 +72,10 @@ class AdminTest < Minitest::Test
 
     assert_includes called, RecordingStudioSupport::Admin::Section
     assert_includes called, RecordingStudioSupport::Admin::PagesScreen
-    assert_equal 5, called.size
+    assert_includes called, RecordingStudioSupport::Admin::Widgets::RECENT_PAGES
+    refute_includes called.map { |item| item.try(:key) }, "widgets.support.page_count"
+    refute_includes called.map { |item| item.try(:key) }, "widgets.support.page_views"
+    assert_equal 3, called.size
   end
 
   def test_section_copy_follows_configuration

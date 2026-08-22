@@ -14,9 +14,7 @@ module RecordingStudioSupport
 
       RecordingStudioAdmin.register_section(Section)
       RecordingStudioAdmin.register_screen(PagesScreen)
-      RecordingStudioAdmin.register_widget(Widgets::PAGE_COUNT)
       RecordingStudioAdmin.register_widget(Widgets::RECENT_PAGES)
-      RecordingStudioAdmin.register_widget(Widgets::PAGE_VIEWS)
     end
   end
 end
