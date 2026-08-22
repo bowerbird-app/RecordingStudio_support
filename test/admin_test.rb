@@ -30,6 +30,14 @@ class AdminTest < Minitest::Test
     assert_includes column_keys, :updated_at
     assert_equal :new_page, buttons.first.name
     assert_equal "New", buttons.first.text
+    refute table.show_table_heading?
+    refute table.show_count?
+    refute_equal "Table data", table.title
+    filter_keys = table.filters.map(&:key)
+    assert_includes filter_keys, :search
+    assert_includes filter_keys, :status
+    status_filter = table.filters.find { |filter| filter.key == :status }
+    assert_equal %w[Published Draft], status_filter.allowed_values
   end
 
   def test_section_links_to_the_help_pages_table
@@ -58,6 +66,13 @@ class AdminTest < Minitest::Test
     assert_equal "Draft", RecordingStudioSupport::Admin::Queries.page_status(draft)
     assert_equal :success, RecordingStudioSupport::Admin::Queries.page_status_badge_style("Published")
     assert_equal :info, RecordingStudioSupport::Admin::Queries.page_status_badge_style("Draft")
+  end
+
+  def test_queries_expose_table_search_and_status_filters
+    queries = RecordingStudioSupport::Admin::Queries
+
+    assert queries.respond_to?(:search_page_recordings)
+    assert queries.respond_to?(:filter_page_recordings_by_status)
   end
 
   def test_register_is_safe_when_admin_is_defined

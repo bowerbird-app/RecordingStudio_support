@@ -16,6 +16,16 @@ module RecordingStudioSupport
       query { |_context| Queries.kept_page_recordings.includes(:recordable).order(updated_at: :desc) }
 
       table do
+        title " "
+        hide_count
+        filter :search, apply: lambda { |relation, value, _context|
+          Queries.search_page_recordings(relation, value)
+        }
+        filter :status,
+               options: %w[Published Draft],
+               apply: lambda { |relation, value, _context|
+                 Queries.filter_page_recordings_by_status(relation, value)
+               }
         column :title,
                title: "Title",
                sortable: false,

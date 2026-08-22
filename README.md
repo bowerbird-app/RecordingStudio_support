@@ -177,7 +177,7 @@ RecordingStudioAccessible.bootstrap_owner_access!(
 )
 ```
 
-The section is a hub: latest pages, plus **See every page**. It does not show vanity totals. The help-pages screen is the job — a Flatpack table of every page, draft or live, with **Edit** on each row and **New** at the top. Those buttons open the existing Support page forms (`/support/new`, `/support/:id/edit`). Workspace `/support` and owner preview stay for reading and publish preview. Do not put Edit on the owner preview.
+The section is a hub: latest pages, plus **See every page**. It does not show vanity totals. The help-pages screen is the job — a Flatpack table of every page, draft or live, with search, Published/Draft, **Edit** on each row, and **New** at the top. Those buttons open the existing Support page forms (`/support/new`, `/support/:id/edit`). The table skips the default “Table data” heading and row count. Workspace `/support` and owner preview stay for reading and publish preview. Do not put Edit on the owner preview.
 
 ## Dummy host
 

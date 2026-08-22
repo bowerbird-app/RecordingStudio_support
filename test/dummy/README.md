@@ -59,7 +59,7 @@ Tailwind scans dummy views plus Flatpack, Recording Studio, Admin, Support, and 
 - `/help/:uuid/:slug` - public help page through Publishable
 - `/support` - authenticated help-page list and publish preview (add `?q=` to search)
 - `/admin` - Admin Support hub (pick **Admin** in the top control first)
-- `/admin/screens/help_pages` - table of every help page; Edit and New open from here
+- `/admin/screens/help_pages` - table of every help page with search and Published/Draft; Edit and New open from here
 - `/recording_studio` - redirects to `/` while the mounted Recording Studio engine stays available under that prefix for non-root routes
 - `/users/sign_in` - Devise sign-in page
 - `/up` - Rails health check

@@ -38,9 +38,16 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_select "html[data-theme='rounded']"
     assert_includes response.body, "Help pages"
     assert_includes response.body, "/support/new"
+    assert_includes response.body, 'name="search"'
+    assert_includes response.body, 'name="status"'
+    assert_includes response.body, "Published"
+    assert_includes response.body, "Draft"
     refute_includes response.body, "Sign out"
     refute_includes response.body, "Studio Workspace"
     refute_includes response.body, "recordable"
+    refute_includes response.body, "Table data"
+    refute_includes response.body, "2 rows"
+    refute_includes response.body, 'id="screen-table-count"'
 
     get "/admin/screens/help_pages/table"
 
@@ -52,6 +59,9 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Edit"
     assert_includes response.body, "--table-border-color"
     assert_includes response.body, "<table"
+    refute_includes response.body, "Table data"
+    refute_includes response.body, "2 rows"
+    refute_includes response.body, 'id="screen-table-count"'
     sign_in_edit = RecordingStudioSupport::Admin::Queries.edit_page_path(
       seeded_page("How do I sign in?")
     )
@@ -60,6 +70,32 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     )
     assert_includes response.body, sign_in_edit
     assert_includes response.body, password_edit
+  end
+
+  test "admin help pages table filters by search and publish status" do
+    get "/admin/screens/help_pages/table", params: { search: "password" }
+
+    assert_response :success
+    assert_includes response.body, "How do I change my password?"
+    refute_includes response.body, "How do I sign in?"
+
+    get "/admin/screens/help_pages/table", params: { search: "account settings" }
+
+    assert_response :success
+    assert_includes response.body, "How do I change my password?"
+    refute_includes response.body, "How do I sign in?"
+
+    get "/admin/screens/help_pages/table", params: { status: "Published" }
+
+    assert_response :success
+    assert_includes response.body, "How do I sign in?"
+    refute_includes response.body, "How do I change my password?"
+
+    get "/admin/screens/help_pages/table", params: { status: "Draft" }
+
+    assert_response :success
+    assert_includes response.body, "How do I change my password?"
+    refute_includes response.body, "How do I sign in?"
   end
 
   test "edit is reachable from the admin table" do

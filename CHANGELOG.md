@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Edit and New still use the Support page controllers. Pages are found even when the current root is Admin, and staff with an admin-root grant can write. New pages still land under a workspace.
 - Dummy Sign out and Root Switchable stay off Admin Support screens as well as Support screens. Access can stay on Admin
 - Admin Support section keeps Latest pages and See every page. It drops the Help pages and Reads count cards
+- Admin help-pages table adds search (title and body) and Published/Draft through the Admin table DSL. It hides the default Table data heading and row count
 
 ### Fixed
 - RuboCop method-length on help configuration and modifier-if on the public help path helper
@@ -23,6 +24,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Do not add a second mutation stack. The table still opens `/support/new` and `/support/:id/edit`
 - Keep Sign out and Root Switchable off Support and Admin Support screens. Access can stay on Admin
 - Drop Help pages and Reads count cards from the Admin Support hub. Keep Latest pages and See every page. Do not replace those cards with another total of the same fact
+- Add search and Published/Draft on the Admin help-pages table with `table { filter ... }`. Hide the table heading and row count with the table DSL (`title` / `hide_count`). Do not add a custom search form or CSS hide
 
 ## [0.6.0] - 2026-08-21
 

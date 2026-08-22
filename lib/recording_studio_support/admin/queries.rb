@@ -40,6 +40,23 @@ module RecordingStudioSupport
         status.to_s == "Published" ? :success : :info
       end
 
+      def search_page_recordings(relation, value)
+        Pages.apply_query(relation, value)
+      end
+
+      def filter_page_recordings_by_status(relation, value)
+        published_ids = SupportPage.published.select(:id)
+
+        case value.to_s
+        when "Published"
+          relation.where(recordable_id: published_ids)
+        when "Draft"
+          relation.where.not(recordable_id: published_ids)
+        else
+          relation
+        end
+      end
+
       def pages_prefix
         RecordingStudioSupport.configuration.pages_path.to_s.chomp("/")
       end
