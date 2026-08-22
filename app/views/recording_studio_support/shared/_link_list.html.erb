@@ -1,0 +1,18 @@
+<%= render FlatPack::List::Component.new(divider: true) do %>
+  <% items.each do |item| %>
+    <%= render FlatPack::List::Item.new(
+      href: item.fetch(:href),
+      hover: true,
+      trailing: support_list_chevron
+    ) do %>
+      <% if item[:meta] %>
+        <div class="flex flex-wrap items-center gap-2">
+          <span><%= item.fetch(:title) %></span>
+          <%= item[:meta] %>
+        </div>
+      <% else %>
+        <%= item.fetch(:title) %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>

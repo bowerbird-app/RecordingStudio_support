@@ -43,6 +43,16 @@ class ApplicationHelperTest < Minitest::Test
     assert_nil helper.support_recording_title(nil)
   end
 
+  def test_support_list_chevron_uses_the_flatpack_icon
+    source = File.read(
+      File.expand_path("../app/helpers/recording_studio_support/application_helper.rb", __dir__)
+    )
+
+    assert_includes source, "def support_list_chevron"
+    assert_includes source, "FlatPack::Shared::IconComponent"
+    assert_includes source, '"chevron-right"'
+  end
+
   def test_help_copy_helpers_read_configuration
     helper = Object.new.extend(load_helper)
 

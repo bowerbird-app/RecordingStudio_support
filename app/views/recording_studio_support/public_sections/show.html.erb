@@ -22,43 +22,21 @@
   <% end %>
 
   <% if @pages.any? %>
-    <div class="flex flex-col gap-3">
-      <% @pages.each do |page| %>
-        <% href = page.published_url %>
-        <% next if href.blank? %>
-        <%= render FlatPack::Card::Component.new(style: :outlined) do |card| %>
-          <% card.body(class: "flex flex-wrap items-center justify-between gap-3") do %>
-            <%= render FlatPack::SectionTitle::Component.new(
-              title: page.title,
-              subtitle: nil
-            ) %>
-            <%= render FlatPack::Button::Component.new(
-              text: "Read",
-              style: :secondary,
-              size: :md,
-              href: href
-            ) %>
-          <% end %>
-        <% end %>
-      <% end %>
-    </div>
+    <%= render "recording_studio_support/shared/link_list", items: @pages.filter_map { |page|
+      href = page.published_url
+      next if href.blank?
+
+      { title: page.title, href: href }
+    } %>
   <% elsif @query.present? %>
-    <%= render FlatPack::Card::Component.new(style: :outlined) do |card| %>
-      <% card.body do %>
-        <%= render FlatPack::SectionTitle::Component.new(
-          title: "Nothing matches that",
-          subtitle: "Try another word."
-        ) %>
-      <% end %>
-    <% end %>
+    <%= render FlatPack::EmptyState::Component.new(
+      title: "Nothing matches that",
+      description: "Try another word."
+    ) %>
   <% else %>
-    <%= render FlatPack::Card::Component.new(style: :outlined) do |card| %>
-      <% card.body do %>
-        <%= render FlatPack::SectionTitle::Component.new(
-          title: "Nothing live yet",
-          subtitle: "Check back soon."
-        ) %>
-      <% end %>
-    <% end %>
+    <%= render FlatPack::EmptyState::Component.new(
+      title: "Nothing live yet",
+      description: "Check back soon."
+    ) %>
   <% end %>
 </div>

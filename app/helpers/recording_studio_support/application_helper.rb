@@ -68,6 +68,20 @@ module RecordingStudioSupport
       recording.recordable&.title
     end
 
+    def support_list_chevron
+      render FlatPack::Shared::IconComponent.new(name: "chevron-right", size: :md)
+    end
+
+    def support_page_status_badge(recording)
+      if recording.respond_to?(:current_publishable) && recording.current_publishable
+        render RecordingStudioPublishable::StatusBadge::Component.new(
+          publishable: recording.current_publishable
+        )
+      else
+        render FlatPack::Badge::Component.new(text: "Draft", style: :info, size: :sm)
+      end
+    end
+
     def support_section_options(section_recordings)
       Array(section_recordings).filter_map do |recording|
         title = support_recording_title(recording)

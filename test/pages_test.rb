@@ -33,6 +33,30 @@ class PagesTest < Minitest::Test
     refute_includes index, "new_page_path"
   end
 
+  def test_section_indexes_use_list_not_card_rows
+    staff_index = File.read(File.expand_path("../app/views/recording_studio_support/sections/index.html.erb", __dir__))
+    public_index = File.read(
+      File.expand_path("../app/views/recording_studio_support/public_pages/index.html.erb", __dir__)
+    )
+    list = File.read(
+      File.expand_path("../app/views/recording_studio_support/shared/_link_list.html.erb", __dir__)
+    )
+
+    [staff_index, public_index].each do |index|
+      assert_includes index, 'render "recording_studio_support/shared/link_list"'
+      refute_includes index, "FlatPack::Card::Component"
+      refute_includes index, 'text: "Read"'
+      refute_includes index, 'text: "Open"'
+    end
+
+    assert_includes list, "FlatPack::List::Component"
+    assert_includes list, "FlatPack::List::Item"
+    assert_includes list, "support_list_chevron"
+    refute_includes list, "FlatPack::Card::Component"
+    refute_includes list, 'text: "Read"'
+    refute_includes list, 'text: "Open"'
+  end
+
   def test_owner_preview_has_no_edit
     show = File.read(File.expand_path("../app/views/recording_studio_support/pages/show.html.erb", __dir__))
 
@@ -57,6 +81,9 @@ class PagesTest < Minitest::Test
     assert_includes public_index, "FlatPack::Search::Component"
     assert_includes public_index, "max_width: :none"
     assert_includes public_index, "support_public_help_title"
+    assert_includes public_index, 'render "recording_studio_support/shared/link_list"'
+    refute_includes public_index, "FlatPack::Card::Component"
+    refute_includes public_index, 'text: "Read"'
     refute_includes public_index, "recordable"
     assert_includes support_page, "RecordingStudio::Capabilities::Publishable.to"
     assert_includes support_page, "RecordingStudio::Capabilities::Moveable.to"
