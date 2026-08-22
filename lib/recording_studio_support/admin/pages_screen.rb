@@ -16,7 +16,7 @@ module RecordingStudioSupport
       query { |_context| Queries.kept_page_recordings.includes(:recordable).order(updated_at: :desc) }
 
       table do
-        title " "
+        title "\u00A0"
         hide_count
         filter :search, apply: lambda { |relation, value, _context|
           Queries.search_page_recordings(relation, value)
