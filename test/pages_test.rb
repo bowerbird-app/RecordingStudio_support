@@ -33,26 +33,33 @@ class PagesTest < Minitest::Test
     refute_includes index, "new_page_path"
   end
 
-  def test_section_indexes_use_list_not_card_rows
+  def test_section_and_page_lists_wrap_list_in_card
     staff_index = File.read(File.expand_path("../app/views/recording_studio_support/sections/index.html.erb", __dir__))
     public_index = File.read(
       File.expand_path("../app/views/recording_studio_support/public_pages/index.html.erb", __dir__)
+    )
+    staff_show = File.read(File.expand_path("../app/views/recording_studio_support/sections/show.html.erb", __dir__))
+    public_show = File.read(
+      File.expand_path("../app/views/recording_studio_support/public_sections/show.html.erb", __dir__)
     )
     list = File.read(
       File.expand_path("../app/views/recording_studio_support/shared/_link_list.html.erb", __dir__)
     )
 
-    [staff_index, public_index].each do |index|
-      assert_includes index, 'render "recording_studio_support/shared/link_list"'
-      refute_includes index, "FlatPack::Card::Component"
-      refute_includes index, 'text: "Read"'
-      refute_includes index, 'text: "Open"'
+    [staff_index, public_index, staff_show, public_show].each do |view|
+      assert_includes view, 'render "recording_studio_support/shared/link_list"'
+      refute_includes view, "FlatPack::Card::Component"
+      refute_includes view, 'text: "Read"'
+      refute_includes view, 'text: "Open"'
     end
 
+    assert_includes list, "FlatPack::Card::Component"
+    assert_includes list, "card.body"
     assert_includes list, "FlatPack::List::Component"
     assert_includes list, "FlatPack::List::Item"
     assert_includes list, "support_list_chevron"
-    refute_includes list, "FlatPack::Card::Component"
+    refute_includes list, "card.header"
+    refute_match(/List::Component\.new\([^)]*border:/, list)
     refute_includes list, 'text: "Read"'
     refute_includes list, 'text: "Open"'
   end

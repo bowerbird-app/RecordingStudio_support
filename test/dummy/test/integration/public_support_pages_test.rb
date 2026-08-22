@@ -35,6 +35,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "form[role='search'][class~='w-full']"
     assert_select "input[name='q']"
     assert_includes response.body, "max-w-none"
+    assert_includes response.body, "card-border-color"
     assert_select "ul[role='list']"
     assert_select "li[role='listitem']"
     assert_includes response.body, "chevron-right"
@@ -130,9 +131,11 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "Sign out"
     refute_includes response.body, 'href="/users/sign_in"'
     refute_includes response.body, "recordable"
+    assert_includes response.body, "card-border-color"
     assert_select "ul[role='list']"
     assert_includes response.body, "chevron-right"
     refute_includes response.body, "<span>Read</span>"
+    refute_includes response.body, "<span>Open</span>"
   end
 
   test "logged out visitors are asked to sign in for authenticated help" do

@@ -8,7 +8,7 @@ This Rails app exists to prove Recording Studio Support in a real host. It is no
 - `Current.actor` wiring for Recording Studio events
 - Root workspace plus seeded help sections and pages, one with an image
 - Authenticated Support screens mounted at `/support`
-- Public help at `/help` for logged-out visitors (default-layout chrome, Flatpack List of sections then published pages)
+- Public help at `/help` for logged-out visitors (default-layout chrome, Card-wrapped Flatpack List of sections then published pages)
 - Admin Support section mounted at `/admin` on an admin root (switch to **Admin** in the top control first — Admin 2.0 gates staff screens on that root)
 - Support pages opt into Attachable, Trashable, Orderable, and Publishable. Dummy Folder and Page do not.
 - Recording Studio default layout from core (back/close chrome on Support and Admin Support screens; dummy does not copy the layout file; Sign out and the workspace switcher on dummy host pages only), Flatpack CSS/JS, Turbo, Tailwind source scanning, and Flatpack's built-in `rounded` theme (login `html`, core layout `<body>`)
