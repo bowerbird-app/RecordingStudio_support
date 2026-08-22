@@ -73,7 +73,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
   end
 
   test "admin help pages table filters by search and publish status" do
-    get "/admin/screens/help_pages/table", params: { search: "password" }
+    get "/admin/screens/help_pages/table", params: { search: "change my password" }
 
     assert_response :success
     assert_includes response.body, "How do I change my password?"
