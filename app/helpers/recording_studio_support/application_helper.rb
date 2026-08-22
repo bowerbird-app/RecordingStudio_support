@@ -72,6 +72,18 @@ module RecordingStudioSupport
       render FlatPack::Shared::IconComponent.new(name: "chevron-right", size: :md)
     end
 
+    def support_page_count_label(page_count)
+      "#{page_count} #{'page'.pluralize(page_count)}"
+    end
+
+    def support_page_count_badge(page_count)
+      render FlatPack::Badge::Component.new(
+        text: support_page_count_label(page_count),
+        style: :default,
+        size: :sm
+      )
+    end
+
     def support_page_status_badge(recording)
       if recording.respond_to?(:current_publishable) && recording.current_publishable
         render RecordingStudioPublishable::StatusBadge::Component.new(

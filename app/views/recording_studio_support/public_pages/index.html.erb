@@ -25,7 +25,8 @@
     <%= render "recording_studio_support/shared/link_list", items: @section_recordings.map { |recording|
       {
         title: support_recording_title(recording),
-        href: support_public_section_path(recording)
+        href: support_public_section_path(recording),
+        meta: support_page_count_badge(@page_counts.fetch(recording.id, 0))
       }
     } %>
   <% elsif @query.present? %>

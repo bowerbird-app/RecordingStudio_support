@@ -43,6 +43,26 @@ class ApplicationHelperTest < Minitest::Test
     assert_nil helper.support_recording_title(nil)
   end
 
+  def test_support_page_count_label_uses_pages
+    helper = Object.new.extend(load_helper)
+
+    assert_equal "0 pages", helper.support_page_count_label(0)
+    assert_equal "1 page", helper.support_page_count_label(1)
+    assert_equal "2 pages", helper.support_page_count_label(2)
+  end
+
+  def test_support_page_count_badge_uses_the_flatpack_badge
+    source = File.read(
+      File.expand_path("../app/helpers/recording_studio_support/application_helper.rb", __dir__)
+    )
+
+    assert_includes source, "def support_page_count_badge"
+    assert_includes source, "FlatPack::Badge::Component"
+    assert_includes source, "style: :default"
+    assert_includes source, "size: :sm"
+    refute_includes source, "removable: true"
+  end
+
   def test_support_list_chevron_uses_the_flatpack_icon
     source = File.read(
       File.expand_path("../app/helpers/recording_studio_support/application_helper.rb", __dir__)

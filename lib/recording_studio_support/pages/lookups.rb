@@ -71,6 +71,8 @@ module RecordingStudioSupport
       end
 
       def kept_pages_for_section(section_recording)
+        return RecordingStudio::Recording.none unless section_recording
+
         RecordingStudio::Recording.where(
           parent_recording_id: section_recording.id,
           recordable_type: SUPPORT_PAGE_TYPE,

@@ -10,6 +10,7 @@ module RecordingStudioSupport
     def index
       @query = params[:q].to_s.strip
       @section_recordings = Sections.for_root(current_support_root_recording, query: @query)
+      @page_counts = Pages.kept_count_by_section(@section_recordings)
     end
 
     def show

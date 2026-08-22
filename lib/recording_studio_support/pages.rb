@@ -1,10 +1,12 @@
 # frozen_string_literal: true
 
 require_relative "pages/lookups"
+require_relative "pages/counts"
 
 module RecordingStudioSupport
   module Pages
     extend Lookups
+    extend Counts
 
     module_function
 

@@ -115,6 +115,11 @@ class SupportSectionsDomainTest < ActiveSupport::TestCase
     titles = RecordingStudioSupport::Pages.public_for_section(section).map(&:title)
     assert_includes titles, "Live in section"
     refute_includes titles, "Draft in section"
+
+    staff_counts = RecordingStudioSupport::Pages.kept_count_by_section([section])
+    public_counts = RecordingStudioSupport::Pages.public_count_by_section([section])
+    assert_equal 2, staff_counts.fetch(section.id)
+    assert_equal 1, public_counts.fetch(section.id)
   end
 
   private

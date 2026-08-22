@@ -11,7 +11,8 @@ class PagesTest < Minitest::Test
 
   def test_pages_helpers_exist
     %i[for_root for_section find_for_root! find_kept! create! revise! trash! move! recording_for
-       public_indexable public_for_section default_section_for section_for].each do |method_name|
+       public_indexable public_for_section kept_count_by_section public_count_by_section
+       default_section_for section_for].each do |method_name|
       assert RecordingStudioSupport::Pages.respond_to?(method_name), "expected Pages.#{method_name}"
     end
   end
@@ -45,6 +46,13 @@ class PagesTest < Minitest::Test
     list = File.read(
       File.expand_path("../app/views/recording_studio_support/shared/_link_list.html.erb", __dir__)
     )
+
+    [staff_index, public_index].each do |index|
+      assert_includes index, "support_page_count_badge"
+    end
+    [staff_show, public_show].each do |show|
+      refute_includes show, "support_page_count_badge"
+    end
 
     [staff_index, public_index, staff_show, public_show].each do |view|
       assert_includes view, 'render "recording_studio_support/shared/link_list"'

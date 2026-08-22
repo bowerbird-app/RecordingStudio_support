@@ -11,6 +11,7 @@ module RecordingStudioSupport
     def index
       @query = params[:q].to_s.strip
       @section_recordings = Sections.public_index(query: @query)
+      @page_counts = Pages.public_count_by_section(@section_recordings)
     end
 
     def show
