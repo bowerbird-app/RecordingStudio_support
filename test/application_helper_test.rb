@@ -34,6 +34,15 @@ class ApplicationHelperTest < Minitest::Test
     assert_includes source, "@publishable&.publish_at"
   end
 
+  def test_support_recording_title_reads_the_page_title
+    helper = Object.new.extend(load_helper)
+    page = Struct.new(:title).new("Getting started")
+    recording = Struct.new(:recordable).new(page)
+
+    assert_equal "Getting started", helper.support_recording_title(recording)
+    assert_nil helper.support_recording_title(nil)
+  end
+
   def test_help_copy_helpers_read_configuration
     helper = Object.new.extend(load_helper)
 

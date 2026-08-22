@@ -143,11 +143,13 @@ Mount the screens. Public and staff help both use Recording Studio's default lay
 
 ```ruby
 mount RecordingStudioSupport::Engine, at: "/support"
-mount RecordingStudioPublishable::Engine, at: "/"
 mount RecordingStudioMoveable::Engine, at: "/recording_studio_moveable"
 get "/help", to: RecordingStudioSupport::PublicPagesController.action(:index), as: :public_help
 get "/help/sections/:id", to: RecordingStudioSupport::PublicSectionsController.action(:show), as: :public_help_section
+mount RecordingStudioPublishable::Engine, at: "/"
 ```
+
+Declare the `/help` and `/help/sections/:id` routes **before** the Publishable mount. Publishable also claims `/help/:uuid/:slug`, so a later section route never wins.
 
 Page reads are logs (`recording_studio_support_page_views`), not extra pages in the tree.
 

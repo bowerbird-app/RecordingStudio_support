@@ -13,11 +13,8 @@ module RecordingStudioSupport
       def for_section(section_recording, query: nil)
         return RecordingStudio::Recording.none unless section_recording
 
-        if query.to_s.strip.blank? && section_recording.respond_to?(:recording_studio_orderable_children)
-          return section_recording.recording_studio_orderable_children.preload(:recordable)
-        end
-
-        apply_query(kept_pages_for_section(section_recording), query).preload(:recordable)
+        scope = apply_query(kept_pages_for_section(section_recording), query)
+        scope.reorder(:recording_studio_orderable_position, :created_at, :id).preload(:recordable)
       end
 
       def public_indexable(query: nil)

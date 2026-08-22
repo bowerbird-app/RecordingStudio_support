@@ -56,7 +56,7 @@ Tailwind scans dummy views plus Flatpack, Recording Studio, Admin, Support, and 
 
 - `/` - dummy host home page
 - `/help` - public help sections (no sign-in)
-- `/help/sections/:id` - published pages in a section
+- `/help/sections/:id` - published pages in a section (declare this before the Publishable mount)
 - `/help/:uuid/:slug` - public help page through Publishable
 - `/support` - authenticated help sections and publish preview (add `?q=` to search)
 - `/admin` - Admin Support hub (pick **Admin** in the top control first)

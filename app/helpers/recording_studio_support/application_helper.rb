@@ -62,9 +62,15 @@ module RecordingStudioSupport
       "#{support_public_help_path}/sections/#{recording.id}"
     end
 
+    def support_recording_title(recording)
+      return unless recording.respond_to?(:recordable)
+
+      recording.recordable&.title
+    end
+
     def support_section_options(section_recordings)
       Array(section_recordings).filter_map do |recording|
-        title = recording.recordable&.title
+        title = support_recording_title(recording)
         next if title.blank?
 
         [title, recording.id]

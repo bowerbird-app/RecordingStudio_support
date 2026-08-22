@@ -22,7 +22,7 @@ Help pages live in a section. Staff pick the section by moving the page.
 3. Add Moveable 3.0 and mount it at `/recording_studio_moveable`.
 4. Enable Moveable only on Support pages with `.to`. Parent rules stay on `allowed_parent_types`.
 5. Enable Orderable and Trashable on SupportSection. Do not enable Attachable or Publishable on the section.
-6. Point `/help/sections/:id` at `PublicSectionsController`. Public `/help` lists sections.
+6. Point `/help` and `/help/sections/:id` at the Support public controllers **before** mounting Publishable at `/`. Publishable also claims `/help/:uuid/:slug`.
 7. Create pages under a section (`Pages.create!(parent_recording: section, ...)`). Move them with `move_to!`.
 8. Keep one Admin Support section. Add a sections widget and a section filter on the help-pages table.
 

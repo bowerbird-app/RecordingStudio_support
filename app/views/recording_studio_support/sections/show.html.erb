@@ -28,7 +28,7 @@
           <% card.body(class: "flex flex-wrap items-center justify-between gap-3") do %>
             <div class="flex flex-wrap items-center gap-2">
               <%= render FlatPack::SectionTitle::Component.new(
-                title: recording.recordable.title,
+                title: support_recording_title(recording),
                 subtitle: nil
               ) %>
               <% if recording.respond_to?(:current_publishable) && recording.current_publishable %>

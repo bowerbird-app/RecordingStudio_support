@@ -42,7 +42,7 @@ class PagesTest < Minitest::Test
   end
 
   def test_public_index_uses_indexable_pages_not_copied_logic
-    pages = File.read(File.expand_path("../lib/recording_studio_support/pages.rb", __dir__))
+    pages = File.read(File.expand_path("../lib/recording_studio_support/pages/lookups.rb", __dir__))
     public_index = File.read(
       File.expand_path("../app/views/recording_studio_support/public_pages/index.html.erb", __dir__)
     )

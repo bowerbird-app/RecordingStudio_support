@@ -33,7 +33,7 @@ Help pages live in a section. Staff pick the section by moving the page.
 - Add `recording_studio_moveable`, `~> 3.0` (dummy GitHub tag `3.0.0`) and mount it at `/recording_studio_moveable`
 - Enable Moveable only on Support pages: `include RecordingStudio::Capabilities::Moveable.to`
 - Enable Orderable and Trashable on SupportSection. Do not enable Attachable or Publishable on the section
-- Point `/help/sections/:id` at `RecordingStudioSupport::PublicSectionsController.action(:show)`
+- Point `/help` and `/help/sections/:id` at the Support public controllers **before** mounting Publishable at `/`
 - Create pages under a section. Move them with `recording.move_to!(new_parent: section, actor: current_user)`
 - Do not add a `section_id` column, a categories gem, or a second Admin section
 
