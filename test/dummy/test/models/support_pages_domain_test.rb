@@ -98,12 +98,20 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
     publish!(live, slug: "how-do-i-sign-in", status: "published")
     publish!(draft, slug: "how-do-i-change-my-password", status: "draft")
 
-    titles = RecordingStudioSupport::Pages.public_indexable.map(&:title)
+    created_ids = [live.recordable_id, draft.recordable_id]
+    titles = RecordingStudioSupport::Pages.public_indexable.filter_map do |page|
+      page.title if created_ids.include?(page.id)
+    end
+    matched = lambda do |query|
+      RecordingStudioSupport::Pages.public_indexable(query: query).select do |page|
+        created_ids.include?(page.id)
+      end
+    end
 
-    assert_includes titles, "How do I sign in?"
+    assert_equal ["How do I sign in?"], titles
     refute_includes titles, "How do I change my password?"
-    assert_equal ["How do I sign in?"], RecordingStudioSupport::Pages.public_indexable(query: "sign in").map(&:title)
-    assert_empty RecordingStudioSupport::Pages.public_indexable(query: "password")
+    assert_equal ["How do I sign in?"], matched.call("sign in").map(&:title)
+    assert_empty matched.call("password")
     assert live.recordable.indexable?
     refute draft.recordable.indexable?
   end

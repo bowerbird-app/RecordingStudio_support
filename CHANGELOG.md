@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- RuboCop method-length on help configuration and modifier-if on the public help path helper
+- Dummy `public_indexable` test scopes title assertions to the pages it created so a seeded published sign-in page cannot double the result
+
 ## [0.6.0] - 2026-08-21
 
 Logged-out people can read live help pages. Drafts stay hidden. Staff publish through Publishable.

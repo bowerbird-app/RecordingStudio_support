@@ -13,12 +13,7 @@ module RecordingStudioSupport
       @timeout = 5
       @pages_path = "/support"
       @public_pages_path = "/help"
-      @help_title = "Help"
-      @help_subtitle = "Answers you can share."
-      @public_help_title = "Help"
-      @public_help_subtitle = "Answers you can read."
-      @admin_help_title = "Help"
-      @admin_help_subtitle = "Pages people use when they get stuck."
+      assign_help_copy_defaults
       @hooks = RecordingStudio::Hooks.new
     end
 
@@ -29,12 +24,7 @@ module RecordingStudioSupport
         timeout: timeout,
         pages_path: pages_path,
         public_pages_path: public_pages_path,
-        help_title: help_title,
-        help_subtitle: help_subtitle,
-        public_help_title: public_help_title,
-        public_help_subtitle: public_help_subtitle,
-        admin_help_title: admin_help_title,
-        admin_help_subtitle: admin_help_subtitle,
+        **help_copy_values,
         hooks_registered: hooks.instance_variable_get(:@registry).transform_values(&:size)
       }
     end
@@ -47,6 +37,28 @@ module RecordingStudioSupport
         setter = "#{key}="
         public_send(setter, v) if respond_to?(setter)
       end
+    end
+
+    private
+
+    def assign_help_copy_defaults
+      @help_title = "Help"
+      @help_subtitle = "Answers you can share."
+      @public_help_title = "Help"
+      @public_help_subtitle = "Answers you can read."
+      @admin_help_title = "Help"
+      @admin_help_subtitle = "Pages people use when they get stuck."
+    end
+
+    def help_copy_values
+      {
+        help_title: help_title,
+        help_subtitle: help_subtitle,
+        public_help_title: public_help_title,
+        public_help_subtitle: public_help_subtitle,
+        admin_help_title: admin_help_title,
+        admin_help_subtitle: admin_help_subtitle
+      }
     end
   end
 end

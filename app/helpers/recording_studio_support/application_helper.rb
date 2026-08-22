@@ -49,9 +49,7 @@ module RecordingStudioSupport
     end
 
     def support_public_help_path
-      if respond_to?(:main_app) && main_app.respond_to?(:public_help_path)
-        return main_app.public_help_path
-      end
+      return main_app.public_help_path if respond_to?(:main_app) && main_app.respond_to?(:public_help_path)
 
       RecordingStudioSupport.configuration.public_pages_path
     end
