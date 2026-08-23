@@ -65,7 +65,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "h2", text: "Open the sign-in page"
     assert_select "h2", text: "Enter your details"
     assert_select "ul li", text: "Your email"
-    assert_select "img[src='/how-to-sign-in.png'][alt='Sign-in form']"
+    assert_select "img[src='/how-to-sign-in.jpg'][alt='Sign-in form']"
     refute_includes response.body, "How do I change my password?"
     refute_includes response.body, "This page is live"
     refute_includes response.body, "Not live yet"

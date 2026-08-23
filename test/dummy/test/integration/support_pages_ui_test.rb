@@ -113,7 +113,7 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Use the email and password you were given"
     assert_includes response.body, "Open the sign-in page"
     assert_includes response.body, "Your email"
-    assert_select "img[src='/how-to-sign-in.png'][alt='Sign-in form']"
+    assert_select "img[src='/how-to-sign-in.jpg'][alt='Sign-in form']"
     refute_includes response.body, "Pictures"
     close = css_select("a[aria-label='Close']").first
     assert close
@@ -218,8 +218,8 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
 
   test "owner can upload an image for the body editor" do
     file = Rack::Test::UploadedFile.new(
-      Rails.root.join("public/how-to-sign-in.png"),
-      "image/png"
+      Rails.root.join("public/how-to-sign-in.jpg"),
+      "image/jpeg"
     )
 
     post "/support/uploads", params: { file: file }

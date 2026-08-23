@@ -70,6 +70,6 @@ Tailwind scans dummy views plus Flatpack, Recording Studio, Admin, Support, and 
 
 Use this app to click through public help, staff help pages, and the Admin Support section. If a layout, route, asset source, or Recording Studio initializer change breaks here, the gem likely needs adjustment before reuse.
 
-Seeds three sections under Studio Workspace: **Billing**, **Developers**, and **Getting started**. **How do I sign in?** is a live article with headings, a list, and an inline picture. **How do I change my password?** stays a draft under Getting started. Billing and Developers each have one live page. A few page reads are logged as support events.
+Seeds three sections under Studio Workspace: **Billing**, **Developers**, and **Getting started**. **How do I sign in?** is a live article with headings, a list, and an inline photograph (`public/how-to-sign-in.jpg`, Wikimedia Commons CC0 laptop keyboard). **How do I change my password?** stays a draft under Getting started. Billing and Developers each have one live page. A few page reads are logged as support events.
 
 Public and staff help use Recording Studio's shared default layout. Devise sign-in keeps `layouts/application`. Login puts `rounded` on `<html>`; core layout puts it on `<body>`.

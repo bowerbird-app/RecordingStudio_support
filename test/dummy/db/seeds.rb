@@ -5,7 +5,7 @@
 SIGN_IN_BODY = <<~HTML.freeze unless defined?(SIGN_IN_BODY)
   <h2>Open the sign-in page</h2>
   <p>Use the address your workspace gave you. You will see the sign-in form.</p>
-  <p><img src="/how-to-sign-in.png" alt="Sign-in form"></p>
+  <p><img src="/how-to-sign-in.jpg" alt="Sign-in form"></p>
   <h2>Enter your details</h2>
   <p>Use the email and password you were given.</p>
   <ul>

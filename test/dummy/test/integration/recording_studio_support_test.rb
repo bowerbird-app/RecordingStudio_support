@@ -90,7 +90,7 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert_equal 3, Workspace.count
     assert_equal 1, AdminRoot.count
     assert_operator RecordingStudioSupport::SupportPage.count, :>=, 2
-    assert_includes sign_in_page.body, "<img src=\"/how-to-sign-in.png\" alt=\"Sign-in form\">"
+    assert_includes sign_in_page.body, "<img src=\"/how-to-sign-in.jpg\" alt=\"Sign-in form\">"
     refute RecordingStudio.capability_enabled?(:attachable, for: "RecordingStudioSupport::SupportPage")
     assert sign_in_page.indexable?
     refute password_page.indexable?

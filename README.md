@@ -231,7 +231,7 @@ bin/dev
 
 Then open `/help` without signing in, or `/support` after you sign in. Search the lists with `?q=`. Dummy uses Flatpack's built-in `rounded` theme (`html data-theme="rounded"`). For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root. Edit, Move, and New live on the Admin tables, not on owner preview.
 
-Seeds three sections: **Billing**, **Developers**, and **Getting started**. **How do I sign in?** is a live article with headings, a list, and an inline picture. **How do I change my password?** stays a draft under Getting started. Billing and Developers each have one live page so those lists are not empty.
+Seeds three sections: **Billing**, **Developers**, and **Getting started**. **How do I sign in?** is a live article with headings, a list, and an inline photograph. **How do I change my password?** stays a draft under Getting started. Billing and Developers each have one live page so those lists are not empty.
 
 ## Engine internals
 
