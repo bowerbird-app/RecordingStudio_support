@@ -289,11 +289,16 @@ class RecordingStudioSupportTest < Minitest::Test
     refute_includes section, "recordable"
 
     screen = File.read(File.expand_path("../lib/recording_studio_support/admin/pages_screen.rb", __dir__))
+    sections_screen = File.read(File.expand_path("../lib/recording_studio_support/admin/sections_screen.rb", __dir__))
     assert_includes screen, 'key "support_pages"'
     assert_includes screen, "button :new_page"
     assert_includes screen, "action :edit"
     assert_includes screen, "column :status"
     refute_includes screen, "action :open"
+    assert_includes sections_screen, "column :page_count"
+    assert_includes sections_screen, 'title: "Count"'
+    refute_includes sections_screen, "1 page"
+    refute_includes sections_screen, "pages"
     assert_includes admin, "register_screen(SectionsScreen)"
     assert_includes admin, "register_widget(Widgets::PAGE_COUNT)"
   end

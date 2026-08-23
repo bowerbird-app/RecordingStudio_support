@@ -24,7 +24,7 @@ Help pages live in a section. Staff pick the section by moving the page.
 5. Enable Orderable and Trashable on SupportSection. Do not enable Attachable or Publishable on the section.
 6. Point `/help` and `/help/sections/:id` at the Support public controllers **before** mounting Publishable at `/`. Publishable also claims `/help/:uuid/:slug`.
 7. Create pages under a section (`Pages.create!(parent_recording: section, ...)`). Move them with `move_to!`.
-8. Keep one Admin Support section. Open **Support pages** and **Support sections** tables from that hub. Drop See every page and Latest pages. The page-count widget is the total of kept pages.
+8. Keep one Admin Support section. Open **Support pages** and **Support sections** tables from that hub. Drop See every page and Latest pages. The page-count widget is the total of kept pages. The sections table Count column is the kept-page total for that section (`1` / `2`).
 9. Drop Attachable and Orderable from SupportPage. Pictures go in the body through the Flatpack editor upload. Allow `img` in `Body.sanitize`.
 10. Staff and public section lists show published pages only, with a Published badge. Staff Help home counts published pages.
 

@@ -72,6 +72,10 @@ module RecordingStudioSupport
         Pages.section_for(recording)&.recordable&.title
       end
 
+      def section_page_count(recording)
+        Pages.kept_pages_for_section(recording).count
+      end
+
       def search_page_recordings(relation, value)
         Pages.apply_query(relation, value)
       end

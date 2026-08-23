@@ -19,7 +19,7 @@ Help pages live in a section. Staff pick the section by moving the page.
 - Staff `/support` lists sections. Staff and public section shows are the same reader list: published pages with a Published badge
 - Admin Support hub has two family screens: Support pages and Support sections. Both are tables. The hub shows a page-count number widget
 - Admin pages table keeps search, Published/Draft, section, Edit, Move, and New page
-- Admin sections table has search, Edit, and New section
+- Admin sections table has search, a Count column (`1` / `2`, every kept page in the section), Edit, and New section
 - Body editor image upload at `POST /support/uploads` (returns `{ "url": "..." }`, same contract as Flatpack ContentEditor `upload_url`)
 - Dummy seeds Billing, Developers, and Getting started. Existing pages sit under Getting started. Billing and Developers each have one live page so those lists are not empty
 - Dummy GitHub pin `recording_studio_moveable` tag `3.0.0` and gemspec `~> 3.0`

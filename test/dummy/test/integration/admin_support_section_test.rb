@@ -131,8 +131,17 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Getting started"
     assert_includes response.body, "Billing"
     assert_includes response.body, "Developers"
+    assert_includes response.body, "Count"
     assert_includes response.body, "Edit"
     assert_includes response.body, "<table"
+    refute_includes response.body, "1 page"
+    refute_includes response.body, "2 pages"
+    refute_includes response.body, "1 pages"
+    refute_includes response.body, "2 page"
+    assert_equal(
+      { "Billing" => "1", "Developers" => "1", "Getting started" => "2" },
+      section_page_counts_from_table(response.body)
+    )
     getting_started_edit = RecordingStudioSupport::Admin::Queries.edit_section_path(
       seeded_section("Getting started")
     )
@@ -220,6 +229,21 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def section_page_counts_from_table(html)
+    document = Nokogiri::HTML(html)
+    headers = document.css("thead th").map { |cell| cell.text.gsub(/\s+/, " ").strip }
+    count_index = headers.index { |header| header == "Count" }
+    raise "Count column missing from #{headers.inspect}" unless count_index
+
+    document.css("tbody tr").each_with_object({}) do |row, counts|
+      cells = row.css("td").map { |cell| cell.text.gsub(/\s+/, " ").strip }
+      name = cells[0]
+      next if name.blank?
+
+      counts[name] = cells[count_index]
+    end
+  end
 
   def switch_to_admin_root!
     admin_root = AdminRoot.find_by!(name: "Admin")

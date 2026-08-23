@@ -51,14 +51,31 @@ class AdminTest < Minitest::Test
   def test_support_sections_screen_opens_edit_and_new
     table = RecordingStudioSupport::Admin::SectionsScreen.table_value
     action_names = table.actions.map(&:name)
+    column_keys = table.columns.map(&:key)
     buttons = RecordingStudioSupport::Admin::SectionsScreen.buttons_value
+    page_count = table.columns.find { |column| column.key == :page_count }
 
     assert_includes action_names, :edit
     refute_includes action_names, :open
+    assert_includes column_keys, :title
+    assert_includes column_keys, :page_count
+    assert_includes column_keys, :updated_at
+    assert_equal "Count", page_count.title
+    refute page_count.sortable
     assert_equal :new_section, buttons.first.name
     assert_equal "New section", buttons.first.text
     refute table.show_table_heading?
     refute table.show_count?
+  end
+
+  def test_sections_page_count_column_is_the_number
+    table = RecordingStudioSupport::Admin::SectionsScreen.table_value
+    column = table.columns.find { |item| item.key == :page_count }
+    row = Struct.new(:id).new("section-1")
+
+    RecordingStudioSupport::Admin::Queries.stub(:section_page_count, 2) do
+      assert_equal 2, column.cell(row, nil)
+    end
   end
 
   def test_section_links_to_the_two_admin_tables
@@ -97,6 +114,21 @@ class AdminTest < Minitest::Test
     assert_equal :info, RecordingStudioSupport::Admin::Queries.page_status_badge_style("Draft")
   end
 
+  def test_queries_section_page_count_uses_kept_pages
+    recording = Object.new
+    relation = Minitest::Mock.new
+    relation.expect(:count, 2)
+
+    RecordingStudioSupport::Pages.stub(:kept_pages_for_section, lambda { |row|
+      assert_same recording, row
+      relation
+    }) do
+      assert_equal 2, RecordingStudioSupport::Admin::Queries.section_page_count(recording)
+    end
+
+    relation.verify
+  end
+
   def test_queries_expose_table_search_and_status_filters
     queries = RecordingStudioSupport::Admin::Queries
 
@@ -106,6 +138,7 @@ class AdminTest < Minitest::Test
     assert queries.respond_to?(:section_filter_options)
     assert queries.respond_to?(:move_page_path)
     assert queries.respond_to?(:search_section_recordings)
+    assert queries.respond_to?(:section_page_count)
   end
 
   def test_register_is_safe_when_admin_is_defined
