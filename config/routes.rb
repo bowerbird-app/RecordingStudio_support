@@ -7,6 +7,8 @@ RecordingStudioSupport::Engine.routes.draw do
     end
   end
 
+  post "uploads", to: "uploads#create"
+
   resources :pages, path: "", only: %i[show new create edit update] do
     member do
       post :trash

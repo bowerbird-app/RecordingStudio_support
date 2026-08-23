@@ -11,15 +11,7 @@
     variant: :h1
   ) %>
 
-  <%= form_with url: root_path, method: :get, html: { role: "search", class: "w-full" } do %>
-    <%= render FlatPack::Search::Component.new(
-      name: "q",
-      value: @query,
-      placeholder: "Find a section",
-      max_width: :none,
-      class: "w-full"
-    ) %>
-  <% end %>
+  <%= render "recording_studio_support/shared/search", url: root_path, query: @query %>
 
   <% if @section_recordings.any? %>
     <%= render "recording_studio_support/shared/link_list", items: @section_recordings.map { |recording|

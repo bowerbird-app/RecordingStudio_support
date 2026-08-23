@@ -11,23 +11,14 @@
     variant: :h1
   ) %>
 
-  <%= form_with url: section_path(@section_recording), method: :get, html: { role: "search", class: "w-full" } do %>
-    <%= render FlatPack::Search::Component.new(
-      name: "q",
-      value: @query,
-      placeholder: "Find a page",
-      max_width: :none,
-      class: "w-full"
-    ) %>
-  <% end %>
+  <%= render "recording_studio_support/shared/search", url: section_path(@section_recording), query: @query %>
 
-  <% if @page_recordings.any? %>
-    <%= render "recording_studio_support/shared/link_list", items: @page_recordings.map { |recording|
-      {
-        title: support_recording_title(recording),
-        href: page_path(recording),
-        meta: support_page_status_badge(recording)
-      }
+  <% if @pages.any? %>
+    <%= render "recording_studio_support/shared/link_list", items: @pages.filter_map { |page|
+      href = page.published_url
+      next if href.blank?
+
+      { title: page.title, href: href, meta: support_published_badge }
     } %>
   <% elsif @query.present? %>
     <%= render FlatPack::EmptyState::Component.new(
@@ -36,8 +27,8 @@
     ) %>
   <% else %>
     <%= render FlatPack::EmptyState::Component.new(
-      title: "Nothing here yet",
-      description: "Add a page to get going."
+      title: "Nothing live yet",
+      description: "Check back soon."
     ) %>
   <% end %>
 </div>

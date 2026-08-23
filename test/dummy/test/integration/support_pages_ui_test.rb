@@ -33,14 +33,15 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "recordable"
     refute_includes response.body, "This app proves the support gem"
     assert_select "form[role='search'][class~='w-full']"
-    assert_select "input[name='q']"
+    assert_select "input[name='q'][placeholder='Search support']"
+    assert_includes response.body, "Find an answer."
     assert_includes response.body, "max-w-none"
     assert_includes response.body, "card-border-color"
     assert_select "ul[role='list']"
     assert_select "li[role='listitem']"
     assert_includes response.body, "chevron-right"
-    assert_select "[class*='badge-default-background-color']", text: "1", count: 2
-    assert_select "[class*='badge-default-background-color']", text: "2", count: 1
+    assert_select "[class*='badge-default-background-color']", text: "1", count: 3
+    refute_includes response.body, ">2<"
     refute_includes response.body, "1 page"
     refute_includes response.body, "2 pages"
     refute_includes response.body, "<span>Open</span>"
@@ -75,8 +76,9 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "How do I sign in?"
-    assert_includes response.body, "How do I change my password?"
+    refute_includes response.body, "How do I change my password?"
     refute_includes response.body, "How do I update payment details?"
+    assert_includes response.body, "Published"
     refute_includes response.body, "New page"
     refute_includes response.body, "recordable"
     assert_includes response.body, "card-border-color"
@@ -101,7 +103,7 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "flat-pack-richtext-wrapper"
   end
 
-  test "show renders title, body, and attached image" do
+  test "show renders title, body, and inline image" do
     recording = seeded_page("How do I sign in?")
 
     get "/support/#{recording.id}"
@@ -109,8 +111,10 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "How do I sign in?"
     assert_includes response.body, "Use the email and password you were given"
-    assert_includes response.body, "sign-in.png"
-    assert_select "img[alt='sign-in.png']"
+    assert_includes response.body, "Open the sign-in page"
+    assert_includes response.body, "Your email"
+    assert_select "img[src='/how-to-sign-in.png'][alt='Sign-in form']"
+    refute_includes response.body, "Pictures"
     close = css_select("a[aria-label='Close']").first
     assert close
     assert_match(%r{\A/support/?\z}, close["href"])
@@ -125,7 +129,7 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert RecordingStudioSupport::PageView.exists?(recording_id: recording.id)
   end
 
-  test "show renders sanitized HTML and drops inline images" do
+  test "show renders sanitized HTML and keeps inline images" do
     recording = RecordingStudioSupport::Pages.create!(
       parent_recording: seeded_section("Getting started"),
       title: "Printer jam",
@@ -139,7 +143,7 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_select "p", text: "Turn it off."
     assert_select "h2", text: "Then on"
     refute_includes response.body, "&lt;p&gt;"
-    refute_select "img[alt='nope']"
+    assert_select "img[alt='nope']"
   end
 
   test "new and create go through public record helper" do
@@ -152,6 +156,9 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_select "input[type='hidden'][name='page[body]']"
     assert_includes response.body, "flat-pack-richtext-wrapper"
     assert_includes response.body, "flat-pack--tiptap"
+    assert_includes response.body, "/support/uploads"
+    assert_includes response.body, "Save"
+    assert_includes response.body, "Cancel"
     refute_includes response.body, "Words only"
     refute_includes response.body, "Pictures live under the page"
 
@@ -190,6 +197,10 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
                     'application.register("flat-pack--tiptap", TiptapController)'
     assert_select "input[name='page[title]']"
     assert_select "input[type='hidden'][name='page[body]']"
+    assert_includes response.body, "/support/uploads"
+    assert_includes response.body, "Save"
+    assert_includes response.body, "Cancel"
+    refute_includes response.body, "flat-pack-button-group"
     refute_match(/<textarea[^>]*name="page\[body\]"/, response.body)
 
     patch "/support/#{recording.id}", params: {
@@ -203,6 +214,20 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     recording.reload
     assert_not_equal original_id, recording.recordable_id
     assert_equal "Pick a new password, then sign in with it.", recording.recordable.body
+  end
+
+  test "owner can upload an image for the body editor" do
+    file = Rack::Test::UploadedFile.new(
+      Rails.root.join("public/how-to-sign-in.png"),
+      "image/png"
+    )
+
+    post "/support/uploads", params: { file: file }
+
+    assert_response :created
+    payload = response.parsed_body
+    assert payload["url"].present?
+    assert_match(%r{\A/rails/active_storage/}, payload["url"])
   end
 
   test "viewer with view access can read but not write" do

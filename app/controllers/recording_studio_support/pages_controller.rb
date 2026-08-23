@@ -12,7 +12,6 @@ module RecordingStudioSupport
       PageView.record!(recording: @page_recording, actor: current_support_actor)
       @page = @page_recording.recordable
       @section_recording = Pages.section_for(@page_recording)
-      @images = @page_recording.images.to_a
     end
 
     def new

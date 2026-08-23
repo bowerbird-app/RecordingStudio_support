@@ -80,16 +80,16 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes source, 'label: "Support page"'
     assert_includes source, "root: false"
     assert_includes source, 'allowed_parent_types: ["RecordingStudioSupport::SupportSection"]'
-    assert_includes source, "RecordingStudio::Capabilities::Attachable.to"
+    refute_includes source, "Capabilities::Attachable"
     assert_includes source, "RecordingStudio::Capabilities::Trashable.to"
-    assert_includes source, "RecordingStudio::Capabilities::Orderable.to"
+    refute_includes source, "Capabilities::Orderable"
     assert_includes source, "RecordingStudio::Capabilities::Moveable.to"
     assert_includes source, "RecordingStudio::Capabilities::Publishable.to"
     assert_includes source, "public_controller: \"recording_studio_support/public_pages\""
     assert_includes source, "public_action: :show"
     assert_includes source, "public_layout: \"recording_studio/default_layout\""
     assert_includes source, "path: \"/help/:uuid/:slug\""
-    assert_includes source, 'allows: ["RecordingStudioAttachable::Attachment"]'
+    refute_includes source, 'allows: ["RecordingStudioAttachable::Attachment"]'
     refute_includes source, "Recordable"
     refute_match(/label:\s*"[^"]*Recordable/, source)
   end
@@ -218,7 +218,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "help_title"
     assert_includes readme, "flat-pack--tiptap"
     assert_includes readme, "section :support"
-    assert_includes readme, "RecordingStudio::Capabilities::Attachable.to"
+    refute_includes readme, "RecordingStudio::Capabilities::Attachable.to"
     assert_includes readme, "RecordingStudio::Capabilities::Publishable.to"
     assert_includes readme, "tag: \"v0.2.0\""
     assert_includes readme, "tag: \"0.4.0\""
@@ -268,6 +268,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes routes, "RecordingStudioSupport::Engine.routes.draw"
     assert_includes routes, "resources :pages"
     assert_includes routes, "resources :sections"
+    assert_includes routes, 'post "uploads"'
   end
 
   def test_dummy_defaults_to_studio_workspace_for_help_pages
@@ -288,11 +289,13 @@ class RecordingStudioSupportTest < Minitest::Test
     refute_includes section, "recordable"
 
     screen = File.read(File.expand_path("../lib/recording_studio_support/admin/pages_screen.rb", __dir__))
-    assert_includes screen, 'key "help_pages"'
+    assert_includes screen, 'key "support_pages"'
     assert_includes screen, "button :new_page"
     assert_includes screen, "action :edit"
     assert_includes screen, "column :status"
     refute_includes screen, "action :open"
+    assert_includes admin, "register_screen(SectionsScreen)"
+    assert_includes admin, "register_widget(Widgets::PAGE_COUNT)"
   end
 
   def test_dummy_mounts_support_and_admin

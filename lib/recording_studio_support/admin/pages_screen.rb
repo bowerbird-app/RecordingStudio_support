@@ -3,13 +3,13 @@
 module RecordingStudioSupport
   module Admin
     class PagesScreen < RecordingStudioAdmin::Screen
-      key "help_pages"
+      key "support_pages"
       icon :document_text
-      title "Help pages"
+      title "Support pages"
       subtitle "Every help page, draft or live."
 
       button :new_page,
-             text: "New",
+             text: "New page",
              url: ->(_context) { Queries.new_page_path },
              style: :primary
 

@@ -2,7 +2,7 @@
 
 Staff write help pages. People help themselves. No tickets, no inbox, no chat.
 
-Help pages sit in a section under your workspace. Each page has a title and a body. A page can hold images, go to trash, and sort those images. Staff pick a section by moving the page. Staff read sections and preview pages at `/support`. Logged-out visitors read sections at `/help` and live pages under a section. Drafts stay hidden. An Admin Support section is the hub. Staff open its help-pages table to see every page (draft and live) and to Edit, Move, or add New. Workspace `/support` is for reading and publish preview. This gem does not ship tickets, email, messaging, or an API.
+Help pages sit in a section under your workspace. Each page has a title and a formatted body. Pictures go in that body. A page can go to trash. Staff pick a section by moving the page. Staff read sections and preview pages at `/support`. Logged-out visitors read sections at `/help` and live pages under a section. Drafts stay hidden. An Admin Support section is the hub. Staff open its Support pages and Support sections tables to Edit, Move, or add New. Workspace `/support` is for reading and publish preview. This gem does not ship tickets, email, messaging, or an API.
 
 ## Install
 
@@ -48,13 +48,13 @@ bin/rails generate recording_studio_moveable:install
 bin/rails db:migrate
 ```
 
-Install Active Storage if the host does not already have it. Images live as Attachable children, not in the page body.
+Install Active Storage if the host does not already have it. Pictures upload through the Flatpack body editor and sit in the page HTML.
 
 The install generator mounts authenticated Support screens at `/support`, public help at `/help`, and Publishable at `/`. When an `AdminRoot` model is present, it enables `section :support`.
 
 ## Support pages
 
-Register the type next to your host root and the Publishable child. Dummy uses `Workspace`. Attachable registers its own image child type. Dummy also registers `AdminRoot` for staff admin.
+Register the type next to your host root and the Publishable child. Dummy uses `Workspace`. Dummy also registers `AdminRoot` for staff admin.
 
 ```ruby
 RecordingStudio.configure do |config|
@@ -85,14 +85,7 @@ recording_studio_recordable label: "Support page",
                             root: false,
                             allowed_parent_types: ["RecordingStudioSupport::SupportSection"]
 
-include RecordingStudio::Capabilities::Attachable.to(
-  allowed_content_types: ["image/*"],
-  enabled_attachment_kinds: %i[image]
-)
 include RecordingStudio::Capabilities::Trashable.to
-include RecordingStudio::Capabilities::Orderable.to(
-  allows: ["RecordingStudioAttachable::Attachment"]
-)
 include RecordingStudio::Capabilities::Moveable.to
 include RecordingStudio::Capabilities::Publishable.to(
   public_controller: "recording_studio_support/public_pages",
@@ -129,12 +122,6 @@ RecordingStudioPublishable::Services::Publishables::Update.call(
   attributes: { slug: "how-do-i-sign-in", status: "published" }
 )
 
-page_recording.import_attachment(
-  io: image_file,
-  filename: "sign-in.png",
-  content_type: "image/png",
-  actor: current_user
-)
 ```
 
 Authenticated screens call the same helpers. Access uses `grant_access` / `authorized?` on the workspace root (`:view` to read, `:edit` to write). Public read uses Publishable `indexable` / `indexable?`. This gem does not invent its own ACL.
@@ -157,26 +144,28 @@ Page reads are logs (`recording_studio_support_page_views`), not extra pages in 
 
 Logged-out people can read sections and live pages. Drafts 404.
 
-Public `/help` lists sections. A section show lists `SupportPage.indexable` pages in that section. Do not copy that logic. Public `/help?q=` and staff `/support?q=` search section names. Page search lives on a section show. Both lists use Flatpack Search at full width (`max_width: :none`). Section and page lists share one Flatpack List with a trailing `chevron-right` icon, wrapped in a Card body. Section rows on public and staff Help show a Flatpack Badge with the page count. Public counts published pages only. Staff counts draft and published. No Read / Open buttons. Public and staff help use Recording Studio's default layout (`UsesDefaultLayout` / `recording_studio/default_layout`). Point Publishable `public_layout` at that layout. Do not use `recording_studio_publishable/application`.
+Public `/help` lists sections. A section show lists `SupportPage.indexable` pages in that section. Do not copy that logic. Public `/help?q=` and staff `/support?q=` search section names. Page search lives on a section show. Both lists use Flatpack Search at full width (`max_width: :none`, placeholder “Search support”). Flatpack Search has no fill or height API, so the kit-default field is used. Section and page lists share one Flatpack List with a trailing `chevron-right` icon, wrapped in a Card body. Section rows on public and staff Help show a Flatpack Badge with the published page count. Page rows on a section show a Published badge. Drafts stay off those lists. No Read / Open buttons. Public and staff help use Recording Studio's default layout (`UsesDefaultLayout` / `recording_studio/default_layout`). Point Publishable `public_layout` at that layout. Do not use `recording_studio_publishable/application`.
 
-Help titles come from `RecordingStudioSupport.configure`. Defaults stay “Help” / “Answers you can share.” for staff, “Answers you can read.” for public, and “Pages people use when they get stuck.” for the admin section.
+Help titles come from `RecordingStudioSupport.configure`. Defaults stay “Help” / “Find an answer.” for public and staff, and “Pages people use when they get stuck.” for the admin section.
 
 ```ruby
 RecordingStudioSupport.configure do |config|
   config.pages_path = "/support"
   config.public_pages_path = "/help"
   config.help_title = "Help"
-  config.help_subtitle = "Answers you can share."
+  config.help_subtitle = "Find an answer."
   config.public_help_title = "Help"
-  config.public_help_subtitle = "Answers you can read."
+  config.public_help_subtitle = "Find an answer."
   config.admin_help_title = "Help"
   config.admin_help_subtitle = "Pages people use when they get stuck."
 end
 ```
 
-Public show is Publishable's published route (`/help/:uuid/:slug`). It renders Support's public page template. Last updated comes from the publishable `publish_at` time.
+Public show is Publishable's published route (`/help/:uuid/:slug`). It is a simple article: title, optional Updated line, and formatted body (headings, short paragraphs, lists, inline pictures). No live banner, no sign-in alert, no Edit, trash, or Access. Do not wrap the body in a skinny card.
 
-Staff preview unpublished pages on the authenticated show. That is the same staff screen, not a second preview app.
+Staff preview unpublished pages on the authenticated show. That is the same staff screen, not a second preview app. Staff preview can keep Publish, a draft note, and trash. It does not show a Pictures gallery.
+
+The body editor is Flatpack `TextArea` with `rich_text: true`, `preset: :content`, and `uploads: { url: uploads_path }`. That upload endpoint is the same contract as ContentEditor (`upload_url` posts a file and returns `{ "url": "..." }`). `Body.sanitize` keeps `img` (`src`, `alt`).
 
 ## Admin Support
 
@@ -204,13 +193,13 @@ RecordingStudioAccessible.bootstrap_owner_access!(
 )
 ```
 
-The section is a hub: sections (list + New), latest pages, plus **See every page**. It does not show vanity totals. The help-pages screen is the job — a Flatpack table of every page, draft or live, with search, Published/Draft, section, **Edit** and **Move** on each row, and **New** at the top. Edit and New open the existing Support page forms (`/support/new`, `/support/:id/edit`). Move opens Moveable. The table skips the default “Table data” heading and row count. Workspace `/support` and owner preview stay for reading and publish preview. Do not put Edit on the owner preview.
+The section is a hub with two tables: **Support pages** and **Support sections**. It shows a page-count number, not See every page or Latest pages. The pages table lists every page, draft or live, with search, Published/Draft, section, **Edit** and **Move** on each row, and **New page** at the top. The sections table has search, **Edit**, and **New section**. Edit and New open the existing Support forms (`/support/new`, `/support/:id/edit`, `/support/sections/new`, `/support/sections/:id/edit`). Those forms use Save and Cancel as two Flatpack Buttons in one row. Move opens Moveable. The tables skip the default “Table data” heading and row count. Workspace `/support` and owner preview stay for reading and publish preview. Do not put Edit on the owner preview.
 
 ## Dummy host
 
 `test/dummy/` is a host that proves the gem. It is not the product.
 
-Dummy help pages — public and staff — use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Support screens and Admin Support screens keep that chrome only. Dummy Sign out and Root Switchable stay on dummy host pages, not on `/support`, `/help`, or `/admin`. Access can stay on Admin. Do not put a login button there. Devise sign-in keeps `layouts/application` and still loads Flatpack CSS/JS plus Turbo. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`); dummy Stimulus registers `flat-pack--tiptap` on first paint.
+Dummy help pages — public and staff — use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Support screens and Admin Support screens keep that chrome only. Dummy Sign out and Root Switchable stay on dummy host pages, not on `/support`, `/help`, or `/admin`. Access can stay on Admin. Do not put a login button there. Devise sign-in keeps `layouts/application` and still loads Flatpack CSS/JS plus Turbo. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`, `preset: :content`, image upload); dummy Stimulus registers `flat-pack--tiptap` on first paint.
 
 Public and staff help use core’s default layout, so `rounded` lands on `<body>`.
 
@@ -240,9 +229,9 @@ bin/rails db:setup
 bin/dev
 ```
 
-Then open `/help` without signing in, or `/support` after you sign in. Search the staff list with `?q=`. Dummy uses Flatpack's built-in `rounded` theme (`html data-theme="rounded"`). For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root. Edit, Move, and New live on the Admin help-pages table, not on owner preview.
+Then open `/help` without signing in, or `/support` after you sign in. Search the lists with `?q=`. Dummy uses Flatpack's built-in `rounded` theme (`html data-theme="rounded"`). For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root. Edit, Move, and New live on the Admin tables, not on owner preview.
 
-Seeds three sections: **Billing**, **Developers**, and **Getting started**. **How do I sign in?** is live and **How do I change my password?** stays a draft under Getting started. Billing and Developers each have one live page so those lists are not empty.
+Seeds three sections: **Billing**, **Developers**, and **Getting started**. **How do I sign in?** is a live article with headings, a list, and an inline picture. **How do I change my password?** stays a draft under Getting started. Billing and Developers each have one live page so those lists are not empty.
 
 ## Engine internals
 

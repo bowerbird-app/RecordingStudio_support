@@ -16,10 +16,6 @@ module RecordingStudioSupport
         Sections.kept.includes(:recordable).order(:created_at)
       end
 
-      def recent_page_recordings(limit: 8)
-        kept_page_recordings.includes(:recordable).order(created_at: :desc).limit(limit)
-      end
-
       def page_path(recording)
         "#{pages_prefix}/#{recording.id}"
       end
@@ -42,6 +38,22 @@ module RecordingStudioSupport
 
       def new_section_path
         "#{pages_prefix}/sections/new"
+      end
+
+      def edit_section_path(recording)
+        "#{section_path(recording)}/edit"
+      end
+
+      def search_section_recordings(relation, value)
+        Sections.apply_query(relation, value)
+      end
+
+      def admin_pages_screen_path
+        "/admin/screens/support_pages"
+      end
+
+      def admin_sections_screen_path
+        "/admin/screens/support_sections"
       end
 
       def page_status(recording)

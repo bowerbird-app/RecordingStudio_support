@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.7.0] - 2026-08-22
+## [0.7.0] - 2026-08-23
 
 Help pages live in a section. Staff pick the section by moving the page.
 
@@ -16,18 +16,26 @@ Help pages live in a section. Staff pick the section by moving the page.
 - Moveable on SupportPage through `.to`. Staff change section with `move_to!` (same root). No `section_id` column
 - Orderable on SupportSection sorts its pages. Trashable on a section cascade-trashes its pages; empty sections trash cleanly
 - Public `/help` lists sections. `/help/sections/:id` lists published pages only
-- Staff `/support` lists sections. A section show lists its pages for read and publish preview
-- Admin Support hub keeps Latest pages and See every page, and adds a Sections widget (list + New)
-- Admin help-pages table adds a section filter and column, plus Move through Moveable
+- Staff `/support` lists sections. Staff and public section shows are the same reader list: published pages with a Published badge
+- Admin Support hub has two family screens: Support pages and Support sections. Both are tables. The hub shows a page-count number widget
+- Admin pages table keeps search, Published/Draft, section, Edit, Move, and New page
+- Admin sections table has search, Edit, and New section
+- Body editor image upload at `POST /support/uploads` (returns `{ "url": "..." }`, same contract as Flatpack ContentEditor `upload_url`)
 - Dummy seeds Billing, Developers, and Getting started. Existing pages sit under Getting started. Billing and Developers each have one live page so those lists are not empty
 - Dummy GitHub pin `recording_studio_moveable` tag `3.0.0` and gemspec `~> 3.0`
 
 ### Changed
 - SupportPage `allowed_parent_types` is SupportSection only, not Workspace. Break in place
 - `Pages.create!` takes `parent_recording:` (the section). Writes still go through `record` / `revise` / `log_event!`
-- Public home search matches section names. Page search stays on a section show
+- Pictures live in the page body. SupportPage no longer includes Attachable or Orderable. No Pictures heading or image gallery
+- Public show is a simple article: title, optional Updated line, and formatted body. No live/sign-in banners, no Edit/trash/Access
+- Help Search placeholder is “Search support” on public and staff home and on section lists. Flatpack Search has no fill or height API, so the kit-default field is used
+- Default Help subtitle is “Find an answer.” on public and staff home. Section show is the section name only
+- Public and staff Help home search matches section names. Page search stays on a section show
 - Public and staff section lists, and the page lists on section show, share one Flatpack List (`divider: true`) with a `chevron-right` trailing icon. The List sits in a Card body (Feature List kit pattern). No Read / Open buttons and no List border API
-- Public and staff Help section rows show a Flatpack Badge with the page count (`1` / `2`). Public counts published pages only. Staff counts draft and published. Section show and the Admin hub do not get this badge
+- Help home section rows show a Flatpack Badge with the published page count (`1` / `2`). Staff home uses the same published count as public
+- Edit and New forms use two Flatpack Buttons (Save primary, Cancel secondary) in one row. Not a ButtonGroup and not a full-width Save
+- Admin Support hub drops See every page, Latest pages, and the sections list widget
 
 ### Upgrade notes
 - Register `"RecordingStudioSupport::SupportSection"` next to `"RecordingStudioSupport::SupportPage"`
@@ -35,9 +43,13 @@ Help pages live in a section. Staff pick the section by moving the page.
 - Add `recording_studio_moveable`, `~> 3.0` (dummy GitHub tag `3.0.0`) and mount it at `/recording_studio_moveable`
 - Enable Moveable only on Support pages: `include RecordingStudio::Capabilities::Moveable.to`
 - Enable Orderable and Trashable on SupportSection. Do not enable Attachable or Publishable on the section
+- Drop Attachable and Orderable from SupportPage. Put pictures in the body with the Flatpack rich-text editor (`preset: :content`, `uploads: { url: ... }`)
+- Allow `img` (`src`, `alt`) in `Body.sanitize`
 - Point `/help` and `/help/sections/:id` at the Support public controllers **before** mounting Publishable at `/`
 - Create pages under a section. Move them with `recording.move_to!(new_parent: section, actor: current_user)`
-- Do not add a `section_id` column, a categories gem, or a second Admin section
+- Open Admin tables at `/admin/screens/support_pages` and `/admin/screens/support_sections` (the old `help_pages` key is gone)
+- Set `help_subtitle` and `public_help_subtitle` if you do not want “Find an answer.”
+- Do not add a `section_id` column, a categories gem, a gallery on SupportPage, or a second Admin app
 
 ## [0.6.0] - 2026-08-21
 

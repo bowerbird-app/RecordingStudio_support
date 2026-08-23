@@ -16,7 +16,6 @@ module RecordingStudioSupport
 
     def show
       @page = @parent_recordable
-      @images = Array(@parent_recording&.try(:images))
       @published_at = @publishable&.publish_at
       @section_recording = Pages.section_for(@parent_recording)
       record_public_view

@@ -19,13 +19,18 @@ class PagesTest < Minitest::Test
 
   def test_index_view_uses_flatpack_search
     index = File.read(File.expand_path("../app/views/recording_studio_support/sections/index.html.erb", __dir__))
+    search = File.read(
+      File.expand_path("../app/views/recording_studio_support/shared/_search.html.erb", __dir__)
+    )
 
-    assert_includes index, "FlatPack::Search::Component"
-    assert_includes index, 'name: "q"'
-    assert_includes index, "max_width: :none"
-    assert_includes index, 'class: "w-full"'
-    assert_includes index, "support_help_title"
-    assert_includes index, "support_help_subtitle"
+    assert_includes index, 'render "recording_studio_support/shared/search"'
+    assert_includes search, "FlatPack::Search::Component"
+    assert_includes search, 'name: "q"'
+    assert_includes search, 'placeholder: "Search support"'
+    assert_includes search, "max_width: :none"
+    assert_includes search, 'class: "w-full"'
+    refute_includes search, "size:"
+    refute_includes search, "fill:"
     assert_includes index, "Nothing matches that"
     refute_includes index, "Elasticsearch"
     refute_includes index, "searchkick"
@@ -52,6 +57,7 @@ class PagesTest < Minitest::Test
     end
     [staff_show, public_show].each do |show|
       refute_includes show, "support_page_count_badge"
+      assert_includes show, "support_published_badge"
     end
 
     [staff_index, public_index, staff_show, public_show].each do |view|
@@ -93,8 +99,7 @@ class PagesTest < Minitest::Test
     assert_includes pages, ".distinct.order(:title)"
     refute_includes pages, "meta_robots"
     refute_includes pages, "noindex"
-    assert_includes public_index, "FlatPack::Search::Component"
-    assert_includes public_index, "max_width: :none"
+    assert_includes public_index, 'render "recording_studio_support/shared/search"'
     assert_includes public_index, "support_public_help_title"
     assert_includes public_index, 'render "recording_studio_support/shared/link_list"'
     refute_includes public_index, "FlatPack::Card::Component"
@@ -102,6 +107,38 @@ class PagesTest < Minitest::Test
     refute_includes public_index, "recordable"
     assert_includes support_page, "RecordingStudio::Capabilities::Publishable.to"
     assert_includes support_page, "RecordingStudio::Capabilities::Moveable.to"
+    refute_includes support_page, "Capabilities::Attachable"
+    refute_includes support_page, "Capabilities::Orderable"
+  end
+
+  def test_public_show_is_a_simple_article
+    show = File.read(File.expand_path("../app/views/recording_studio_support/public_pages/show.html.erb", __dir__))
+
+    assert_includes show, "support_page_body_html"
+    refute_includes show, "Pictures"
+    refute_includes show, "This page is live"
+    refute_includes show, "Not live yet"
+    refute_includes show, "FlatPack::Alert::Component"
+    refute_includes show, "FlatPack::Card::Component"
+    refute_includes show, 'text: "Edit"'
+    refute_includes show, "Move to trash"
+    refute_includes show, "support_visible_images"
+  end
+
+  def test_page_form_uses_rich_text_uploads
+    form = File.read(File.expand_path("../app/views/recording_studio_support/pages/_form.html.erb", __dir__))
+    actions = File.read(
+      File.expand_path("../app/views/recording_studio_support/shared/_form_actions.html.erb", __dir__)
+    )
+
+    assert_includes form, "preset: :content"
+    assert_includes form, "uploads: { url: uploads_path }"
+    assert_includes form, "image"
+    refute_includes form, "uploads: false"
+    assert_includes actions, 'text: "Save"'
+    assert_includes actions, 'text: "Cancel"'
+    refute_includes actions, "ButtonGroup"
+    refute_includes actions, "w-full"
   end
 
   def test_page_view_model_is_a_log_table

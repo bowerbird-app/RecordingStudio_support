@@ -53,8 +53,10 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     private_workspace = Workspace.find_by!(name: "Private Workspace")
     folder = Folder.find_by!(name: "Product Docs")
     page = Page.find_by!(title: "Getting Started")
-    sign_in_page = RecordingStudioSupport::SupportPage.find_by!(title: "How do I sign in?")
-    password_page = RecordingStudioSupport::SupportPage.find_by!(title: "How do I change my password?")
+    support_page_recording = seeded_page("How do I sign in?")
+    password_page_recording = seeded_page("How do I change my password?")
+    sign_in_page = support_page_recording.recordable
+    password_page = password_page_recording.recordable
     billing_section = RecordingStudioSupport::SupportSection.find_by!(title: "Billing")
     developers_section = RecordingStudioSupport::SupportSection.find_by!(title: "Developers")
     getting_started_section = RecordingStudioSupport::SupportSection.find_by!(title: "Getting started")
@@ -64,8 +66,6 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     private_root_recording = RecordingStudio::Recording.find_by!(recordable: private_workspace)
     folder_recording = RecordingStudio::Recording.find_by!(recordable: folder)
     page_recording = RecordingStudio::Recording.find_by!(recordable: page)
-    support_page_recording = RecordingStudio::Recording.find_by!(recordable: sign_in_page)
-    password_page_recording = RecordingStudio::Recording.find_by!(recordable: password_page)
     getting_started_recording = RecordingStudio::Recording.find_by!(recordable: getting_started_section)
     billing_recording = RecordingStudio::Recording.find_by!(recordable: billing_section)
     developers_recording = RecordingStudio::Recording.find_by!(recordable: developers_section)
@@ -90,7 +90,8 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert_equal 3, Workspace.count
     assert_equal 1, AdminRoot.count
     assert_operator RecordingStudioSupport::SupportPage.count, :>=, 2
-    assert support_page_recording.images.any?
+    assert_includes sign_in_page.body, "<img src=\"/how-to-sign-in.png\" alt=\"Sign-in form\">"
+    refute RecordingStudio.capability_enabled?(:attachable, for: "RecordingStudioSupport::SupportPage")
     assert sign_in_page.indexable?
     refute password_page.indexable?
     assert support_page_recording.currently_published?
@@ -129,9 +130,9 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     refute RecordingStudio.capability_enabled?(:accessible, for: Page)
     refute RecordingStudio.capability_enabled?(:accessible, for: RecordingStudioSupport::SupportPage)
     refute RecordingStudio.capability_enabled?(:accessible, for: RecordingStudioSupport::SupportSection)
-    assert RecordingStudio.capability_enabled?(:attachable, for: RecordingStudioSupport::SupportPage)
+    refute RecordingStudio.capability_enabled?(:attachable, for: RecordingStudioSupport::SupportPage)
     assert RecordingStudio.capability_enabled?(:trashable, for: RecordingStudioSupport::SupportPage)
-    assert RecordingStudio.capability_enabled?(:orderable, for: RecordingStudioSupport::SupportPage)
+    refute RecordingStudio.capability_enabled?(:orderable, for: RecordingStudioSupport::SupportPage)
     assert RecordingStudio.capability_enabled?(:publishable, for: RecordingStudioSupport::SupportPage)
     assert RecordingStudio.capability_enabled?(:movable, for: RecordingStudioSupport::SupportPage)
     assert RecordingStudio.capability_enabled?(:trashable, for: RecordingStudioSupport::SupportSection)

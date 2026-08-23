@@ -15,7 +15,7 @@
   <%= render "form",
              url: pages_path,
              method: :post,
-             submit_text: "Save",
+             cancel_url: RecordingStudioSupport::Admin::Queries.admin_pages_screen_path,
              section_choices: @section_choices,
              selected_section_id: @selected_section_id %>
 </div>

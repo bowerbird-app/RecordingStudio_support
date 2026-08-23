@@ -24,18 +24,19 @@
       value: @page.body,
       rich_text: true,
       rich_text_options: {
-        preset: :minimal,
-        toolbar: :standard,
+        preset: :content,
+        toolbar: %w[
+          bold italic underline sep1
+          h2 h3 sep2
+          bulletList orderedList sep3
+          blockquote link image sep4
+          undo redo
+        ],
         format: :html,
-        uploads: false
+        uploads: { url: uploads_path }
       }
     ) %>
 
-    <%= render FlatPack::Button::Component.new(
-      text: submit_text,
-      style: :primary,
-      size: :md,
-      type: "submit"
-    ) %>
+    <%= render "recording_studio_support/shared/form_actions", cancel_url: cancel_url %>
   </div>
 <% end %>

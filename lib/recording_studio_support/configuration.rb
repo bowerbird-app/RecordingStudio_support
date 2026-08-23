@@ -8,9 +8,9 @@ module RecordingStudioSupport
       pages_path: "/support",
       public_pages_path: "/help",
       help_title: "Help",
-      help_subtitle: "Answers you can share.",
+      help_subtitle: "Find an answer.",
       public_help_title: "Help",
-      public_help_subtitle: "Answers you can read.",
+      public_help_subtitle: "Find an answer.",
       admin_help_title: "Help",
       admin_help_subtitle: "Pages people use when they get stuck."
     }.freeze

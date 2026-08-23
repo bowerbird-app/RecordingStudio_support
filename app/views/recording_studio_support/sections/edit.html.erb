@@ -11,5 +11,8 @@
     variant: :h1
   ) %>
 
-  <%= render "form", url: section_path(@section_recording), method: :patch, submit_text: "Save" %>
+  <%= render "form",
+             url: section_path(@section_recording),
+             method: :patch,
+             cancel_url: RecordingStudioSupport::Admin::Queries.admin_sections_screen_path %>
 </div>

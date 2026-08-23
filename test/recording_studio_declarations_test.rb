@@ -220,8 +220,8 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     refute RecordingStudio.capability_enabled?(:accessible, for: "RecordingStudioSupport::SupportPage")
   end
 
-  test "attachable trashable orderable publishable and movable are enabled on support pages only" do
-    %i[attachable trashable orderable publishable movable].each do |capability|
+  test "trashable publishable and movable are enabled on support pages only" do
+    %i[trashable publishable movable].each do |capability|
       assert RecordingStudio.capability_enabled?(capability, for: "RecordingStudioSupport::SupportPage"),
              "#{capability} should be enabled on SupportPage"
       refute RecordingStudio.capability_enabled?(capability, for: "Workspace"),
@@ -231,6 +231,9 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
       refute RecordingStudio.capability_enabled?(capability, for: "Page"),
              "#{capability} should not be enabled on Page"
     end
+
+    refute RecordingStudio.capability_enabled?(:attachable, for: "RecordingStudioSupport::SupportPage")
+    refute RecordingStudio.capability_enabled?(:orderable, for: "RecordingStudioSupport::SupportPage")
   end
 
   test "support sections enable trashable and orderable only" do
@@ -240,16 +243,9 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     refute RecordingStudio.capability_enabled?(:publishable, for: "RecordingStudioSupport::SupportSection")
     refute RecordingStudio.capability_enabled?(:movable, for: "RecordingStudioSupport::SupportSection")
     assert_equal(
-      ["RecordingStudioAttachable::Attachment"],
-      RecordingStudio.capability_options(:orderable, for: "RecordingStudioSupport::SupportPage")[:allows]
-    )
-    assert_equal(
       ["RecordingStudioSupport::SupportPage"],
       RecordingStudio.capability_options(:orderable, for: "RecordingStudioSupport::SupportSection")[:allows]
     )
-    page_attachable = RecordingStudio.capability_options(:attachable, for: "RecordingStudioSupport::SupportPage")
-    assert_equal ["image/*"], page_attachable[:allowed_content_types]
-    assert_equal %i[image], page_attachable[:enabled_attachment_kinds]
   end
 
   test "publishable to options are registered on support pages only" do

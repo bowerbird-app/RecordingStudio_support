@@ -62,6 +62,19 @@ class ApplicationHelperTest < Minitest::Test
     assert_includes source, "size: :sm"
     refute_includes source, "removable: true"
     refute_includes source, "pluralize"
+    refute_includes source, "def support_page_image_url"
+    refute_includes source, "def support_visible_images"
+  end
+
+  def test_support_published_badge_uses_the_flatpack_badge
+    source = File.read(
+      File.expand_path("../app/helpers/recording_studio_support/application_helper.rb", __dir__)
+    )
+
+    assert_includes source, "def support_published_badge"
+    assert_includes source, 'text: "Published"'
+    assert_includes source, "style: :success"
+    assert_includes source, "size: :sm"
   end
 
   def test_support_list_chevron_uses_the_flatpack_icon
@@ -78,9 +91,9 @@ class ApplicationHelperTest < Minitest::Test
     helper = Object.new.extend(load_helper)
 
     assert_equal "Help", helper.support_help_title
-    assert_equal "Answers you can share.", helper.support_help_subtitle
+    assert_equal "Find an answer.", helper.support_help_subtitle
     assert_equal "Help", helper.support_public_help_title
-    assert_equal "Answers you can read.", helper.support_public_help_subtitle
+    assert_equal "Find an answer.", helper.support_public_help_subtitle
     assert_equal "/help", helper.support_public_help_path
   end
 

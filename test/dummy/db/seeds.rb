@@ -2,8 +2,18 @@
 # development, test). The code here should be idempotent so that it can be executed at any point in every environment.
 # The data can then be loaded with the bin/rails db:seed command (or created alongside the database with bin/rails db:setup).
 
-SIGN_IN_IMAGE_PATH = Rails.root.join("db/seed_assets/help-sign-in.png") unless defined?(SIGN_IN_IMAGE_PATH)
-SIGN_IN_PNG = File.binread(SIGN_IN_IMAGE_PATH).freeze unless defined?(SIGN_IN_PNG)
+SIGN_IN_BODY = <<~HTML.freeze unless defined?(SIGN_IN_BODY)
+  <h2>Open the sign-in page</h2>
+  <p>Use the address your workspace gave you. You will see the sign-in form.</p>
+  <p><img src="/how-to-sign-in.png" alt="Sign-in form"></p>
+  <h2>Enter your details</h2>
+  <p>Use the email and password you were given.</p>
+  <ul>
+    <li>Your email</li>
+    <li>Your password</li>
+  </ul>
+  <p>Then choose Sign in. Still stuck? Ask a teammate who already has access.</p>
+HTML
 
 find_or_record_child = lambda do |recordable, root_recording, parent_recording|
   RecordingStudio::Recording.find_by(
@@ -131,7 +141,7 @@ begin
     root_recording,
     getting_started_section,
     title: "How do I sign in?",
-    body: "Use the email and password you were given. Still stuck? Ask a teammate who already has access."
+    body: SIGN_IN_BODY
   )
   password_page = find_or_record_support_page.call(
     root_recording,
@@ -151,16 +161,6 @@ begin
     title: "Where do I find my API key?",
     body: "Open your developer settings. The key is on that page."
   )
-
-  if sign_in_page.images.none?
-    attachment = sign_in_page.import_attachment(
-      io: StringIO.new(SIGN_IN_PNG),
-      filename: "sign-in.png",
-      content_type: "image/png",
-      actor: user
-    )
-    raise "Failed to attach sign-in.png" if attachment.blank?
-  end
 
   ensure_publish_state = lambda do |page_recording, slug:, status:, **attributes|
     current = page_recording.current_publishable
