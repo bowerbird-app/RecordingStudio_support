@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.4.0", ::RecordingStudioSupport::VERSION
+    assert_equal "0.5.0", ::RecordingStudioSupport::VERSION
   end
 
   def test_engine_exists
@@ -16,6 +16,7 @@ class RecordingStudioSupportTest < Minitest::Test
 
     assert_includes gemspec, 'spec.add_dependency "recording_studio", "~> 4.2"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_accessible", "~> 0.6"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_admin", "~> 2.0"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_attachable", "~> 0.4"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_trashable", "~> 0.4"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_orderable", "~> 0.2"'
@@ -28,7 +29,12 @@ class RecordingStudioSupportTest < Minitest::Test
 
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.2.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.6.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "2.0.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "0.4.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "0.4.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_orderable", tag: "0.2.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.133"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "0.4.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_orderable", tag: "0.2.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.0"'
@@ -45,6 +51,7 @@ class RecordingStudioSupportTest < Minitest::Test
     refute File.exist?(File.expand_path("../lib/recording_studio_support/services/example_service.rb", __dir__))
     refute File.exist?(File.expand_path("../lib/recording_studio_support/capabilities/example.rb", __dir__))
     refute File.exist?(File.expand_path("../app/controllers/recording_studio_support/home_controller.rb", __dir__))
+    assert File.exist?(File.expand_path("../app/controllers/recording_studio_support/pages_controller.rb", __dir__))
   end
 
   def test_support_page_declares_product_label_and_host_root_parent
@@ -70,6 +77,9 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes controller_source, '"recording_studio/default_layout"'
     assert_includes controller_source, "return \"application\" if devise_controller?"
     refute_includes controller_source, "flat_pack_sidebar"
+    refute File.exist?(
+      File.expand_path("dummy/app/views/layouts/recording_studio/default_layout.html.erb", __dir__)
+    )
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack_sidebar.html.erb", __dir__))
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack/_sidebar.html.erb", __dir__))
   end
@@ -89,11 +99,20 @@ class RecordingStudioSupportTest < Minitest::Test
 
   def test_dummy_pins_turbo_and_loads_flatpack_js
     application_js = File.read(File.expand_path("dummy/app/javascript/application.js", __dir__))
+    controllers_js = File.read(File.expand_path("dummy/app/javascript/controllers/index.js", __dir__))
     importmap = File.read(File.expand_path("dummy/config/importmap.rb", __dir__))
 
     assert_includes application_js, 'import "@hotwired/turbo-rails"'
+    assert_includes application_js, 'import "controllers"'
     refute_includes application_js, 'import { application } from "controllers/application"'
     assert_includes importmap, 'pin "@hotwired/turbo-rails", to: "turbo.min.js"'
+    assert_includes importmap, "flat_pack/tiptap"
+    assert_includes importmap, 'pin "controllers/flat_pack/tiptap_controller"'
+    assert_includes importmap, 'pin "@tiptap/core"'
+    assert_includes importmap, 'pin "@tiptap/starter-kit"'
+    assert_includes controllers_js, "eagerLoadControllersFrom"
+    assert_includes controllers_js, 'from "controllers/flat_pack/tiptap_controller"'
+    assert_includes controllers_js, 'application.register("flat-pack--tiptap", TiptapController)'
   end
 
   def test_dummy_default_layout_head_loads_flatpack_and_root_switch_chrome
@@ -101,9 +120,12 @@ class RecordingStudioSupportTest < Minitest::Test
     default_layout_head = File.read(head_path)
 
     assert_includes default_layout_head, 'stylesheet_link_tag "flat_pack/application"'
+    assert_includes default_layout_head, "RecordingStudioSupport::ApplicationController"
     assert_includes default_layout_head, "recording_studio_root_switch_dropdown"
     assert_includes default_layout_head, "recording_studio_page_nav_right"
-    refute_includes default_layout_head, "Sign out"
+    assert_includes default_layout_head, "Sign out"
+    assert_includes default_layout_head, "destroy_user_session_path"
+    assert_includes default_layout_head, "turbo_method: :delete"
     refute_includes default_layout_head, "dummy_page_nav"
   end
 
@@ -128,6 +150,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes initializer_source, "config.require_recordable_declarations = true"
     assert_includes initializer_source, '"RecordingStudioSupport::SupportPage"'
     assert_includes initializer_source, '"RecordingStudioAttachable::Attachment"'
+    assert_includes initializer_source, '"AdminRoot"'
     refute_includes initializer_source, "config.include_children"
     refute_includes initializer_source, "config.features."
     refute_includes initializer_source, "v3"
@@ -139,7 +162,11 @@ class RecordingStudioSupportTest < Minitest::Test
 
     assert_includes readme_source, "This Rails app exists to prove Recording Studio Support"
     assert_includes readme_source, "/recording_studio"
+    assert_includes readme_source, "/support"
+    assert_includes readme_source, "/admin"
     assert_includes readme_source, "redirects to `/`"
+    assert_includes readme_source, "flat-pack--tiptap"
+    assert_includes readme_source, "does not copy the layout"
     refute_includes readme_source, "flat_pack_sidebar"
     refute_includes readme_source, "/docs/"
   end
@@ -152,6 +179,11 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "v0.6.1"
     assert_includes readme, "v0.1.133"
     assert_includes readme, "Support page"
+    assert_includes readme, "tag: \"2.0.0\""
+    assert_includes readme, "/support"
+    assert_includes readme, "pages_title"
+    assert_includes readme, "flat-pack--tiptap"
+    assert_includes readme, "section :support"
     assert_includes readme, "RecordingStudio::Capabilities::Attachable.to"
     assert_includes readme, "tag: \"0.4.0\""
     assert_includes readme, "tag: \"0.2.0\""
@@ -168,6 +200,7 @@ class RecordingStudioSupportTest < Minitest::Test
 
     assert_includes view_source, 'title: "Dummy host"'
     assert_includes view_source, "FlatPack::Card::Component"
+    assert_includes view_source, "Open help pages"
     assert_includes view_source, "recording_studio_page_nav"
     refute_includes view_source, "dummy_page_nav"
     refute_includes view_source, "Sign out"
@@ -181,10 +214,44 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_empty Dir[File.expand_path("dummy/app/views/docs/**/*.erb", __dir__)]
   end
 
-  def test_engine_does_not_ship_a_home_view
-    view_path = File.expand_path("../app/views/recording_studio_support/home/index.html.erb", __dir__)
+  def test_engine_ships_authenticated_support_pages
+    refute File.exist?(File.expand_path("../app/views/recording_studio_support/home/index.html.erb", __dir__))
+    assert File.exist?(File.expand_path("../app/views/recording_studio_support/pages/index.html.erb", __dir__))
+    assert File.exist?(File.expand_path("../app/views/recording_studio_support/pages/show.html.erb", __dir__))
+    assert File.exist?(File.expand_path("../app/views/recording_studio_support/pages/new.html.erb", __dir__))
+    assert File.exist?(File.expand_path("../app/views/recording_studio_support/pages/edit.html.erb", __dir__))
 
-    refute File.exist?(view_path)
+    routes = File.read(File.expand_path("../config/routes.rb", __dir__))
+    assert_includes routes, "RecordingStudioSupport::Engine.routes.draw"
+    assert_includes routes, "resources :pages"
+    refute_includes routes, "publish"
+  end
+
+  def test_dummy_defaults_to_studio_workspace_for_help_pages
+    initializer = File.read(File.expand_path("dummy/config/initializers/recording_studio_root_switchable.rb", __dir__))
+
+    assert_includes initializer, "Studio Workspace"
+    assert_includes initializer, "default_root"
+  end
+
+  def test_engine_ships_admin_support_section
+    admin = File.read(File.expand_path("../lib/recording_studio_support/admin.rb", __dir__))
+    section = File.read(File.expand_path("../lib/recording_studio_support/admin/section.rb", __dir__))
+
+    assert_includes admin, "RecordingStudioAdmin.register_section"
+    assert_includes section, 'key "support"'
+    assert_includes section, "admin_section_title"
+    assert_includes section, "admin_section_subtitle"
+    refute_includes section, "recordable"
+  end
+
+  def test_dummy_mounts_support_and_admin
+    routes = File.read(File.expand_path("dummy/config/routes.rb", __dir__))
+
+    assert_includes routes, 'mount RecordingStudioSupport::Engine, at: "/support"'
+    assert_includes routes, "recording_studio_admin_for :admin, at: \"/admin\", root_section: :support"
+    assert_includes routes, 'mount RecordingStudioAccessible::Engine, at: "/admin/access"'
+    refute_includes routes, "publish"
   end
 
   def test_dummy_folder_and_page_do_not_opt_into_support_mixins

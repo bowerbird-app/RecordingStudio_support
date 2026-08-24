@@ -1,0 +1,31 @@
+<%= form_with url: url, method: method, scope: :page do %>
+  <div class="flex flex-col gap-4">
+    <%= render FlatPack::TextInput::Component.new(
+      name: "page[title]",
+      label: "Title",
+      value: @page.title,
+      required: true,
+      error: @page.errors[:title].presence&.to_sentence
+    ) %>
+
+    <%= render FlatPack::TextArea::Component.new(
+      name: "page[body]",
+      label: "Body",
+      value: @page.body,
+      rich_text: true,
+      rich_text_options: {
+        preset: :minimal,
+        toolbar: :standard,
+        format: :html,
+        uploads: false
+      }
+    ) %>
+
+    <%= render FlatPack::Button::Component.new(
+      text: submit_text,
+      style: :primary,
+      size: :md,
+      type: "submit"
+    ) %>
+  </div>
+<% end %>

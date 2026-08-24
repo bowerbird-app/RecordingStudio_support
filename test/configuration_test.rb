@@ -8,11 +8,25 @@ class ConfigurationTest < Minitest::Test
   end
 
   def test_merge_updates_known_attributes
-    @configuration.merge!(api_key: "abc123", timeout: 9, enable_feature_x: true)
+    @configuration.merge!(
+      api_key: "abc123",
+      timeout: 9,
+      enable_feature_x: true,
+      pages_path: "/help",
+      pages_title: "Guides",
+      pages_subtitle: "Short answers.",
+      admin_section_title: "Guides",
+      admin_section_subtitle: "Staff view of those answers."
+    )
 
     assert_equal "abc123", @configuration.api_key
     assert_equal 9, @configuration.timeout
     assert_equal true, @configuration.enable_feature_x
+    assert_equal "/help", @configuration.pages_path
+    assert_equal "Guides", @configuration.pages_title
+    assert_equal "Short answers.", @configuration.pages_subtitle
+    assert_equal "Guides", @configuration.admin_section_title
+    assert_equal "Staff view of those answers.", @configuration.admin_section_subtitle
   end
 
   def test_merge_ignores_unknown_keys
@@ -42,6 +56,11 @@ class ConfigurationTest < Minitest::Test
     assert_equal "env-token", configuration.api_key
     assert_equal false, configuration.enable_feature_x
     assert_equal 5, configuration.timeout
+    assert_equal "/support", configuration.pages_path
+    assert_equal "Help", configuration.pages_title
+    assert_equal "Answers you can share.", configuration.pages_subtitle
+    assert_equal "Help", configuration.admin_section_title
+    assert_equal "Pages people use when they get stuck.", configuration.admin_section_subtitle
     assert_instance_of RecordingStudio::Hooks, configuration.hooks
   ensure
     ENV["RECORDING_STUDIO_SUPPORT_API_KEY"] = previous_value

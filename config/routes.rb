@@ -1,3 +1,9 @@
 # frozen_string_literal: true
 
-# Slice 1 has no mounted screens. Hosts still mount the engine after install.
+RecordingStudioSupport::Engine.routes.draw do
+  resources :pages, path: "", only: %i[index show new create edit update] do
+    member do
+      post :trash
+    end
+  end
+end

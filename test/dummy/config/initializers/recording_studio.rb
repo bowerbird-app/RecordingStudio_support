@@ -5,6 +5,7 @@ RecordingStudio.configure do |config|
     "Workspace",
     "Folder",
     "Page",
+    "AdminRoot",
     "RecordingStudioSupport::SupportPage",
     "RecordingStudioAttachable::Attachment"
   ]

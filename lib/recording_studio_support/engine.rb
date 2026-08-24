@@ -120,5 +120,20 @@ module RecordingStudioSupport
         end
       end
     end
+
+    initializer "recording_studio_support.admin" do
+      config.to_prepare do
+        RecordingStudioSupport::Admin.register!
+      end
+    end
+
+    initializer "recording_studio_support.page_nav_compat" do
+      config.to_prepare do
+        next unless defined?(FlatPack::PageNav::Component)
+        next if FlatPack::PageNav::Component.ancestors.include?(PageNavCompat)
+
+        FlatPack::PageNav::Component.prepend(PageNavCompat)
+      end
+    end
   end
 end

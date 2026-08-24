@@ -9,7 +9,7 @@ require "rails/test_help"
 class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
   test "dummy recordable declarations validate and expose parent/root introspection" do
     assert RecordingStudio.validate_recordable_declarations!
-    assert_equal ["Workspace"], RecordingStudio.root_recordable_types
+    assert_equal %w[AdminRoot Workspace], RecordingStudio.root_recordable_types.sort
     assert_equal %w[Workspace Folder], RecordingStudio.allowed_parent_types_for("Folder")
     assert_equal %w[Workspace Folder], RecordingStudio.allowed_parent_types_for(Page)
     assert_equal ["Workspace"], RecordingStudio.allowed_parent_types_for("RecordingStudioSupport::SupportPage")
@@ -155,8 +155,9 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     assert_equal 1, recording.events.where(action: "viewed").count
   end
 
-  test "accessible is enabled on workspace only" do
+  test "accessible is enabled on workspace and admin root" do
     assert RecordingStudio.capability_enabled?(:accessible, for: "Workspace")
+    assert RecordingStudio.capability_enabled?(:accessible, for: "AdminRoot")
     refute RecordingStudio.capability_enabled?(:accessible, for: "Folder")
     refute RecordingStudio.capability_enabled?(:accessible, for: "Page")
     refute RecordingStudio.capability_enabled?(:accessible, for: "RecordingStudioSupport::SupportPage")

@@ -1,0 +1,16 @@
+<% recording_studio_page_nav(
+     title: "New page",
+     page_nav_back_url: pages_path,
+     page_nav_anchor_url: pages_path,
+     page_nav_anchor_label: "Close"
+   ) %>
+
+<div class="flex w-full flex-col gap-6">
+  <%= render FlatPack::PageTitle::Component.new(
+    title: "New page",
+    subtitle: "Write it like you'd tell a teammate.",
+    variant: :h1
+  ) %>
+
+  <%= render "form", url: pages_path, method: :post, submit_text: "Save" %>
+</div>

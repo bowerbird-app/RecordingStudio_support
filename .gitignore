@@ -35,6 +35,8 @@ test/dummy/vendor/bundle/
 test/dummy/vendor/flat_pack
 test/dummy/vendor/recording_studio
 test/dummy/vendor/recording_studio_root_switchable
+test/dummy/vendor/recording_studio_admin
+test/dummy/vendor/recording_studio_support
 test/dummy/app/assets/builds/
 test/dummy/public/assets/
 

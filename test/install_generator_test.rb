@@ -37,6 +37,37 @@ class InstallGeneratorTest < Minitest::Test
     assert_equal ["mount RecordingStudioSupport::Engine, at: \"/addons/recording\""], routes
   end
 
+  def test_mount_engine_defaults_to_support
+    generator = build_generator("/tmp")
+    routes = []
+
+    generator.stub(:route, ->(value) { routes << value }) do
+      generator.mount_engine
+    end
+
+    assert_equal ["mount RecordingStudioSupport::Engine, at: \"/support\""], routes
+  end
+
+  def test_enable_admin_support_section_injects_section_on_admin_root
+    with_temp_app do |dir|
+      FileUtils.mkdir_p(File.join(dir, "app/models"))
+      File.write(File.join(dir, "app/models/admin_root.rb"), <<~RUBY)
+        class AdminRoot < ApplicationRecord
+          recording_studio_admin_sections do
+            section :root
+          end
+        end
+      RUBY
+
+      generator = build_generator(dir)
+      generator.enable_admin_support_section
+
+      contents = File.read(File.join(dir, "app/models/admin_root.rb"))
+      assert_includes contents, "section :support"
+      assert_equal 1, contents.scan("section :support").size
+    end
+  end
+
   def test_add_tailwind_source_injects_engine_and_flatpack_sources
     with_temp_app do |dir|
       css_path = File.join(dir, "app/assets/tailwind/application.css")
@@ -143,8 +174,14 @@ class InstallGeneratorTest < Minitest::Test
     assert_includes install_guide, "bin/rails generate recording_studio_trashable:migrations"
     assert_includes install_guide, "bin/rails generate recording_studio_orderable:migrations"
     assert_includes install_guide, "bin/rails db:migrate"
-    assert_includes install_guide, "auth, layout, and current actor integration"
-    assert_includes install_guide, "recording_studio_recordable"
+    assert_includes install_guide, "Authenticated Support screens"
+    assert_includes install_guide, "section :support"
+    assert_includes install_guide, "recording_studio_admin_for"
+    assert_includes install_guide, "pages_title"
+    assert_includes install_guide, "controllers/flat_pack/tiptap_controller"
+    assert_includes install_guide, "flat-pack--tiptap"
+    assert_includes install_guide, "Do not add Trix or Action Text"
+    refute_includes install_guide, "publish routes"
     refute_includes install_guide, "RecordingStudio v3"
   end
 
