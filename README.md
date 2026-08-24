@@ -185,7 +185,7 @@ The section is a hub: latest pages, plus **See every page**. It does not show va
 
 Dummy help pages — public and staff — use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Dummy does not copy that layout. Support screens and Admin Support screens keep that chrome only. Dummy Sign out and Root Switchable stay on dummy host pages, not on `/support`, `/help`, or `/admin`. Access can stay on Admin. Do not put a login button there. Devise sign-in keeps `layouts/application` (`html data-theme="rounded"`). Core puts `rounded` on `<body>`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`); dummy Stimulus registers `flat-pack--tiptap` on first paint.
 
-Public and staff help both set `html data-theme="rounded"`.
+Public and staff help use core’s default layout, so `rounded` lands on `<body>`.
 
 | Field    | Value           |
 |----------|-----------------|
@@ -212,7 +212,7 @@ bin/rails db:setup
 bin/dev
 ```
 
-Then open `/help` without signing in, or `/support` after you sign in. Search the staff list with `?q=`. Dummy uses Flatpack's built-in `rounded` theme (`html data-theme="rounded"`). For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root. Edit and New live on the Admin help-pages table, not on owner preview.
+Then open `/help` without signing in, or `/support` after you sign in. Search the staff list with `?q=`. Dummy uses Flatpack's built-in `rounded` theme (login on `<html>`, core layout on `<body>`). For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root. Edit and New live on the Admin help-pages table, not on owner preview.
 
 Seeds two help pages: **How do I sign in?** is live, **How do I change my password?** stays a draft.
 

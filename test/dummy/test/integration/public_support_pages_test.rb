@@ -15,7 +15,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     get "/help"
 
     assert_response :success
-    assert_select "html[data-theme='rounded']"
+    assert_select "body[data-theme='rounded']"
     assert_includes response.body, "Help"
     assert_includes response.body, "How do I sign in?"
     refute_includes response.body, "How do I change my password?"
@@ -44,7 +44,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     get path
 
     assert_response :success
-    assert_select "html[data-theme='rounded']"
+    assert_select "body[data-theme='rounded']"
     assert_includes response.body, "How do I sign in?"
     assert_includes response.body, "Use the email and password you were given"
     assert_includes response.body, "Updated"
@@ -82,7 +82,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
-    assert_select "html[data-theme='rounded']"
+    assert_select "body[data-theme='rounded']"
     assert_includes response.body, "How do I change my password?"
     assert_includes response.body, "Not live yet. This preview is just for you."
     assert_includes response.body, "Publish"

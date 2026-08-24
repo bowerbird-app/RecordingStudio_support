@@ -70,4 +70,4 @@ Use this app to click through public help, staff help pages, and the Admin Suppo
 
 Seeds two help pages under Studio Workspace: **How do I sign in?** is live, **How do I change my password?** stays a draft. One page has a tiny image. A few page reads are logged as support events.
 
-Public and staff help use Recording Studio's shared default layout. Devise sign-in keeps `layouts/application`. All put Flatpack's built-in `rounded` theme on `<html>`.
+Public and staff help use Recording Studio's shared default layout. Devise sign-in keeps `layouts/application`. Login puts `rounded` on `<html>`; core layout puts it on `<body>`.
