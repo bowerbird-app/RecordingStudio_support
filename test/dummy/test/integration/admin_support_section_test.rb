@@ -39,7 +39,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
-    assert_select "html[data-theme='rounded']"
+    assert_select "body[data-theme='rounded']"
     assert_includes response.body, "Support pages"
     assert_includes response.body, "New page"
     assert_includes response.body, "/support/new"

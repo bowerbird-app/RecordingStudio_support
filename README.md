@@ -199,7 +199,7 @@ The section is a hub with two tables: **Support pages** and **Support sections**
 
 `test/dummy/` is a host that proves the gem. It is not the product.
 
-Dummy help pages — public and staff — use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Support screens and Admin Support screens keep that chrome only. Dummy Sign out and Root Switchable stay on dummy host pages, not on `/support`, `/help`, or `/admin`. Access can stay on Admin. Do not put a login button there. Devise sign-in keeps `layouts/application` and still loads Flatpack CSS/JS plus Turbo. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`, `preset: :content`, image upload); dummy Stimulus registers `flat-pack--tiptap` on first paint.
+Dummy help pages — public and staff — use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Dummy does not copy that layout. Support screens and Admin Support screens keep that chrome only. Dummy Sign out and Root Switchable stay on dummy host pages, not on `/support`, `/help`, or `/admin`. Access can stay on Admin. Do not put a login button there. Devise sign-in keeps `layouts/application` (`html data-theme="rounded"`). Core puts `rounded` on `<body>`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`, `preset: :content`, image upload); dummy Stimulus registers `flat-pack--tiptap` on first paint.
 
 Public and staff help use core’s default layout, so `rounded` lands on `<body>`.
 
@@ -229,7 +229,7 @@ bin/rails db:setup
 bin/dev
 ```
 
-Then open `/help` without signing in, or `/support` after you sign in. Search the lists with `?q=`. Dummy uses Flatpack's built-in `rounded` theme (`html data-theme="rounded"`). For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root. Edit, Move, and New live on the Admin tables, not on owner preview.
+Then open `/help` without signing in, or `/support` after you sign in. Search the lists with `?q=`. Dummy uses Flatpack's built-in `rounded` theme (login on `<html>`, core layout on `<body>`). For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root. Edit, Move, and New live on the Admin tables, not on owner preview.
 
 Seeds three sections: **Billing**, **Developers**, and **Getting started**. **How do I sign in?** is a live article with headings, a list, and an inline photograph. **How do I change my password?** stays a draft under Getting started. Billing and Developers each have one live page so those lists are not empty.
 

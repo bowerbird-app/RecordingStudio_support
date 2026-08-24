@@ -51,6 +51,10 @@ Help pages live in a section. Staff pick the section by moving the page.
 - Set `help_subtitle` and `public_help_subtitle` if you do not want “Find an answer.”
 - Do not add a `section_id` column, a categories gem, a gallery on SupportPage, or a second Admin app
 
+### Fixed
+- Dummy host chrome gate also hides Sign out and Root Switchable on Moveable screens. Dummy does not copy the core default layout
+- Dummy public, staff, and Admin help tests expect core layout `body[data-theme=rounded]`, not `html`
+
 ## [0.6.0] - 2026-08-21
 
 ### Changed

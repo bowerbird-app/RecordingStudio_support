@@ -145,7 +145,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Published"
     assert_select "input[name='q'][placeholder='Search support']"
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
-    assert_select "html[data-theme='rounded']"
+    assert_select "body[data-theme='rounded']"
     refute_includes response.body, "Sign out"
     refute_includes response.body, 'href="/users/sign_in"'
     refute_includes response.body, "recordable"
