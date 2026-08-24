@@ -59,9 +59,9 @@ class ConfigurationTest < Minitest::Test
     assert_equal "/support", configuration.pages_path
     assert_equal "/help", configuration.public_pages_path
     assert_equal "Help", configuration.help_title
-    assert_equal "Answers you can share.", configuration.help_subtitle
+    assert_equal "Find an answer.", configuration.help_subtitle
     assert_equal "Help", configuration.public_help_title
-    assert_equal "Answers you can read.", configuration.public_help_subtitle
+    assert_equal "Find an answer.", configuration.public_help_subtitle
     assert_equal "Help", configuration.admin_help_title
     assert_equal "Pages people use when they get stuck.", configuration.admin_help_subtitle
     assert_instance_of RecordingStudio::Hooks, configuration.hooks

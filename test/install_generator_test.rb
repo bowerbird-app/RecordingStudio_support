@@ -36,7 +36,9 @@ class InstallGeneratorTest < Minitest::Test
 
     assert_includes routes, "mount RecordingStudioSupport::Engine, at: \"/addons/recording\""
     assert_includes routes, "mount RecordingStudioPublishable::Engine, at: \"/\""
+    assert_includes routes, 'mount RecordingStudioMoveable::Engine, at: "/recording_studio_moveable"'
     assert_includes routes, public_help_route
+    assert_includes routes, public_help_section_route
   end
 
   def test_mount_engine_defaults_to_support
@@ -49,7 +51,9 @@ class InstallGeneratorTest < Minitest::Test
 
     assert_includes routes, "mount RecordingStudioSupport::Engine, at: \"/support\""
     assert_includes routes, "mount RecordingStudioPublishable::Engine, at: \"/\""
+    assert_includes routes, 'mount RecordingStudioMoveable::Engine, at: "/recording_studio_moveable"'
     assert_includes routes, public_help_route
+    assert_includes routes, public_help_section_route
   end
 
   def test_enable_admin_support_section_injects_section_on_admin_root
@@ -187,6 +191,8 @@ class InstallGeneratorTest < Minitest::Test
     assert_includes install_guide, "Do not add Trix or Action Text"
     assert_includes install_guide, "recording_studio_publishable:install"
     assert_includes install_guide, "PublicPagesController"
+    assert_includes install_guide, "PublicSectionsController"
+    assert_includes install_guide, "SupportSection"
     refute_includes install_guide, "RecordingStudio v3"
   end
 
@@ -206,6 +212,12 @@ class InstallGeneratorTest < Minitest::Test
 
   def public_help_route
     'get "/help", to: RecordingStudioSupport::PublicPagesController.action(:index), as: :public_help'
+  end
+
+  def public_help_section_route
+    'get "/help/sections/:id", ' \
+      "to: RecordingStudioSupport::PublicSectionsController.action(:show), " \
+      "as: :public_help_section"
   end
 
   def tailwind_source_lines

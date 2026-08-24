@@ -1,0 +1,19 @@
+<% recording_studio_page_nav(
+     title: "New section",
+     page_nav_back_url: root_path,
+     page_nav_anchor_url: root_path,
+     page_nav_anchor_label: "Close"
+   ) %>
+
+<div class="flex w-full flex-col gap-6">
+  <%= render FlatPack::PageTitle::Component.new(
+    title: "New section",
+    subtitle: "A home for pages on one topic.",
+    variant: :h1
+  ) %>
+
+  <%= render "form",
+             url: sections_path,
+             method: :post,
+             cancel_url: RecordingStudioSupport::Admin::Queries.admin_sections_screen_path %>
+</div>

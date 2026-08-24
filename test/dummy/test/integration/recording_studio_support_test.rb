@@ -14,7 +14,10 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert RecordingStudio.validate_recordable_declarations!
     assert_equal [ "AdminRoot", "Workspace" ], RecordingStudio.root_recordable_types.sort
     assert_equal [ "Workspace", "Folder" ], RecordingStudio.allowed_parent_types_for("Page")
-    assert_equal [ "Workspace" ], RecordingStudio.allowed_parent_types_for("RecordingStudioSupport::SupportPage")
+    assert_equal [ "RecordingStudioSupport::SupportSection" ],
+                 RecordingStudio.allowed_parent_types_for("RecordingStudioSupport::SupportPage")
+    assert_equal [ "Workspace" ],
+                 RecordingStudio.allowed_parent_types_for("RecordingStudioSupport::SupportSection")
     assert_equal "Support page", RecordingStudio.recordable_type_label(RecordingStudioSupport::SupportPage)
   end
 
@@ -24,6 +27,7 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert connection.column_exists?(:recording_studio_recordings, :root_recording_id)
     assert connection.table_exists?(:recording_studio_accesses)
     assert connection.table_exists?(:recording_studio_support_pages)
+    assert connection.table_exists?(:recording_studio_support_sections)
     assert connection.table_exists?(:recording_studio_support_page_views)
     assert connection.table_exists?(:admin_roots)
     assert connection.column_exists?(:recording_studio_support_pages, :title)
@@ -49,16 +53,22 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     private_workspace = Workspace.find_by!(name: "Private Workspace")
     folder = Folder.find_by!(name: "Product Docs")
     page = Page.find_by!(title: "Getting Started")
-    sign_in_page = RecordingStudioSupport::SupportPage.find_by!(title: "How do I sign in?")
-    password_page = RecordingStudioSupport::SupportPage.find_by!(title: "How do I change my password?")
+    support_page_recording = seeded_page("How do I sign in?")
+    password_page_recording = seeded_page("How do I change my password?")
+    sign_in_page = support_page_recording.recordable
+    password_page = password_page_recording.recordable
+    billing_section = RecordingStudioSupport::SupportSection.find_by!(title: "Billing")
+    developers_section = RecordingStudioSupport::SupportSection.find_by!(title: "Developers")
+    getting_started_section = RecordingStudioSupport::SupportSection.find_by!(title: "Getting started")
     admin_root = AdminRoot.find_by!(name: "Admin")
     root_recording = RecordingStudio::Recording.find_by!(recordable: workspace)
     accessible_root_recording = RecordingStudio::Recording.find_by!(recordable: accessible_workspace)
     private_root_recording = RecordingStudio::Recording.find_by!(recordable: private_workspace)
     folder_recording = RecordingStudio::Recording.find_by!(recordable: folder)
     page_recording = RecordingStudio::Recording.find_by!(recordable: page)
-    support_page_recording = RecordingStudio::Recording.find_by!(recordable: sign_in_page)
-    password_page_recording = RecordingStudio::Recording.find_by!(recordable: password_page)
+    getting_started_recording = RecordingStudio::Recording.find_by!(recordable: getting_started_section)
+    billing_recording = RecordingStudio::Recording.find_by!(recordable: billing_section)
+    developers_recording = RecordingStudio::Recording.find_by!(recordable: developers_section)
     admin_root_recording = RecordingStudio::Recording.find_by!(recordable: admin_root)
 
     assert_nil Current.actor
@@ -69,14 +79,19 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert_equal root_recording, folder_recording.root_recording
     assert_equal folder_recording, page_recording.parent_recording
     assert_equal root_recording, page_recording.root_recording
-    assert_equal root_recording, support_page_recording.parent_recording
+    assert_equal root_recording, getting_started_recording.parent_recording
+    assert_equal root_recording, billing_recording.parent_recording
+    assert_equal root_recording, developers_recording.parent_recording
+    assert_equal getting_started_recording, support_page_recording.parent_recording
     assert_equal root_recording, support_page_recording.root_recording
-    assert_equal root_recording, password_page_recording.parent_recording
+    assert_equal getting_started_recording, password_page_recording.parent_recording
+    assert_operator RecordingStudioSupport::SupportSection.count, :>=, 3
     assert_nil admin_root_recording.parent_recording_id
     assert_equal 3, Workspace.count
     assert_equal 1, AdminRoot.count
     assert_operator RecordingStudioSupport::SupportPage.count, :>=, 2
-    assert support_page_recording.images.any?
+    assert_includes sign_in_page.body, "<img src=\"/how-to-sign-in.jpg\" alt=\"Sign-in form\">"
+    refute RecordingStudio.capability_enabled?(:attachable, for: "RecordingStudioSupport::SupportPage")
     assert sign_in_page.indexable?
     refute password_page.indexable?
     assert support_page_recording.currently_published?
@@ -114,10 +129,17 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     refute RecordingStudio.capability_enabled?(:accessible, for: Folder)
     refute RecordingStudio.capability_enabled?(:accessible, for: Page)
     refute RecordingStudio.capability_enabled?(:accessible, for: RecordingStudioSupport::SupportPage)
-    assert RecordingStudio.capability_enabled?(:attachable, for: RecordingStudioSupport::SupportPage)
+    refute RecordingStudio.capability_enabled?(:accessible, for: RecordingStudioSupport::SupportSection)
+    refute RecordingStudio.capability_enabled?(:attachable, for: RecordingStudioSupport::SupportPage)
     assert RecordingStudio.capability_enabled?(:trashable, for: RecordingStudioSupport::SupportPage)
-    assert RecordingStudio.capability_enabled?(:orderable, for: RecordingStudioSupport::SupportPage)
+    refute RecordingStudio.capability_enabled?(:orderable, for: RecordingStudioSupport::SupportPage)
     assert RecordingStudio.capability_enabled?(:publishable, for: RecordingStudioSupport::SupportPage)
+    assert RecordingStudio.capability_enabled?(:movable, for: RecordingStudioSupport::SupportPage)
+    assert RecordingStudio.capability_enabled?(:trashable, for: RecordingStudioSupport::SupportSection)
+    assert RecordingStudio.capability_enabled?(:orderable, for: RecordingStudioSupport::SupportSection)
+    refute RecordingStudio.capability_enabled?(:attachable, for: RecordingStudioSupport::SupportSection)
+    refute RecordingStudio.capability_enabled?(:publishable, for: RecordingStudioSupport::SupportSection)
+    refute RecordingStudio.capability_enabled?(:movable, for: RecordingStudioSupport::SupportSection)
     refute RecordingStudio.capability_enabled?(:attachable, for: Folder)
     refute RecordingStudio.capability_enabled?(:trashable, for: Folder)
     refute RecordingStudio.capability_enabled?(:orderable, for: Folder)

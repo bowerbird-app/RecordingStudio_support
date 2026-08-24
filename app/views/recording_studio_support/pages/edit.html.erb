@@ -1,7 +1,7 @@
 <% recording_studio_page_nav(
      title: "Edit page",
      page_nav_back_url: page_path(@page_recording),
-     page_nav_anchor_url: pages_path,
+     page_nav_anchor_url: root_path,
      page_nav_anchor_label: "Close"
    ) %>
 
@@ -11,5 +11,8 @@
     variant: :h1
   ) %>
 
-  <%= render "form", url: page_path(@page_recording), method: :patch, submit_text: "Save" %>
+  <%= render "form",
+             url: page_path(@page_recording),
+             method: :patch,
+             cancel_url: RecordingStudioSupport::Admin::Queries.admin_pages_screen_path %>
 </div>

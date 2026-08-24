@@ -12,17 +12,17 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     sign_in @user
   end
 
-  test "index lists seeded help pages with default layout chrome" do
+  test "index lists seeded help sections with default layout chrome" do
     get "/support"
 
     assert_response :success
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
-    assert_includes response.body, "How do I sign in?"
-    assert_includes response.body, "How do I change my password?"
+    assert_includes response.body, "Getting started"
+    assert_includes response.body, "Billing"
+    assert_includes response.body, "Developers"
     refute_includes response.body, "New page"
+    refute_includes response.body, "How do I change my password?"
     assert_includes response.body, "flat-pack-page-nav"
-    assert_includes response.body, "Help"
-    assert_includes response.body, "Answers you can share."
     refute_includes response.body, "Studio Workspace"
     assert_includes response.body, "flat_pack/application"
     assert_select "body[data-theme='rounded']"
@@ -32,47 +32,59 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "recordable"
     refute_includes response.body, "This app proves the support gem"
     assert_select "form[role='search'][class~='w-full']"
-    assert_select "input[name='q']"
+    assert_select "input[name='q'][placeholder='Search support']"
+    assert_includes response.body, "Find an answer."
     assert_includes response.body, "max-w-none"
+    assert_includes response.body, "card-border-color"
+    assert_select "ul[role='list']"
+    assert_select "li[role='listitem']"
+    assert_includes response.body, "chevron-right"
+    assert_select "[class*='badge-default-background-color']", text: "1", count: 3
+    refute_includes response.body, ">2<"
+    refute_includes response.body, "1 page"
+    refute_includes response.body, "2 pages"
+    refute_includes response.body, "<span>Open</span>"
+    refute_includes response.body, "<span>Read</span>"
   end
 
-  test "index uses configured help titles" do
-    previous_title = RecordingStudioSupport.configuration.help_title
-    previous_subtitle = RecordingStudioSupport.configuration.help_subtitle
-    RecordingStudioSupport.configuration.help_title = "Guides"
-    RecordingStudioSupport.configuration.help_subtitle = "Short answers."
-
-    get "/support"
-
-    assert_response :success
-    assert_includes response.body, "Guides"
-    assert_includes response.body, "Short answers."
-    refute_includes response.body, "Answers you can share."
-  ensure
-    RecordingStudioSupport.configuration.help_title = previous_title
-    RecordingStudioSupport.configuration.help_subtitle = previous_subtitle
-  end
-
-  test "index ILIKE search matches title and body" do
-    get "/support", params: { q: "sign in" }
+  test "index ILIKE search matches section titles" do
+    get "/support", params: { q: "Getting started" }
 
     assert_response :success
     assert_select "body[data-theme='rounded']"
-    assert_select "form[role='search'][class~='w-full']"
-    assert_includes response.body, "max-w-none"
-    assert_includes response.body, "How do I sign in?"
-    refute_includes response.body, "How do I change my password?"
-    assert_select "input[name='q'][value='sign in']"
+    assert_select "form[role='search']"
+    assert_includes response.body, "Getting started"
+    refute_includes response.body, "Billing"
+    assert_select "input[name='q'][value='Getting started']"
   end
 
   test "index search empty state is human" do
-    get "/support", params: { q: "no-such-help-page" }
+    get "/support", params: { q: "no-such-help-section" }
 
     assert_response :success
     assert_includes response.body, "Nothing matches that"
     assert_includes response.body, "Try another word."
-    refute_includes response.body, "How do I sign in?"
+    refute_includes response.body, "Getting started"
     refute_includes response.body, "recordable"
+  end
+
+  test "section show lists pages in that section" do
+    section = seeded_section("Getting started")
+
+    get "/support/sections/#{section.id}"
+
+    assert_response :success
+    assert_includes response.body, "How do I sign in?"
+    refute_includes response.body, "How do I change my password?"
+    refute_includes response.body, "How do I update payment details?"
+    assert_includes response.body, "Published"
+    refute_includes response.body, "New page"
+    refute_includes response.body, "recordable"
+    assert_includes response.body, "card-border-color"
+    assert_select "ul[role='list']"
+    assert_includes response.body, "chevron-right"
+    refute_includes response.body, "<span>Open</span>"
+    refute_includes response.body, "<span>Read</span>"
   end
 
   test "owner preview has no edit button or form" do
@@ -90,7 +102,7 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "flat-pack-richtext-wrapper"
   end
 
-  test "show renders title, body, and attached image" do
+  test "show renders title, body, and inline image" do
     recording = seeded_page("How do I sign in?")
 
     get "/support/#{recording.id}"
@@ -98,8 +110,10 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "How do I sign in?"
     assert_includes response.body, "Use the email and password you were given"
-    assert_includes response.body, "sign-in.png"
-    assert_select "img[alt='sign-in.png']"
+    assert_includes response.body, "Open the sign-in page"
+    assert_includes response.body, "Your email"
+    assert_select "img[src='/how-to-sign-in.jpg'][alt='Sign-in form']"
+    refute_includes response.body, "Pictures"
     close = css_select("a[aria-label='Close']").first
     assert close
     assert_match(%r{\A/support/?\z}, close["href"])
@@ -114,9 +128,9 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert RecordingStudioSupport::PageView.exists?(recording_id: recording.id)
   end
 
-  test "show renders sanitized HTML and drops inline images" do
+  test "show renders sanitized HTML and keeps inline images" do
     recording = RecordingStudioSupport::Pages.create!(
-      root_recording: RecordingStudio.root_recording_for(Workspace.find_by!(name: "Studio Workspace")),
+      parent_recording: seeded_section("Getting started"),
       title: "Printer jam",
       body: "<p>Turn it off.</p><h2>Then on</h2><img src=\"https://example.test/x.png\" alt=\"nope\">",
       actor: @user
@@ -128,7 +142,7 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_select "p", text: "Turn it off."
     assert_select "h2", text: "Then on"
     refute_includes response.body, "&lt;p&gt;"
-    refute_select "img[alt='nope']"
+    assert_select "img[alt='nope']"
   end
 
   test "new and create go through public record helper" do
@@ -137,15 +151,20 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "New page"
     assert_select "input[name='page[title]']"
+    assert_includes response.body, "page[section_id]"
     assert_select "input[type='hidden'][name='page[body]']"
     assert_includes response.body, "flat-pack-richtext-wrapper"
     assert_includes response.body, "flat-pack--tiptap"
+    assert_includes response.body, "/support/uploads"
+    assert_includes response.body, "Save"
+    assert_includes response.body, "Cancel"
     refute_includes response.body, "Words only"
     refute_includes response.body, "Pictures live under the page"
 
     assert_difference -> { RecordingStudioSupport::SupportPage.count }, 1 do
       post "/support", params: {
         page: {
+          section_id: seeded_section("Getting started").id,
           title: "How do I invite a teammate?",
           body: "Ask someone with access to send them an invite."
         }
@@ -177,6 +196,10 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
                     'application.register("flat-pack--tiptap", TiptapController)'
     assert_select "input[name='page[title]']"
     assert_select "input[type='hidden'][name='page[body]']"
+    assert_includes response.body, "/support/uploads"
+    assert_includes response.body, "Save"
+    assert_includes response.body, "Cancel"
+    refute_includes response.body, "flat-pack-button-group"
     refute_match(/<textarea[^>]*name="page\[body\]"/, response.body)
 
     patch "/support/#{recording.id}", params: {
@@ -190,6 +213,20 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     recording.reload
     assert_not_equal original_id, recording.recordable_id
     assert_equal "Pick a new password, then sign in with it.", recording.recordable.body
+  end
+
+  test "owner can upload an image for the body editor" do
+    file = Rack::Test::UploadedFile.new(
+      Rails.root.join("public/how-to-sign-in.jpg"),
+      "image/jpeg"
+    )
+
+    post "/support/uploads", params: { file: file }
+
+    assert_response :created
+    payload = response.parsed_body
+    assert payload["url"].present?
+    assert_match(%r{\A/rails/active_storage/}, payload["url"])
   end
 
   test "viewer with view access can read but not write" do
@@ -206,7 +243,7 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     get "/support"
 
     assert_response :success
-    assert_includes response.body, "How do I sign in?"
+    assert_includes response.body, "Getting started"
     refute_includes response.body, "New page"
 
     get "/support/new"
@@ -235,18 +272,11 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_response :redirect
     assert_match(%r{/support/?\z}, response.redirect_url)
     assert recording.reload.trashed_at
-    get "/support"
+    get "/support/sections/#{seeded_section('Getting started').id}"
     refute_includes response.body, "How do I change my password?"
   end
 
   private
-
-  def seeded_page(title)
-    RecordingStudio::Recording.where(
-      recordable_type: "RecordingStudioSupport::SupportPage",
-      trashed_at: nil
-    ).find { |recording| recording.recordable.title == title }
-  end
 
   def grant_role!(recording, actor, role)
     original = RecordingStudioAccessible.configuration.access_management_authorizer

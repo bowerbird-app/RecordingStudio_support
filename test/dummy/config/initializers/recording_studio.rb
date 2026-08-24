@@ -6,6 +6,7 @@ RecordingStudio.configure do |config|
     "Folder",
     "Page",
     "AdminRoot",
+    "RecordingStudioSupport::SupportSection",
     "RecordingStudioSupport::SupportPage",
     "RecordingStudioAttachable::Attachment",
     "RecordingStudioPublishable::Publishable"

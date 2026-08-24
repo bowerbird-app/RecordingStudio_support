@@ -1,7 +1,8 @@
+<% back_path = @section_recording ? section_path(@section_recording) : root_path %>
 <% recording_studio_page_nav(
      title: @page.title,
-     page_nav_back_url: pages_path,
-     page_nav_anchor_url: pages_path,
+     page_nav_back_url: back_path,
+     page_nav_anchor_url: root_path,
      page_nav_anchor_label: "Close"
    ) %>
 
@@ -44,31 +45,12 @@
     ) %>
   <% end %>
 
-  <%= render FlatPack::Card::Component.new(style: :default) do |card| %>
-    <% card.body do %>
-      <% if @page.body.present? %>
-        <div class="text-base leading-7 text-(--surface-content-color)">
-          <%= support_page_body_html(@page.body) %>
-        </div>
-      <% else %>
-        <p class="text-sm text-(--surface-content-color)">This page is still waiting on the words.</p>
-      <% end %>
-    <% end %>
-  <% end %>
-
-  <% if @images.any? %>
-    <div class="flex flex-col gap-3">
-      <%= render FlatPack::SectionTitle::Component.new(title: "Pictures") %>
-      <% @images.each do |image_recording| %>
-        <% image_url = support_page_image_url(image_recording) %>
-        <% next if image_url.blank? %>
-        <%= render FlatPack::Card::Component.new(style: :outlined) do |card| %>
-          <% card.body do %>
-            <%= image_tag image_url, alt: support_page_image_name(image_recording), class: "max-h-96 w-auto max-w-full" %>
-          <% end %>
-        <% end %>
-      <% end %>
+  <% if @page.body.present? %>
+    <div class="text-base leading-7 text-(--surface-content-color)">
+      <%= support_page_body_html(@page.body) %>
     </div>
+  <% else %>
+    <p class="text-sm text-(--surface-content-color)">This page is still waiting on the words.</p>
   <% end %>
 
   <% if can_edit_support_pages? %>

@@ -10,13 +10,14 @@ module RecordingStudioSupport
 
     def index
       @query = params[:q].to_s.strip
-      @pages = Pages.public_indexable(query: @query)
+      @section_recordings = Sections.public_index(query: @query)
+      @page_counts = Pages.public_count_by_section(@section_recordings)
     end
 
     def show
       @page = @parent_recordable
-      @images = Array(@parent_recording&.try(:images))
       @published_at = @publishable&.publish_at
+      @section_recording = Pages.section_for(@parent_recording)
       record_public_view
     end
 

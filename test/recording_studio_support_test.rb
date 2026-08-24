@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.6.0", ::RecordingStudioSupport::VERSION
+    assert_equal "0.7.0", ::RecordingStudioSupport::VERSION
   end
 
   def test_engine_exists
@@ -21,6 +21,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemspec, 'spec.add_dependency "recording_studio_trashable", "~> 0.4"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_orderable", "~> 0.2"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_publishable", "~> 0.2"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_moveable", "~> 3.0"'
     refute_includes gemspec, 'spec.add_dependency "recording_studio_api"'
   end
 
@@ -34,6 +35,8 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "0.4.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_orderable", tag: "0.2.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.2.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "3.0.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_icons"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.0"'
     assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.133"'
     refute_includes gemfile, "recording_studio/v3.0.0"
@@ -49,6 +52,25 @@ class RecordingStudioSupportTest < Minitest::Test
     refute File.exist?(File.expand_path("../lib/recording_studio_support/capabilities/example.rb", __dir__))
     refute File.exist?(File.expand_path("../app/controllers/recording_studio_support/home_controller.rb", __dir__))
     assert File.exist?(File.expand_path("../app/controllers/recording_studio_support/pages_controller.rb", __dir__))
+    assert File.exist?(File.expand_path("../app/controllers/recording_studio_support/sections_controller.rb", __dir__))
+    assert File.exist?(File.expand_path("../app/models/recording_studio_support/support_section.rb", __dir__))
+  end
+
+  def test_support_section_declares_product_label_and_host_root_parent
+    source = File.read(File.expand_path("../app/models/recording_studio_support/support_section.rb", __dir__))
+
+    assert_includes source, 'self.table_name = "recording_studio_support_sections"'
+    assert_includes source, 'label: "Help section"'
+    assert_includes source, "root: false"
+    assert_includes source, 'allowed_parent_types: ["Workspace"]'
+    assert_includes source, "RecordingStudio::Capabilities::Trashable.to"
+    assert_includes source, "RecordingStudio::Capabilities::Orderable.to"
+    assert_includes source, 'allows: ["RecordingStudioSupport::SupportPage"]'
+    refute_includes source, "Capabilities::Attachable"
+    refute_includes source, "Capabilities::Publishable"
+    refute_includes source, "Capabilities::Moveable"
+    refute_includes source, "Recordable"
+    refute_match(/label:\s*"[^"]*Recordable/, source)
   end
 
   def test_support_page_declares_product_label_and_host_root_parent
@@ -57,16 +79,17 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes source, 'self.table_name = "recording_studio_support_pages"'
     assert_includes source, 'label: "Support page"'
     assert_includes source, "root: false"
-    assert_includes source, 'allowed_parent_types: ["Workspace"]'
-    assert_includes source, "RecordingStudio::Capabilities::Attachable.to"
+    assert_includes source, 'allowed_parent_types: ["RecordingStudioSupport::SupportSection"]'
+    refute_includes source, "Capabilities::Attachable"
     assert_includes source, "RecordingStudio::Capabilities::Trashable.to"
-    assert_includes source, "RecordingStudio::Capabilities::Orderable.to"
+    refute_includes source, "Capabilities::Orderable"
+    assert_includes source, "RecordingStudio::Capabilities::Moveable.to"
     assert_includes source, "RecordingStudio::Capabilities::Publishable.to"
     assert_includes source, "public_controller: \"recording_studio_support/public_pages\""
     assert_includes source, "public_action: :show"
     assert_includes source, "public_layout: \"recording_studio/default_layout\""
     assert_includes source, "path: \"/help/:uuid/:slug\""
-    assert_includes source, 'allows: ["RecordingStudioAttachable::Attachment"]'
+    refute_includes source, 'allows: ["RecordingStudioAttachable::Attachment"]'
     refute_includes source, "Recordable"
     refute_match(/label:\s*"[^"]*Recordable/, source)
   end
@@ -122,12 +145,13 @@ class RecordingStudioSupportTest < Minitest::Test
     default_layout_head = File.read(head_path)
 
     assert_includes default_layout_head, 'stylesheet_link_tag "flat_pack/application"'
-    assert_includes default_layout_head, 'start_with?("RecordingStudioSupport::", "RecordingStudioAdmin::")'
+    assert_includes default_layout_head, "start_with?"
     assert_includes default_layout_head, "recording_studio_root_switch_dropdown"
     assert_includes default_layout_head, "recording_studio_page_nav_right"
     assert_includes default_layout_head, "user_signed_in?"
     assert_includes default_layout_head, "RecordingStudioSupport::"
     assert_includes default_layout_head, "RecordingStudioAdmin::"
+    assert_includes default_layout_head, "RecordingStudioMoveable::"
     assert_includes default_layout_head, "Sign out"
     assert_includes default_layout_head, "destroy_user_session_path"
     assert_includes default_layout_head, "turbo_method: :delete"
@@ -153,6 +177,7 @@ class RecordingStudioSupportTest < Minitest::Test
     initializer_source = File.read(initializer_path)
 
     assert_includes initializer_source, "config.require_recordable_declarations = true"
+    assert_includes initializer_source, '"RecordingStudioSupport::SupportSection"'
     assert_includes initializer_source, '"RecordingStudioSupport::SupportPage"'
     assert_includes initializer_source, '"RecordingStudioAttachable::Attachment"'
     assert_includes initializer_source, '"RecordingStudioPublishable::Publishable"'
@@ -186,12 +211,15 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "v0.6.1"
     assert_includes readme, "v0.1.133"
     assert_includes readme, "Support page"
+    assert_includes readme, "SupportSection"
+    assert_includes readme, "Help section"
+    assert_includes readme, "Moveable"
     assert_includes readme, "tag: \"2.0.0\""
     assert_includes readme, "/support"
     assert_includes readme, "help_title"
     assert_includes readme, "flat-pack--tiptap"
     assert_includes readme, "section :support"
-    assert_includes readme, "RecordingStudio::Capabilities::Attachable.to"
+    refute_includes readme, "RecordingStudio::Capabilities::Attachable.to"
     assert_includes readme, "RecordingStudio::Capabilities::Publishable.to"
     assert_includes readme, "tag: \"v0.2.0\""
     assert_includes readme, "tag: \"0.4.0\""
@@ -229,16 +257,19 @@ class RecordingStudioSupportTest < Minitest::Test
 
   def test_engine_ships_authenticated_support_pages
     refute File.exist?(File.expand_path("../app/views/recording_studio_support/home/index.html.erb", __dir__))
-    assert File.exist?(File.expand_path("../app/views/recording_studio_support/pages/index.html.erb", __dir__))
+    assert File.exist?(File.expand_path("../app/views/recording_studio_support/sections/index.html.erb", __dir__))
     assert File.exist?(File.expand_path("../app/views/recording_studio_support/pages/show.html.erb", __dir__))
     assert File.exist?(File.expand_path("../app/views/recording_studio_support/pages/new.html.erb", __dir__))
     assert File.exist?(File.expand_path("../app/views/recording_studio_support/pages/edit.html.erb", __dir__))
     assert File.exist?(File.expand_path("../app/views/recording_studio_support/public_pages/index.html.erb", __dir__))
     assert File.exist?(File.expand_path("../app/views/recording_studio_support/public_pages/show.html.erb", __dir__))
+    assert File.exist?(File.expand_path("../app/views/recording_studio_support/public_sections/show.html.erb", __dir__))
 
     routes = File.read(File.expand_path("../config/routes.rb", __dir__))
     assert_includes routes, "RecordingStudioSupport::Engine.routes.draw"
     assert_includes routes, "resources :pages"
+    assert_includes routes, "resources :sections"
+    assert_includes routes, 'post "uploads"'
   end
 
   def test_dummy_defaults_to_studio_workspace_for_help_pages
@@ -259,11 +290,18 @@ class RecordingStudioSupportTest < Minitest::Test
     refute_includes section, "recordable"
 
     screen = File.read(File.expand_path("../lib/recording_studio_support/admin/pages_screen.rb", __dir__))
-    assert_includes screen, 'key "help_pages"'
+    sections_screen = File.read(File.expand_path("../lib/recording_studio_support/admin/sections_screen.rb", __dir__))
+    assert_includes screen, 'key "support_pages"'
     assert_includes screen, "button :new_page"
     assert_includes screen, "action :edit"
     assert_includes screen, "column :status"
     refute_includes screen, "action :open"
+    assert_includes sections_screen, "column :page_count"
+    assert_includes sections_screen, 'title: "Count"'
+    refute_includes sections_screen, "1 page"
+    refute_includes sections_screen, "pages"
+    assert_includes admin, "register_screen(SectionsScreen)"
+    assert_includes admin, "register_widget(Widgets::PAGE_COUNT)"
   end
 
   def test_dummy_mounts_support_and_admin
@@ -275,6 +313,8 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes routes, 'mount RecordingStudioPublishable::Engine, at: "/"'
     assert_includes routes, "RecordingStudioSupport::PublicPagesController.action(:index)"
     assert_includes routes, 'get "/help"'
+    assert_includes routes, "PublicSectionsController"
+    assert_includes routes, 'mount RecordingStudioMoveable::Engine, at: "/recording_studio_moveable"'
   end
 
   def test_dummy_folder_and_page_do_not_opt_into_support_mixins
@@ -285,9 +325,11 @@ class RecordingStudioSupportTest < Minitest::Test
     refute_includes folder_source, "Capabilities::Trashable"
     refute_includes folder_source, "Capabilities::Orderable"
     refute_includes folder_source, "Capabilities::Publishable"
+    refute_includes folder_source, "Capabilities::Moveable"
     refute_includes page_source, "Capabilities::Attachable"
     refute_includes page_source, "Capabilities::Trashable"
     refute_includes page_source, "Capabilities::Orderable"
     refute_includes page_source, "Capabilities::Publishable"
+    refute_includes page_source, "Capabilities::Moveable"
   end
 end

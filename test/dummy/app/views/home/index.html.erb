@@ -10,7 +10,7 @@
   <%= render FlatPack::Card::Component.new(style: :default) do |card| %>
     <% card.body do %>
       <p class="text-sm leading-6 text-(--surface-content-color)">
-        Sign in stays at admin@admin.com. Help pages live under the workspace.
+        Sign in stays at admin@admin.com. Help pages live in a section under the workspace.
       </p>
     <% end %>
     <% card.footer do %>
@@ -18,7 +18,7 @@
         text: "Open help pages",
         style: :primary,
         size: :md,
-        href: recording_studio_support.pages_path
+        href: recording_studio_support.root_path
       ) %>
     <% end %>
   <% end %>

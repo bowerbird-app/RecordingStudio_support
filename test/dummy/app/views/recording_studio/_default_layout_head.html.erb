@@ -1,5 +1,9 @@
 <%= stylesheet_link_tag "flat_pack/application", "data-turbo-track": "reload" %>
-<% hide_host_chrome = controller.class.name.start_with?("RecordingStudioSupport::", "RecordingStudioAdmin::") %>
+<% hide_host_chrome = controller.class.name.start_with?(
+     "RecordingStudioSupport::",
+     "RecordingStudioAdmin::",
+     "RecordingStudioMoveable::"
+   ) %>
 <% if user_signed_in? && !hide_host_chrome %>
   <% recording_studio_page_nav_right do %>
     <%= render FlatPack::Button::Component.new(

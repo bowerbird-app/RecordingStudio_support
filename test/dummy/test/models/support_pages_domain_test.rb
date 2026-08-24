@@ -14,6 +14,7 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
       Workspace.create!(name: "Pages #{SecureRandom.hex(4)}")
     )
     grant_admin!(@root_recording, @user)
+    @section_recording = record_support_section(@root_recording)
   end
 
   teardown do
@@ -22,7 +23,7 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
 
   test "create and revise go through public helpers" do
     recording = RecordingStudioSupport::Pages.create!(
-      root_recording: @root_recording,
+      parent_recording: @section_recording,
       title: "Office hours",
       body: "Tuesday mornings.",
       actor: @user
@@ -39,12 +40,12 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
     recording.reload
     assert_not_equal original_id, recording.recordable_id
     assert_equal "Wednesday mornings.", recording.recordable.body
-    assert_equal @root_recording, recording.parent_recording
+    assert_equal @section_recording, recording.parent_recording
   end
 
   test "page views are logs not recordings" do
     recording = RecordingStudioSupport::Pages.create!(
-      root_recording: @root_recording,
+      parent_recording: @section_recording,
       title: "Printer jam",
       body: "Turn it off and on again.",
       actor: @user
@@ -60,13 +61,13 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
 
   test "for_root ILIKE filters title and body" do
     RecordingStudioSupport::Pages.create!(
-      root_recording: @root_recording,
+      parent_recording: @section_recording,
       title: "How do I sign in?",
       body: "Use the email you were given.",
       actor: @user
     )
     RecordingStudioSupport::Pages.create!(
-      root_recording: @root_recording,
+      parent_recording: @section_recording,
       title: "How do I change my password?",
       body: "Pick a new one.",
       actor: @user
@@ -83,7 +84,7 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
 
   test "find_kept finds a page without the current root" do
     recording = RecordingStudioSupport::Pages.create!(
-      root_recording: @root_recording,
+      parent_recording: @section_recording,
       title: "Office Wi-Fi",
       body: "Ask the front desk.",
       actor: @user
@@ -93,23 +94,26 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
     admin_root = RecordingStudio.root_recording_for(AdminRoot.find_or_create_by!(name: "Admin"))
 
     assert_equal recording.id, found.id
-    refute RecordingStudioSupport::Pages.allowed_parent_root?(admin_root)
-    assert RecordingStudioSupport::Pages.allowed_parent_root?(@root_recording)
-    assert RecordingStudioSupport::Pages.allowed_parent_root?(
-      RecordingStudioSupport::Pages.parent_root_for(admin_root)
+    refute RecordingStudioSupport::Sections.allowed_parent_root?(admin_root)
+    assert RecordingStudioSupport::Sections.allowed_parent_root?(@root_recording)
+    assert RecordingStudioSupport::Sections.allowed_parent_root?(
+      RecordingStudioSupport::Sections.parent_root_for(admin_root)
     )
+    assert_equal @section_recording, RecordingStudioSupport::Pages.default_section_for(@root_recording)
+    assert RecordingStudioSupport::Pages.default_section_for(admin_root).present? ||
+           RecordingStudioSupport::Sections.default_parent_root.blank?
   end
 
   test "public_indexable uses Publishable indexable and hides drafts" do
     token = SecureRandom.hex(4)
     live = RecordingStudioSupport::Pages.create!(
-      root_recording: @root_recording,
+      parent_recording: @section_recording,
       title: "Live help #{token}",
       body: "Use the live token #{token}.",
       actor: @user
     )
     draft = RecordingStudioSupport::Pages.create!(
-      root_recording: @root_recording,
+      parent_recording: @section_recording,
       title: "Draft help #{token}",
       body: "Hidden draft token #{token}-draft.",
       actor: @user

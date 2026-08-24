@@ -54,6 +54,7 @@ module RecordingStudioSupport
     def recordings_for_support_authorization
       [
         @page_recording&.root_recording,
+        @section_recording&.root_recording,
         current_support_root_recording,
         admin_access_recording
       ].compact.uniq
@@ -68,8 +69,17 @@ module RecordingStudioSupport
       resolver.call(ResolverContext.new(self))
     end
 
-    def page_parent_root_recording
-      Pages.parent_root_for(current_support_root_recording)
+    def page_parent_section_recording
+      section_id = params.dig(:page, :section_id).presence || params[:section_id]
+      return Sections.find_kept!(id: section_id) if section_id.present?
+
+      Pages.default_section_for(current_support_root_recording)
+    rescue ActiveRecord::RecordNotFound
+      nil
+    end
+
+    def section_parent_root_recording
+      Sections.parent_root_for(current_support_root_recording)
     end
   end
 end

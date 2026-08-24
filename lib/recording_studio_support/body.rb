@@ -4,8 +4,8 @@ module RecordingStudioSupport
   module Body
     module_function
 
-    TAGS = %w[p br hr h1 h2 h3 h4 h5 h6 strong em u s ul ol li blockquote pre code a span].freeze
-    ATTRIBUTES = %w[href rel target].freeze
+    TAGS = %w[p br hr h1 h2 h3 h4 h5 h6 strong em u s ul ol li blockquote pre code a span img].freeze
+    ATTRIBUTES = %w[href rel target src alt].freeze
 
     def sanitize(html)
       html_sanitizer.sanitize(html.to_s, tags: TAGS, attributes: ATTRIBUTES).to_s

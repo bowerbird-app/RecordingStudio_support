@@ -1,0 +1,14 @@
+<div class="flex gap-2">
+  <%= render FlatPack::Button::Component.new(
+    text: "Save",
+    style: :primary,
+    size: :md,
+    type: "submit"
+  ) %>
+  <%= render FlatPack::Button::Component.new(
+    text: "Cancel",
+    style: :secondary,
+    size: :md,
+    href: cancel_url
+  ) %>
+</div>

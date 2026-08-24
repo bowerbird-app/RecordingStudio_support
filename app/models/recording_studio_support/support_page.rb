@@ -6,16 +6,10 @@ module RecordingStudioSupport
 
     recording_studio_recordable label: "Support page",
                                 root: false,
-                                allowed_parent_types: ["Workspace"]
+                                allowed_parent_types: ["RecordingStudioSupport::SupportSection"]
 
-    include RecordingStudio::Capabilities::Attachable.to(
-      allowed_content_types: ["image/*"],
-      enabled_attachment_kinds: %i[image]
-    )
     include RecordingStudio::Capabilities::Trashable.to
-    include RecordingStudio::Capabilities::Orderable.to(
-      allows: ["RecordingStudioAttachable::Attachment"]
-    )
+    include RecordingStudio::Capabilities::Moveable.to
     include RecordingStudio::Capabilities::Publishable.to(
       public_controller: "recording_studio_support/public_pages",
       public_action: :show,

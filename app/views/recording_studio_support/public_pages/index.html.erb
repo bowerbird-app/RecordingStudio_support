@@ -11,54 +11,25 @@
     variant: :h1
   ) %>
 
-  <%= form_with url: support_public_help_path, method: :get, html: { role: "search", class: "w-full" } do %>
-    <%= render FlatPack::Search::Component.new(
-      name: "q",
-      value: @query,
-      placeholder: "Find a page",
-      max_width: :none,
-      class: "w-full"
-    ) %>
-  <% end %>
+  <%= render "recording_studio_support/shared/search", url: support_public_help_path, query: @query %>
 
-  <% if @pages.any? %>
-    <div class="flex flex-col gap-3">
-      <% @pages.each do |page| %>
-        <% href = page.published_url %>
-        <% next if href.blank? %>
-        <%= render FlatPack::Card::Component.new(style: :outlined) do |card| %>
-          <% card.body(class: "flex flex-wrap items-center justify-between gap-3") do %>
-            <%= render FlatPack::SectionTitle::Component.new(
-              title: page.title,
-              subtitle: nil
-            ) %>
-            <%= render FlatPack::Button::Component.new(
-              text: "Read",
-              style: :secondary,
-              size: :md,
-              href: href
-            ) %>
-          <% end %>
-        <% end %>
-      <% end %>
-    </div>
+  <% if @section_recordings.any? %>
+    <%= render "recording_studio_support/shared/link_list", items: @section_recordings.map { |recording|
+      {
+        title: support_recording_title(recording),
+        href: support_public_section_path(recording),
+        meta: support_page_count_badge(@page_counts.fetch(recording.id, 0))
+      }
+    } %>
   <% elsif @query.present? %>
-    <%= render FlatPack::Card::Component.new(style: :outlined) do |card| %>
-      <% card.body do %>
-        <%= render FlatPack::SectionTitle::Component.new(
-          title: "Nothing matches that",
-          subtitle: "Try another word."
-        ) %>
-      <% end %>
-    <% end %>
+    <%= render FlatPack::EmptyState::Component.new(
+      title: "Nothing matches that",
+      description: "Try another word."
+    ) %>
   <% else %>
-    <%= render FlatPack::Card::Component.new(style: :outlined) do |card| %>
-      <% card.body do %>
-        <%= render FlatPack::SectionTitle::Component.new(
-          title: "Nothing live yet",
-          subtitle: "Check back soon."
-        ) %>
-      <% end %>
-    <% end %>
+    <%= render FlatPack::EmptyState::Component.new(
+      title: "Nothing live yet",
+      description: "Check back soon."
+    ) %>
   <% end %>
 </div>

@@ -7,6 +7,56 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.0] - 2026-08-23
+
+Help pages live in a section. Staff pick the section by moving the page.
+
+### Added
+- `RecordingStudioSupport::SupportSection` in this gem. Tree is host root → SupportSection → SupportPage
+- Moveable on SupportPage through `.to`. Staff change section with `move_to!` (same root). No `section_id` column
+- Orderable on SupportSection sorts its pages. Trashable on a section cascade-trashes its pages; empty sections trash cleanly
+- Public `/help` lists sections. `/help/sections/:id` lists published pages only
+- Staff `/support` lists sections. Staff and public section shows are the same reader list: published pages with a Published badge
+- Admin Support hub has two family screens: Support pages and Support sections. Both are tables. The hub shows a page-count number widget
+- Admin pages table keeps search, Published/Draft, section, Edit, Move, and New page
+- Admin sections table has search, a Count column (`1` / `2`, every kept page in the section), Edit, and New section
+- Body editor image upload at `POST /support/uploads` (returns `{ "url": "..." }`, same contract as Flatpack ContentEditor `upload_url`)
+- Dummy seeds Billing, Developers, and Getting started. Existing pages sit under Getting started. Billing and Developers each have one live page so those lists are not empty
+- Dummy GitHub pin `recording_studio_moveable` tag `3.0.0` and gemspec `~> 3.0`
+
+### Changed
+- SupportPage `allowed_parent_types` is SupportSection only, not Workspace. Break in place
+- `Pages.create!` takes `parent_recording:` (the section). Writes still go through `record` / `revise` / `log_event!`
+- Pictures live in the page body. SupportPage no longer includes Attachable or Orderable. No Pictures heading or image gallery
+- Public show is a simple article: title, optional Updated line, and formatted body. No live/sign-in banners, no Edit/trash/Access
+- Help Search placeholder is “Search support” on public and staff home and on section lists. Flatpack Search has no fill or height API, so the kit-default field is used
+- Default Help subtitle is “Find an answer.” on public and staff home. Section show is the section name only
+- Public and staff Help home search matches section names. Page search stays on a section show
+- Public and staff section lists, and the page lists on section show, share one Flatpack List (`divider: true`) with a `chevron-right` trailing icon. The List sits in a Card body (Feature List kit pattern). No Read / Open buttons and no List border API
+- Help home section rows show a Flatpack Badge with the published page count (`1` / `2`). Staff home uses the same published count as public
+- Edit and New forms use two Flatpack Buttons (Save primary, Cancel secondary) in one row. Not a ButtonGroup and not a full-width Save
+- Admin Support hub drops See every page, Latest pages, and the sections list widget
+
+### Upgrade notes
+- Register `"RecordingStudioSupport::SupportSection"` next to `"RecordingStudioSupport::SupportPage"`
+- Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate`
+- Add `recording_studio_moveable`, `~> 3.0` (dummy GitHub tag `3.0.0`) and mount it at `/recording_studio_moveable`
+- Enable Moveable only on Support pages: `include RecordingStudio::Capabilities::Moveable.to`
+- Enable Orderable and Trashable on SupportSection. Do not enable Attachable or Publishable on the section
+- Drop Attachable and Orderable from SupportPage. Put pictures in the body with the Flatpack rich-text editor (`preset: :content`, `uploads: { url: ... }`)
+- Allow `img` (`src`, `alt`) in `Body.sanitize`
+- Point `/help` and `/help/sections/:id` at the Support public controllers **before** mounting Publishable at `/`
+- Create pages under a section. Move them with `recording.move_to!(new_parent: section, actor: current_user)`
+- Open Admin tables at `/admin/screens/support_pages` and `/admin/screens/support_sections` (the old `help_pages` key is gone)
+- Set `help_subtitle` and `public_help_subtitle` if you do not want “Find an answer.”
+- Do not add a `section_id` column, a categories gem, a gallery on SupportPage, or a second Admin app
+
+### Fixed
+- Dummy host chrome gate also hides Sign out and Root Switchable on Moveable screens. Dummy does not copy the core default layout
+- Dummy public, staff, and Admin help tests expect core layout `body[data-theme=rounded]`, not `html`
+
+## [0.6.0] - 2026-08-21
+
 ### Changed
 - Staff Edit and New live on the Admin help-pages table (every page, draft or live). Workspace `/support` and owner preview stay for reading and publish preview
 - Edit and New still use the Support page controllers. Pages are found even when the current root is Admin, and staff with an admin-root grant can write. New pages still land under a workspace.
@@ -28,8 +78,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Keep Sign out and Root Switchable off Support and Admin Support screens. Access can stay on Admin
 - Drop Help pages and Reads count cards from the Admin Support hub. Keep Latest pages and See every page. Do not replace those cards with another total of the same fact
 - Add search and Published/Draft on the Admin help-pages table with `table { filter ... }`. Hide the table heading and row count with the table DSL (`title` / `hide_count`). Do not add a custom search form or CSS hide
-
-## [0.6.0] - 2026-08-21
 
 Logged-out people can read live help pages. Drafts stay hidden. Staff publish through Publishable.
 
@@ -199,7 +247,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.6.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.7.0...HEAD
+[0.7.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.7.0
 [0.6.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.6.0
 [0.5.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.5.0
 [0.4.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.4.0

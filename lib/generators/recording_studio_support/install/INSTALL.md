@@ -17,7 +17,8 @@ Staff UI:
 5. Keep Sign out and Root Switchable off Support screens
 6. For the body editor, pin Flatpack TipTap packages and register
    controllers/flat_pack/tiptap_controller as flat-pack--tiptap
-   (lazy load is not enough on first paint). Do not add Trix or Action Text.
+   (lazy load is not enough on first paint). Pictures go in the body
+   through the editor upload. Do not add Trix or Action Text.
 
 Public UI:
 1. Open http://localhost:3000/help without signing in

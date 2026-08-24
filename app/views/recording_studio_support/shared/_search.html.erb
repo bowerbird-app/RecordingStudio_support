@@ -1,0 +1,8 @@
+<%= form_with url: url, method: :get, html: { role: "search", class: "w-full" } do %>
+  <%= render FlatPack::Search::Component.new(
+    name: "q",
+    value: query,
+    placeholder: "Search support",
+    max_width: :none
+  ) %>
+<% end %>

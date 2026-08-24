@@ -1,0 +1,35 @@
+<% recording_studio_page_nav(
+     title: support_help_title,
+     page_nav_anchor_url: (main_app.root_path if main_app.respond_to?(:root_path)),
+     page_nav_anchor_label: "Close"
+   ) %>
+
+<div class="flex w-full flex-col gap-6">
+  <%= render FlatPack::PageTitle::Component.new(
+    title: support_help_title,
+    subtitle: support_help_subtitle,
+    variant: :h1
+  ) %>
+
+  <%= render "recording_studio_support/shared/search", url: root_path, query: @query %>
+
+  <% if @section_recordings.any? %>
+    <%= render "recording_studio_support/shared/link_list", items: @section_recordings.map { |recording|
+      {
+        title: support_recording_title(recording),
+        href: section_path(recording),
+        meta: support_page_count_badge(@page_counts.fetch(recording.id, 0))
+      }
+    } %>
+  <% elsif @query.present? %>
+    <%= render FlatPack::EmptyState::Component.new(
+      title: "Nothing matches that",
+      description: "Try another word."
+    ) %>
+  <% else %>
+    <%= render FlatPack::EmptyState::Component.new(
+      title: "Nothing here yet",
+      description: "Add a section to get going."
+    ) %>
+  <% end %>
+</div>

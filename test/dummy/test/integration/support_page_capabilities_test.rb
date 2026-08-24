@@ -18,32 +18,17 @@ class SupportPageCapabilitiesTest < ActiveSupport::TestCase
       Workspace.create!(name: "Support mixins #{SecureRandom.hex(4)}")
     )
     grant_admin!(@root_recording, @user)
-    @page_recording = @root_recording.record(RecordingStudioSupport::SupportPage) do |page|
-      page.title = "How do I attach a screenshot?"
-      page.body = "Add the picture under this article."
-    end
+    @section_recording = record_support_section(@root_recording)
+    @page_recording = record_support_page(
+      @root_recording,
+      @section_recording,
+      title: "How do I attach a screenshot?",
+      body: "Add the picture in the article."
+    )
   end
 
   teardown do
     Current.actor = nil
-  end
-
-  test "support page attaches an image child through import_attachment" do
-    attachment_recording = @page_recording.import_attachment(
-      io: StringIO.new(ONE_PIXEL_PNG),
-      filename: "sign-in.png",
-      content_type: "image/png",
-      actor: @user
-    )
-
-    assert_equal "RecordingStudioAttachable::Attachment", attachment_recording.recordable_type
-    assert_equal @page_recording, attachment_recording.parent_recording
-    assert_equal @root_recording, attachment_recording.root_recording
-    assert_equal "image", attachment_recording.recordable.attachment_kind
-    assert_equal "sign-in.png", attachment_recording.recordable.original_filename
-    assert attachment_recording.recordable.file.attached?
-    assert @page_recording.has_attachments?(kind: :images)
-    assert_equal [attachment_recording.id], @page_recording.images.map(&:id)
   end
 
   test "support page trash and restore go through trashable helpers" do
@@ -58,24 +43,6 @@ class SupportPageCapabilitiesTest < ActiveSupport::TestCase
     assert_nil @page_recording.trashed_at
     refute @page_recording.trash_root
     assert_equal 1, @page_recording.events.where(action: "restored").count
-  end
-
-  test "support page reorders image siblings through orderable helpers" do
-    first = import_png("first.png")
-    second = import_png("second.png")
-
-    @page_recording.recording_studio_orderable_reorder!(
-      ordered_recording_ids: [second.id, first.id],
-      actor: @user
-    )
-
-    ordered_ids = @page_recording.recording_studio_orderable_children.map(&:id)
-    assert_equal [second.id, first.id], ordered_ids
-    assert_equal 1, @page_recording.events.where(action: "reordered").count
-
-    @page_recording.recording_studio_orderable_move!(first, to_index: 0, actor: @user)
-
-    assert_equal [first.id, second.id], @page_recording.recording_studio_orderable_children.map(&:id)
   end
 
   test "folder and page do not get support mixins just because the gems are installed" do
@@ -93,6 +60,7 @@ class SupportPageCapabilitiesTest < ActiveSupport::TestCase
     refute RecordingStudio.capability_enabled?(:publishable, for: Folder)
     refute RecordingStudio.capability_enabled?(:publishable, for: Page)
     assert RecordingStudio.capability_enabled?(:publishable, for: RecordingStudioSupport::SupportPage)
+    refute RecordingStudio.capability_enabled?(:attachable, for: RecordingStudioSupport::SupportPage)
 
     error = assert_raises(RecordingStudio::CapabilityDisabled) do
       folder_recording.import_attachment(
@@ -111,15 +79,6 @@ class SupportPageCapabilitiesTest < ActiveSupport::TestCase
   end
 
   private
-
-  def import_png(filename)
-    @page_recording.import_attachment(
-      io: StringIO.new(ONE_PIXEL_PNG),
-      filename: filename,
-      content_type: "image/png",
-      actor: @user
-    )
-  end
 
   def grant_admin!(recording, actor)
     original = RecordingStudioAccessible.configuration.access_management_authorizer

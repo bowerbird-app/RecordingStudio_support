@@ -12,8 +12,12 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     assert_equal %w[AdminRoot Workspace], RecordingStudio.root_recordable_types.sort
     assert_equal %w[Workspace Folder], RecordingStudio.allowed_parent_types_for("Folder")
     assert_equal %w[Workspace Folder], RecordingStudio.allowed_parent_types_for(Page)
-    assert_equal ["Workspace"], RecordingStudio.allowed_parent_types_for("RecordingStudioSupport::SupportPage")
+    assert_equal ["RecordingStudioSupport::SupportSection"],
+                 RecordingStudio.allowed_parent_types_for("RecordingStudioSupport::SupportPage")
+    assert_equal ["Workspace"],
+                 RecordingStudio.allowed_parent_types_for("RecordingStudioSupport::SupportSection")
     assert_equal "Support page", RecordingStudio.recordable_type_label("RecordingStudioSupport::SupportPage")
+    assert_equal "Help section", RecordingStudio.recordable_type_label("RecordingStudioSupport::SupportSection")
     refute RecordingStudio.root_allowed?("RecordingStudioSupport::SupportPage")
   end
 
@@ -85,20 +89,44 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     assert_equal "Page cannot be recorded under Page", error.message
   end
 
-  test "support page can be recorded under the host workspace root" do
+  test "support section can be recorded under the host workspace root" do
     root_recording = RecordingStudio.root_recording_for(Workspace.create!(name: unique_name("Support Workspace")))
 
     assert RecordingStudio.parent_allowed?(
-      child_type: "RecordingStudioSupport::SupportPage",
+      child_type: "RecordingStudioSupport::SupportSection",
       parent_recording: root_recording
     )
 
-    recording = root_recording.record(RecordingStudioSupport::SupportPage) do |page|
+    recording = root_recording.record(RecordingStudioSupport::SupportSection) do |section|
+      section.title = unique_name("Getting started")
+    end
+
+    assert_equal root_recording, recording.parent_recording
+    assert_equal root_recording, recording.root_recording
+    assert_kind_of RecordingStudioSupport::SupportSection, recording.recordable
+    assert_equal "recording_studio_support_sections", recording.recordable.class.table_name
+  end
+
+  test "support page can be recorded under a support section" do
+    root_recording = RecordingStudio.root_recording_for(Workspace.create!(name: unique_name("Support Workspace")))
+    section_recording = root_recording.record(RecordingStudioSupport::SupportSection) do |section|
+      section.title = unique_name("Getting started")
+    end
+
+    assert RecordingStudio.parent_allowed?(
+      child_type: "RecordingStudioSupport::SupportPage",
+      parent_recording: section_recording
+    )
+
+    recording = root_recording.record(
+      RecordingStudioSupport::SupportPage,
+      parent_recording: section_recording
+    ) do |page|
       page.title = unique_name("How do I reset my password?")
       page.body = "Ask a teammate who already has access."
     end
 
-    assert_equal root_recording, recording.parent_recording
+    assert_equal section_recording, recording.parent_recording
     assert_equal root_recording, recording.root_recording
     assert_kind_of RecordingStudioSupport::SupportPage, recording.recordable
     assert_equal "recording_studio_support_pages", recording.recordable.class.table_name
@@ -114,31 +142,60 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     end
   end
 
-  test "support page cannot be recorded under a folder" do
+  test "support page cannot be recorded under a workspace" do
     workspace = Workspace.create!(name: unique_name("Support Parent Workspace"))
     root_recording = RecordingStudio.root_recording_for(workspace)
-    folder_recording = record_child(Folder.new(name: unique_name("Support Folder")), root_recording, root_recording)
 
     refute RecordingStudio.parent_allowed?(
       child_type: "RecordingStudioSupport::SupportPage",
-      parent_recording: folder_recording
+      parent_recording: root_recording
     )
 
     error = assert_raises(RecordingStudio::InvalidParent) do
-      root_recording.record(
-        RecordingStudioSupport::SupportPage,
-        parent_recording: folder_recording
-      ) do |page|
+      root_recording.record(RecordingStudioSupport::SupportPage) do |page|
         page.title = unique_name("Nested Support Page")
       end
     end
 
-    assert_equal "RecordingStudioSupport::SupportPage cannot be recorded under Folder", error.message
+    assert_equal "RecordingStudioSupport::SupportPage cannot be recorded under Workspace", error.message
+  end
+
+  test "support section cannot nest under another support section" do
+    workspace = Workspace.create!(name: unique_name("Nested Section Workspace"))
+    root_recording = RecordingStudio.root_recording_for(workspace)
+    section_recording = root_recording.record(RecordingStudioSupport::SupportSection) do |section|
+      section.title = unique_name("Getting started")
+    end
+
+    refute RecordingStudio.parent_allowed?(
+      child_type: "RecordingStudioSupport::SupportSection",
+      parent_recording: section_recording
+    )
+
+    error = assert_raises(RecordingStudio::InvalidParent) do
+      root_recording.record(
+        RecordingStudioSupport::SupportSection,
+        parent_recording: section_recording
+      ) do |section|
+        section.title = unique_name("Nested section")
+      end
+    end
+
+    assert_equal(
+      "RecordingStudioSupport::SupportSection cannot be recorded under RecordingStudioSupport::SupportSection",
+      error.message
+    )
   end
 
   test "support page revise creates a new snapshot" do
     root_recording = RecordingStudio.root_recording_for(Workspace.create!(name: unique_name("Revise Workspace")))
-    recording = root_recording.record(RecordingStudioSupport::SupportPage) do |page|
+    section_recording = root_recording.record(RecordingStudioSupport::SupportSection) do |section|
+      section.title = unique_name("Getting started")
+    end
+    recording = root_recording.record(
+      RecordingStudioSupport::SupportPage,
+      parent_recording: section_recording
+    ) do |page|
       page.title = unique_name("Office hours")
       page.body = "Tuesday mornings."
     end
@@ -163,8 +220,8 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     refute RecordingStudio.capability_enabled?(:accessible, for: "RecordingStudioSupport::SupportPage")
   end
 
-  test "attachable trashable orderable and publishable are enabled on support pages only" do
-    %i[attachable trashable orderable publishable].each do |capability|
+  test "trashable publishable and movable are enabled on support pages only" do
+    %i[trashable publishable movable].each do |capability|
       assert RecordingStudio.capability_enabled?(capability, for: "RecordingStudioSupport::SupportPage"),
              "#{capability} should be enabled on SupportPage"
       refute RecordingStudio.capability_enabled?(capability, for: "Workspace"),
@@ -175,14 +232,20 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
              "#{capability} should not be enabled on Page"
     end
 
+    refute RecordingStudio.capability_enabled?(:attachable, for: "RecordingStudioSupport::SupportPage")
+    refute RecordingStudio.capability_enabled?(:orderable, for: "RecordingStudioSupport::SupportPage")
+  end
+
+  test "support sections enable trashable and orderable only" do
+    assert RecordingStudio.capability_enabled?(:trashable, for: "RecordingStudioSupport::SupportSection")
+    assert RecordingStudio.capability_enabled?(:orderable, for: "RecordingStudioSupport::SupportSection")
+    refute RecordingStudio.capability_enabled?(:attachable, for: "RecordingStudioSupport::SupportSection")
+    refute RecordingStudio.capability_enabled?(:publishable, for: "RecordingStudioSupport::SupportSection")
+    refute RecordingStudio.capability_enabled?(:movable, for: "RecordingStudioSupport::SupportSection")
     assert_equal(
-      ["RecordingStudioAttachable::Attachment"],
-      RecordingStudio.capability_options(:orderable, for: "RecordingStudioSupport::SupportPage")[:allows]
+      ["RecordingStudioSupport::SupportPage"],
+      RecordingStudio.capability_options(:orderable, for: "RecordingStudioSupport::SupportSection")[:allows]
     )
-    assert_equal ["image/*"],
-                 RecordingStudio.capability_options(:attachable, for: "RecordingStudioSupport::SupportPage")[:allowed_content_types]
-    assert_equal %i[image],
-                 RecordingStudio.capability_options(:attachable, for: "RecordingStudioSupport::SupportPage")[:enabled_attachment_kinds]
   end
 
   test "publishable to options are registered on support pages only" do

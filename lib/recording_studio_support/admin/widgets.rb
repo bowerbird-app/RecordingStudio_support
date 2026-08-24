@@ -3,22 +3,12 @@
 module RecordingStudioSupport
   module Admin
     module Widgets
-      RECENT_PAGES = RecordingStudioAdmin::Widget.new("widgets.support.recent_pages") do
-        type :list
-        title "Latest pages"
-        info "Newest help pages first. Open the list to edit one."
-        list_options({ divider: true, hover: true, compact_preview: :text_summary })
-        items do |_context|
-          Queries.recent_page_recordings.map do |recording|
-            {
-              icon: :document_text,
-              text: recording.recordable&.title.presence || "Untitled page",
-              href: Queries.page_path(recording)
-            }
-          end
-        end
-        link_to { |context| context.admin_screen_path("help_pages") }
-        link_label "See every page"
+      PAGE_COUNT = RecordingStudioAdmin::Widget.new("widgets.support.page_count") do
+        type :number
+        title "Support pages"
+        value { Queries.kept_page_recordings.count }
+        hide_change
+        hide_period
       end
     end
   end

@@ -2,17 +2,6 @@
 
 module RecordingStudioSupport
   module ApplicationHelper
-    def support_page_image_url(image_recording)
-      file = image_recording.recordable&.file
-      return unless file&.attached?
-
-      Rails.application.routes.url_helpers.rails_blob_path(file, only_path: true)
-    end
-
-    def support_page_image_name(image_recording)
-      image_recording.recordable&.original_filename.presence || "Image"
-    end
-
     def support_page_body_html(body)
       Body.sanitize(body).html_safe
     end
@@ -52,6 +41,59 @@ module RecordingStudioSupport
       return main_app.public_help_path if respond_to?(:main_app) && main_app.respond_to?(:public_help_path)
 
       RecordingStudioSupport.configuration.public_pages_path
+    end
+
+    def support_public_section_path(recording)
+      if respond_to?(:main_app) && main_app.respond_to?(:public_help_section_path)
+        return main_app.public_help_section_path(recording)
+      end
+
+      "#{support_public_help_path}/sections/#{recording.id}"
+    end
+
+    def support_recording_title(recording)
+      return unless recording.respond_to?(:recordable)
+
+      recording.recordable&.title
+    end
+
+    def support_list_chevron
+      render FlatPack::Shared::IconComponent.new(name: "chevron-right", size: :md)
+    end
+
+    def support_page_count_label(page_count)
+      page_count.to_s
+    end
+
+    def support_page_count_badge(page_count)
+      render FlatPack::Badge::Component.new(
+        text: support_page_count_label(page_count),
+        style: :default,
+        size: :sm
+      )
+    end
+
+    def support_published_badge
+      render FlatPack::Badge::Component.new(text: "Published", style: :success, size: :sm)
+    end
+
+    def support_page_status_badge(recording)
+      if recording.respond_to?(:current_publishable) && recording.current_publishable
+        render RecordingStudioPublishable::StatusBadge::Component.new(
+          publishable: recording.current_publishable
+        )
+      else
+        render FlatPack::Badge::Component.new(text: "Draft", style: :info, size: :sm)
+      end
+    end
+
+    def support_section_options(section_recordings)
+      Array(section_recordings).filter_map do |recording|
+        title = support_recording_title(recording)
+        next if title.blank?
+
+        [title, recording.id]
+      end
     end
 
     private
