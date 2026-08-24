@@ -7,6 +7,71 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Staff Edit and New live on the Admin help-pages table (every page, draft or live). Workspace `/support` and owner preview stay for reading and publish preview
+- Edit and New still use the Support page controllers. Pages are found even when the current root is Admin, and staff with an admin-root grant can write. New pages still land under a workspace.
+- Dummy Sign out and Root Switchable stay off Admin Support screens as well as Support screens. Access can stay on Admin
+- Admin Support section keeps Latest pages and See every page. It drops the Help pages and Reads count cards
+- Admin help-pages table adds search (title and body) and Published/Draft through the Admin table DSL. It hides the default Table data heading and row count
+
+### Fixed
+- RuboCop method-length on help configuration and modifier-if on the public help path helper
+- Dummy `public_indexable` test uses unique titles so a seeded published sign-in page cannot double the result
+- Dummy `test:dummy` prepares the test schema only (`RAILS_ENV=test`), so `db:prepare` does not seed the suite
+- Admin table search test uses a unique title phrase so the seeded sign-in page body (“password”) cannot keep the row visible
+- Dummy layout-head test expects the Support/Admin prefix gate, not `ApplicationController` only
+- Dummy public and Admin help tests expect core layout `body[data-theme=rounded]`, not `html`
+
+### Upgrade notes
+- Open Edit and New from the Admin help-pages table. Take Edit off owner preview. Workspace `/support` stays for reading and publish preview
+- Do not add a second mutation stack. The table still opens `/support/new` and `/support/:id/edit`
+- Keep Sign out and Root Switchable off Support and Admin Support screens. Access can stay on Admin
+- Drop Help pages and Reads count cards from the Admin Support hub. Keep Latest pages and See every page. Do not replace those cards with another total of the same fact
+- Add search and Published/Draft on the Admin help-pages table with `table { filter ... }`. Hide the table heading and row count with the table DSL (`title` / `hide_count`). Do not add a custom search form or CSS hide
+
+## [0.6.0] - 2026-08-21
+
+Logged-out people can read live help pages. Drafts stay hidden. Staff publish through Publishable.
+
+### Added
+- Publishable on `SupportPage` only through `.to` (`public_controller`, `public_action`, `public_layout`, `path`)
+- Public help list at `/help` using `SupportPage.indexable`
+- Public show through Publishable at `/help/:uuid/:slug`, with last updated from `publish_at`
+- Staff draft preview on the authenticated show, plus a Publish button to Publishable's management screen
+- Dummy GitHub pin `recording_studio_publishable` tag `v0.2.0` and gemspec `~> 0.2`
+- Dummy seed publishes “How do I sign in?” and leaves “How do I change my password?” as a draft
+- Host-configurable help titles and subtitles on `RecordingStudioSupport.configure`
+- Public `/help` search of indexable pages (title + body ILIKE) with the same full-width Flatpack Search widget as staff
+
+### Changed
+- Dummy mounts Publishable at `/`
+- Public and staff help use Recording Studio's default layout (`UsesDefaultLayout` / `recording_studio/default_layout`). Publishable `public_layout` points there. Do not use `recording_studio_publishable/application`.
+- Support screens keep default-layout back/close only. Dummy Sign out and Root Switchable stay off those screens.
+- Staff and public help lists use `FlatPack::Search::Component` at `max_width: :none`
+
+### Upgrade notes
+- Add `recording_studio_publishable`, `~> 0.2` (dummy GitHub tag `v0.2.0`)
+- Run `bin/rails generate recording_studio_publishable:install` (or mount the engine at `/` and run its migrations)
+- Register `"RecordingStudioPublishable::Publishable"` in `RecordingStudio.configure`
+- Enable Publishable only on Support pages:
+
+```ruby
+include RecordingStudio::Capabilities::Publishable.to(
+  public_controller: "recording_studio_support/public_pages",
+  public_action: :show,
+  public_layout: "recording_studio/default_layout",
+  path: "/help/:uuid/:slug"
+)
+```
+
+- Point `/help` at `RecordingStudioSupport::PublicPagesController.action(:index)`
+- Use `SupportPage.indexable` / `indexable?` for public lists. Do not copy that logic
+- Keep public and staff screens on `UsesDefaultLayout`. Point Publishable `public_layout` at `recording_studio/default_layout`. Do not use Publishable's own application layout. Do not enable Publishable on Folder or Page just because the gem is installed
+- Set help copy on `RecordingStudioSupport.configure` (`help_title`, `help_subtitle`, `public_help_title`, `public_help_subtitle`, `admin_help_title`, `admin_help_subtitle`) if the defaults are not your words
+- Keep Sign out and Root Switchable off Support screens. Core owns back/close
+- Point public `/help?q=` at `Pages.public_indexable(query:)`. Do not add Elasticsearch or a new search gem
+- Do not add tickets, email, messaging, Embeddable, Users, Billing, Webhooks, Notifications, or `recording_studio_api` in this slice
+
 ## [0.5.0] - 2026-08-21
 
 Staff can write and read help pages, and open an Admin Support section. Still no public pages or Publishable.
@@ -134,7 +199,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.5.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.6.0...HEAD
+[0.6.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.6.0
 [0.5.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.5.0
 [0.4.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.4.0
 [0.3.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.3.0

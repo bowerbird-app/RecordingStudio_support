@@ -34,7 +34,9 @@ class InstallGeneratorTest < Minitest::Test
       generator.mount_engine
     end
 
-    assert_equal ["mount RecordingStudioSupport::Engine, at: \"/addons/recording\""], routes
+    assert_includes routes, "mount RecordingStudioSupport::Engine, at: \"/addons/recording\""
+    assert_includes routes, "mount RecordingStudioPublishable::Engine, at: \"/\""
+    assert_includes routes, public_help_route
   end
 
   def test_mount_engine_defaults_to_support
@@ -45,7 +47,9 @@ class InstallGeneratorTest < Minitest::Test
       generator.mount_engine
     end
 
-    assert_equal ["mount RecordingStudioSupport::Engine, at: \"/support\""], routes
+    assert_includes routes, "mount RecordingStudioSupport::Engine, at: \"/support\""
+    assert_includes routes, "mount RecordingStudioPublishable::Engine, at: \"/\""
+    assert_includes routes, public_help_route
   end
 
   def test_enable_admin_support_section_injects_section_on_admin_root
@@ -177,11 +181,12 @@ class InstallGeneratorTest < Minitest::Test
     assert_includes install_guide, "Authenticated Support screens"
     assert_includes install_guide, "section :support"
     assert_includes install_guide, "recording_studio_admin_for"
-    assert_includes install_guide, "pages_title"
+    assert_includes install_guide, "help_title"
     assert_includes install_guide, "controllers/flat_pack/tiptap_controller"
     assert_includes install_guide, "flat-pack--tiptap"
     assert_includes install_guide, "Do not add Trix or Action Text"
-    refute_includes install_guide, "publish routes"
+    assert_includes install_guide, "recording_studio_publishable:install"
+    assert_includes install_guide, "PublicPagesController"
     refute_includes install_guide, "RecordingStudio v3"
   end
 
@@ -197,6 +202,10 @@ class InstallGeneratorTest < Minitest::Test
     tailwind_source_lines.each do |line|
       assert_equal count, css.scan(line).size
     end
+  end
+
+  def public_help_route
+    'get "/help", to: RecordingStudioSupport::PublicPagesController.action(:index), as: :public_help'
   end
 
   def tailwind_source_lines

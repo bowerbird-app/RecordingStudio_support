@@ -81,7 +81,66 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
     assert_empty titles.call("no-such-help-page")
   end
 
+  test "find_kept finds a page without the current root" do
+    recording = RecordingStudioSupport::Pages.create!(
+      root_recording: @root_recording,
+      title: "Office Wi-Fi",
+      body: "Ask the front desk.",
+      actor: @user
+    )
+
+    found = RecordingStudioSupport::Pages.find_kept!(id: recording.id)
+    admin_root = RecordingStudio.root_recording_for(AdminRoot.find_or_create_by!(name: "Admin"))
+
+    assert_equal recording.id, found.id
+    refute RecordingStudioSupport::Pages.allowed_parent_root?(admin_root)
+    assert RecordingStudioSupport::Pages.allowed_parent_root?(@root_recording)
+    assert RecordingStudioSupport::Pages.allowed_parent_root?(
+      RecordingStudioSupport::Pages.parent_root_for(admin_root)
+    )
+  end
+
+  test "public_indexable uses Publishable indexable and hides drafts" do
+    token = SecureRandom.hex(4)
+    live = RecordingStudioSupport::Pages.create!(
+      root_recording: @root_recording,
+      title: "Live help #{token}",
+      body: "Use the live token #{token}.",
+      actor: @user
+    )
+    draft = RecordingStudioSupport::Pages.create!(
+      root_recording: @root_recording,
+      title: "Draft help #{token}",
+      body: "Hidden draft token #{token}-draft.",
+      actor: @user
+    )
+
+    publish!(live, slug: "live-help-#{token}", status: "published")
+    publish!(draft, slug: "draft-help-#{token}", status: "draft")
+
+    titles = RecordingStudioSupport::Pages.public_indexable.map(&:title)
+
+    assert_includes titles, "Live help #{token}"
+    refute_includes titles, "Draft help #{token}"
+    assert_equal(
+      [live.recordable.id],
+      RecordingStudioSupport::Pages.public_indexable(query: "Live help #{token}").map(&:id)
+    )
+    assert_empty RecordingStudioSupport::Pages.public_indexable(query: "#{token}-draft")
+    assert live.recordable.indexable?
+    refute draft.recordable.indexable?
+  end
+
   private
+
+  def publish!(page_recording, slug:, status:)
+    result = RecordingStudioPublishable::Services::Publishables::Update.call(
+      parent_recording: page_recording,
+      actor: @user,
+      attributes: { slug: slug, status: status }
+    )
+    raise result.error if result.failure?
+  end
 
   def grant_admin!(recording, actor)
     original = RecordingStudioAccessible.configuration.access_management_authorizer

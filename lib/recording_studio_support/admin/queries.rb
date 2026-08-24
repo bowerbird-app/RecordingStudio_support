@@ -16,19 +16,49 @@ module RecordingStudioSupport
         kept_page_recordings.includes(:recordable).order(created_at: :desc).limit(limit)
       end
 
-      def page_count
-        kept_page_recordings.count
-      end
-
-      def page_view_count
-        return 0 unless defined?(PageView) && PageView.table_exists?
-
-        PageView.count
-      end
-
       def page_path(recording)
-        prefix = RecordingStudioSupport.configuration.pages_path.to_s.chomp("/")
-        "#{prefix}/#{recording.id}"
+        "#{pages_prefix}/#{recording.id}"
+      end
+
+      def edit_page_path(recording)
+        "#{page_path(recording)}/edit"
+      end
+
+      def new_page_path
+        "#{pages_prefix}/new"
+      end
+
+      def page_status(recording)
+        if recording.respond_to?(:currently_published?) && recording.currently_published?
+          "Published"
+        else
+          "Draft"
+        end
+      end
+
+      def page_status_badge_style(status)
+        status.to_s == "Published" ? :success : :info
+      end
+
+      def search_page_recordings(relation, value)
+        Pages.apply_query(relation, value)
+      end
+
+      def filter_page_recordings_by_status(relation, value)
+        published_ids = SupportPage.published.select(:id)
+
+        case value.to_s
+        when "Published"
+          relation.where(recordable_id: published_ids)
+        when "Draft"
+          relation.where.not(recordable_id: published_ids)
+        else
+          relation
+        end
+      end
+
+      def pages_prefix
+        RecordingStudioSupport.configuration.pages_path.to_s.chomp("/")
       end
     end
   end

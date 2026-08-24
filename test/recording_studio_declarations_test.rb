@@ -163,8 +163,8 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     refute RecordingStudio.capability_enabled?(:accessible, for: "RecordingStudioSupport::SupportPage")
   end
 
-  test "attachable trashable and orderable are enabled on support pages only" do
-    %i[attachable trashable orderable].each do |capability|
+  test "attachable trashable orderable and publishable are enabled on support pages only" do
+    %i[attachable trashable orderable publishable].each do |capability|
       assert RecordingStudio.capability_enabled?(capability, for: "RecordingStudioSupport::SupportPage"),
              "#{capability} should be enabled on SupportPage"
       refute RecordingStudio.capability_enabled?(capability, for: "Workspace"),
@@ -183,6 +183,17 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
                  RecordingStudio.capability_options(:attachable, for: "RecordingStudioSupport::SupportPage")[:allowed_content_types]
     assert_equal %i[image],
                  RecordingStudio.capability_options(:attachable, for: "RecordingStudioSupport::SupportPage")[:enabled_attachment_kinds]
+  end
+
+  test "publishable to options are registered on support pages only" do
+    publishable_options = RecordingStudio.capability_options(
+      :publishable,
+      for: "RecordingStudioSupport::SupportPage"
+    )
+    assert_equal "recording_studio_support/public_pages", publishable_options[:public_controller]
+    assert_equal :show, publishable_options[:public_action]
+    assert_equal "recording_studio/default_layout", publishable_options[:public_layout]
+    assert_equal "/help/:uuid/:slug", publishable_options[:path]
   end
 
   private

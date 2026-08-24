@@ -90,6 +90,9 @@ class SupportPageCapabilitiesTest < ActiveSupport::TestCase
     refute RecordingStudio.capability_enabled?(:attachable, for: Page)
     refute RecordingStudio.capability_enabled?(:trashable, for: Page)
     refute RecordingStudio.capability_enabled?(:orderable, for: Page)
+    refute RecordingStudio.capability_enabled?(:publishable, for: Folder)
+    refute RecordingStudio.capability_enabled?(:publishable, for: Page)
+    assert RecordingStudio.capability_enabled?(:publishable, for: RecordingStudioSupport::SupportPage)
 
     error = assert_raises(RecordingStudio::CapabilityDisabled) do
       folder_recording.import_attachment(

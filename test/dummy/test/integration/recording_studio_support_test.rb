@@ -32,6 +32,7 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert connection.table_exists?(:recording_studio_attachable_attachments)
     assert connection.table_exists?(:active_storage_blobs)
     assert connection.table_exists?(:recording_studio_trashable_retention_settings)
+    assert connection.table_exists?(:recording_studio_publishable_publishables)
     assert connection.column_exists?(:recording_studio_recordings, :trash_root)
     assert connection.column_exists?(:recording_studio_recordings, :recording_studio_orderable_position)
     refute connection.table_exists?(:recording_studio_access_boundaries)
@@ -76,6 +77,10 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert_equal 1, AdminRoot.count
     assert_operator RecordingStudioSupport::SupportPage.count, :>=, 2
     assert support_page_recording.images.any?
+    assert sign_in_page.indexable?
+    refute password_page.indexable?
+    assert support_page_recording.currently_published?
+    refute password_page_recording.currently_published?
     assert_operator RecordingStudioSupport::PageView.count, :>=, 1
     assert_equal :admin, RecordingStudioAccessible.role_for(
       actor: User.find_by!(email: "admin@admin.com"),
@@ -112,12 +117,15 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert RecordingStudio.capability_enabled?(:attachable, for: RecordingStudioSupport::SupportPage)
     assert RecordingStudio.capability_enabled?(:trashable, for: RecordingStudioSupport::SupportPage)
     assert RecordingStudio.capability_enabled?(:orderable, for: RecordingStudioSupport::SupportPage)
+    assert RecordingStudio.capability_enabled?(:publishable, for: RecordingStudioSupport::SupportPage)
     refute RecordingStudio.capability_enabled?(:attachable, for: Folder)
     refute RecordingStudio.capability_enabled?(:trashable, for: Folder)
     refute RecordingStudio.capability_enabled?(:orderable, for: Folder)
     refute RecordingStudio.capability_enabled?(:attachable, for: Page)
     refute RecordingStudio.capability_enabled?(:trashable, for: Page)
     refute RecordingStudio.capability_enabled?(:orderable, for: Page)
+    refute RecordingStudio.capability_enabled?(:publishable, for: Folder)
+    refute RecordingStudio.capability_enabled?(:publishable, for: Page)
     assert_includes ApplicationController.ancestors, RecordingStudio::UsesDefaultLayout
   end
 end

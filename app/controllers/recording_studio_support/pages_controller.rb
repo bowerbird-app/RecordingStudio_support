@@ -24,7 +24,7 @@ module RecordingStudioSupport
 
     def create
       @page_recording = Pages.create!(
-        root_recording: current_support_root_recording,
+        root_recording: page_parent_root_recording,
         **page_write_attrs
       )
       redirect_to page_path(@page_recording), notice: "Saved. That should help someone."
@@ -51,10 +51,7 @@ module RecordingStudioSupport
     private
 
     def set_page_recording
-      @page_recording = Pages.find_for_root!(
-        root_recording: current_support_root_recording,
-        id: params[:id]
-      )
+      @page_recording = Pages.find_kept!(id: params[:id])
     rescue ActiveRecord::RecordNotFound
       head :not_found
     end

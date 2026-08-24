@@ -1,5 +1,59 @@
 # Upgrade notes
 
+## Unreleased
+
+Staff edit help pages from the Admin help-pages table.
+
+### Host app
+
+1. Keep the existing Admin Support section. The child screen at `/admin/screens/help_pages` is the table of every page (draft and live).
+2. Open Edit and New from that table. Those buttons still hit the Support page controllers (`/support/new`, `/support/:id/edit`). Do not add a second mutation stack. Writes still go through `record` / `revise`.
+3. Take Edit off owner preview. Workspace `/support` stays for reading and publish preview.
+4. Keep Sign out and Root Switchable off Support and Admin Support screens. Access can stay on Admin.
+5. Staff with Accessible access on the admin root can edit from the table even when the current root is Admin. New pages still belong under a workspace.
+
+### Verify
+
+```bash
+bundle install
+BUNDLE_GEMFILE=test/dummy/Gemfile bundle install
+bundle exec rake test:all
+```
+
+## 0.6.0
+
+Public help pages through Publishable 0.2.
+
+- Recording Studio `~> 4.2` (dummy GitHub tag `v4.2.0`)
+- Accessible `~> 0.6` (dummy GitHub tag `v0.6.1`)
+- Admin `~> 2.0` (dummy GitHub tag `2.0.0`)
+- Attachable `~> 0.4` (dummy GitHub tag `0.4.0`)
+- Trashable `~> 0.4` (dummy GitHub tag `0.4.0`)
+- Orderable `~> 0.2` (dummy GitHub tag `0.2.0`)
+- Publishable `~> 0.2` (dummy GitHub tag `v0.2.0`)
+
+### Host app
+
+1. Add Publishable 0.2 next to Support. Follow the Publishable 0.2 README.
+2. Run `bin/rails generate recording_studio_publishable:install` (mount at `/` and install migrations).
+3. Register `"RecordingStudioPublishable::Publishable"` next to `"RecordingStudioSupport::SupportPage"`.
+4. Enable Publishable only on Support pages with `.to`. Set `public_layout` to `recording_studio/default_layout` (Publishable's own default is a second shell).
+5. Point `/help` at `RecordingStudioSupport::PublicPagesController.action(:index)`.
+6. Use `SupportPage.indexable` for the public list. Staff still manage pages at `/support`.
+7. Keep writes on `record` / `revise` and Publishable's Update helper. Do not insert Recording rows by hand.
+8. Set help titles on `RecordingStudioSupport.configure` if you do not want the defaults. Support screens keep default-layout back/close only.
+9. Public `/help?q=` searches indexable pages with the same Flatpack Search widget as staff. Do not add Elasticsearch.
+
+Do not enable Publishable on Folder or Page just because the gem is installed. Do not use `recording_studio_publishable/application`. Do not invent a Support-only public shell.
+
+### Verify
+
+```bash
+bundle install
+BUNDLE_GEMFILE=test/dummy/Gemfile bundle install
+bundle exec rake test:all
+```
+
 ## 0.5.0
 
 Authenticated help screens and an Admin Support section.

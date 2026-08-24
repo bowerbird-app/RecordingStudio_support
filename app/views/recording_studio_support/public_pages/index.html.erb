@@ -1,17 +1,17 @@
 <% recording_studio_page_nav(
-     title: support_help_title,
+     title: support_public_help_title,
      page_nav_anchor_url: (main_app.root_path if main_app.respond_to?(:root_path)),
      page_nav_anchor_label: "Close"
    ) %>
 
 <div class="flex w-full flex-col gap-6">
   <%= render FlatPack::PageTitle::Component.new(
-    title: support_help_title,
-    subtitle: support_help_subtitle,
+    title: support_public_help_title,
+    subtitle: support_public_help_subtitle,
     variant: :h1
   ) %>
 
-  <%= form_with url: pages_path, method: :get, html: { role: "search", class: "w-full" } do %>
+  <%= form_with url: support_public_help_path, method: :get, html: { role: "search", class: "w-full" } do %>
     <%= render FlatPack::Search::Component.new(
       name: "q",
       value: @query,
@@ -21,29 +21,22 @@
     ) %>
   <% end %>
 
-  <% if @page_recordings.any? %>
+  <% if @pages.any? %>
     <div class="flex flex-col gap-3">
-      <% @page_recordings.each do |recording| %>
+      <% @pages.each do |page| %>
+        <% href = page.published_url %>
+        <% next if href.blank? %>
         <%= render FlatPack::Card::Component.new(style: :outlined) do |card| %>
           <% card.body(class: "flex flex-wrap items-center justify-between gap-3") do %>
-            <div class="flex flex-wrap items-center gap-2">
-              <%= render FlatPack::SectionTitle::Component.new(
-                title: recording.recordable.title,
-                subtitle: nil
-              ) %>
-              <% if recording.respond_to?(:current_publishable) && recording.current_publishable %>
-                <%= render RecordingStudioPublishable::StatusBadge::Component.new(
-                  publishable: recording.current_publishable
-                ) %>
-              <% else %>
-                <%= render FlatPack::Badge::Component.new(text: "Draft", style: :info, size: :sm) %>
-              <% end %>
-            </div>
+            <%= render FlatPack::SectionTitle::Component.new(
+              title: page.title,
+              subtitle: nil
+            ) %>
             <%= render FlatPack::Button::Component.new(
-              text: "Open",
+              text: "Read",
               style: :secondary,
               size: :md,
-              href: page_path(recording)
+              href: href
             ) %>
           <% end %>
         <% end %>
@@ -62,8 +55,8 @@
     <%= render FlatPack::Card::Component.new(style: :outlined) do |card| %>
       <% card.body do %>
         <%= render FlatPack::SectionTitle::Component.new(
-          title: "Nothing here yet",
-          subtitle: "Add a page to get going."
+          title: "Nothing live yet",
+          subtitle: "Check back soon."
         ) %>
       <% end %>
     <% end %>

@@ -5,7 +5,7 @@
 - This repository is Recording Studio Support: staff write help pages, people help themselves.
 - Preserve engine namespace isolation under `RecordingStudioSupport`.
 - Treat `docs/gem_template/` as architectural reference material. The public README is the product. The dummy app is a host that proves the gem.
-- Keep changes small and scoped. Support pages opt into Attachable, Trashable, and Orderable. Authenticated Support UI and Admin Support ship in this slice. Public pages, Publishable, public search, and API do not. Authenticated `/support` can filter pages with an ILIKE query.
+- Keep changes small and scoped. Support pages opt into Attachable, Trashable, Orderable, and Publishable. Authenticated Support UI, Admin Support, and public read of live pages ship in this slice. Public search, tickets, and API do not. Authenticated `/support` can filter pages with an ILIKE query. Public `/help` lists `SupportPage.indexable` only.
 
 ## UI Conventions
 
@@ -17,7 +17,7 @@
 
 - The standard root validation command is `bundle exec rake test:all` from the repository root.
 - If a change affects dummy app boot, assets, or migrations, also validate the dummy app setup the same way CI does.
-- Cover Support page declaration, root rejection, parent rejection, image attach, trash/restore, sibling reorder, authenticated screens, Accessible denial, and Admin Support enablement in Minitest. Folder and Page must not inherit those mixins just because the gems are installed.
+- Cover Support page declaration, root rejection, parent rejection, image attach, trash/restore, sibling reorder, publish/indexable, authenticated screens, public logged-out read, Accessible denial, and Admin Support enablement in Minitest. Folder and Page must not inherit those mixins just because the gems are installed.
 
 ## Repo Conventions
 

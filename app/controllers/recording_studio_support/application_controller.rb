@@ -6,6 +6,8 @@ module RecordingStudioSupport
 
     helper_method :current_support_actor, :can_edit_support_pages?
 
+    ResolverContext = Struct.new(:controller)
+
     private
 
     def current_support_actor
@@ -38,14 +40,36 @@ module RecordingStudioSupport
 
     def support_access_allowed?(role)
       actor = current_support_actor
-      recording = current_support_root_recording
-      return false if actor.blank? || recording.blank?
+      return false if actor.blank?
 
-      RecordingStudioAccessible.authorized?(
-        actor: actor,
-        recording: recording,
-        role: role
-      )
+      recordings_for_support_authorization.any? do |recording|
+        RecordingStudioAccessible.authorized?(
+          actor: actor,
+          recording: recording,
+          role: role
+        )
+      end
+    end
+
+    def recordings_for_support_authorization
+      [
+        @page_recording&.root_recording,
+        current_support_root_recording,
+        admin_access_recording
+      ].compact.uniq
+    end
+
+    def admin_access_recording
+      return unless defined?(RecordingStudioAdmin)
+
+      resolver = RecordingStudioAdmin.configuration.access_recording_resolver
+      return unless resolver
+
+      resolver.call(ResolverContext.new(self))
+    end
+
+    def page_parent_root_recording
+      Pages.parent_root_for(current_support_root_recording)
     end
   end
 end

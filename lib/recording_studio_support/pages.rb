@@ -1,7 +1,11 @@
 # frozen_string_literal: true
 
+require_relative "pages/lookups"
+
 module RecordingStudioSupport
   module Pages
+    extend Lookups
+
     module_function
 
     SUPPORT_PAGE_TYPE = "RecordingStudioSupport::SupportPage"
@@ -11,6 +15,10 @@ module RecordingStudioSupport
 
       relation = kept_pages(root_recording).order(created_at: :desc)
       apply_query(relation, query).preload(:recordable)
+    end
+
+    def public_indexable(query: nil)
+      apply_page_query(SupportPage.indexable, query).distinct.order(:title)
     end
 
     def find_for_root!(root_recording:, id:)
@@ -53,11 +61,26 @@ module RecordingStudioSupport
       term = query.to_s.strip
       return relation if term.blank?
 
-      pattern = "%#{ActiveRecord::Base.sanitize_sql_like(term)}%"
+      pattern = page_query_pattern(term)
       relation.joins(support_page_join_sql).where(
         "recording_studio_support_pages.title ILIKE :q OR recording_studio_support_pages.body ILIKE :q",
         q: pattern
       )
+    end
+
+    def apply_page_query(relation, query)
+      term = query.to_s.strip
+      return relation if term.blank?
+
+      table = SupportPage.table_name
+      relation.where(
+        "#{table}.title ILIKE :q OR #{table}.body ILIKE :q",
+        q: page_query_pattern(term)
+      )
+    end
+
+    def page_query_pattern(term)
+      "%#{ActiveRecord::Base.sanitize_sql_like(term)}%"
     end
 
     def support_page_join_sql

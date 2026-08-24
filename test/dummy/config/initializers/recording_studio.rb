@@ -7,7 +7,8 @@ RecordingStudio.configure do |config|
     "Page",
     "AdminRoot",
     "RecordingStudioSupport::SupportPage",
-    "RecordingStudioAttachable::Attachment"
+    "RecordingStudioAttachable::Attachment",
+    "RecordingStudioPublishable::Publishable"
   ]
 
   config.require_recordable_declarations = true

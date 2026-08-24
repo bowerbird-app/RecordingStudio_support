@@ -18,6 +18,8 @@ module RecordingStudioSupport
 
       def mount_engine
         route %(mount RecordingStudioSupport::Engine, at: "#{options[:mount_path]}")
+        route %(mount RecordingStudioPublishable::Engine, at: "/")
+        route %(get "/help", to: RecordingStudioSupport::PublicPagesController.action(:index), as: :public_help)
       end
 
       def copy_initializer

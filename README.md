@@ -2,11 +2,11 @@
 
 Staff write help pages. People help themselves. No tickets, no inbox, no chat.
 
-Support pages sit under your workspace as a flat list. Each page has a title and a body. A page can hold images, go to trash, and sort those images. Staff use authenticated screens at `/support`, including a full-width search box on the help list. An Admin Support section shows page counts, recent pages, and reads. This gem does not ship public pages, Publishable, public search, or an API yet.
+Support pages sit under your workspace as a flat list. Each page has a title and a body. A page can hold images, go to trash, and sort those images. Staff read and preview pages at `/support`, including a full-width search box on the help list. Logged-out visitors read live pages at `/help`. Drafts stay hidden. An Admin Support section is the hub. Staff open its help-pages table to see every page (draft and live) and to Edit or add New. Workspace `/support` is for reading and publish preview. This gem does not ship tickets, email, messaging, or an API.
 
 ## Install
 
-Add the gem next to Recording Studio 4.2, Accessible, Admin 2.0, and the mixin gems Support pages use. GitHub hosting is not a reason to skip the gemspec pins.
+Add the gem next to Recording Studio 4.2, Accessible, Admin 2.0, Publishable 0.2, and the mixin gems Support pages use. GitHub hosting is not a reason to skip the gemspec pins.
 
 ```ruby
 # Gemfile
@@ -16,6 +16,7 @@ gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "0.4.0"
 gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "0.4.0"
 gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderable", tag: "0.2.0"
+gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.2.0"
 gem "recording_studio_support", github: "bowerbird-app/RecordingStudio_support"
 ```
 
@@ -27,6 +28,7 @@ gem "recording_studio_admin", "~> 2.0"
 gem "recording_studio_attachable", "~> 0.4"
 gem "recording_studio_trashable", "~> 0.4"
 gem "recording_studio_orderable", "~> 0.2"
+gem "recording_studio_publishable", "~> 0.2"
 ```
 
 Then:
@@ -38,23 +40,25 @@ bin/rails generate recording_studio_support:migrations
 bin/rails generate recording_studio_attachable:migrations
 bin/rails generate recording_studio_trashable:migrations
 bin/rails generate recording_studio_orderable:migrations
+bin/rails generate recording_studio_publishable:install
 bin/rails db:migrate
 ```
 
 Install Active Storage if the host does not already have it. Images live as Attachable children, not in the page body.
 
-The install generator mounts authenticated Support screens at `/support` and, when an `AdminRoot` model is present, enables `section :support`.
+The install generator mounts authenticated Support screens at `/support`, public help at `/help`, and Publishable at `/`. When an `AdminRoot` model is present, it enables `section :support`.
 
 ## Support pages
 
-Register the type next to your host root. Dummy uses `Workspace`. Attachable registers its own image child type. Dummy also registers `AdminRoot` for staff admin.
+Register the type next to your host root and the Publishable child. Dummy uses `Workspace`. Attachable registers its own image child type. Dummy also registers `AdminRoot` for staff admin.
 
 ```ruby
 RecordingStudio.configure do |config|
   config.recordable_types = [
     "Workspace",
     "AdminRoot",
-    "RecordingStudioSupport::SupportPage"
+    "RecordingStudioSupport::SupportPage",
+    "RecordingStudioPublishable::Publishable"
   ]
   config.require_recordable_declarations = true
 end
@@ -75,9 +79,15 @@ include RecordingStudio::Capabilities::Trashable.to
 include RecordingStudio::Capabilities::Orderable.to(
   allows: ["RecordingStudioAttachable::Attachment"]
 )
+include RecordingStudio::Capabilities::Publishable.to(
+  public_controller: "recording_studio_support/public_pages",
+  public_action: :show,
+  public_layout: "recording_studio/default_layout",
+  path: "/help/:uuid/:slug"
+)
 ```
 
-Create and change pages with public helpers. Do not insert Recording or Event rows by hand.
+Create and change pages with public helpers. Publish with Publishable's Update helper. Do not insert Recording or Event rows by hand.
 
 ```ruby
 root = RecordingStudio.root_recording_for(workspace)
@@ -90,43 +100,56 @@ root.revise(page_recording) do |page|
   page.body = "Still stuck? Ask a teammate who already has access."
 end
 
+RecordingStudioPublishable::Services::Publishables::Update.call(
+  parent_recording: page_recording,
+  actor: current_user,
+  attributes: { slug: "how-do-i-sign-in", status: "published" }
+)
+
 page_recording.import_attachment(
   io: image_file,
   filename: "sign-in.png",
   content_type: "image/png",
   actor: current_user
 )
-
-page_recording.recording_studio_orderable_reorder!(
-  ordered_recording_ids: page_recording.recording_studio_orderable_children.map(&:id),
-  actor: current_user
-)
-
-page_recording.recording_studio_trashable_trash!(actor: current_user)
-page_recording.recording_studio_trashable_restore!(actor: current_user)
 ```
 
-Authenticated screens call the same helpers. Access uses `grant_access` / `authorized?` on the workspace root (`:view` to read, `:edit` to write). This gem does not invent its own ACL.
+Authenticated screens call the same helpers. Access uses `grant_access` / `authorized?` on the workspace root (`:view` to read, `:edit` to write). Public read uses Publishable `indexable` / `indexable?`. This gem does not invent its own ACL.
 
-Mount the screens and keep them on Recording Studio's default layout:
+Mount the screens. Public and staff help both use Recording Studio's default layout:
 
 ```ruby
 mount RecordingStudioSupport::Engine, at: "/support"
+mount RecordingStudioPublishable::Engine, at: "/"
+get "/help", to: RecordingStudioSupport::PublicPagesController.action(:index), as: :public_help
 ```
 
-Hosts can change the Help words:
+Page reads are logs (`recording_studio_support_page_views`), not extra pages in the tree.
+
+## Public help
+
+Logged-out people can read live pages. Drafts 404.
+
+The public list is `SupportPage.indexable` — currently published, not hidden from search, with a public URL. Do not copy that logic. Public `/help?q=` and staff `/support?q=` both ILIKE title and body. Public search stays on indexable pages. Both lists use Flatpack Search at full width (`max_width: :none`). Public and staff help use Recording Studio's default layout (`UsesDefaultLayout` / `recording_studio/default_layout`). Point Publishable `public_layout` at that layout. Do not use `recording_studio_publishable/application`.
+
+Help titles come from `RecordingStudioSupport.configure`. Defaults stay “Help” / “Answers you can share.” for staff, “Answers you can read.” for public, and “Pages people use when they get stuck.” for the admin section.
 
 ```ruby
 RecordingStudioSupport.configure do |config|
   config.pages_path = "/support"
-  config.pages_title = "Help"
-  config.pages_subtitle = "Answers you can share."
-  config.admin_section_title = "Help"
-  config.admin_section_subtitle = "Pages people use when they get stuck."
+  config.public_pages_path = "/help"
+  config.help_title = "Help"
+  config.help_subtitle = "Answers you can share."
+  config.public_help_title = "Help"
+  config.public_help_subtitle = "Answers you can read."
+  config.admin_help_title = "Help"
+  config.admin_help_subtitle = "Pages people use when they get stuck."
 end
 ```
 
-Page reads are logs (`recording_studio_support_page_views`), not extra pages in the tree.
+Public show is Publishable's published route (`/help/:uuid/:slug`). It renders Support's public page template. Last updated comes from the publishable `publish_at` time.
+
+Staff preview unpublished pages on the authenticated show. That is the same staff screen, not a second preview app.
 
 ## Admin Support
 
@@ -154,13 +177,15 @@ RecordingStudioAccessible.bootstrap_owner_access!(
 )
 ```
 
-The section shows how many help pages you have, the latest pages, and how many times those pages were opened. Draft preview is the authenticated show — everything stays unpublished until Publishable exists.
+The section is a hub: latest pages, plus **See every page**. It does not show vanity totals. The help-pages screen is the job — a Flatpack table of every page, draft or live, with search, Published/Draft, **Edit** on each row, and **New** at the top. Those buttons open the existing Support page forms (`/support/new`, `/support/:id/edit`). The table skips the default “Table data” heading and row count. Workspace `/support` and owner preview stay for reading and publish preview. Do not put Edit on the owner preview.
 
 ## Dummy host
 
 `test/dummy/` is a host that proves the gem. It is not the product.
 
-Authenticated dummy pages use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Dummy does not copy that layout. Support screens stay back/close only — no Sign out, Root Switchable, or login CTA. Dummy home and Admin can still show Sign out next to the workspace switcher. Devise sign-in keeps `layouts/application` (`html data-theme="rounded"`). Core puts `rounded` on `<body>`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`); dummy Stimulus registers `flat-pack--tiptap` on first paint.
+Dummy help pages — public and staff — use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Dummy does not copy that layout. Support screens and Admin Support screens keep that chrome only. Dummy Sign out and Root Switchable stay on dummy host pages, not on `/support`, `/help`, or `/admin`. Access can stay on Admin. Do not put a login button there. Devise sign-in keeps `layouts/application` (`html data-theme="rounded"`). Core puts `rounded` on `<body>`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`); dummy Stimulus registers `flat-pack--tiptap` on first paint.
+
+Public and staff help use core’s default layout, so `rounded` lands on `<body>`.
 
 | Field    | Value           |
 |----------|-----------------|
@@ -177,6 +202,7 @@ Dummy kit pins:
 | Attachable | `0.4.0` |
 | Trashable | `0.4.0` |
 | Orderable | `0.2.0` |
+| Publishable | `v0.2.0` |
 | Root Switchable | `v0.5.0` |
 | FlatPack | `v0.1.133` |
 
@@ -186,7 +212,9 @@ bin/rails db:setup
 bin/dev
 ```
 
-Then open `/support` for help pages. Search the list with `?q=`. For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root.
+Then open `/help` without signing in, or `/support` after you sign in. Search the staff list with `?q=`. Dummy uses Flatpack's built-in `rounded` theme (login on `<html>`, core layout on `<body>`). For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root. Edit and New live on the Admin help-pages table, not on owner preview.
+
+Seeds two help pages: **How do I sign in?** is live, **How do I change my password?** stays a draft.
 
 ## Engine internals
 
