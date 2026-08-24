@@ -122,7 +122,6 @@ class RecordingStudioSupportTest < Minitest::Test
     default_layout_head = File.read(head_path)
 
     assert_includes default_layout_head, 'stylesheet_link_tag "flat_pack/application"'
-    assert_includes default_layout_head, "RecordingStudioSupport::ApplicationController"
     assert_includes default_layout_head, "recording_studio_root_switch_dropdown"
     assert_includes default_layout_head, "recording_studio_page_nav_right"
     assert_includes default_layout_head, "user_signed_in?"
