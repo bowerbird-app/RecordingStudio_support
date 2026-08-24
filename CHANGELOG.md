@@ -19,6 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Dummy `public_indexable` test uses unique titles so a seeded published sign-in page cannot double the result
 - Dummy `test:dummy` prepares the test schema only (`RAILS_ENV=test`), so `db:prepare` does not seed the suite
 - Admin table search test uses a unique title phrase so the seeded sign-in page body (“password”) cannot keep the row visible
+- Dummy layout-head test expects the Support/Admin prefix gate, not `ApplicationController` only
 
 ### Upgrade notes
 - Open Edit and New from the Admin help-pages table. Take Edit off owner preview. Workspace `/support` stays for reading and publish preview
