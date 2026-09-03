@@ -25,7 +25,7 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "flat-pack-page-nav"
     refute_includes response.body, "Studio Workspace"
     assert_includes response.body, "flat_pack/application"
-    assert_select "body[data-theme='rounded']"
+    assert_flatpack_rounded_theme
     assert_select "a[aria-label='Close'][href='/']"
     refute_includes response.body, "Sign out"
     refute_includes response.body, "/users/sign_out"
@@ -51,7 +51,7 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     get "/support", params: { q: "Getting started" }
 
     assert_response :success
-    assert_select "body[data-theme='rounded']"
+    assert_flatpack_rounded_theme
     assert_select "form[role='search']"
     assert_includes response.body, "Getting started"
     refute_includes response.body, "Billing"
