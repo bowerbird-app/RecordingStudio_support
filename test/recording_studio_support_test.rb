@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.7.1", ::RecordingStudioSupport::VERSION
+    assert_equal "0.7.2", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -105,14 +105,19 @@ class RecordingStudioSupportTest < Minitest::Test
   def test_dummy_app_uses_recording_studio_default_layout
     application_controller_path = File.expand_path("dummy/app/controllers/application_controller.rb", __dir__)
     controller_source = File.read(application_controller_path)
+    default_layout = File.read(
+      File.expand_path("dummy/app/views/layouts/recording_studio/default_layout.html.erb", __dir__)
+    )
 
     assert_includes controller_source, "include RecordingStudio::UsesDefaultLayout"
     assert_includes controller_source, '"recording_studio/default_layout"'
     assert_includes controller_source, "return \"application\" if devise_controller?"
     refute_includes controller_source, "flat_pack_sidebar"
-    refute File.exist?(
-      File.expand_path("dummy/app/views/layouts/recording_studio/default_layout.html.erb", __dir__)
-    )
+    assert_includes default_layout, '<html data-theme="rounded">'
+    assert_includes default_layout, 'stylesheet_link_tag "flat_pack/variables"'
+    assert_includes default_layout, 'stylesheet_link_tag "flat_pack/application"'
+    assert_includes default_layout, 'stylesheet_link_tag "flat_pack/rich_text"'
+    assert_includes default_layout, 'stylesheet_link_tag "tailwind"'
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack_sidebar.html.erb", __dir__))
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack/_sidebar.html.erb", __dir__))
   end
@@ -123,6 +128,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes application_layout, '<html data-theme="rounded">'
     assert_includes application_layout, 'stylesheet_link_tag "flat_pack/variables"'
     assert_includes application_layout, 'stylesheet_link_tag "flat_pack/application"'
+    assert_includes application_layout, 'stylesheet_link_tag "flat_pack/rich_text"'
     assert_includes application_layout, "javascript_importmap_tags"
     assert_includes application_layout, "FlatPack::Alert::Component"
     assert_includes application_layout, "min-h-screen"
@@ -152,7 +158,7 @@ class RecordingStudioSupportTest < Minitest::Test
     head_path = File.expand_path("dummy/app/views/recording_studio/_default_layout_head.html.erb", __dir__)
     default_layout_head = File.read(head_path)
 
-    assert_includes default_layout_head, 'stylesheet_link_tag "flat_pack/application"'
+    refute_includes default_layout_head, 'stylesheet_link_tag "flat_pack/application"'
     assert_includes default_layout_head, "start_with?"
     assert_includes default_layout_head, "recording_studio_root_switch_dropdown"
     assert_includes default_layout_head, "recording_studio_page_nav_right"
@@ -206,7 +212,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme_source, "/admin"
     assert_includes readme_source, "redirects to `/`"
     assert_includes readme_source, "flat-pack--tiptap"
-    assert_includes readme_source, "does not copy the layout"
+    assert_includes readme_source, '<html data-theme="rounded">'
     refute_includes readme_source, "flat_pack_sidebar"
     refute_includes readme_source, "/docs/"
   end
@@ -234,6 +240,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "tag: \"0.2.0\""
     assert_includes readme, "/help"
     assert_includes readme, 'public_layout: "recording_studio/default_layout"'
+    assert_includes readme, '<html data-theme="rounded">'
     assert_includes readme, "config.help_title"
     refute_includes readme, 'public_layout: "recording_studio_publishable/application"'
     refute_includes readme, "v3 declarations"

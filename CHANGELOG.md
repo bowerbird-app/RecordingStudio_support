@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.2] - 2026-09-03
+
+Dummy and host help screens use Flatpack's built-in rounded theme on `<html>`.
+
+### Changed
+- Dummy overrides `recording_studio/default_layout` so `<html data-theme="rounded">` is set. Core still puts `data-theme` on `<body>`; that is not enough for Flatpack component tokens (buttons stay the default purple/blue)
+- Dummy layouts load Flatpack CSS in kit order: `flat_pack/variables`, `flat_pack/application`, `flat_pack/rich_text`, then Tailwind
+- Login layout also loads `flat_pack/rich_text` and keeps the same html theme
+
+### Upgrade notes
+- Set `<html data-theme="rounded">` on the layout used by `/help`, `/support`, and `/admin`. Do not rely on core's body attribute
+- Dummy's `test/dummy/app/views/layouts/recording_studio/default_layout.html.erb` is the host-side pattern. Copy that html attribute, not a custom theme
+- Keep `UsesDefaultLayout`. Do not switch to `recording_studio_publishable/application` or a sidebar shell
+- No schema or public API changes
+
 ## [0.7.1] - 2026-09-03
 
 Cloud Agent Builds fetch Cursor skills at Build. Warm rebuilds skip the install steps when Ruby, bundle, and Postgres are already usable.
@@ -262,7 +277,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.7.1...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.7.2...HEAD
+[0.7.2]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.7.2
 [0.7.1]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.7.1
 [0.7.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.7.0
 [0.6.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.6.0
