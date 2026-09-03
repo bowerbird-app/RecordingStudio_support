@@ -23,6 +23,10 @@ tmp/
 *.swo
 *~
 
+# Cursor
+.cursor/skills/
+.cursor/rules/
+
 # OS files
 .DS_Store
 Thumbs.db
