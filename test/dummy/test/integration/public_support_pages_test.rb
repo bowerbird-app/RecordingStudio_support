@@ -15,7 +15,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     get "/help"
 
     assert_response :success
-    assert_select "body[data-theme='rounded']"
+    assert_flatpack_rounded_theme
     assert_includes response.body, "Help"
     assert_includes response.body, "Getting started"
     assert_includes response.body, "Billing"
@@ -56,7 +56,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     get path
 
     assert_response :success
-    assert_select "body[data-theme='rounded']"
+    assert_flatpack_rounded_theme
     assert_includes response.body, "How do I sign in?"
     assert_includes response.body, "Use the email and password you were given"
     assert_includes response.body, "Open the sign-in page"
@@ -106,7 +106,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
-    assert_select "body[data-theme='rounded']"
+    assert_flatpack_rounded_theme
     assert_includes response.body, "How do I change my password?"
     assert_includes response.body, "Not live yet. This preview is just for you."
     assert_includes response.body, "Publish"
@@ -145,7 +145,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Published"
     assert_select "input[name='q'][placeholder='Search support']"
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
-    assert_select "body[data-theme='rounded']"
+    assert_flatpack_rounded_theme
     refute_includes response.body, "Sign out"
     refute_includes response.body, 'href="/users/sign_in"'
     refute_includes response.body, "recordable"
