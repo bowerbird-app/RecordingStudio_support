@@ -4,7 +4,15 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.7.0", ::RecordingStudioSupport::VERSION
+    assert_equal "0.7.1", ::RecordingStudioSupport::VERSION
+  end
+
+  def test_lockfiles_pin_this_gem_version
+    version = ::RecordingStudioSupport::VERSION
+    expected = "recording_studio_support (#{version})"
+
+    assert_includes File.read(File.expand_path("../Gemfile.lock", __dir__)), expected
+    assert_includes File.read(File.expand_path("dummy/Gemfile.lock", __dir__)), expected
   end
 
   def test_engine_exists

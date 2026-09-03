@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.1] - 2026-09-03
+
+Cloud Agent Builds fetch Cursor skills at Build. Warm rebuilds skip the install steps when Ruby, bundle, and Postgres are already usable.
+
+### Added
+- `.cursor/environment.json`, `.cursor/install.sh`, `.cursor/fetch-skills.sh`, and `.cursor/start.sh`. Cloud Agent Builds load recording-studio-* skills and plugin `.mdc` rules
+- Dummy `rails-server` and `tailwind-watch` terminals in `environment.json`
+
+### Changed
+- `.cursor/skills/` and `.cursor/rules/` are gitignored Build output. The pack is not vendored
+- `.cursor/install.sh` skips apt, ruby-build, db:prepare, and tailwind when Ruby, bundle, and Postgres are already usable. A skippable provision failure does not fail the Build. `.cursor/fetch-skills.sh` always runs last
+
+### Upgrade notes
+- No host or schema changes. Rebuild the Cloud Agent environment with Draft off so Build loads the pack
+
 ## [0.7.0] - 2026-08-23
 
 Help pages live in a section. Staff pick the section by moving the page.
@@ -247,7 +262,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.7.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.7.1...HEAD
+[0.7.1]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.7.1
 [0.7.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.7.0
 [0.6.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.6.0
 [0.5.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.5.0
