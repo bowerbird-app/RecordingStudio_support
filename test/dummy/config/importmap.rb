@@ -28,3 +28,10 @@ pin "@tiptap/extension-link", to: "https://esm.sh/@tiptap/extension-link@#{TIPTA
 pin "@tiptap/extension-underline", to: "https://esm.sh/@tiptap/extension-underline@#{TIPTAP_VERSION}"
 pin "@tiptap/extension-text-align", to: "https://esm.sh/@tiptap/extension-text-align@#{TIPTAP_VERSION}"
 
+
+pin "@rails/activestorage", to: "activestorage.esm.js"
+pin_all_from RecordingStudioAttachable::Engine.root.join("app/javascript/controllers/recording_studio_attachable"),
+  under: "controllers/recording_studio_attachable",
+  to: "controllers/recording_studio_attachable"
+pin "recording_studio_attachable/tiptap/attachment_image_addon",
+  to: "recording_studio_attachable/tiptap/attachment_image_addon.js"
