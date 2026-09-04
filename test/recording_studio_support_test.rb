@@ -152,6 +152,11 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes seeds, "RecordingStudioUser.profile_for"
     assert_includes seeds, "admin@admin.com"
     refute_includes gemspec, "recording_studio_user"
+
+    tailwind_sources = File.read(File.expand_path("dummy/config/initializers/tailwind_gem_sources.rb", __dir__))
+    tailwind_css = File.read(File.expand_path("dummy/app/assets/tailwind/application.css", __dir__))
+    assert_includes tailwind_sources, "recording_studio_user"
+    assert_includes tailwind_css, "vendor/recording_studio_user/app/views"
   end
 
   def test_dummy_pins_turbo_and_loads_flatpack_js
