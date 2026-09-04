@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.0] - 2026-09-04
+
+Dummy host sign-in uses Recording Studio Users auth screens. Support gem code is unchanged.
+
+### Changed
+- Dummy pins `recording_studio_user` `v0.9.0`, Accessible `v0.9.1`, Attachable `v0.5.1`, Admin `v2.0.2`, and Flatpack `v0.1.151`
+- Dummy skips Devise sessions/registrations/passwords and mounts `recording_studio_user_auth_for :users` plus the Users engine
+- Login is email-first (**Continue with email**), then password at `/users/sign_in/password`, on `layouts/recording_studio_user/auth` with `html data-theme="rounded"`
+- Dummy Tailwind vendor linker includes `recording_studio_user` so auth layout classes (for example `min-h-dvh`) enter the build
+- Dummy seeds admin via `RecordingStudioUser.create_user!` (`admin@admin.com` / `Password`)
+- OTP stays off (`otp_enabled = false`). OmniAuth follows credentials only; no ENV secret fallbacks
+
+### Upgrade notes
+- Auth is host-owned. Do not add `recording_studio_user` to the Support gemspec
+- In the host: add the Users gem, run `recording_studio_user:install` and `:migrations`, migrate, register `RecordingStudioUser::People`, `RecordingStudioUser::Profile`, and `RecordingStudioAttachable::Attachment`
+- Replace host Devise session views with Users auth routes. Delete host `devise/sessions` overrides
+- Gemspec ranges `accessible ~> 0.6` and `attachable ~> 0.4` already allow the dummy pins under pessimistic versioning
+
 ## [0.7.1] - 2026-09-03
 
 Cloud Agent Builds fetch Cursor skills at Build. Warm rebuilds skip the install steps when Ruby, bundle, and Postgres are already usable.

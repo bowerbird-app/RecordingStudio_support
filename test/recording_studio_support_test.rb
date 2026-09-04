@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.7.1", ::RecordingStudioSupport::VERSION
+    assert_equal "0.8.0", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -37,19 +37,20 @@ class RecordingStudioSupportTest < Minitest::Test
     gemfile = File.read(File.expand_path("dummy/Gemfile", __dir__))
 
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.2.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.6.1"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "2.0.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "0.4.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.9.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.0.2"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.5.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_users", tag: "v0.9.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "0.4.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_orderable", tag: "0.2.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.2.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "3.0.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_icons"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.133"'
+    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.151"'
     refute_includes gemfile, "recording_studio/v3.0.0"
-    refute_includes gemfile, 'tag: "v0.6.0"'
-    refute_includes gemfile, 'tag: "v0.1.134"'
+    refute_includes gemfile, 'tag: "v0.6.1"'
+    refute_includes gemfile, 'tag: "v0.1.133"'
     refute_includes gemfile, 'tag: "0.3.1"'
   end
 
@@ -109,12 +110,14 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes controller_source, "include RecordingStudio::UsesDefaultLayout"
     assert_includes controller_source, '"recording_studio/default_layout"'
     assert_includes controller_source, "return \"application\" if devise_controller?"
+    assert_includes controller_source, "recording_studio_user/auth"
     refute_includes controller_source, "flat_pack_sidebar"
     refute File.exist?(
       File.expand_path("dummy/app/views/layouts/recording_studio/default_layout.html.erb", __dir__)
     )
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack_sidebar.html.erb", __dir__))
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack/_sidebar.html.erb", __dir__))
+    refute File.exist?(File.expand_path("dummy/app/views/devise/sessions/new.html.erb", __dir__))
   end
 
   def test_dummy_login_layout_keeps_flatpack_assets_without_tight_main_offset
@@ -128,6 +131,32 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes application_layout, "min-h-screen"
     refute_includes application_layout, "mt-28"
     refute_includes application_layout, "flat_pack_sidebar"
+  end
+
+  def test_dummy_uses_recording_studio_user_auth
+    routes = File.read(File.expand_path("dummy/config/routes.rb", __dir__))
+    initializer = File.read(File.expand_path("dummy/config/initializers/recording_studio_user.rb", __dir__))
+    recording_studio = File.read(File.expand_path("dummy/config/initializers/recording_studio.rb", __dir__))
+    seeds = File.read(File.expand_path("dummy/db/seeds.rb", __dir__))
+    gemspec = File.read(File.expand_path("../recording_studio_support.gemspec", __dir__))
+
+    assert_includes routes, "skip: %i[sessions registrations passwords]"
+    assert_includes routes, "recording_studio_user_auth_for :users"
+    assert_includes routes, "mount RecordingStudioUser::Engine"
+    assert_includes routes, "omniauth_callbacks: \"recording_studio_user/omniauth_callbacks\""
+    assert_includes initializer, "config.otp_enabled = false"
+    assert_includes initializer, 'config.layout = "recording_studio/default_layout"'
+    assert_includes recording_studio, '"RecordingStudioUser::People"'
+    assert_includes recording_studio, '"RecordingStudioUser::Profile"'
+    assert_includes seeds, "RecordingStudioUser.create_user!"
+    assert_includes seeds, "RecordingStudioUser.profile_for"
+    assert_includes seeds, "admin@admin.com"
+    refute_includes gemspec, "recording_studio_user"
+
+    tailwind_sources = File.read(File.expand_path("dummy/config/initializers/tailwind_gem_sources.rb", __dir__))
+    tailwind_css = File.read(File.expand_path("dummy/app/assets/tailwind/application.css", __dir__))
+    assert_includes tailwind_sources, "recording_studio_user"
+    assert_includes tailwind_css, "vendor/recording_studio_user/app/views"
   end
 
   def test_dummy_pins_turbo_and_loads_flatpack_js
@@ -174,6 +203,8 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes tailwind_source, "../../../vendor/bundle/**/recording_studio/app/views/**/*.erb"
     assert_includes tailwind_source, "recordingstudio-*/app/views/**/*.erb"
     assert_includes tailwind_source, "../../../vendor/flat_pack/app/components/**/*.rb"
+    assert_includes tailwind_source, "RecordingStudio_users"
+    assert_includes tailwind_source, "recording_studio_user"
     assert_includes tailwind_source, "home/*/.local/share/mise/installs/ruby"
     refute_includes tailwind_source, "@theme"
     refute_includes tailwind_source, ":root {"
@@ -187,6 +218,8 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes initializer_source, "config.require_recordable_declarations = true"
     assert_includes initializer_source, '"RecordingStudioSupport::SupportSection"'
     assert_includes initializer_source, '"RecordingStudioSupport::SupportPage"'
+    assert_includes initializer_source, '"RecordingStudioUser::People"'
+    assert_includes initializer_source, '"RecordingStudioUser::Profile"'
     assert_includes initializer_source, '"RecordingStudioAttachable::Attachment"'
     assert_includes initializer_source, '"RecordingStudioPublishable::Publishable"'
     assert_includes initializer_source, '"AdminRoot"'
@@ -207,6 +240,9 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme_source, "redirects to `/`"
     assert_includes readme_source, "flat-pack--tiptap"
     assert_includes readme_source, "does not copy the layout"
+    assert_includes readme_source, "Continue with email"
+    assert_includes readme_source, "/users/sign_in/password"
+    assert_includes readme_source, "recording_studio_user/auth"
     refute_includes readme_source, "flat_pack_sidebar"
     refute_includes readme_source, "/docs/"
   end
@@ -216,21 +252,24 @@ class RecordingStudioSupportTest < Minitest::Test
 
     assert_includes readme, "Recording Studio Support"
     assert_includes readme, "v4.2.0"
-    assert_includes readme, "v0.6.1"
-    assert_includes readme, "v0.1.133"
+    assert_includes readme, "v0.9.1"
+    assert_includes readme, "v0.1.151"
+    assert_includes readme, "v0.9.0"
     assert_includes readme, "Support page"
     assert_includes readme, "SupportSection"
     assert_includes readme, "Help section"
     assert_includes readme, "Moveable"
-    assert_includes readme, "tag: \"2.0.0\""
+    assert_includes readme, "tag: \"v2.0.2\""
     assert_includes readme, "/support"
     assert_includes readme, "help_title"
     assert_includes readme, "flat-pack--tiptap"
     assert_includes readme, "section :support"
+    assert_includes readme, "recording_studio_user"
+    assert_includes readme, "/users/sign_in/password"
     refute_includes readme, "RecordingStudio::Capabilities::Attachable.to"
     assert_includes readme, "RecordingStudio::Capabilities::Publishable.to"
     assert_includes readme, "tag: \"v0.2.0\""
-    assert_includes readme, "tag: \"0.4.0\""
+    assert_includes readme, "tag: \"v0.5.1\""
     assert_includes readme, "tag: \"0.2.0\""
     assert_includes readme, "/help"
     assert_includes readme, 'public_layout: "recording_studio/default_layout"'
@@ -323,6 +362,8 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes routes, 'get "/help"'
     assert_includes routes, "PublicSectionsController"
     assert_includes routes, 'mount RecordingStudioMoveable::Engine, at: "/recording_studio_moveable"'
+    assert_includes routes, "recording_studio_user_auth_for :users"
+    assert_includes routes, "mount RecordingStudioUser::Engine"
   end
 
   def test_dummy_folder_and_page_do_not_opt_into_support_mixins

@@ -14,3 +14,4 @@ application.register("flat-pack--tiptap", TiptapController)
 // FlatPack identifiers are namespaced (e.g. flat-pack--icon),
 // so lazy loading must start at "controllers" to avoid duplicate path segments.
 lazyLoadControllersFrom("controllers", application)
+eagerLoadControllersFrom("controllers/recording_studio_attachable", application)
