@@ -12,7 +12,8 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
 
   test "dummy app validates recordable declarations" do
     assert RecordingStudio.validate_recordable_declarations!
-    assert_equal [ "AdminRoot", "Workspace" ], RecordingStudio.root_recordable_types.sort
+    assert_equal [ "AdminRoot", "RecordingStudioUser::People", "Workspace" ],
+                 RecordingStudio.root_recordable_types.sort
     assert_equal [ "Workspace", "Folder" ], RecordingStudio.allowed_parent_types_for("Page")
     assert_equal [ "RecordingStudioSupport::SupportSection" ],
                  RecordingStudio.allowed_parent_types_for("RecordingStudioSupport::SupportPage")
