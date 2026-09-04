@@ -4,6 +4,7 @@ RecordingStudioSupport has been installed successfully!
 
 Authenticated help screens are mounted at /support.
 Public help is at /help. Public and staff help use Recording Studio's default layout.
+Put Flatpack's rounded theme on html: `<html data-theme="rounded">`.
 
 If you use Tailwind CSS:
 1. Run 'bin/rails tailwindcss:build' to rebuild your CSS with RecordingStudioSupport styles
