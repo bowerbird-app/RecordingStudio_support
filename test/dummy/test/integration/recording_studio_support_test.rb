@@ -98,12 +98,15 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert support_page_recording.currently_published?
     refute password_page_recording.currently_published?
     assert_operator RecordingStudioSupport::PageView.count, :>=, 1
+    admin = User.find_by!(email: "admin@admin.com")
+    assert_predicate admin, :persisted?
+    assert RecordingStudioUser.profile_for(admin)
     assert_equal :admin, RecordingStudioAccessible.role_for(
-      actor: User.find_by!(email: "admin@admin.com"),
+      actor: admin,
       recording: root_recording
     )
     assert_equal :admin, RecordingStudioAccessible.role_for(
-      actor: User.find_by!(email: "admin@admin.com"),
+      actor: admin,
       recording: admin_root_recording
     )
 

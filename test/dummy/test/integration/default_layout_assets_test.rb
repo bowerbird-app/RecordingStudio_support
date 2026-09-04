@@ -16,6 +16,14 @@ class DefaultLayoutAssetsTest < ActionDispatch::IntegrationTest
     assert_redirected_to "#{new_user_session_path}/password"
     follow_redirect!
 
+    assert_response :success
+    assert_select "html[data-theme='rounded']"
+    refute_includes response.body, "data-recording-studio-default-layout"
+    assert_select "input[type='password'][name='user[password]']"
+    assert_select "button[type='submit']", text: "Continue with email", count: 0
+    assert_includes response.body, "flat_pack/variables"
+    assert_includes response.body, "@hotwired/turbo-rails"
+
     post user_session_path, params: {
       user: { email: user.email, password: "Password123!" }
     }

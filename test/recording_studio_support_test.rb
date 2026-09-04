@@ -137,6 +137,7 @@ class RecordingStudioSupportTest < Minitest::Test
     routes = File.read(File.expand_path("dummy/config/routes.rb", __dir__))
     initializer = File.read(File.expand_path("dummy/config/initializers/recording_studio_user.rb", __dir__))
     recording_studio = File.read(File.expand_path("dummy/config/initializers/recording_studio.rb", __dir__))
+    seeds = File.read(File.expand_path("dummy/db/seeds.rb", __dir__))
     gemspec = File.read(File.expand_path("../recording_studio_support.gemspec", __dir__))
 
     assert_includes routes, "skip: %i[sessions registrations passwords]"
@@ -147,6 +148,9 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes initializer, 'config.layout = "recording_studio/default_layout"'
     assert_includes recording_studio, '"RecordingStudioUser::People"'
     assert_includes recording_studio, '"RecordingStudioUser::Profile"'
+    assert_includes seeds, "RecordingStudioUser.create_user!"
+    assert_includes seeds, "RecordingStudioUser.profile_for"
+    assert_includes seeds, "admin@admin.com"
     refute_includes gemspec, "recording_studio_user"
   end
 
