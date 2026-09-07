@@ -29,6 +29,7 @@ Staff Help hub can add pages and sections. Public section URLs use readable slug
 - Section count and Published badges use Flatpack Badge `size: :xs`
 - Dummy layouts declare `@layer theme, base, components, utilities` before Flatpack CSS so TipTap borders survive Tailwind preflight
 - Public article body uses Flatpack PageTitle plus long-form `prose` content (same idea as Flatpack’s text/content demo; no Content component)
+- Help/support search uses Flatpack Search with a white (`--color-white`) field so it reads as enabled, not muted
 
 ### Upgrade notes
 - Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` for the section `slug` column. Existing titles are backfilled

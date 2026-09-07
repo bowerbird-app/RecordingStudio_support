@@ -29,6 +29,8 @@ class PagesTest < Minitest::Test
     assert_includes search, 'placeholder: "Search support"'
     assert_includes search, "max_width: :none"
     assert_includes search, 'class: "w-full"'
+    assert_includes search, "--search-input-background-color: var(--color-white)"
+    assert_includes search, "--search-input-border-color: var(--surface-border-color)"
     refute_includes search, "size:"
     refute_includes search, "fill:"
     assert_includes index, "Nothing matches that"

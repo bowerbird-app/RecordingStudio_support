@@ -17,6 +17,7 @@ Public section URLs use a Support-owned slug. Staff Help hub can create pages an
 7. Host layouts that load `flat_pack/rich_text` before Tailwind should declare `@layer theme, base, components, utilities` first so TipTap borders keep their width.
 8. Staff show puts Publish, a Live/Draft status button, and icon-only trash in one PageTitle row. There is no live alert banner.
 9. Public articles list Related published pages from the same section when any exist.
+10. Help/support search overrides Flatpack Search tokens for a white field (`--color-white`) with a visible border.
 
 ### Verify
 
