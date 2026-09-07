@@ -30,8 +30,9 @@ module RecordingStudioSupport
     end
 
     def authorize_support!(role)
-      allowed = support_access_allowed?(role)
-      head :forbidden unless allowed
+      return if support_access_allowed?(role)
+
+      render "recording_studio_support/shared/forbidden", status: :forbidden
     end
 
     def can_edit_support_pages?

@@ -331,6 +331,8 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
 
     get "/support/#{page_b.id}/edit"
     assert_response :forbidden
+    assert_includes response.body, "No access"
+    assert_includes response.body, "That help belongs to another workspace."
 
     get "/support/#{page_a.id}/edit"
     assert_response :success
