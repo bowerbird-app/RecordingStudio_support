@@ -31,6 +31,8 @@ class ApplicationHelperTest < Minitest::Test
     refute_match(/^\s*layout\s/, source)
     assert_includes source, "Sections.public_index"
     assert_includes source, "@query = params[:q]"
+    assert_includes source, "@pages_by_section"
+    assert_includes source, "Pages.public_for_section"
     assert_includes source, "@publishable&.publish_at"
   end
 

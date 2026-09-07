@@ -18,6 +18,7 @@ Staff Help hub can add pages and sections. Public section URLs use readable slug
 
 ### Changed
 - Public `/help` index drops Close (Back only via default layout history)
+- Public `/help` section rows stay linked via trailing `chevron-right`; with JS, Flatpack Collapse expands for quick page navigation
 - Public section and article shows still Close to `/help`
 - Staff live preview merges the live link into the success alert: “This page is live. View now”
 - Host public section route param is `:slug` (install generator updated)

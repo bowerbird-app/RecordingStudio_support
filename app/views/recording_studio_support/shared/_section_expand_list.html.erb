@@ -1,0 +1,52 @@
+<%# Progressive enhancement for public /help sections.
+    Chevron-right stays a real link to the section (works without JS).
+    Flatpack Collapse expands when JS is available for quick page navigation.
+    Accordion/Collapse triggers have no trailing-link slot, so we compose
+    Collapse + Link. %>
+<%= render FlatPack::Card::Component.new do |card| %>
+  <% card.body do %>
+    <div class="flex w-full flex-col divide-y divide-[var(--accordion-item-border-color)]">
+      <% items.each do |item| %>
+        <% title = item.fetch(:title) %>
+        <% href = item.fetch(:href) %>
+        <% collapse_id = item.fetch(:id) %>
+        <% pages = Array(item[:pages]) %>
+        <div class="flex w-full items-start gap-2">
+          <div class="min-w-0 flex-1">
+            <%= render FlatPack::Collapse::Component.new(
+              id: collapse_id,
+              title: title,
+              border: false
+            ) do %>
+              <% if pages.any? %>
+                <%= render FlatPack::List::Component.new(divider: true) do %>
+                  <% pages.each do |page_item| %>
+                    <%= render FlatPack::List::Item.new(
+                      href: page_item.fetch(:href),
+                      hover: true,
+                      trailing: support_list_chevron
+                    ) do %>
+                      <%= page_item.fetch(:title) %>
+                    <% end %>
+                  <% end %>
+                <% end %>
+              <% end %>
+            <% end %>
+          </div>
+          <% if item[:meta] %>
+            <div class="shrink-0 self-start flex items-center p-[var(--collapse-trigger-padding)] pl-0">
+              <%= item[:meta] %>
+            </div>
+          <% end %>
+          <%= render FlatPack::Link::Component.new(
+            href: href,
+            class: "shrink-0 inline-flex items-center self-start p-[var(--collapse-trigger-padding)] pl-0 text-[var(--collapse-trigger-text-color)] hover:bg-[var(--collapse-trigger-hover-background-color)]",
+            aria: { label: title }
+          ) do %>
+            <%= support_list_chevron %>
+          <% end %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>
