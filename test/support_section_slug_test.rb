@@ -3,12 +3,15 @@
 require "test_helper"
 
 class SupportSectionSlugTest < Minitest::Test
-  def test_staff_show_alert_notes_live_without_view_now
+  def test_staff_show_status_button_sits_between_publish_and_trash
     show = File.read(File.expand_path("../app/views/recording_studio_support/pages/show.html.erb", __dir__))
 
-    assert_includes show, "This page is live."
+    assert_includes show, 'text: live ? "Live" : "Draft"'
+    assert_includes show, "style: live ? :success : :secondary"
+    refute_includes show, "This page is live."
+    refute_includes show, "Not live yet"
     refute_includes show, "View now"
-    refute_includes show, "FlatPack::Link::Component"
+    refute_includes show, "FlatPack::Alert::Component"
     refute_includes show, "Open live page"
     assert_includes show, 'icon: "trash"'
     assert_includes show, "icon_only: true"

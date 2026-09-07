@@ -94,7 +94,9 @@ class PagesTest < Minitest::Test
     assert_includes show, 'icon: "trash"'
     assert_includes show, "icon_only: true"
     refute_includes show, "View now"
-    assert_includes show, "This page is live."
+    refute_includes show, "This page is live."
+    refute_includes show, "FlatPack::Alert::Component"
+    assert_includes show, 'text: live ? "Live" : "Draft"'
   end
 
   def test_public_index_uses_indexable_pages_not_copied_logic

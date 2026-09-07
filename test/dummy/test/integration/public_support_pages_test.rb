@@ -129,7 +129,9 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_flatpack_rounded_theme
     assert_includes response.body, "How do I change my password?"
-    assert_includes response.body, "Not live yet. This preview is just for you."
+    assert_includes response.body, ">Draft<"
+    refute_includes response.body, "This page is live."
+    refute_includes response.body, "Not live yet"
     assert_includes response.body, "Publish"
     refute_includes response.body, "Sign out"
     refute_includes response.body, "Studio Workspace"

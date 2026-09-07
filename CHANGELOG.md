@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.7.3] - 2026-09-07
 
-Staff Help hub can add pages and sections. Public section URLs use readable slugs. Staff live pages note that they are live without a separate View now link.
+Staff Help hub can add pages and sections. Public section URLs use readable slugs. Staff show uses a Live/Draft status button beside Publish.
 
 ### Added
 - Staff `/support` shows **New section** and **New page** for Accessible `:edit` users. Section show also offers **New page**
@@ -23,7 +23,7 @@ Staff Help hub can add pages and sections. Public section URLs use readable slug
 - `/support` and `/support/sections/:id` are readable without signing in; New section / New page / write screens stay Accessible `:edit`
 - Logged-out `/support/sections/:id` omits the Published badge on page rows
 - Accessible `:edit` users see drafts on `/support/sections/:id` (status badge + link to staff preview)
-- Staff live alert is “This page is live.” only — no View now link (the staff show is the page)
+- Staff live pages show a **Live** or **Draft** status button between Publish and trash (no live alert banner)
 - Staff Publish and trash sit in the same PageTitle row; trash is an icon-only ghost button
 - Host public section route param is `:slug` (install generator updated)
 - Section count and Published badges use Flatpack Badge `size: :xs`

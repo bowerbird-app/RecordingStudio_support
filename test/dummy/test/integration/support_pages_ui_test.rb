@@ -100,7 +100,9 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "How do I change my password?"
-    assert_includes response.body, "Not live yet. This preview is just for you."
+    assert_includes response.body, ">Draft<"
+    refute_includes response.body, "This page is live."
+    refute_includes response.body, "Not live yet"
     refute_includes response.body, "Edit page"
     refute_includes response.body, "href=\"/support/#{recording.id}/edit\""
     refute_match(/<a[^>]*>\s*Edit\s*<\/a>/, response.body)
@@ -129,7 +131,8 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "href=\"/support/#{recording.id}/edit\""
     refute_includes response.body, "Edit page"
     assert_includes response.body, "Publish"
-    assert_includes response.body, "This page is live."
+    assert_includes response.body, ">Live<"
+    refute_includes response.body, "This page is live."
     refute_includes response.body, "View now"
     refute_includes response.body, "Open live page"
     assert_includes response.body, 'aria-label="Move to trash"'

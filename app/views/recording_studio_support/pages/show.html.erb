@@ -7,6 +7,7 @@
    ) %>
 
 <div class="flex w-full flex-col gap-6">
+  <% live = @page_recording.respond_to?(:currently_published?) && @page_recording.currently_published? %>
   <%= render FlatPack::PageTitle::Component.new(
     title: @page.title,
     variant: :h1
@@ -22,6 +23,12 @@
             href: publish_href
           ) %>
         <% end %>
+        <%= render FlatPack::Button::Component.new(
+          text: live ? "Live" : "Draft",
+          style: live ? :success : :secondary,
+          size: :md,
+          type: "button"
+        ) %>
         <%= form_with url: trash_page_path(@page_recording), method: :post, class: "inline-flex" do %>
           <%= render FlatPack::Button::Component.new(
             icon: "trash",
@@ -34,19 +41,6 @@
         <% end %>
       <% end %>
     <% end %>
-  <% end %>
-
-  <% live = @page_recording.respond_to?(:currently_published?) && @page_recording.currently_published? %>
-  <% if live %>
-    <%= render FlatPack::Alert::Component.new(
-      description: "This page is live.",
-      style: :success
-    ) %>
-  <% elsif can_edit_support_pages? %>
-    <%= render FlatPack::Alert::Component.new(
-      description: "Not live yet. This preview is just for you.",
-      style: :info
-    ) %>
   <% end %>
 
   <% if @page.body.present? %>
