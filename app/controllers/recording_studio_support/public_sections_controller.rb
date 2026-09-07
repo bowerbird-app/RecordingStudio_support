@@ -37,7 +37,7 @@ module RecordingStudioSupport
 
       redirect_options = {}
       redirect_options[:q] = params[:q] if params[:q].present?
-      redirect_to support_public_section_path(recording, **redirect_options), status: :moved_permanently
+      redirect_to main_app.public_help_section_path(slug, **redirect_options), status: :moved_permanently
     end
   end
 end

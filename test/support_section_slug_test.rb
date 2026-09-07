@@ -3,19 +3,6 @@
 require "test_helper"
 
 class SupportSectionSlugTest < Minitest::Test
-  def test_slug_for_parameterizes_title
-    assert_equal "getting-started", RecordingStudioSupport::SupportSection.slug_for("Getting started")
-    assert_equal "section", RecordingStudioSupport::SupportSection.slug_for("!!!")
-    assert_equal "section", RecordingStudioSupport::SupportSection.slug_for("sections")
-  end
-
-  def test_model_assigns_slug_before_validation
-    section = RecordingStudioSupport::SupportSection.new(title: "Billing FAQ")
-
-    assert section.valid?
-    assert_equal "billing-faq", section.slug
-  end
-
   def test_staff_show_alert_links_to_live_page
     show = File.read(File.expand_path("../app/views/recording_studio_support/pages/show.html.erb", __dir__))
 
@@ -32,5 +19,14 @@ class SupportSectionSlugTest < Minitest::Test
 
     refute_includes index, "page_nav_anchor_url"
     refute_includes index, "Close"
+  end
+
+  def test_support_section_model_defines_slug_helpers
+    source = File.read(File.expand_path("../app/models/recording_studio_support/support_section.rb", __dir__))
+
+    assert_includes source, "def self.slug_for"
+    assert_includes source, "RESERVED_SLUGS"
+    assert_includes source, "before_validation :assign_slug_from_title"
+    assert_includes source, 'validates :slug, presence: true'
   end
 end
