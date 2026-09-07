@@ -317,10 +317,10 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     get current_path
 
     assert_response :success
-    assert_includes response.body, FlatPack::PageTitle::Component.name
+    assert_select "h1", text: "How do I update payment details?"
     assert_includes response.body, 'class="prose max-w-none'
     assert_includes response.body, "Related"
-    assert_includes response.body, FlatPack::List::Component.name
+    assert_select "ul[role='list']"
     assert_select "a[href=?]", related_path
   end
 

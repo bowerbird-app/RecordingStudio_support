@@ -98,10 +98,11 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     get path
 
     assert_response :success
-    assert_includes response.body, FlatPack::PageTitle::Component.name
+    assert_select "h1", text: "How do I update payment details?"
     assert_includes response.body, 'class="prose max-w-none'
     assert_includes response.body, "Related"
     assert_select "hr"
+    assert_select "ul[role='list']"
     assert_select "a[href=?]", related_path, text: "Where is my invoice?"
   end
 
