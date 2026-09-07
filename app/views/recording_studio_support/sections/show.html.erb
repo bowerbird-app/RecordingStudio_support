@@ -24,8 +24,19 @@
 
   <%= render "recording_studio_support/shared/search", url: section_path(@section_recording), query: @query %>
 
-  <% if @pages.any? %>
-    <%= render "recording_studio_support/shared/link_list", items: @pages.filter_map { |page|
+  <% list_items = if can_edit_support_pages?
+    Array(@page_recordings).filter_map { |recording|
+      page = recording.recordable
+      next if page.blank?
+
+      {
+        title: page.title,
+        href: page_path(recording),
+        meta: support_page_status_badge(recording)
+      }
+    }
+  else
+    Array(@pages).filter_map { |page|
       href = page.published_url
       next if href.blank?
 
@@ -34,7 +45,11 @@
         href: href,
         meta: (support_published_badge if current_support_actor.present?)
       }
-    } %>
+    }
+  end %>
+
+  <% if list_items.any? %>
+    <%= render "recording_studio_support/shared/link_list", items: list_items %>
   <% elsif @query.present? %>
     <%= render FlatPack::EmptyState::Component.new(
       title: "Nothing matches that",

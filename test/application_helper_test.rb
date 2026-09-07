@@ -92,6 +92,9 @@ class ApplicationHelperTest < Minitest::Test
     assert_includes source, 'text: "Published"'
     assert_includes source, "style: :success"
     assert_includes source, "size: :xs"
+    assert_includes source, "def support_page_status_badge"
+    assert_includes source, 'text: "Draft"'
+    assert_includes source, "size: :xs"
   end
 
   def test_support_list_chevron_uses_the_flatpack_icon

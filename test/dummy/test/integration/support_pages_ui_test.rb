@@ -78,11 +78,13 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "How do I sign in?"
-    refute_includes response.body, "How do I change my password?"
+    assert_includes response.body, "How do I change my password?"
     refute_includes response.body, "How do I update payment details?"
     assert_includes response.body, "Published"
+    assert_includes response.body, "Draft"
     assert_includes response.body, "New page"
     assert_includes response.body, "href=\"/support/new?section_id=#{section.id}\""
+    assert_includes response.body, "href=\"/support/#{seeded_page('How do I change my password?').id}\""
     refute_includes response.body, "recordable"
     assert_includes response.body, "card-border-color"
     assert_select "ul[role='list']"
@@ -252,6 +254,13 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Getting started"
     refute_includes response.body, "New page"
     refute_includes response.body, "New section"
+
+    get "/support/sections/#{seeded_section('Getting started').id}"
+
+    assert_response :success
+    assert_includes response.body, "How do I sign in?"
+    refute_includes response.body, "How do I change my password?"
+    refute_includes response.body, "New page"
 
     get "/support/new"
 

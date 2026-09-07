@@ -21,9 +21,11 @@ Staff Help hub can add pages and sections. Public section URLs use readable slug
 - Public section and article shows still Close to `/help`
 - `/support` and `/support/sections/:id` are readable without signing in; New section / New page / write screens stay Accessible `:edit`
 - Logged-out `/support/sections/:id` omits the Published badge on page rows
+- Accessible `:edit` users see drafts on `/support/sections/:id` (status badge + link to staff preview)
 - Staff live preview merges the live link into the success alert: “This page is live. View now”
 - Host public section route param is `:slug` (install generator updated)
 - Section count and Published badges use Flatpack Badge `size: :xs`
+- Dummy layouts declare `@layer theme, base, components, utilities` before Flatpack CSS so TipTap borders survive Tailwind preflight
 
 ### Upgrade notes
 - Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` for the section `slug` column. Existing titles are backfilled
@@ -31,6 +33,7 @@ Staff Help hub can add pages and sections. Public section URLs use readable slug
 - Slugs overwrite when the section title changes. Old slug URLs 404; UUID bookmarks still redirect
 - Do not add FriendlyId. Page public URLs stay Publishable `/help/:uuid/:slug`
 - Hosts that forced login on every `/support` request can leave Devise `authenticate_user!` on the host ApplicationController; Support skips it for section index/show only
+- Host layouts that load `flat_pack/rich_text` before Tailwind should declare `@layer theme, base, components, utilities` first so TipTap borders keep their width
 
 ## [0.7.2] - 2026-09-03
 

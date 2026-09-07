@@ -11,6 +11,10 @@
     <link rel="apple-touch-icon" href="/icon.png">
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
+    <%# Establish Tailwind layer order before Flatpack @layer components CSS.
+        Otherwise rich_text's components layer is registered first and Tailwind
+        base (border: 0) loads after it and wins, stripping TipTap borders. %>
+    <style>@layer theme, base, components, utilities;</style>
     <%# Flatpack tokens first, host Tailwind last — same order as the live kit. %>
     <%= stylesheet_link_tag "flat_pack/variables", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "flat_pack/application", "data-turbo-track": "reload" %>

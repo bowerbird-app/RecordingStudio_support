@@ -16,7 +16,11 @@ module RecordingStudioSupport
     def show
       @section = @section_recording.recordable
       @query = params[:q].to_s.strip
-      @pages = Pages.public_for_section(@section_recording, query: @query)
+      if can_edit_support_pages?
+        @page_recordings = Pages.for_section(@section_recording, query: @query)
+      else
+        @pages = Pages.public_for_section(@section_recording, query: @query)
+      end
     end
 
     def new

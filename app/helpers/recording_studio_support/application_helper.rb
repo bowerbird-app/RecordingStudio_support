@@ -92,7 +92,7 @@ module RecordingStudioSupport
           publishable: recording.current_publishable
         )
       else
-        render FlatPack::Badge::Component.new(text: "Draft", style: :info, size: :sm)
+        render FlatPack::Badge::Component.new(text: "Draft", style: :info, size: :xs)
       end
     end
 

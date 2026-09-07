@@ -14,6 +14,7 @@ Public section URLs use a Support-owned slug. Staff Help hub can create pages an
 4. Expect Accessible `:edit` users to see **New section** / **New page** on `/support`. Viewers and logged-out visitors do not.
 5. Do not add FriendlyId. Page public URLs stay Publishable `/help/:uuid/:slug`.
 6. Hosts can keep Devise `authenticate_user!` on ApplicationController. Support skips it for section index/show only.
+7. Host layouts that load `flat_pack/rich_text` before Tailwind should declare `@layer theme, base, components, utilities` first so TipTap borders keep their width.
 
 ### Verify
 

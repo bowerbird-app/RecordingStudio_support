@@ -60,8 +60,11 @@ class PagesTest < Minitest::Test
     end
     [staff_show, public_show].each do |show|
       refute_includes show, "support_page_count_badge"
-      assert_includes show, "support_published_badge"
     end
+    assert_includes public_show, "support_published_badge"
+    assert_includes staff_show, "support_published_badge"
+    assert_includes staff_show, "support_page_status_badge"
+    assert_includes staff_show, "can_edit_support_pages?"
     assert_includes staff_show, "current_support_actor.present?"
 
     [staff_index, public_index, staff_show, public_show].each do |view|
