@@ -59,7 +59,7 @@ class ApplicationHelperTest < Minitest::Test
     assert_includes source, "def support_page_count_badge"
     assert_includes source, "FlatPack::Badge::Component"
     assert_includes source, "style: :default"
-    assert_includes source, "size: :sm"
+    assert_includes source, "size: :xs"
     refute_includes source, "removable: true"
     refute_includes source, "pluralize"
     refute_includes source, "def support_page_image_url"
@@ -74,7 +74,7 @@ class ApplicationHelperTest < Minitest::Test
     assert_includes source, "def support_published_badge"
     assert_includes source, 'text: "Published"'
     assert_includes source, "style: :success"
-    assert_includes source, "size: :sm"
+    assert_includes source, "size: :xs"
   end
 
   def test_support_list_chevron_uses_the_flatpack_icon

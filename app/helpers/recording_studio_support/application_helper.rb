@@ -78,12 +78,12 @@ module RecordingStudioSupport
       render FlatPack::Badge::Component.new(
         text: support_page_count_label(page_count),
         style: :default,
-        size: :sm
+        size: :xs
       )
     end
 
     def support_published_badge
-      render FlatPack::Badge::Component.new(text: "Published", style: :success, size: :sm)
+      render FlatPack::Badge::Component.new(text: "Published", style: :success, size: :xs)
     end
 
     def support_page_status_badge(recording)
