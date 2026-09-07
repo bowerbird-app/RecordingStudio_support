@@ -122,6 +122,37 @@ class SupportSectionsDomainTest < ActiveSupport::TestCase
     assert_equal 1, public_counts.fetch(section.id)
   end
 
+  test "section slug comes from the title and updates on revise" do
+    section = record_support_section(@root_recording, title: "Getting started")
+    assert_equal "getting-started", section.recordable.slug
+
+    same_title = RecordingStudioSupport::Sections.revise!(
+      recording: section,
+      title: "Getting started",
+      actor: @user
+    )
+    assert_equal "getting-started", same_title.recordable.slug
+
+    revised = RecordingStudioSupport::Sections.revise!(
+      recording: same_title,
+      title: "Onboarding tips",
+      actor: @user
+    )
+    assert_equal "onboarding-tips", revised.recordable.slug
+    assert_equal revised.id, RecordingStudioSupport::Sections.find_kept_by_slug!(slug: "onboarding-tips").id
+    assert_raises(ActiveRecord::RecordNotFound) do
+      RecordingStudioSupport::Sections.find_kept_by_slug!(slug: "getting-started")
+    end
+  end
+
+  test "duplicate section titles get distinct slugs" do
+    first = record_support_section(@root_recording, title: "Billing")
+    second = record_support_section(@root_recording, title: "Billing")
+
+    assert_equal "billing", first.recordable.slug
+    assert_equal "billing-2", second.recordable.slug
+  end
+
   private
 
   def publish!(page_recording, slug:, status:)

@@ -9,7 +9,18 @@
   <%= render FlatPack::PageTitle::Component.new(
     title: @section.title,
     variant: :h1
-  ) %>
+  ) do |page_title| %>
+    <% if can_edit_support_pages? %>
+      <% page_title.slot do %>
+        <%= render FlatPack::Button::Component.new(
+          text: "New page",
+          style: :primary,
+          size: :md,
+          href: new_page_path(section_id: @section_recording.id)
+        ) %>
+      <% end %>
+    <% end %>
+  <% end %>
 
   <%= render "recording_studio_support/shared/search", url: section_path(@section_recording), query: @query %>
 

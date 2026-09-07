@@ -28,16 +28,14 @@
 
   <% live = @page_recording.respond_to?(:currently_published?) && @page_recording.currently_published? %>
   <% if live && @page.respond_to?(:published_url) && @page.published_url.present? %>
-    <%= render FlatPack::Alert::Component.new(
-      description: "This page is live.",
-      style: :success
-    ) %>
-    <%= render FlatPack::Button::Component.new(
-      text: "Open live page",
-      style: :secondary,
-      size: :md,
-      href: @page.published_url
-    ) %>
+    <%= render FlatPack::Alert::Component.new(style: :success) do %>
+      <p class="text-sm text-[var(--alert-description-color)]">
+        This page is live.
+        <%= render FlatPack::Link::Component.new(href: @page.published_url) do %>
+          View now
+        <% end %>
+      </p>
+    <% end %>
   <% elsif can_edit_support_pages? %>
     <%= render FlatPack::Alert::Component.new(
       description: "Not live yet. This preview is just for you.",

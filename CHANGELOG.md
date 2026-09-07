@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.3] - 2026-09-07
+
+Staff Help hub can add pages and sections. Public section URLs use readable slugs. Live preview alert links out.
+
+### Added
+- Staff `/support` shows **New section** and **New page** for Accessible `:edit` users. Section show also offers **New page**
+- `SupportSection#slug` for public section URLs (`/help/sections/:slug`). Generated from the title. No FriendlyId — Support owns the column, same idea as Publishable page slugs
+- UUID bookmarks at `/help/sections/:uuid` redirect to the canonical slug URL
+
+### Changed
+- Public `/help` index drops Close (Back only via default layout history)
+- Public section and article shows still Close to `/help`
+- Staff live preview merges the live link into the success alert: “This page is live. View now”
+- Host public section route param is `:slug` (install generator updated)
+
+### Upgrade notes
+- Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` for the section `slug` column. Existing titles are backfilled
+- Change the host route from `/help/sections/:id` to `/help/sections/:slug` **before** the Publishable mount. Staff `/support/...` stays on recording UUIDs
+- Slugs overwrite when the section title changes. Old slug URLs 404; UUID bookmarks still redirect
+- Do not add FriendlyId. Page public URLs stay Publishable `/help/:uuid/:slug`
+
 ## [0.7.2] - 2026-09-03
 
 Dummy and host help screens use Flatpack's built-in rounded theme on `<html>`.

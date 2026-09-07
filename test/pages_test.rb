@@ -35,8 +35,11 @@ class PagesTest < Minitest::Test
     refute_includes index, "Elasticsearch"
     refute_includes index, "searchkick"
     refute_includes index, "SearchPage"
-    refute_includes index, "New page"
-    refute_includes index, "new_page_path"
+    assert_includes index, "New page"
+    assert_includes index, "new_page_path"
+    assert_includes index, "New section"
+    assert_includes index, "new_section_path"
+    assert_includes index, "can_edit_support_pages?"
   end
 
   def test_section_and_page_lists_wrap_list_in_card

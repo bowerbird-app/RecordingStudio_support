@@ -43,12 +43,21 @@ module RecordingStudioSupport
       RecordingStudioSupport.configuration.public_pages_path
     end
 
-    def support_public_section_path(recording)
+    def support_public_section_path(recording, **options)
+      slug = support_public_section_slug(recording)
+
       if respond_to?(:main_app) && main_app.respond_to?(:public_help_section_path)
-        return main_app.public_help_section_path(recording)
+        return main_app.public_help_section_path(slug, **options)
       end
 
-      "#{support_public_help_path}/sections/#{recording.id}"
+      path = "#{support_public_help_path}/sections/#{slug}"
+      return path if options.blank?
+
+      "#{path}?#{options.to_query}"
+    end
+
+    def support_public_section_slug(recording)
+      recording&.recordable&.slug.presence || recording&.id
     end
 
     def support_recording_title(recording)

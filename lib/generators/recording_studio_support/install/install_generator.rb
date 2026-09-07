@@ -21,7 +21,7 @@ module RecordingStudioSupport
         route %(mount RecordingStudioPublishable::Engine, at: "/")
         route %(mount RecordingStudioMoveable::Engine, at: "/recording_studio_moveable")
         route %(get "/help", to: RecordingStudioSupport::PublicPagesController.action(:index), as: :public_help)
-        route "get \"/help/sections/:id\", " \
+        route "get \"/help/sections/:slug\", " \
               "to: RecordingStudioSupport::PublicSectionsController.action(:show), " \
               "as: :public_help_section"
       end

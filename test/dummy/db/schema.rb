@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_08_22_060000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_07_080000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pgcrypto"
@@ -186,7 +186,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_08_22_060000) do
 
   create_table "recording_studio_support_sections", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
+    t.string "slug", null: false
     t.string "title", null: false
+    t.index ["slug"], name: "index_rs_support_sections_on_slug"
   end
 
   create_table "recording_studio_trashable_retention_settings", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

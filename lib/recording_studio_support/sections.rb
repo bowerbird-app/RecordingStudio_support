@@ -36,6 +36,7 @@ module RecordingStudioSupport
       assign_actor(actor) do
         workspace.record(SupportSection) do |section|
           section.title = title.to_s.strip
+          section.slug = SupportSection.slug_for(title)
         end
       end
     end
@@ -44,6 +45,7 @@ module RecordingStudioSupport
       assign_actor(actor) do
         recording.root_recording.revise(recording) do |section|
           section.title = title.to_s.strip
+          section.slug = SupportSection.slug_for(title, excluding_id: recording.recordable_id)
         end
       end
     end

@@ -9,7 +9,24 @@
     title: support_help_title,
     subtitle: support_help_subtitle,
     variant: :h1
-  ) %>
+  ) do |page_title| %>
+    <% if can_edit_support_pages? %>
+      <% page_title.slot do %>
+        <%= render FlatPack::Button::Component.new(
+          text: "New section",
+          style: :secondary,
+          size: :md,
+          href: new_section_path
+        ) %>
+        <%= render FlatPack::Button::Component.new(
+          text: "New page",
+          style: :primary,
+          size: :md,
+          href: new_page_path
+        ) %>
+      <% end %>
+    <% end %>
+  <% end %>
 
   <%= render "recording_studio_support/shared/search", url: root_path, query: @query %>
 

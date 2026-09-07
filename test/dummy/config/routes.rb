@@ -10,8 +10,8 @@ Rails.application.routes.draw do
   mount RecordingStudioAttachable::Engine, at: "/recording_studio_attachable"
   mount RecordingStudioMoveable::Engine, at: "/recording_studio_moveable"
   get "/help", to: RecordingStudioSupport::PublicPagesController.action(:index), as: :public_help
-  get "/help/sections/:id", to: RecordingStudioSupport::PublicSectionsController.action(:show),
-                            as: :public_help_section
+  get "/help/sections/:slug", to: RecordingStudioSupport::PublicSectionsController.action(:show),
+                              as: :public_help_section
   mount RecordingStudioPublishable::Engine, at: "/"
   mount RecordingStudioAccessible::Engine, at: "/admin/access"
   recording_studio_admin_for :admin, at: "/admin", root_section: :support

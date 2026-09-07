@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+## 0.7.3
+
+Public section URLs use a Support-owned slug. Staff Help hub can create pages and sections.
+
+### Host app
+
+1. Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate`. Section titles backfill into `slug`.
+2. Change the public section route to `/help/sections/:slug` (was `:id`). Keep it **before** mounting Publishable at `/`.
+3. Staff `/support` and `/support/sections/:id` stay on recording UUIDs. No staff slug URLs.
+4. Expect Accessible `:edit` users to see **New section** / **New page** on `/support`. Viewers do not.
+5. Do not add FriendlyId. Page public URLs stay Publishable `/help/:uuid/:slug`.
+
+### Verify
+
+```bash
+bundle install
+BUNDLE_GEMFILE=test/dummy/Gemfile bundle install
+bundle exec rake test:all
+```
+
 ## 0.7.0
 
 Help pages live in a section. Staff pick the section by moving the page.

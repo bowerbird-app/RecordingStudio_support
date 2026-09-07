@@ -215,7 +215,7 @@ class InstallGeneratorTest < Minitest::Test
   end
 
   def public_help_section_route
-    'get "/help/sections/:id", ' \
+    'get "/help/sections/:slug", ' \
       "to: RecordingStudioSupport::PublicSectionsController.action(:show), " \
       "as: :public_help_section"
   end

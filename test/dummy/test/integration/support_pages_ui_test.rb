@@ -20,7 +20,10 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Getting started"
     assert_includes response.body, "Billing"
     assert_includes response.body, "Developers"
-    refute_includes response.body, "New page"
+    assert_includes response.body, "New page"
+    assert_includes response.body, "New section"
+    assert_includes response.body, 'href="/support/new"'
+    assert_includes response.body, 'href="/support/sections/new"'
     refute_includes response.body, "How do I change my password?"
     assert_includes response.body, "flat-pack-page-nav"
     refute_includes response.body, "Studio Workspace"
@@ -78,7 +81,8 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "How do I change my password?"
     refute_includes response.body, "How do I update payment details?"
     assert_includes response.body, "Published"
-    refute_includes response.body, "New page"
+    assert_includes response.body, "New page"
+    assert_includes response.body, "href=\"/support/new?section_id=#{section.id}\""
     refute_includes response.body, "recordable"
     assert_includes response.body, "card-border-color"
     assert_select "ul[role='list']"
@@ -124,6 +128,8 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "Edit page"
     assert_includes response.body, "Publish"
     assert_includes response.body, "This page is live."
+    assert_includes response.body, "View now"
+    refute_includes response.body, "Open live page"
     assert_includes response.body, "Move to trash"
     assert RecordingStudioSupport::PageView.exists?(recording_id: recording.id)
   end
@@ -245,6 +251,7 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Getting started"
     refute_includes response.body, "New page"
+    refute_includes response.body, "New section"
 
     get "/support/new"
 

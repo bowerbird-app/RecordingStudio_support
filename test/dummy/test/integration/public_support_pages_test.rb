@@ -24,7 +24,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_includes response.body, "flat-pack-page-nav"
     assert_select "[aria-label='Go back']"
-    assert_select "[aria-label='Close']"
+    assert_select "[aria-label='Close']", count: 0
     refute_includes response.body, "flat-pack-top-nav"
     refute_includes response.body, "recording_studio_publishable/application"
     refute_includes response.body, "Sign out"
@@ -135,8 +135,11 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
 
   test "logged out visitors see published pages on a section and drafts stay hidden" do
     section = seeded_section("Getting started")
+    slug = section.recordable.slug
 
-    get "/help/sections/#{section.id}"
+    assert_equal "getting-started", slug
+
+    get "/help/sections/#{slug}"
 
     assert_response :success
     assert_includes response.body, "Getting started"
@@ -154,6 +157,15 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "chevron-right"
     refute_includes response.body, "<span>Read</span>"
     refute_includes response.body, "<span>Open</span>"
+  end
+
+  test "public section uuid bookmarks redirect to the slug url" do
+    section = seeded_section("Getting started")
+
+    get "/help/sections/#{section.id}"
+
+    assert_response :moved_permanently
+    assert_redirected_to "/help/sections/getting-started"
   end
 
   test "logged out visitors are asked to sign in for authenticated help" do

@@ -2,7 +2,7 @@
 
 Staff write help pages. People help themselves. No tickets, no inbox, no chat.
 
-Help pages sit in a section under your workspace. Each page has a title and a formatted body. Pictures go in that body. A page can go to trash. Staff pick a section by moving the page. Staff read sections and preview pages at `/support`. Logged-out visitors read sections at `/help` and live pages under a section. Drafts stay hidden. An Admin Support section is the hub. Staff open its Support pages and Support sections tables to Edit, Move, or add New. Workspace `/support` is for reading and publish preview. This gem does not ship tickets, email, messaging, or an API.
+Help pages sit in a section under your workspace. Each page has a title and a formatted body. Pictures go in that body. A page can go to trash. Staff pick a section by moving the page. Staff read sections and preview pages at `/support`. People with Accessible `:edit` can also open **New section** and **New page** from that hub. Logged-out visitors read sections at `/help` and live pages under a section. Drafts stay hidden. An Admin Support section is the hub for Edit, Move, and table-level New. This gem does not ship tickets, email, messaging, or an API.
 
 ## Install
 
@@ -132,11 +132,11 @@ Mount the screens. Public and staff help both use Recording Studio's default lay
 mount RecordingStudioSupport::Engine, at: "/support"
 mount RecordingStudioMoveable::Engine, at: "/recording_studio_moveable"
 get "/help", to: RecordingStudioSupport::PublicPagesController.action(:index), as: :public_help
-get "/help/sections/:id", to: RecordingStudioSupport::PublicSectionsController.action(:show), as: :public_help_section
+get "/help/sections/:slug", to: RecordingStudioSupport::PublicSectionsController.action(:show), as: :public_help_section
 mount RecordingStudioPublishable::Engine, at: "/"
 ```
 
-Declare the `/help` and `/help/sections/:id` routes **before** the Publishable mount. Publishable also claims `/help/:uuid/:slug`, so a later section route never wins.
+Declare the `/help` and `/help/sections/:slug` routes **before** the Publishable mount. Publishable also claims `/help/:uuid/:slug`, so a later section route never wins. Section URLs use a Support-owned `slug` (from the title). Old UUID bookmarks redirect to the slug URL. Staff `/support/sections/:id` stays on recording UUIDs.
 
 Page reads are logs (`recording_studio_support_page_views`), not extra pages in the tree.
 
@@ -193,7 +193,7 @@ RecordingStudioAccessible.bootstrap_owner_access!(
 )
 ```
 
-The section is a hub with two tables: **Support pages** and **Support sections**. It shows a page-count number, not See every page or Latest pages. The pages table lists every page, draft or live, with search, Published/Draft, section, **Edit** and **Move** on each row, and **New page** at the top. The sections table has search, a **Count** column (`1` / `2` for every kept page in that section), **Edit**, and **New section**. That count is a Family Admin `column`, not a custom cell. Staff and public Help lists still show published counts only. Edit and New open the existing Support forms (`/support/new`, `/support/:id/edit`, `/support/sections/new`, `/support/sections/:id/edit`). Those forms use Save and Cancel as two Flatpack Buttons in one row. Move opens Moveable. The tables skip the default “Table data” heading and row count. Workspace `/support` and owner preview stay for reading and publish preview. Do not put Edit on the owner preview.
+The section is a hub with two tables: **Support pages** and **Support sections**. It shows a page-count number, not See every page or Latest pages. The pages table lists every page, draft or live, with search, Published/Draft, section, **Edit** and **Move** on each row, and **New page** at the top. The sections table has search, a **Count** column (`1` / `2` for every kept page in that section), **Edit**, and **New section**. That count is a Family Admin `column`, not a custom cell. Staff and public Help lists still show published counts only. Edit and New open the existing Support forms (`/support/new`, `/support/:id/edit`, `/support/sections/new`, `/support/sections/:id/edit`). Those forms use Save and Cancel as two Flatpack Buttons in one row. Move opens Moveable. The tables skip the default “Table data” heading and row count. Workspace `/support` is also a write hub for Accessible `:edit` users (**New section** / **New page**). Owner page preview stays read-only aside from Publish and trash. Do not put Edit on the owner preview.
 
 ## Dummy host
 
@@ -229,7 +229,7 @@ bin/rails db:setup
 bin/dev
 ```
 
-Then open `/help` without signing in, or `/support` after you sign in. Search the lists with `?q=`. Dummy uses Flatpack's built-in `rounded` theme on `<html data-theme="rounded">` for login, public help, staff help, and Admin. For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root. Edit, Move, and New live on the Admin tables, not on owner preview.
+Then open `/help` without signing in, or `/support` after you sign in. Search the lists with `?q=`. Dummy uses Flatpack's built-in `rounded` theme on `<html data-theme="rounded">` for login, public help, staff help, and Admin. For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root. Edit and Move live on the Admin tables. New also appears on `/support` for editors, and on the Admin tables.
 
 Seeds three sections: **Billing**, **Developers**, and **Getting started**. **How do I sign in?** is a live article with headings, a list, and an inline photograph. **How do I change my password?** stays a draft under Getting started. Billing and Developers each have one live page so those lists are not empty.
 
