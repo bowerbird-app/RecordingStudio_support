@@ -20,7 +20,6 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Getting started"
     assert_includes response.body, "Billing"
     assert_includes response.body, "Developers"
-    assert_includes response.body, "How do I sign in?"
     refute_includes response.body, "How do I change my password?"
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_includes response.body, "flat-pack-page-nav"
@@ -38,8 +37,6 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Find an answer."
     assert_includes response.body, "max-w-none"
     assert_includes response.body, "card-border-color"
-    assert_includes response.body, "flat-pack--collapse"
-    assert_select "a[href='/help/sections/getting-started'][aria-label='Getting started']"
     assert_select "ul[role='list']"
     assert_select "li[role='listitem']"
     assert_includes response.body, "chevron-right"

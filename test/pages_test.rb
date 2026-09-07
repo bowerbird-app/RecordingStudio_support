@@ -54,9 +54,6 @@ class PagesTest < Minitest::Test
     list = File.read(
       File.expand_path("../app/views/recording_studio_support/shared/_link_list.html.erb", __dir__)
     )
-    expand_list = File.read(
-      File.expand_path("../app/views/recording_studio_support/shared/_section_expand_list.html.erb", __dir__)
-    )
 
     [staff_index, public_index].each do |index|
       assert_includes index, "support_page_count_badge"
@@ -66,18 +63,12 @@ class PagesTest < Minitest::Test
       assert_includes show, "support_published_badge"
     end
 
-    [staff_index, staff_show, public_show].each do |view|
+    [staff_index, public_index, staff_show, public_show].each do |view|
       assert_includes view, 'render "recording_studio_support/shared/link_list"'
       refute_includes view, "FlatPack::Card::Component"
       refute_includes view, 'text: "Read"'
       refute_includes view, 'text: "Open"'
     end
-
-    assert_includes public_index, 'render "recording_studio_support/shared/section_expand_list"'
-    refute_includes public_index, 'render "recording_studio_support/shared/link_list"'
-    refute_includes public_index, "FlatPack::Card::Component"
-    refute_includes public_index, 'text: "Read"'
-    refute_includes public_index, 'text: "Open"'
 
     assert_includes list, "FlatPack::Card::Component"
     assert_includes list, "card.body"
@@ -88,15 +79,6 @@ class PagesTest < Minitest::Test
     refute_match(/List::Component\.new\([^)]*border:/, list)
     refute_includes list, 'text: "Read"'
     refute_includes list, 'text: "Open"'
-
-    assert_includes expand_list, "FlatPack::Card::Component"
-    assert_includes expand_list, "FlatPack::Collapse::Component"
-    assert_includes expand_list, "FlatPack::Link::Component"
-    assert_includes expand_list, "FlatPack::List::Component"
-    assert_includes expand_list, "support_list_chevron"
-    assert_includes expand_list, "border: false"
-    refute_includes expand_list, 'text: "Read"'
-    refute_includes expand_list, 'text: "Open"'
   end
 
   def test_owner_preview_has_no_edit
@@ -122,9 +104,7 @@ class PagesTest < Minitest::Test
     refute_includes pages, "noindex"
     assert_includes public_index, 'render "recording_studio_support/shared/search"'
     assert_includes public_index, "support_public_help_title"
-    assert_includes public_index, 'render "recording_studio_support/shared/section_expand_list"'
-    assert_includes public_index, "@pages_by_section"
-    refute_includes public_index, 'render "recording_studio_support/shared/link_list"'
+    assert_includes public_index, 'render "recording_studio_support/shared/link_list"'
     refute_includes public_index, "FlatPack::Card::Component"
     refute_includes public_index, 'text: "Read"'
     refute_includes public_index, "recordable"
