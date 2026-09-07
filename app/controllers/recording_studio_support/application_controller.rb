@@ -51,13 +51,21 @@ module RecordingStudioSupport
       end
     end
 
+    # Ownership is the workspace root of the page/section (or the parent
+    # section when creating). AdminRoot grants still open staff tools.
+    # Do not fall back to the switched current root once a content root is known —
+    # that would let an editor of workspace A mutate content under workspace B.
     def recordings_for_support_authorization
-      [
-        @page_recording&.root_recording,
-        @section_recording&.root_recording,
-        current_support_root_recording,
-        admin_access_recording
-      ].compact.uniq
+      content_root = content_root_for_authorization
+      if content_root
+        [content_root, admin_access_recording].compact.uniq
+      else
+        [current_support_root_recording, admin_access_recording].compact.uniq
+      end
+    end
+
+    def content_root_for_authorization
+      @page_recording&.root_recording || @section_recording&.root_recording
     end
 
     def admin_access_recording

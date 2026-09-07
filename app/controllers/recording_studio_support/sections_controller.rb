@@ -4,8 +4,8 @@ module RecordingStudioSupport
   class SectionsController < ApplicationController
     skip_before_action :authenticate_user!, only: %i[index show], raise: false
     before_action :require_support_root!, except: %i[index show]
-    before_action -> { authorize_support!(:edit) }, only: %i[new create edit update trash]
     before_action :set_section_recording, only: %i[show edit update trash]
+    before_action -> { authorize_support!(:edit) }, only: %i[new create edit update trash]
 
     def index
       @query = params[:q].to_s.strip

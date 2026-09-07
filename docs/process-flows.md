@@ -21,9 +21,10 @@ AdminRoot (root, Accessible)  ← Admin hub only; not a content parent
 | Per-page / per-section owners | **None.** Accessible is not enabled on `SupportPage` or `SupportSection`. |
 | Move between sections | Changes parent under the **same** workspace root. ACL does not move; it stays root-scoped. |
 | Admin vs workspace editor | Same content model. Admin staff may authorize via AdminRoot grant even when current root is Admin; creates still land under a Workspace. |
+| How authorize decides | Load the page/section (or parent section on create) **first**. Check Accessible on that content’s workspace root, **or** AdminRoot. Do not use the switched current root once a content root is known — that blocked cross-workspace ID attacks. |
 | Accessible gap? | Root-scoped `:edit` is enough for “any editor in this workspace.” If a host needs section- or page-scoped authors, **stop and extend Accessible** — do not invent ad-hoc ownership. |
 
-Suggested follow-up order starts here: lock this model before wiring more CTAs.
+Ownership is implemented in Support controllers. Remaining follow-ups are CRUD CTAs, Draft ↔ Live, and versioning — not a second permission system.
 
 ---
 
@@ -37,7 +38,7 @@ Suggested follow-up order starts here: lock this model before wiring more CTAs.
 | Accessible `:view` on workspace | Staff page preview; published-only section lists. |
 | Accessible `:edit` (or AdminRoot grant that passes `:edit`) | Create / revise / trash / Publish link / see drafts on section show. |
 
-Authorize runs on workspace / AdminRoot recordings — not on the page or section recording itself. `authorize_support!` runs **before** the page/section is loaded, so the check is current-root + admin resolver, not the target record’s root.
+Authorize checks Accessible on the **page/section workspace root** (loaded before authorize) or AdminRoot — not on the page/section recording itself, and not on a mismatched switched current root once content is known.
 
 ### Surface × action × role
 
@@ -78,11 +79,8 @@ Confirm product intent, then implement:
 
 | Decision | Options |
 | --- | --- |
+| Cross-workspace ID access | Done: authorize uses the loaded recording’s root (or AdminRoot) |
 | Where editors revise | Keep Admin-only Edit **or** add Edit on staff preview / section row |
-| Section trash | Add danger control on section edit and/or Admin row |
-| Admin trash / open | Mirror staff trash; add Open preview / Open live |
-| Cross-workspace ID access | Tighten authorize to the loaded recording’s root after set_* |
-
 ---
 
 ## 2. Draft ↔ Live status
@@ -131,12 +129,13 @@ Pick **one** public predicate for lists, badges, and Admin filters (`indexable` 
 2. Grant AdminRoot access for staff who use `/admin` (and who may edit via admin resolver when current root is Admin).
 3. Do not attach Accessible to SupportPage/SupportSection unless product requires page-scoped authors — and then extend Accessible properly.
 4. Moving a page between sections does not change ownership; it stays in the workspace bucket.
+5. Controllers load the page/section (or create parent section) before `authorize_support!`, then check that content’s root or AdminRoot.
 
 ---
 
 ## Follow-up implementation order
 
-1. **Ownership / access** — confirm root-scoped Accessible; decide whether authorize must use the loaded recording’s root; ask before any per-section ACL.
+1. **Ownership / access** — **done** for root-scoped Accessible (content root before authorize; AdminRoot still allowed).
 2. **CRUD audit against that model** — close UI gaps (section trash, Admin trash/open, optional staff Edit) without inventing a second permission system.
 3. **Draft ↔ Live** — bidirectional, discoverable transitions; one status source of truth for Admin + staff + public.
 4. **Versioning** — keep document-only unless restore/compare is explicitly in scope.

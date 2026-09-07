@@ -58,6 +58,32 @@ class ApplicationHelperTest < Minitest::Test
     refute_includes source, "authorize_support!(:view)"
     assert_includes index, "can_edit_support_pages?"
     assert_includes index, "Nothing live yet"
+
+    set_idx = source.index("before_action :set_section_recording")
+    auth_idx = source.index("authorize_support!(:edit)")
+    assert set_idx, "sections load before authorize"
+    assert auth_idx, "sections authorize edit"
+    assert set_idx < auth_idx, "section ownership root must load before authorize"
+  end
+
+  def test_pages_controller_loads_ownership_root_before_authorize
+    source = File.read(
+      File.expand_path("../app/controllers/recording_studio_support/pages_controller.rb", __dir__)
+    )
+    application = File.read(
+      File.expand_path("../app/controllers/recording_studio_support/application_controller.rb", __dir__)
+    )
+
+    set_idx = source.index("before_action :set_page_recording")
+    parent_idx = source.index("before_action :set_page_parent_section_for_authorization")
+    view_idx = source.index("authorize_support!(:view)")
+    edit_idx = source.index("authorize_support!(:edit)")
+
+    assert set_idx < view_idx
+    assert set_idx < edit_idx
+    assert parent_idx < edit_idx
+    assert_includes application, "content_root_for_authorization"
+    assert_includes application, "admin_access_recording"
   end
 
   def test_support_recording_title_reads_the_page_title

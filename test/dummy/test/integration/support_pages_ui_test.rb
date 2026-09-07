@@ -308,6 +308,87 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "How do I change my password?"
   end
 
+  test "editor of one workspace cannot edit another workspace page by id" do
+    editor = User.create!(
+      email: "editor-a-#{SecureRandom.hex(4)}@example.com",
+      password: "Password",
+      password_confirmation: "Password"
+    )
+    workspace_a = Workspace.create!(name: "Workspace A #{SecureRandom.hex(4)}")
+    workspace_b = Workspace.create!(name: "Workspace B #{SecureRandom.hex(4)}")
+    root_a = RecordingStudio.root_recording_for(workspace_a)
+    root_b = RecordingStudio.root_recording_for(workspace_b)
+    grant_role!(root_a, editor, :edit)
+    grant_role!(root_b, editor, :view)
+
+    section_b = record_support_section(root_b, title: "B only section")
+    page_b = record_support_page(root_b, section_b, title: "B only page")
+    section_a = record_support_section(root_a, title: "A section")
+    page_a = record_support_page(root_a, section_a, title: "A page")
+
+    sign_in editor
+    switch_to_root!(root_b)
+
+    get "/support/#{page_b.id}/edit"
+    assert_response :forbidden
+
+    get "/support/#{page_a.id}/edit"
+    assert_response :success
+    assert_includes response.body, "Edit page"
+
+    patch "/support/#{page_b.id}", params: { page: { title: "Hijacked", body: "Nope" } }
+    assert_response :forbidden
+    assert_equal "B only page", page_b.reload.recordable.title
+
+    post "/support/#{page_b.id}/trash"
+    assert_response :forbidden
+    assert_nil page_b.reload.trashed_at
+
+    get "/support/new", params: { section_id: section_b.id }
+    assert_response :forbidden
+
+    post "/support", params: {
+      page: { title: "Smuggled", body: "Nope", section_id: section_b.id }
+    }
+    assert_response :forbidden
+    titles = RecordingStudio::Recording.where(
+      parent_recording_id: section_b.id,
+      recordable_type: "RecordingStudioSupport::SupportPage",
+      trashed_at: nil
+    ).filter_map { |recording| recording.recordable&.title }
+    refute_includes titles, "Smuggled"
+  end
+
+  test "editor of one workspace cannot revise or trash another workspace section" do
+    editor = User.create!(
+      email: "section-editor-a-#{SecureRandom.hex(4)}@example.com",
+      password: "Password",
+      password_confirmation: "Password"
+    )
+    workspace_a = Workspace.create!(name: "Section A #{SecureRandom.hex(4)}")
+    workspace_b = Workspace.create!(name: "Section B #{SecureRandom.hex(4)}")
+    root_a = RecordingStudio.root_recording_for(workspace_a)
+    root_b = RecordingStudio.root_recording_for(workspace_b)
+    grant_role!(root_a, editor, :edit)
+    grant_role!(root_b, editor, :view)
+
+    section_b = record_support_section(root_b, title: "Keep my name")
+
+    sign_in editor
+    switch_to_root!(root_b)
+
+    get "/support/sections/#{section_b.id}/edit"
+    assert_response :forbidden
+
+    patch "/support/sections/#{section_b.id}", params: { section: { title: "Renamed" } }
+    assert_response :forbidden
+    assert_equal "Keep my name", section_b.reload.recordable.title
+
+    post "/support/sections/#{section_b.id}/trash"
+    assert_response :forbidden
+    assert_nil section_b.reload.trashed_at
+  end
+
   test "public help article shows related pages from the same section" do
     current = seeded_page("How do I update payment details?")
     related = seeded_page("Where is my invoice?")
@@ -328,6 +409,16 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def switch_to_root!(root_recording)
+    patch "/recording_studio_root_switchable/v1/root_switch", params: {
+      scope: "all_workspaces",
+      root_switch: {
+        root_recording_id: root_recording.id,
+        return_to: "/support"
+      }
+    }
+  end
 
   def grant_role!(recording, actor, role)
     original = RecordingStudioAccessible.configuration.access_management_authorizer

@@ -9,16 +9,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.7.4] - 2026-09-07
 
-Document admin/staff process flows for pages and sections after 0.7.3. No product behavior change.
+Document admin/staff process flows after 0.7.3. Enforce workspace-root ownership on Support authorize.
 
 ### Added
 - `docs/process-flows.md` — ownership (Accessible on the workspace root), CRUD surface × action × role matrix, Draft ↔ Live gaps, and versioning (revise/events vs gem semver). Planned follow-up order for later implementation
+- Staff authorize loads the page/section (or create parent section) first, then checks Accessible on that content’s workspace root or AdminRoot. Cross-workspace edit/create/trash by UUID is forbidden
 
 ### Changed
 - README Admin Support points at that process-flow picture
+- `recordings_for_support_authorization` no longer falls back to the switched current root once a content root is known
 
 ### Upgrade notes
-- No schema, route, or host code changes. Read `docs/process-flows.md` before wiring more Admin/staff CTAs
+- No schema or route changes. Hosts that relied on “any `:edit` on the current workspace lets you mutate another workspace’s page by id” must grant Accessible on the page’s workspace (or AdminRoot) instead
+- Read `docs/process-flows.md` before wiring more Admin/staff CTAs
 
 ## [0.7.3] - 2026-09-07
 
