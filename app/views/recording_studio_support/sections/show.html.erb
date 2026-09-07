@@ -29,7 +29,11 @@
       href = page.published_url
       next if href.blank?
 
-      { title: page.title, href: href, meta: support_published_badge }
+      {
+        title: page.title,
+        href: href,
+        meta: (support_published_badge if current_support_actor.present?)
+      }
     } %>
   <% elsif @query.present? %>
     <%= render FlatPack::EmptyState::Component.new(

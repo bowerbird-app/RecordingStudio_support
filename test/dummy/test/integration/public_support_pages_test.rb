@@ -186,6 +186,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Billing"
     refute_includes response.body, "New page"
+    refute_includes response.body, "Published"
     refute_includes response.body, "How do I change my password?"
   end
 

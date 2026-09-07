@@ -20,6 +20,7 @@ Staff Help hub can add pages and sections. Public section URLs use readable slug
 - Public `/help` index drops Close (Back only via default layout history)
 - Public section and article shows still Close to `/help`
 - `/support` and `/support/sections/:id` are readable without signing in; New section / New page / write screens stay Accessible `:edit`
+- Logged-out `/support/sections/:id` omits the Published badge on page rows
 - Staff live preview merges the live link into the success alert: “This page is live. View now”
 - Host public section route param is `:slug` (install generator updated)
 - Section count and Published badges use Flatpack Badge `size: :xs`
