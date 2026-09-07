@@ -6,6 +6,10 @@ module RecordingStudioSupport
       Body.sanitize(body).html_safe
     end
 
+    def support_page_meta_description(body)
+      Body.meta_description(body)
+    end
+
     def support_publish_path(recording)
       engine = publishable_engine_routes
       return if engine.blank? || recording.blank?

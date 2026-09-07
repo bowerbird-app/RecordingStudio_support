@@ -59,6 +59,13 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_flatpack_rounded_theme
     assert_includes response.body, "How do I sign in?"
+    assert_select "title", text: "How do I sign in?"
+    assert_select "meta[name='description']" do |nodes|
+      assert_match(/Use the email and password you were given/, nodes.first["content"])
+      refute_includes nodes.first["content"], "<"
+      refute_includes nodes.first["content"], "<p>"
+    end
+    assert_select "meta[property='og:title'][content=?]", "How do I sign in?"
     assert_includes response.body, "Use the email and password you were given"
     assert_includes response.body, "Open the sign-in page"
     assert_includes response.body, "Your email"
@@ -84,6 +91,26 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, 'href="/users/sign_in"'
     refute_includes response.body, "Open help pages"
     refute_includes response.body, "recordable"
+  end
+
+  test "published article meta description escapes markup from the body" do
+    current = seeded_page("How do I update payment details?")
+    path = current.recordable.published_url
+    assert path.present?
+
+    root = RecordingStudio.root_recording_for(Workspace.find_by!(name: "Studio Workspace"))
+    root.revise(current) do |page|
+      page.body = "<p>Pay &amp; save the card. &lt;Keep receipts&gt;.</p>"
+    end
+
+    get path
+
+    assert_response :success
+    assert_select "title", text: "How do I update payment details?"
+    assert_select "meta[name='description']" do |nodes|
+      content = nodes.first["content"]
+      assert_equal "Pay & save the card. <Keep receipts>.", content
+    end
   end
 
   test "published billing article lists related pages" do

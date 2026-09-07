@@ -10,6 +10,15 @@ class ApplicationHelperTest < Minitest::Test
     assert_equal "Updated August 21, 2026", helper.support_page_updated_on(Time.utc(2026, 8, 21, 15, 30))
   end
 
+  def test_support_page_meta_description_uses_plain_escaped_body_text
+    helper = Object.new.extend(load_helper)
+
+    assert_equal "Pay & save <today>.", helper.support_page_meta_description(
+      "<p>Pay &amp; save &lt;today&gt;.</p>"
+    )
+    assert_nil helper.support_page_meta_description("")
+  end
+
   def test_support_publish_path_is_blank_without_routes
     helper = Object.new.extend(load_helper)
 

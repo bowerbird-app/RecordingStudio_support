@@ -133,6 +133,8 @@ class PagesTest < Minitest::Test
     assert_includes show, "FlatPack::PageTitle::Component"
     assert_includes show, 'class="prose max-w-none'
     assert_includes show, "support_page_body_html"
+    assert_includes show, "recording_studio_seo_description"
+    assert_includes show, "support_page_meta_description"
     assert_includes show, "Related"
     assert_includes show, 'render "recording_studio_support/shared/link_list"'
     assert_includes show, "FlatPack::SectionTitle::Component"

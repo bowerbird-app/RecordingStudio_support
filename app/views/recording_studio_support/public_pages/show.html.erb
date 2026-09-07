@@ -5,6 +5,7 @@
      page_nav_anchor_url: support_public_help_path,
      page_nav_anchor_label: "Close"
    ) %>
+<% recording_studio_seo_description(support_page_meta_description(@page.body)) %>
 
 <div class="flex w-full flex-col gap-6">
   <%= render FlatPack::PageTitle::Component.new(

@@ -16,6 +16,7 @@ Staff Help hub can add pages and sections. Public section URLs use readable slug
 - `SupportSection#slug` for public section URLs (`/help/sections/:slug`). Generated from the title. No FriendlyId — Support owns the column, same idea as Publishable page slugs
 - UUID bookmarks at `/help/sections/:uuid` redirect to the canonical slug URL
 - Public article show lists **Related** published pages from the same section (Flatpack list under a horizontal rule)
+- Public article `<title>` uses the page title; meta description uses plain text from the body (tags stripped, entities unescaped, truncated to 160)
 
 ### Changed
 - Public `/help` index drops Close (Back only via default layout history)
