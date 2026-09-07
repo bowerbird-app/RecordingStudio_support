@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.4] - 2026-09-07
+
+Document admin/staff process flows for pages and sections after 0.7.3. No product behavior change.
+
+### Added
+- `docs/process-flows.md` — ownership (Accessible on the workspace root), CRUD surface × action × role matrix, Draft ↔ Live gaps, and versioning (revise/events vs gem semver). Planned follow-up order for later implementation
+
+### Changed
+- README Admin Support points at that process-flow picture
+
+### Upgrade notes
+- No schema, route, or host code changes. Read `docs/process-flows.md` before wiring more Admin/staff CTAs
+
 ## [0.7.3] - 2026-09-07
 
 Staff Help hub can add pages and sections. Public section URLs use readable slugs. Staff show uses a Live/Draft status button beside Publish.
@@ -310,7 +323,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.7.3...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.7.4...HEAD
+[0.7.4]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.7.3...v0.7.4
 [0.7.3]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.7.2
 [0.7.1]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.7.1

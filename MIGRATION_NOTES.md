@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+## 0.7.4
+
+Docs only. Staff/admin process flows for help pages and sections.
+
+### Host app
+
+1. No migrations or route changes.
+2. Before adding Edit, trash, publish/unpublish, or restore UI, read `docs/process-flows.md` (ownership, CRUD matrix, Draft ↔ Live, versioning).
+
+### Verify
+
+```bash
+bundle exec rake test:all
+```
+
 ## 0.7.3
 
 Public section URLs use a Support-owned slug. Staff Help hub can create pages and sections.
