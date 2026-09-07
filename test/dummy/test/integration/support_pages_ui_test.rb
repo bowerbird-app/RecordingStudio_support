@@ -266,6 +266,14 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "How do I change my password?"
     refute_includes response.body, "New page"
 
+    recording = seeded_page("How do I change my password?")
+    get "/support/#{recording.id}/edit"
+    assert_redirected_to "/support/#{recording.id}"
+    follow_redirect!
+    assert_response :success
+    assert_includes response.body, "How do I change my password?"
+    refute_includes response.body, "Edit page"
+
     get "/support/new"
 
     assert_response :forbidden
@@ -330,16 +338,18 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     switch_to_root!(root_b)
 
     get "/support/#{page_b.id}/edit"
-    assert_response :forbidden
-    assert_includes response.body, "No access"
-    assert_includes response.body, "That help belongs to another workspace."
+    assert_redirected_to "/support/#{page_b.id}"
+    follow_redirect!
+    assert_response :success
+    assert_includes response.body, "B only page"
+    refute_includes response.body, "Edit page"
 
     get "/support/#{page_a.id}/edit"
     assert_response :success
     assert_includes response.body, "Edit page"
 
     patch "/support/#{page_b.id}", params: { page: { title: "Hijacked", body: "Nope" } }
-    assert_response :forbidden
+    assert_redirected_to "/support/#{page_b.id}"
     assert_equal "B only page", page_b.reload.recordable.title
 
     post "/support/#{page_b.id}/trash"
@@ -380,10 +390,14 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     switch_to_root!(root_b)
 
     get "/support/sections/#{section_b.id}/edit"
-    assert_response :forbidden
+    assert_redirected_to "/support/sections/#{section_b.id}"
+    follow_redirect!
+    assert_response :success
+    assert_includes response.body, "Keep my name"
+    refute_includes response.body, "Edit section"
 
     patch "/support/sections/#{section_b.id}", params: { section: { title: "Renamed" } }
-    assert_response :forbidden
+    assert_redirected_to "/support/sections/#{section_b.id}"
     assert_equal "Keep my name", section_b.reload.recordable.title
 
     post "/support/sections/#{section_b.id}/trash"

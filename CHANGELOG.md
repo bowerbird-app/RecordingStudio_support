@@ -15,6 +15,7 @@ Document admin/staff process flows after 0.7.3. Enforce workspace-root ownership
 - `docs/process-flows.md` — ownership (Accessible on the workspace root), CRUD surface × action × role matrix, Draft ↔ Live gaps, and versioning (revise/events vs gem semver). Planned follow-up order for later implementation
 - Staff authorize loads the page/section (or create parent section) first, then checks Accessible on that content’s workspace root or AdminRoot. Cross-workspace edit/create/trash by UUID is forbidden
 - Forbidden Support writes render a **No access** screen (status 403) instead of an empty body
+- Unauthorized **edit** / **update** redirects to the page or section show instead of the No access screen
 
 ### Changed
 - README Admin Support points at that process-flow picture

@@ -32,7 +32,26 @@ module RecordingStudioSupport
     def authorize_support!(role)
       return if support_access_allowed?(role)
 
-      render "recording_studio_support/shared/forbidden", status: :forbidden
+      deny_support_access!
+    end
+
+    def deny_support_access!
+      if support_edit_action? && support_show_path_for_denial
+        redirect_to support_show_path_for_denial
+      else
+        render "recording_studio_support/shared/forbidden", status: :forbidden
+      end
+    end
+
+    def support_edit_action?
+      action_name.in?(%w[edit update])
+    end
+
+    def support_show_path_for_denial
+      return page_path(@page_recording) if @page_recording
+      return section_path(@section_recording) if @section_recording
+
+      nil
     end
 
     def can_edit_support_pages?

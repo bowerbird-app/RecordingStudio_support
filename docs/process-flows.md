@@ -129,7 +129,7 @@ Pick **one** public predicate for lists, badges, and Admin filters (`indexable` 
 2. Grant AdminRoot access for staff who use `/admin` (and who may edit via admin resolver when current root is Admin).
 3. Do not attach Accessible to SupportPage/SupportSection unless product requires page-scoped authors — and then extend Accessible properly.
 4. Moving a page between sections does not change ownership; it stays in the workspace bucket.
-5. Controllers load the page/section (or create parent section) before `authorize_support!`, then check that content’s root or AdminRoot. Denied writes render a **No access** screen (HTTP 403).
+5. Controllers load the page/section (or create parent section) before `authorize_support!`, then check that content’s root or AdminRoot. Unauthorized **edit** / **update** redirects to show. Other denied writes render a **No access** screen (HTTP 403).
 
 ---
 

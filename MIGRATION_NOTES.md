@@ -9,7 +9,7 @@ Staff/admin process flows docs. Support authorize uses the page/section workspac
 ### Host app
 
 1. No migrations or route changes.
-2. Accessible grants stay on the **workspace root** (and AdminRoot for staff). Support no longer treats “`:edit` on the switched current root” as enough to mutate another workspace’s page or section by UUID. Denied writes show a **No access** page (403).
+2. Accessible grants stay on the **workspace root** (and AdminRoot for staff). Support no longer treats “`:edit` on the switched current root” as enough to mutate another workspace’s page or section by UUID. Unauthorized **edit** / **update** redirects to the show page. Other denied writes show a **No access** page (403).
 3. Before adding Edit, trash, publish/unpublish, or restore UI, read `docs/process-flows.md`.
 
 ### Verify
