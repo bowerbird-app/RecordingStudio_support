@@ -22,20 +22,26 @@
             href: publish_href
           ) %>
         <% end %>
+        <%= form_with url: trash_page_path(@page_recording), method: :post, class: "inline-flex" do %>
+          <%= render FlatPack::Button::Component.new(
+            icon: "trash",
+            icon_only: true,
+            style: :ghost,
+            size: :md,
+            type: "submit",
+            aria: { label: "Move to trash" }
+          ) %>
+        <% end %>
       <% end %>
     <% end %>
   <% end %>
 
   <% live = @page_recording.respond_to?(:currently_published?) && @page_recording.currently_published? %>
-  <% if live && @page.respond_to?(:published_url) && @page.published_url.present? %>
-    <%= render FlatPack::Alert::Component.new(style: :success) do %>
-      <p class="text-sm text-[var(--alert-description-color)]">
-        This page is live.
-        <%= render FlatPack::Link::Component.new(href: @page.published_url) do %>
-          View now
-        <% end %>
-      </p>
-    <% end %>
+  <% if live %>
+    <%= render FlatPack::Alert::Component.new(
+      description: "This page is live.",
+      style: :success
+    ) %>
   <% elsif can_edit_support_pages? %>
     <%= render FlatPack::Alert::Component.new(
       description: "Not live yet. This preview is just for you.",
@@ -44,21 +50,10 @@
   <% end %>
 
   <% if @page.body.present? %>
-    <div class="text-base leading-7 text-(--surface-content-color)">
+    <div class="prose max-w-none text-(--surface-content-color)">
       <%= support_page_body_html(@page.body) %>
     </div>
   <% else %>
     <p class="text-sm text-(--surface-content-color)">This page is still waiting on the words.</p>
-  <% end %>
-
-  <% if can_edit_support_pages? %>
-    <%= form_with url: trash_page_path(@page_recording), method: :post do %>
-      <%= render FlatPack::Button::Component.new(
-        text: "Move to trash",
-        style: :danger,
-        size: :md,
-        type: "submit"
-      ) %>
-    <% end %>
   <% end %>
 </div>

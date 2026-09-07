@@ -15,6 +15,8 @@ Public section URLs use a Support-owned slug. Staff Help hub can create pages an
 5. Do not add FriendlyId. Page public URLs stay Publishable `/help/:uuid/:slug`.
 6. Hosts can keep Devise `authenticate_user!` on ApplicationController. Support skips it for section index/show only.
 7. Host layouts that load `flat_pack/rich_text` before Tailwind should declare `@layer theme, base, components, utilities` first so TipTap borders keep their width.
+8. Staff live pages show “This page is live.” with no View now link. Trash is an icon-only control beside Publish.
+9. Public articles list Related published pages from the same section when any exist.
 
 ### Verify
 

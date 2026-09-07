@@ -3,13 +3,16 @@
 require "test_helper"
 
 class SupportSectionSlugTest < Minitest::Test
-  def test_staff_show_alert_links_to_live_page
+  def test_staff_show_alert_notes_live_without_view_now
     show = File.read(File.expand_path("../app/views/recording_studio_support/pages/show.html.erb", __dir__))
 
     assert_includes show, "This page is live."
-    assert_includes show, "View now"
-    assert_includes show, "FlatPack::Link::Component"
+    refute_includes show, "View now"
+    refute_includes show, "FlatPack::Link::Component"
     refute_includes show, "Open live page"
+    assert_includes show, 'icon: "trash"'
+    assert_includes show, "icon_only: true"
+    assert_includes show, 'label: "Move to trash"'
   end
 
   def test_public_help_index_has_no_close_anchor

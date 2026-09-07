@@ -42,8 +42,8 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_select "ul[role='list']"
     assert_select "li[role='listitem']"
     assert_includes response.body, "chevron-right"
-    assert_select "[class*='badge-default-background-color']", text: "1", count: 3
-    refute_includes response.body, ">2<"
+    assert_select "[class*='badge-default-background-color']", text: "1", count: 2
+    assert_select "[class*='badge-default-background-color']", text: "2", count: 1
     refute_includes response.body, "1 page"
     refute_includes response.body, "2 pages"
     refute_includes response.body, "<span>Open</span>"
@@ -130,9 +130,10 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "Edit page"
     assert_includes response.body, "Publish"
     assert_includes response.body, "This page is live."
-    assert_includes response.body, "View now"
+    refute_includes response.body, "View now"
     refute_includes response.body, "Open live page"
-    assert_includes response.body, "Move to trash"
+    assert_includes response.body, 'aria-label="Move to trash"'
+    refute_match(/>\s*Move to trash\s*</, response.body)
     assert RecordingStudioSupport::PageView.exists?(recording_id: recording.id)
   end
 
@@ -302,6 +303,25 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert recording.reload.trashed_at
     get "/support/sections/#{seeded_section('Getting started').id}"
     refute_includes response.body, "How do I change my password?"
+  end
+
+  test "public help article shows related pages from the same section" do
+    current = seeded_page("How do I update payment details?")
+    related = seeded_page("Where is my invoice?")
+    current_path = current.recordable.published_url
+    related_path = related.recordable.published_url
+
+    assert current_path.present?
+    assert related_path.present?
+
+    get current_path
+
+    assert_response :success
+    assert_includes response.body, FlatPack::PageTitle::Component.name
+    assert_includes response.body, 'class="prose max-w-none'
+    assert_includes response.body, "Related"
+    assert_includes response.body, FlatPack::List::Component.name
+    assert_select "a[href=?]", related_path
   end
 
   private

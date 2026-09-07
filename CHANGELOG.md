@@ -9,12 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.7.3] - 2026-09-07
 
-Staff Help hub can add pages and sections. Public section URLs use readable slugs. Live preview alert links out.
+Staff Help hub can add pages and sections. Public section URLs use readable slugs. Staff live pages note that they are live without a separate View now link.
 
 ### Added
 - Staff `/support` shows **New section** and **New page** for Accessible `:edit` users. Section show also offers **New page**
 - `SupportSection#slug` for public section URLs (`/help/sections/:slug`). Generated from the title. No FriendlyId — Support owns the column, same idea as Publishable page slugs
 - UUID bookmarks at `/help/sections/:uuid` redirect to the canonical slug URL
+- Public article show lists **Related** published pages from the same section (Flatpack list under a horizontal rule)
 
 ### Changed
 - Public `/help` index drops Close (Back only via default layout history)
@@ -22,10 +23,12 @@ Staff Help hub can add pages and sections. Public section URLs use readable slug
 - `/support` and `/support/sections/:id` are readable without signing in; New section / New page / write screens stay Accessible `:edit`
 - Logged-out `/support/sections/:id` omits the Published badge on page rows
 - Accessible `:edit` users see drafts on `/support/sections/:id` (status badge + link to staff preview)
-- Staff live preview merges the live link into the success alert: “This page is live. View now”
+- Staff live alert is “This page is live.” only — no View now link (the staff show is the page)
+- Staff Publish and trash sit in the same PageTitle row; trash is an icon-only ghost button
 - Host public section route param is `:slug` (install generator updated)
 - Section count and Published badges use Flatpack Badge `size: :xs`
 - Dummy layouts declare `@layer theme, base, components, utilities` before Flatpack CSS so TipTap borders survive Tailwind preflight
+- Public article body uses Flatpack PageTitle plus long-form `prose` content (same idea as Flatpack’s text/content demo; no Content component)
 
 ### Upgrade notes
 - Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` for the section `slug` column. Existing titles are backfilled

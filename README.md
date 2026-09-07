@@ -161,9 +161,9 @@ RecordingStudioSupport.configure do |config|
 end
 ```
 
-Public show is Publishable's published route (`/help/:uuid/:slug`). It is a simple article: title, optional Updated line, and formatted body (headings, short paragraphs, lists, inline pictures). No live banner, no sign-in alert, no Edit, trash, or Access. Do not wrap the body in a skinny card.
+Public show is Publishable's published route (`/help/:uuid/:slug`). It is a simple article: Flatpack `PageTitle`, optional Updated line, and long-form body in `prose` (Flatpack’s text/content pattern — there is no Content component). When the section has other published pages, a horizontal rule and Flatpack **Related** list follow the body. No live banner, no sign-in alert, no Edit, trash, or Access. Do not wrap the body in a skinny card.
 
-Staff preview unpublished pages on the authenticated show. That is the same staff screen, not a second preview app. Staff preview can keep Publish, a draft note, and trash. It does not show a Pictures gallery.
+Staff preview unpublished pages on the authenticated show. That is the same staff screen, not a second preview app. Staff show keeps Publish and an icon-only trash control in the PageTitle row, plus a live or draft note. Live pages say “This page is live.” without a View now link. It does not show a Pictures gallery.
 
 The body editor is Flatpack `TextArea` with `rich_text: true`, `preset: :content`, and `uploads: { url: uploads_path }`. That upload endpoint is the same contract as ContentEditor (`upload_url` posts a file and returns `{ "url": "..." }`). `Body.sanitize` keeps `img` (`src`, `alt`).
 

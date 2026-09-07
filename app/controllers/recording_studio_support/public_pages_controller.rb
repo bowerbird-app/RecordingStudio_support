@@ -18,6 +18,7 @@ module RecordingStudioSupport
       @page = @parent_recordable
       @published_at = @publishable&.publish_at
       @section_recording = Pages.section_for(@parent_recording)
+      @related_pages = Pages.related_public_for(@page, section_recording: @section_recording)
       record_public_view
     end
 

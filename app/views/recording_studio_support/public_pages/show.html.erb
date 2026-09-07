@@ -14,8 +14,21 @@
   ) %>
 
   <% if @page.body.present? %>
-    <div class="text-base leading-7 text-(--surface-content-color)">
+    <div class="prose max-w-none text-(--surface-content-color)">
       <%= support_page_body_html(@page.body) %>
     </div>
+  <% end %>
+
+  <% if @related_pages.any? %>
+    <hr class="w-full border-0 border-t border-[var(--surface-border-color)]">
+
+    <%= render FlatPack::SectionTitle::Component.new(title: "Related") %>
+
+    <%= render "recording_studio_support/shared/link_list", items: @related_pages.filter_map { |page|
+      href = page.published_url
+      next if href.blank?
+
+      { title: page.title, href: href }
+    } %>
   <% end %>
 </div>

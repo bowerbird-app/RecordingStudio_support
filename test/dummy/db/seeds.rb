@@ -155,6 +155,12 @@ begin
     title: "How do I update payment details?",
     body: "Open billing and save the card you want us to use."
   )
+  invoice_page = find_or_record_support_page.call(
+    root_recording,
+    billing_section,
+    title: "Where is my invoice?",
+    body: "Open Billing, then Invoices. Download any paid invoice as a PDF."
+  )
   developers_page = find_or_record_support_page.call(
     root_recording,
     developers_section,
@@ -199,6 +205,13 @@ begin
     seo_description: "Open billing and save the card you want us to use."
   )
   ensure_publish_state.call(
+    invoice_page,
+    slug: "where-is-my-invoice",
+    status: "published",
+    seo_title: "Where is my invoice?",
+    seo_description: "Open Billing, then Invoices. Download any paid invoice as a PDF."
+  )
+  ensure_publish_state.call(
     developers_page,
     slug: "where-do-i-find-my-api-key",
     status: "published",
@@ -206,7 +219,7 @@ begin
     seo_description: "Open your developer settings. The key is on that page."
   )
 
-  [sign_in_page, password_page, billing_page, developers_page].each do |support_recording|
+  [sign_in_page, password_page, billing_page, invoice_page, developers_page].each do |support_recording|
     next if RecordingStudioSupport::PageView.exists?(recording_id: support_recording.id)
 
     3.times do
@@ -224,4 +237,5 @@ puts "Seeded: Workspace '#{private_workspace.name}' with root recording ##{priva
 puts "Seeded: Folder '#{folder.name}' and page '#{page.title}'"
 puts "Seeded: Help sections Billing, Developers, Getting started"
 puts "Seeded: Support pages 'How do I sign in?' (live) and 'How do I change my password?' (draft) under Getting started"
+puts "Seeded: Billing pages 'How do I update payment details?' and 'Where is my invoice?' (both live)"
 puts "Seeded: Admin root with owner access for admin@admin.com"
