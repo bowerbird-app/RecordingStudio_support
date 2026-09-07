@@ -43,10 +43,15 @@
       title: "Nothing matches that",
       description: "Try another word."
     ) %>
-  <% else %>
+  <% elsif can_edit_support_pages? %>
     <%= render FlatPack::EmptyState::Component.new(
       title: "Nothing here yet",
       description: "Add a section to get going."
+    ) %>
+  <% else %>
+    <%= render FlatPack::EmptyState::Component.new(
+      title: "Nothing live yet",
+      description: "Check back soon."
     ) %>
   <% end %>
 </div>

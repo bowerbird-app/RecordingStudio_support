@@ -168,8 +168,29 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/help/sections/getting-started"
   end
 
-  test "logged out visitors are asked to sign in for authenticated help" do
+  test "logged out visitors can read support sections without CRUD" do
     get "/support"
+
+    assert_response :success
+    assert_includes response.body, "Getting started"
+    assert_includes response.body, "Billing"
+    assert_includes response.body, "Developers"
+    refute_includes response.body, "New page"
+    refute_includes response.body, "New section"
+    refute_includes response.body, "Sign out"
+    refute_includes response.body, 'href="/users/sign_in"'
+
+    section = seeded_section("Billing")
+    get "/support/sections/#{section.id}"
+
+    assert_response :success
+    assert_includes response.body, "Billing"
+    refute_includes response.body, "New page"
+    refute_includes response.body, "How do I change my password?"
+  end
+
+  test "logged out visitors are asked to sign in for support write screens" do
+    get "/support/new"
 
     assert_response :redirect
     assert_match "/users/sign_in", response.redirect_url

@@ -34,6 +34,23 @@ class ApplicationHelperTest < Minitest::Test
     assert_includes source, "@publishable&.publish_at"
   end
 
+  def test_sections_controller_skips_auth_for_public_browse
+    source = File.read(
+      File.expand_path("../app/controllers/recording_studio_support/sections_controller.rb", __dir__)
+    )
+    index = File.read(
+      File.expand_path("../app/views/recording_studio_support/sections/index.html.erb", __dir__)
+    )
+
+    assert_includes source, "skip_before_action :authenticate_user!, only: %i[index show]"
+    assert_includes source, "before_action :require_support_root!, except: %i[index show]"
+    assert_includes source, "support_section_index_recordings"
+    assert_includes source, "Sections.public_index"
+    refute_includes source, "authorize_support!(:view)"
+    assert_includes index, "can_edit_support_pages?"
+    assert_includes index, "Nothing live yet"
+  end
+
   def test_support_recording_title_reads_the_page_title
     helper = Object.new.extend(load_helper)
     page = Struct.new(:title).new("Getting started")

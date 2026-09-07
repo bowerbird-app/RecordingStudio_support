@@ -19,15 +19,17 @@ Staff Help hub can add pages and sections. Public section URLs use readable slug
 ### Changed
 - Public `/help` index drops Close (Back only via default layout history)
 - Public section and article shows still Close to `/help`
+- `/support` and `/support/sections/:id` are readable without signing in; New section / New page / write screens stay Accessible `:edit`
 - Staff live preview merges the live link into the success alert: “This page is live. View now”
 - Host public section route param is `:slug` (install generator updated)
 - Section count and Published badges use Flatpack Badge `size: :xs`
 
 ### Upgrade notes
 - Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` for the section `slug` column. Existing titles are backfilled
-- Change the host route from `/help/sections/:id` to `/help/sections/:slug` **before** the Publishable mount. Staff `/support/...` stays on recording UUIDs
+- Change the host route from `/help/sections/:id` to `/help/sections/:slug` **before** the Publishable mount. Staff `/support/sections/:id` stays on recording UUIDs
 - Slugs overwrite when the section title changes. Old slug URLs 404; UUID bookmarks still redirect
 - Do not add FriendlyId. Page public URLs stay Publishable `/help/:uuid/:slug`
+- Hosts that forced login on every `/support` request can leave Devise `authenticate_user!` on the host ApplicationController; Support skips it for section index/show only
 
 ## [0.7.2] - 2026-09-03
 

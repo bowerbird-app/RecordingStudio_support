@@ -2,7 +2,7 @@
 
 Staff write help pages. People help themselves. No tickets, no inbox, no chat.
 
-Help pages sit in a section under your workspace. Each page has a title and a formatted body. Pictures go in that body. A page can go to trash. Staff pick a section by moving the page. Staff read sections and preview pages at `/support`. People with Accessible `:edit` can also open **New section** and **New page** from that hub. Logged-out visitors read sections at `/help` and live pages under a section. Drafts stay hidden. An Admin Support section is the hub for Edit, Move, and table-level New. This gem does not ship tickets, email, messaging, or an API.
+Help pages sit in a section under your workspace. Each page has a title and a formatted body. Pictures go in that body. A page can go to trash. Staff pick a section by moving the page. `/support` and `/support/sections/:id` are readable without signing in so visitors can browse sections and published pages. People with Accessible `:edit` also see **New section** and **New page** on that hub; write screens stay signed-in and Accessible-gated. Logged-out visitors can also read at `/help` (slug URLs) and live pages under a section. Drafts stay hidden. An Admin Support section is the hub for Edit, Move, and table-level New. This gem does not ship tickets, email, messaging, or an API.
 
 ## Install
 
@@ -50,7 +50,7 @@ bin/rails db:migrate
 
 Install Active Storage if the host does not already have it. Pictures upload through the Flatpack body editor and sit in the page HTML.
 
-The install generator mounts authenticated Support screens at `/support`, public help at `/help`, and Publishable at `/`. When an `AdminRoot` model is present, it enables `section :support`.
+The install generator mounts Support screens at `/support` (section lists are public; write screens need sign-in), public help at `/help`, and Publishable at `/`. When an `AdminRoot` model is present, it enables `section :support`.
 
 ## Support pages
 
@@ -229,7 +229,7 @@ bin/rails db:setup
 bin/dev
 ```
 
-Then open `/help` without signing in, or `/support` after you sign in. Search the lists with `?q=`. Dummy uses Flatpack's built-in `rounded` theme on `<html data-theme="rounded">` for login, public help, staff help, and Admin. For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root. Edit and Move live on the Admin tables. New also appears on `/support` for editors, and on the Admin tables.
+Then open `/help` or `/support` without signing in. Search the lists with `?q=`. Dummy uses Flatpack's built-in `rounded` theme on `<html data-theme="rounded">` for login, public help, staff help, and Admin. For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root. Edit and Move live on the Admin tables. New also appears on `/support` for editors, and on the Admin tables.
 
 Seeds three sections: **Billing**, **Developers**, and **Getting started**. **How do I sign in?** is a live article with headings, a list, and an inline photograph. **How do I change my password?** stays a draft under Getting started. Billing and Developers each have one live page so those lists are not empty.
 

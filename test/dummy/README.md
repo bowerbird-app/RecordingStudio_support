@@ -7,7 +7,7 @@ This Rails app exists to prove Recording Studio Support in a real host. It is no
 - Devise authentication with a seeded admin user
 - `Current.actor` wiring for Recording Studio events
 - Root workspace plus seeded help sections and pages, one with an inline picture in the body
-- Authenticated Support screens mounted at `/support`
+- Support screens mounted at `/support` (section browse is public; write screens need sign-in)
 - Public help at `/help` for logged-out visitors (default-layout chrome, Card-wrapped Flatpack List of sections with published page-count badges, then published pages)
 - Admin Support section mounted at `/admin` on an admin root (switch to **Admin** in the top control first — Admin 2.0 gates staff screens on that root)
 - Support pages opt into Trashable, Moveable, and Publishable. Dummy Folder and Page do not.
@@ -59,7 +59,8 @@ Tailwind scans dummy views plus Flatpack, Recording Studio, Admin, Support, and 
 - `/help` - public help sections (no sign-in)
 - `/help/sections/:slug` - published pages in a section (declare this before the Publishable mount; UUID bookmarks redirect)
 - `/help/:uuid/:slug` - public help page through Publishable
-- `/support` - authenticated help sections and publish preview (add `?q=` to search)
+- `/support` - help sections (public browse; add `?q=` to search). New section / New page for editors. Page preview and forms stay signed-in
+- `/support/sections/:id` - published pages in a section (public browse)
 - `/admin` - Admin Support hub (pick **Admin** in the top control first)
 - `/admin/screens/support_pages` - table of every help page with search, Published/Draft, and section; Edit, Move, and New page open from here
 - `/admin/screens/support_sections` - table of every help section with a numeric page count; Edit and New section open from here

@@ -258,7 +258,7 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
-  test "viewer without access is forbidden" do
+  test "viewer without access can still read public support lists" do
     stranger = User.create!(
       email: "stranger-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
@@ -267,6 +267,18 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     sign_in stranger
 
     get "/support"
+
+    assert_response :success
+    assert_includes response.body, "Getting started"
+    refute_includes response.body, "New page"
+    refute_includes response.body, "New section"
+
+    get "/support/sections/#{seeded_section('Getting started').id}"
+
+    assert_response :success
+    refute_includes response.body, "New page"
+
+    get "/support/new"
 
     assert_response :forbidden
   end
