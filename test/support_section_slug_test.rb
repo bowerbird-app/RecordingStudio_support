@@ -27,6 +27,6 @@ class SupportSectionSlugTest < Minitest::Test
     assert_includes source, "def self.slug_for"
     assert_includes source, "RESERVED_SLUGS"
     assert_includes source, "before_validation :assign_slug_from_title"
-    assert_includes source, 'validates :slug, presence: true'
+    assert_includes source, "validates :slug, presence: true"
   end
 end
