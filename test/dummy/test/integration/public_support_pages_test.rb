@@ -86,6 +86,25 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "recordable"
   end
 
+  test "published billing article lists related pages" do
+    current = seeded_page("How do I update payment details?")
+    related = seeded_page("Where is my invoice?")
+    path = current.recordable.published_url
+    related_path = related.recordable.published_url
+
+    assert path.present?
+    assert related_path.present?
+
+    get path
+
+    assert_response :success
+    assert_includes response.body, FlatPack::PageTitle::Component.name
+    assert_includes response.body, 'class="prose max-w-none'
+    assert_includes response.body, "Related"
+    assert_select "hr"
+    assert_select "a[href=?]", related_path, text: "Where is my invoice?"
+  end
+
   test "logged out visitors cannot read a draft page" do
     recording = seeded_page("How do I change my password?")
     page = recording.recordable
