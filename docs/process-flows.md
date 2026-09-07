@@ -2,7 +2,7 @@
 
 How help **pages** and **sections** move through create, edit, publish, trash, and access after `0.7.3`. Public `/help` is in scope only where it gates drafts.
 
-This is the picture of **what exists today**, plus decisions still open for later implementation. No product behavior changed with this document.
+Ownership (workspace-root Accessible) is implemented in Support authorize. Other rows below still mark wiring gaps for later work.
 
 ## Tree and access (ownership)
 
