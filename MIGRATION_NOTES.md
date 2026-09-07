@@ -2,6 +2,32 @@
 
 ## Unreleased
 
+## 0.7.3
+
+Public section URLs use a Support-owned slug. Staff Help hub can create pages and sections.
+
+### Host app
+
+1. Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate`. Section titles backfill into `slug`.
+2. Change the public section route to `/help/sections/:slug` (was `:id`). Keep it **before** mounting Publishable at `/`.
+3. Staff `/support` and `/support/sections/:id` stay on recording UUIDs. No staff slug URLs. Those two screens are readable without signing in; write screens stay Accessible `:edit`.
+4. Expect Accessible `:edit` users to see **New section** / **New page** on `/support`. Viewers and logged-out visitors do not.
+5. Do not add FriendlyId. Page public URLs stay Publishable `/help/:uuid/:slug`.
+6. Hosts can keep Devise `authenticate_user!` on ApplicationController. Support skips it for section index/show only.
+7. Host layouts that load `flat_pack/rich_text` before Tailwind should declare `@layer theme, base, components, utilities` first so TipTap borders keep their width.
+8. Staff show puts Publish, a Live/Draft status button, and icon-only trash in one PageTitle row. There is no live alert banner.
+9. Public articles list Related published pages from the same section when any exist.
+10. Help/support search overrides Flatpack Search tokens for a white field (`--color-white`) with a visible border.
+11. Public articles set `<title>` from the page title and meta description from plain body text (tags stripped, entities decoded).
+
+### Verify
+
+```bash
+bundle install
+BUNDLE_GEMFILE=test/dummy/Gemfile bundle install
+bundle exec rake test:all
+```
+
 ## 0.7.0
 
 Help pages live in a section. Staff pick the section by moving the page.

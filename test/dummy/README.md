@@ -7,7 +7,7 @@ This Rails app exists to prove Recording Studio Support in a real host. It is no
 - Devise authentication with a seeded admin user
 - `Current.actor` wiring for Recording Studio events
 - Root workspace plus seeded help sections and pages, one with an inline picture in the body
-- Authenticated Support screens mounted at `/support`
+- Support screens mounted at `/support` (section browse is public; write screens need sign-in)
 - Public help at `/help` for logged-out visitors (default-layout chrome, Card-wrapped Flatpack List of sections with published page-count badges, then published pages)
 - Admin Support section mounted at `/admin` on an admin root (switch to **Admin** in the top control first — Admin 2.0 gates staff screens on that root)
 - Support pages opt into Trashable, Moveable, and Publishable. Dummy Folder and Page do not.
@@ -45,7 +45,7 @@ Devise sign-in keeps `layouts/application` so the login card can stay centered. 
 - `tailwind`
 - Importmap JS, including `@hotwired/turbo-rails`
 
-The host injects Sign out and Root Switchable through `app/views/recording_studio/_default_layout_head.html.erb` for dummy host pages only, not Support or Admin Support screens. Do not put the switcher or a Sign out button in the home view body. Flatpack CSS loads from the layout in kit order (`flat_pack/variables`, `flat_pack/application`, `flat_pack/rich_text`, then Tailwind).
+The host injects Sign out and Root Switchable through `app/views/recording_studio/_default_layout_head.html.erb` for dummy host pages only, not Support or Admin Support screens. Do not put the switcher or a Sign out button in the home view body. Flatpack CSS loads from the layout in kit order (`flat_pack/variables`, `flat_pack/application`, `flat_pack/rich_text`, then Tailwind). Declare `@layer theme, base, components, utilities` before those sheets so TipTap editor borders are not cleared by Tailwind preflight.
 
 Help-page edit uses Flatpack `TextArea` with `rich_text: true`, `preset: :content`, and image upload. Importmap pins TipTap packages plus `controllers/flat_pack/tiptap_controller`. `app/javascript/application.js` imports `controllers`, and `controllers/index.js` registers `flat-pack--tiptap` so the toolbar and body HTML hydrate on first paint. Do not add Trix or Action Text. Pictures go in the body.
 
@@ -57,9 +57,10 @@ Tailwind scans dummy views plus Flatpack, Recording Studio, Admin, Support, and 
 
 - `/` - dummy host home page
 - `/help` - public help sections (no sign-in)
-- `/help/sections/:id` - published pages in a section (declare this before the Publishable mount)
+- `/help/sections/:slug` - published pages in a section (declare this before the Publishable mount; UUID bookmarks redirect)
 - `/help/:uuid/:slug` - public help page through Publishable
-- `/support` - authenticated help sections and publish preview (add `?q=` to search)
+- `/support` - help sections (public browse; add `?q=` to search). New section / New page for editors. Page preview and forms stay signed-in
+- `/support/sections/:id` - published pages in a section (public browse)
 - `/admin` - Admin Support hub (pick **Admin** in the top control first)
 - `/admin/screens/support_pages` - table of every help page with search, Published/Draft, and section; Edit, Move, and New page open from here
 - `/admin/screens/support_sections` - table of every help section with a numeric page count; Edit and New section open from here
@@ -71,6 +72,6 @@ Tailwind scans dummy views plus Flatpack, Recording Studio, Admin, Support, and 
 
 Use this app to click through public help, staff help pages, and the Admin Support section. If a layout, route, asset source, or Recording Studio initializer change breaks here, the gem likely needs adjustment before reuse.
 
-Seeds three sections under Studio Workspace: **Billing**, **Developers**, and **Getting started**. **How do I sign in?** is a live article with headings, a list, and an inline photograph (`public/how-to-sign-in.jpg`, Wikimedia Commons CC0 laptop keyboard). **How do I change my password?** stays a draft under Getting started, so the Admin sections table Count is `2` there and `1` on Billing and Developers. Public and staff Help still show published counts only. A few page reads are logged as support events.
+Seeds three sections under Studio Workspace: **Billing**, **Developers**, and **Getting started**. **How do I sign in?** is a live article with headings, a list, and an inline photograph (`public/how-to-sign-in.jpg`, Wikimedia Commons CC0 laptop keyboard). **How do I change my password?** stays a draft under Getting started. Billing has two live pages (**How do I update payment details?** and **Where is my invoice?**) so Related links show on public article show. Admin sections table Count is `2` on Getting started and Billing, and `1` on Developers. Public Help and non-editor `/support` lists still show published counts/pages only; editors see drafts on `/support/sections/:id`. A few page reads are logged as support events.
 
 Public and staff help use Recording Studio's shared default layout with dummy's html rounded theme. Devise sign-in keeps `layouts/application`. Both put `rounded` on `<html>`.

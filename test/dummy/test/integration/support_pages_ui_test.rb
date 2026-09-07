@@ -20,7 +20,10 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Getting started"
     assert_includes response.body, "Billing"
     assert_includes response.body, "Developers"
-    refute_includes response.body, "New page"
+    assert_includes response.body, "New page"
+    assert_includes response.body, "New section"
+    assert_includes response.body, 'href="/support/new"'
+    assert_includes response.body, 'href="/support/sections/new"'
     refute_includes response.body, "How do I change my password?"
     assert_includes response.body, "flat-pack-page-nav"
     refute_includes response.body, "Studio Workspace"
@@ -39,8 +42,8 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_select "ul[role='list']"
     assert_select "li[role='listitem']"
     assert_includes response.body, "chevron-right"
-    assert_select "[class*='badge-default-background-color']", text: "1", count: 3
-    refute_includes response.body, ">2<"
+    assert_select "[class*='badge-default-background-color']", text: "1", count: 2
+    assert_select "[class*='badge-default-background-color']", text: "2", count: 1
     refute_includes response.body, "1 page"
     refute_includes response.body, "2 pages"
     refute_includes response.body, "<span>Open</span>"
@@ -75,10 +78,13 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "How do I sign in?"
-    refute_includes response.body, "How do I change my password?"
+    assert_includes response.body, "How do I change my password?"
     refute_includes response.body, "How do I update payment details?"
     assert_includes response.body, "Published"
-    refute_includes response.body, "New page"
+    assert_includes response.body, "Draft"
+    assert_includes response.body, "New page"
+    assert_includes response.body, "href=\"/support/new?section_id=#{section.id}\""
+    assert_includes response.body, "href=\"/support/#{seeded_page('How do I change my password?').id}\""
     refute_includes response.body, "recordable"
     assert_includes response.body, "card-border-color"
     assert_select "ul[role='list']"
@@ -94,7 +100,9 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "How do I change my password?"
-    assert_includes response.body, "Not live yet. This preview is just for you."
+    assert_includes response.body, ">Draft<"
+    refute_includes response.body, "This page is live."
+    refute_includes response.body, "Not live yet"
     refute_includes response.body, "Edit page"
     refute_includes response.body, "href=\"/support/#{recording.id}/edit\""
     refute_match(/<a[^>]*>\s*Edit\s*<\/a>/, response.body)
@@ -123,8 +131,12 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "href=\"/support/#{recording.id}/edit\""
     refute_includes response.body, "Edit page"
     assert_includes response.body, "Publish"
-    assert_includes response.body, "This page is live."
-    assert_includes response.body, "Move to trash"
+    assert_includes response.body, ">Live<"
+    refute_includes response.body, "This page is live."
+    refute_includes response.body, "View now"
+    refute_includes response.body, "Open live page"
+    assert_includes response.body, 'aria-label="Move to trash"'
+    refute_match(/>\s*Move to trash\s*</, response.body)
     assert RecordingStudioSupport::PageView.exists?(recording_id: recording.id)
   end
 
@@ -245,13 +257,21 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Getting started"
     refute_includes response.body, "New page"
+    refute_includes response.body, "New section"
+
+    get "/support/sections/#{seeded_section('Getting started').id}"
+
+    assert_response :success
+    assert_includes response.body, "How do I sign in?"
+    refute_includes response.body, "How do I change my password?"
+    refute_includes response.body, "New page"
 
     get "/support/new"
 
     assert_response :forbidden
   end
 
-  test "viewer without access is forbidden" do
+  test "viewer without access can still read public support lists" do
     stranger = User.create!(
       email: "stranger-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
@@ -260,6 +280,18 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     sign_in stranger
 
     get "/support"
+
+    assert_response :success
+    assert_includes response.body, "Getting started"
+    refute_includes response.body, "New page"
+    refute_includes response.body, "New section"
+
+    get "/support/sections/#{seeded_section('Getting started').id}"
+
+    assert_response :success
+    refute_includes response.body, "New page"
+
+    get "/support/new"
 
     assert_response :forbidden
   end
@@ -274,6 +306,25 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert recording.reload.trashed_at
     get "/support/sections/#{seeded_section('Getting started').id}"
     refute_includes response.body, "How do I change my password?"
+  end
+
+  test "public help article shows related pages from the same section" do
+    current = seeded_page("How do I update payment details?")
+    related = seeded_page("Where is my invoice?")
+    current_path = current.recordable.published_url
+    related_path = related.recordable.published_url
+
+    assert current_path.present?
+    assert related_path.present?
+
+    get current_path
+
+    assert_response :success
+    assert_select "h1", text: "How do I update payment details?"
+    assert_includes response.body, 'class="prose max-w-none'
+    assert_includes response.body, "Related"
+    assert_select "ul[role='list']"
+    assert_select "a[href=?]", related_path
   end
 
   private

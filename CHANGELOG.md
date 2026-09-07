@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.7.3] - 2026-09-07
+
+Staff Help hub can add pages and sections. Public section URLs use readable slugs. Staff show uses a Live/Draft status button beside Publish.
+
+### Added
+- Staff `/support` shows **New section** and **New page** for Accessible `:edit` users. Section show also offers **New page**
+- `SupportSection#slug` for public section URLs (`/help/sections/:slug`). Generated from the title. No FriendlyId — Support owns the column, same idea as Publishable page slugs
+- UUID bookmarks at `/help/sections/:uuid` redirect to the canonical slug URL
+- Public article show lists **Related** published pages from the same section (Flatpack list under a horizontal rule)
+- Public article `<title>` uses the page title; meta description uses plain text from the body (tags stripped, entities unescaped, truncated to 160)
+
+### Changed
+- Public `/help` index drops Close (Back only via default layout history)
+- Public section and article shows still Close to `/help`
+- `/support` and `/support/sections/:id` are readable without signing in; New section / New page / write screens stay Accessible `:edit`
+- Logged-out `/support/sections/:id` omits the Published badge on page rows
+- Accessible `:edit` users see drafts on `/support/sections/:id` (status badge + link to staff preview)
+- Staff live pages show a **Live** or **Draft** status button between Publish and trash (no live alert banner)
+- Staff Publish and trash sit in the same PageTitle row; trash is an icon-only ghost button
+- Host public section route param is `:slug` (install generator updated)
+- Section count and Published badges use Flatpack Badge `size: :xs`
+- Dummy layouts declare `@layer theme, base, components, utilities` before Flatpack CSS so TipTap borders survive Tailwind preflight
+- Public article body uses Flatpack PageTitle plus long-form `prose` content (same idea as Flatpack’s text/content demo; no Content component)
+- Help/support search uses Flatpack Search with a white (`--color-white`) field so it reads as enabled, not muted
+
+### Upgrade notes
+- Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` for the section `slug` column. Existing titles are backfilled
+- Change the host route from `/help/sections/:id` to `/help/sections/:slug` **before** the Publishable mount. Staff `/support/sections/:id` stays on recording UUIDs
+- Slugs overwrite when the section title changes. Old slug URLs 404; UUID bookmarks still redirect
+- Do not add FriendlyId. Page public URLs stay Publishable `/help/:uuid/:slug`
+- Hosts that forced login on every `/support` request can leave Devise `authenticate_user!` on the host ApplicationController; Support skips it for section index/show only
+- Host layouts that load `flat_pack/rich_text` before Tailwind should declare `@layer theme, base, components, utilities` first so TipTap borders keep their width
+
 ## [0.7.2] - 2026-09-03
 
 Dummy and host help screens use Flatpack's built-in rounded theme on `<html>`.
@@ -277,7 +310,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.7.2...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.7.3...HEAD
+[0.7.3]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.7.2
 [0.7.1]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.7.1
 [0.7.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.7.0

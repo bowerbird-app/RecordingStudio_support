@@ -122,6 +122,40 @@ class SupportSectionsDomainTest < ActiveSupport::TestCase
     assert_equal 1, public_counts.fetch(section.id)
   end
 
+  test "section slug comes from the title and updates on revise" do
+    title = "Getting started #{SecureRandom.hex(4)}"
+    section = record_support_section(@root_recording, title: title)
+    assert_equal title.parameterize, section.recordable.slug
+
+    same_title = RecordingStudioSupport::Sections.revise!(
+      recording: section,
+      title: title,
+      actor: @user
+    )
+    assert_equal title.parameterize, same_title.recordable.slug
+
+    revised_title = "Onboarding tips #{SecureRandom.hex(4)}"
+    revised = RecordingStudioSupport::Sections.revise!(
+      recording: same_title,
+      title: revised_title,
+      actor: @user
+    )
+    assert_equal revised_title.parameterize, revised.recordable.slug
+    assert_equal revised.id, RecordingStudioSupport::Sections.find_kept_by_slug!(slug: revised_title.parameterize).id
+    assert_raises(ActiveRecord::RecordNotFound) do
+      RecordingStudioSupport::Sections.find_kept_by_slug!(slug: title.parameterize)
+    end
+  end
+
+  test "duplicate section titles get distinct slugs" do
+    title = "Billing #{SecureRandom.hex(4)}"
+    first = record_support_section(@root_recording, title: title)
+    second = record_support_section(@root_recording, title: title)
+
+    assert_equal title.parameterize, first.recordable.slug
+    assert_equal "#{title.parameterize}-2", second.recordable.slug
+  end
+
   private
 
   def publish!(page_recording, slug:, status:)

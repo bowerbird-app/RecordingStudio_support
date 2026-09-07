@@ -1,4 +1,11 @@
-<%= form_with url: url, method: :get, html: { role: "search", class: "w-full" } do %>
+<%= form_with url: url, method: :get, html: {
+      role: "search",
+      class: "w-full",
+      style: [
+        "--search-input-background-color: var(--color-white)",
+        "--search-input-border-color: var(--surface-border-color)"
+      ].join("; ")
+    } do %>
   <%= render FlatPack::Search::Component.new(
     name: "q",
     value: query,

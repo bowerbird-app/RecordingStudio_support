@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.7.2", ::RecordingStudioSupport::VERSION
+    assert_equal "0.7.3", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -114,6 +114,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes controller_source, "return \"application\" if devise_controller?"
     refute_includes controller_source, "flat_pack_sidebar"
     assert_includes default_layout, '<html data-theme="rounded">'
+    assert_includes default_layout, "@layer theme, base, components, utilities"
     assert_includes default_layout, 'stylesheet_link_tag "flat_pack/variables"'
     assert_includes default_layout, 'stylesheet_link_tag "flat_pack/application"'
     assert_includes default_layout, 'stylesheet_link_tag "flat_pack/rich_text"'
@@ -126,6 +127,7 @@ class RecordingStudioSupportTest < Minitest::Test
     application_layout = File.read(File.expand_path("dummy/app/views/layouts/application.html.erb", __dir__))
 
     assert_includes application_layout, '<html data-theme="rounded">'
+    assert_includes application_layout, "@layer theme, base, components, utilities"
     assert_includes application_layout, 'stylesheet_link_tag "flat_pack/variables"'
     assert_includes application_layout, 'stylesheet_link_tag "flat_pack/application"'
     assert_includes application_layout, 'stylesheet_link_tag "flat_pack/rich_text"'

@@ -139,7 +139,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "1 pages"
     refute_includes response.body, "2 page"
     assert_equal(
-      { "Billing" => "1", "Developers" => "1", "Getting started" => "2" },
+      { "Billing" => "2", "Developers" => "1", "Getting started" => "2" },
       section_page_counts_from_table(response.body)
     )
     getting_started_edit = RecordingStudioSupport::Admin::Queries.edit_section_path(

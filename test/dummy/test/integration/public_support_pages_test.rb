@@ -24,7 +24,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_includes response.body, "flat-pack-page-nav"
     assert_select "[aria-label='Go back']"
-    assert_select "[aria-label='Close']"
+    assert_select "[aria-label='Close']", count: 0
     refute_includes response.body, "flat-pack-top-nav"
     refute_includes response.body, "recording_studio_publishable/application"
     refute_includes response.body, "Sign out"
@@ -40,7 +40,8 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "ul[role='list']"
     assert_select "li[role='listitem']"
     assert_includes response.body, "chevron-right"
-    assert_select "[class*='badge-default-background-color']", text: "1", count: 3
+    assert_select "[class*='badge-default-background-color']", text: "1", count: 2
+    assert_select "[class*='badge-default-background-color']", text: "2", count: 1
     refute_includes response.body, "1 page"
     refute_includes response.body, "2 pages"
     refute_includes response.body, "<span>Read</span>"
@@ -58,6 +59,13 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_flatpack_rounded_theme
     assert_includes response.body, "How do I sign in?"
+    assert_select "title", text: "How do I sign in?"
+    assert_select "meta[name='description']" do |nodes|
+      assert_match(/Use the email and password you were given/, nodes.first["content"])
+      refute_includes nodes.first["content"], "<"
+      refute_includes nodes.first["content"], "<p>"
+    end
+    assert_select "meta[property='og:title'][content=?]", "How do I sign in?"
     assert_includes response.body, "Use the email and password you were given"
     assert_includes response.body, "Open the sign-in page"
     assert_includes response.body, "Your email"
@@ -85,6 +93,46 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "recordable"
   end
 
+  test "published article meta description escapes markup from the body" do
+    current = seeded_page("How do I update payment details?")
+    path = current.recordable.published_url
+    assert path.present?
+
+    root = RecordingStudio.root_recording_for(Workspace.find_by!(name: "Studio Workspace"))
+    root.revise(current) do |page|
+      page.body = "<p>Pay &amp; save the card. &lt;Keep receipts&gt;.</p>"
+    end
+
+    get path
+
+    assert_response :success
+    assert_select "title", text: "How do I update payment details?"
+    assert_select "meta[name='description']" do |nodes|
+      content = nodes.first["content"]
+      assert_equal "Pay & save the card. <Keep receipts>.", content
+    end
+  end
+
+  test "published billing article lists related pages" do
+    current = seeded_page("How do I update payment details?")
+    related = seeded_page("Where is my invoice?")
+    path = current.recordable.published_url
+    related_path = related.recordable.published_url
+
+    assert path.present?
+    assert related_path.present?
+
+    get path
+
+    assert_response :success
+    assert_select "h1", text: "How do I update payment details?"
+    assert_includes response.body, 'class="prose max-w-none'
+    assert_includes response.body, "Related"
+    assert_select "hr"
+    assert_select "ul[role='list']"
+    assert_select "a[href=?]", related_path, text: "Where is my invoice?"
+  end
+
   test "logged out visitors cannot read a draft page" do
     recording = seeded_page("How do I change my password?")
     page = recording.recordable
@@ -108,7 +156,9 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_flatpack_rounded_theme
     assert_includes response.body, "How do I change my password?"
-    assert_includes response.body, "Not live yet. This preview is just for you."
+    assert_includes response.body, ">Draft<"
+    refute_includes response.body, "This page is live."
+    refute_includes response.body, "Not live yet"
     assert_includes response.body, "Publish"
     refute_includes response.body, "Sign out"
     refute_includes response.body, "Studio Workspace"
@@ -135,8 +185,11 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
 
   test "logged out visitors see published pages on a section and drafts stay hidden" do
     section = seeded_section("Getting started")
+    slug = section.recordable.slug
 
-    get "/help/sections/#{section.id}"
+    assert_equal "getting-started", slug
+
+    get "/help/sections/#{slug}"
 
     assert_response :success
     assert_includes response.body, "Getting started"
@@ -156,8 +209,39 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "<span>Open</span>"
   end
 
-  test "logged out visitors are asked to sign in for authenticated help" do
+  test "public section uuid bookmarks redirect to the slug url" do
+    section = seeded_section("Getting started")
+
+    get "/help/sections/#{section.id}"
+
+    assert_response :moved_permanently
+    assert_redirected_to "/help/sections/getting-started"
+  end
+
+  test "logged out visitors can read support sections without CRUD" do
     get "/support"
+
+    assert_response :success
+    assert_includes response.body, "Getting started"
+    assert_includes response.body, "Billing"
+    assert_includes response.body, "Developers"
+    refute_includes response.body, "New page"
+    refute_includes response.body, "New section"
+    refute_includes response.body, "Sign out"
+    refute_includes response.body, 'href="/users/sign_in"'
+
+    section = seeded_section("Billing")
+    get "/support/sections/#{section.id}"
+
+    assert_response :success
+    assert_includes response.body, "Billing"
+    refute_includes response.body, "New page"
+    refute_includes response.body, "Published"
+    refute_includes response.body, "How do I change my password?"
+  end
+
+  test "logged out visitors are asked to sign in for support write screens" do
+    get "/support/new"
 
     assert_response :redirect
     assert_match "/users/sign_in", response.redirect_url

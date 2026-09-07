@@ -2,21 +2,25 @@
 
 module RecordingStudioSupport
   class SectionsController < ApplicationController
-    before_action :require_support_root!
-    before_action -> { authorize_support!(:view) }, only: %i[index show]
+    skip_before_action :authenticate_user!, only: %i[index show], raise: false
+    before_action :require_support_root!, except: %i[index show]
     before_action -> { authorize_support!(:edit) }, only: %i[new create edit update trash]
     before_action :set_section_recording, only: %i[show edit update trash]
 
     def index
       @query = params[:q].to_s.strip
-      @section_recordings = Sections.for_root(current_support_root_recording, query: @query)
+      @section_recordings = support_section_index_recordings(query: @query)
       @page_counts = Pages.public_count_by_section(@section_recordings)
     end
 
     def show
       @section = @section_recording.recordable
       @query = params[:q].to_s.strip
-      @pages = Pages.public_for_section(@section_recording, query: @query)
+      if can_edit_support_pages?
+        @page_recordings = Pages.for_section(@section_recording, query: @query)
+      else
+        @pages = Pages.public_for_section(@section_recording, query: @query)
+      end
     end
 
     def new
@@ -70,6 +74,13 @@ module RecordingStudioSupport
       @section = error.record
       flash.now[:alert] = "Couldn't save that section. Give it a name and try again."
       render template, status: :unprocessable_entity
+    end
+
+    def support_section_index_recordings(query:)
+      root = current_support_root_recording
+      return Sections.public_index(query: query) if root.blank?
+
+      Sections.for_root(root, query: query)
     end
   end
 end
