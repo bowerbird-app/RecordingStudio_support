@@ -77,6 +77,7 @@ class PagesTest < Minitest::Test
     end
 
     assert_includes public_show, "FlatPack::Breadcrumb::Component"
+    assert_includes public_show, "FlatPack::Grid::Component"
     assert_includes public_show, "FlatPack::Card::Component"
     assert_includes public_show, "FlatPack::Timestamp::Component"
     assert_includes public_show, "support_public_contact_href"
@@ -89,6 +90,7 @@ class PagesTest < Minitest::Test
 
     assert_includes list, "FlatPack::Card::Component"
     assert_includes list, "card.body"
+    assert_includes list, "padding:"
     assert_includes list, "FlatPack::List::Component"
     assert_includes list, "FlatPack::List::Item"
     assert_includes list, "support_list_chevron"

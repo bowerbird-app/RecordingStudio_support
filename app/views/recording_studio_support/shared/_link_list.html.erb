@@ -1,6 +1,7 @@
-<%# square_rows: true drops List::Item corner radius (Flatpack square corners via [&>*]:rounded-none). %>
+<%# square_rows: true uses Flatpack's grouped square-corner pattern (same [&>*]:rounded-none
+    as ButtonGroup / SegmentedButtons) plus a flush Card body so List rows sit on the kit. %>
 <%= render FlatPack::Card::Component.new do |card| %>
-  <% card.body do %>
+  <% card.body(padding: (local_assigns[:square_rows] ? :none : :md)) do %>
     <%= render FlatPack::List::Component.new(
       divider: true,
       class: ("[&>*]:rounded-none" if local_assigns[:square_rows])

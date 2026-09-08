@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Public help section show uses snippet cards, breadcrumbs, and an optional host contact slot.
 
 ### Added
-- Public `/help/sections/:slug` shows Flatpack Breadcrumb (Help → section), PageTitle subtitle, in-section Search (`Search in {section}…`), stacked clickable Card snippets with Timestamp, and EmptyState when nothing matches
+- Public `/help/sections/:slug` shows Flatpack Breadcrumb (Help → section), PageTitle subtitle, in-section Search (`Search in {section}…`), a Flatpack Grid of clickable Card snippets with Timestamp, and EmptyState when nothing matches
 - Optional host contact footer on the public section show via `public_contact_href` / `public_contact_label` (hidden when href is blank — gem stays chat-free by default)
 - `public_section_subtitle` config (string or callable receiving the section) for the topic blurb; default is `Find answers in {title}.`
 - `Body.snippet` plain-text excerpt (~120 characters) for card previews
@@ -21,7 +21,7 @@ Public help section show uses snippet cards, breadcrumbs, and an optional host c
 - Public section show drops the divided List + Published badge (live pages only; badge was redundant)
 - Public section page nav backs to `/help` and omits Close
 - Section search still filters pages in that section by title **and** body (`?q=`)
-- Public `/help` section rows use square corners (`square_rows` on the shared link list) instead of Flatpack List::Item’s default radius
+- Public `/help` section rows use square corners via Flatpack List + flush Card body (`square_rows`) instead of Flatpack List::Item’s default radius
 
 ### Upgrade notes
 - No migrations or route changes

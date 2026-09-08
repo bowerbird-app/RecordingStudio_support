@@ -40,6 +40,8 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "ul[role='list'][class*='rounded-none']"
     assert_select "li[role='listitem']"
     assert_match(/\[&amp;&gt;\*\]:rounded-none|\[&amp;>\*\]:rounded-none|\[&>\*\]:rounded-none/, response.body)
+    # square_rows flushes the Flatpack Card body so List sits on the kit surface
+    assert_includes response.body, "overflow-hidden"
     assert_includes response.body, "chevron-right"
     assert_select "[class*='badge-default-background-color']", text: "1", count: 2
     assert_select "[class*='badge-default-background-color']", text: "2", count: 1
@@ -210,6 +212,8 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "[aria-label='Close']", count: 0
     assert_includes response.body, "flat-pack-breadcrumb"
     assert_includes response.body, "flat-pack-timestamp"
+    assert_select "h3", text: "How do I sign in?"
+    assert_includes response.body, "grid-cols-1"
     refute_includes response.body, "Sign out"
     refute_includes response.body, 'href="/users/sign_in"'
     refute_includes response.body, "recordable"

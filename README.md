@@ -152,7 +152,7 @@ Logged-out people can read sections and live pages. Drafts 404.
 
 Public `/help` lists sections. A section show lists `SupportPage.indexable` pages in that section. Do not copy that logic. Public `/help?q=` and staff `/support?q=` search section names. Page search lives on a section show and filters pages **in that section** by title and body (`?q=`).
 
-Public and staff Help **home** lists use Flatpack Search at full width (`max_width: :none`, placeholder “Search support”). Flatpack Search has no fill or height API; Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Section rows on those homes share one Flatpack List with a trailing `chevron-right` icon, wrapped in a Card body, plus a Flatpack Badge with the published page count. Public `/help` passes `square_rows: true` on that list so row corners stay square (`[&>*]:rounded-none`); staff `/support` keeps Flatpack’s default row radius.
+Public and staff Help **home** lists use Flatpack Search at full width (`max_width: :none`, placeholder “Search support”). Flatpack Search has no fill or height API; Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Section rows on those homes share one Flatpack List with a trailing `chevron-right` icon, wrapped in a Card body, plus a Flatpack Badge with the published page count. Public `/help` passes `square_rows: true` — flush Card body (`padding: :none`) and Flatpack’s grouped square-corner class (`[&>*]:rounded-none`, same pattern as ButtonGroup / SegmentedButtons). Staff `/support` keeps the default Card padding and List::Item radius.
 
 Public **section** show (`/help/sections/:slug`) is its own card stack — not the home `link_list` shape:
 
@@ -160,7 +160,7 @@ Public **section** show (`/help/sections/:slug`) is its own card stack — not t
 2. Flatpack Breadcrumb — Help → current section title (last crumb has no href)
 3. Flatpack PageTitle — section title, subtitle, `variant: :h1`
 4. Flatpack Search — placeholder `Search in {section}…`, white input tokens as above
-5. Stacked Flatpack Cards (`href`, `clickable: true`, `hover: :subtle`, `style: :interactive`) — title, muted plain-text snippet (~120 chars from the body; omitted when blank), Flatpack Timestamp from publish time (`publish_at`, then recording `updated_at`, then page `created_at`)
+5. Flatpack Grid (`cols: 1`) of clickable Cards (`href`, `clickable: true`, `hover: :subtle`, `style: :interactive`) — title, muted plain-text snippet (~120 chars from the body; omitted when blank), Flatpack Timestamp from publish time (`publish_at`, then recording `updated_at`, then page `created_at`)
 6. Optional host contact Card + secondary Button — only when `public_contact_href` is set
 7. Flatpack EmptyState when the query matches nothing or the section has no live pages
 
