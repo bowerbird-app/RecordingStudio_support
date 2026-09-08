@@ -170,9 +170,9 @@ class ApplicationHelperTest < Minitest::Test
     assert_equal "Contact support", helper.support_public_contact_label
     assert_equal "Need something else in Billing?", helper.support_public_contact_prompt(section)
 
-    RecordingStudioSupport.configuration.public_section_subtitle = ->(item) {
+    RecordingStudioSupport.configuration.public_section_subtitle = lambda do |item|
       "Payments, invoices, and plan changes." if item.slug == "billing"
-    }
+    end
     RecordingStudioSupport.configuration.public_contact_href = "mailto:help@example.com"
     RecordingStudioSupport.configuration.public_contact_label = "Email us"
 
