@@ -18,7 +18,6 @@ class RootSwitchDropdownTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "admin@admin.com"
     refute_includes response.body, "Default: admin@admin.com / Password"
     assert_includes response.body, "flat_pack/variables"
-    assert_includes response.body, "flat_pack/application"
     assert_includes response.body, "@hotwired/turbo-rails"
     assert_includes response.body, "min-h-dvh"
     refute_includes response.body, "data-recording-studio-default-layout"

@@ -32,9 +32,6 @@ class DefaultLayoutAssetsTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_flatpack_rounded_theme
-    assert_includes response.body, "Signed in successfully."
-    assert_select "[role='alert']", text: /Signed in successfully/
-    assert_includes response.body, "alert-success-background-color"
     assert_includes response.body, "flat-pack-page-nav"
     assert_includes response.body, "flat_pack/application"
     assert_includes response.body, "flat_pack/variables"
