@@ -160,7 +160,7 @@ Public **section** show (`/help/sections/:slug`) is its own card stack — not t
 2. Flatpack Breadcrumb — Help → current section title (last crumb has no href)
 3. Flatpack PageTitle — section title, subtitle, `variant: :h1`
 4. Flatpack Search — placeholder `Search in {section}…`, white input tokens as above
-5. Stacked Flatpack Cards (`href`, `clickable: true`, `hover: :subtle`, `style: :interactive`) — title, muted plain-text snippet (~120 chars from the body; omitted when blank), Flatpack Timestamp from `updated_at`
+5. Stacked Flatpack Cards (`href`, `clickable: true`, `hover: :subtle`, `style: :interactive`) — title, muted plain-text snippet (~120 chars from the body; omitted when blank), Flatpack Timestamp from publish time (`publish_at`, then recording `updated_at`, then page `created_at`)
 6. Optional host contact Card + secondary Button — only when `public_contact_href` is set
 7. Flatpack EmptyState when the query matches nothing or the section has no live pages
 
