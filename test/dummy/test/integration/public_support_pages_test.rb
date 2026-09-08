@@ -238,6 +238,8 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "input[name='q'][placeholder=?]", "Search in Billing…"
     assert_select "a[href=?]", payment.published_url
     assert_select "a[href=?]", invoice.published_url
+    assert_includes response.body, "Open billing and save the card"
+    assert_includes response.body, "Open Billing, then Invoices"
     assert_includes response.body, "Need something else in Billing?"
     assert_select "a[href=?]", "mailto:help@example.com", text: "Contact support"
     refute_includes response.body, "Published"
