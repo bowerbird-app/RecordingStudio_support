@@ -62,8 +62,14 @@ module RecordingStudioSupport
         title: page.title,
         href: href,
         snippet: Body.snippet(page.body),
-        updated_at: page.updated_at
+        updated_at: article_updated_at(page)
       }
+    end
+
+    def article_updated_at(page)
+      recording = Pages.recording_for(page)
+      publishable = recording&.current_publishable if recording.respond_to?(:current_publishable)
+      publishable&.publish_at.presence || recording&.updated_at.presence || page.created_at
     end
   end
 end

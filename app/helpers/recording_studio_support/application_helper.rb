@@ -49,8 +49,14 @@ module RecordingStudioSupport
         title: page.title,
         href: href,
         snippet: support_page_snippet(page.body),
-        updated_at: page.updated_at
+        updated_at: support_public_section_article_updated_at(page)
       }
+    end
+
+    def support_public_section_article_updated_at(page)
+      recording = Pages.recording_for(page)
+      publishable = recording&.current_publishable if recording.respond_to?(:current_publishable)
+      publishable&.publish_at.presence || recording&.updated_at.presence || page.created_at
     end
 
     def support_publish_path(recording)
