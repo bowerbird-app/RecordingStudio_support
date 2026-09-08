@@ -152,6 +152,46 @@ class ApplicationHelperTest < Minitest::Test
     assert_equal "/help", helper.support_public_help_path
   end
 
+  def test_public_section_helpers_cover_subtitle_search_and_contact
+    helper = Object.new.extend(load_helper)
+    section = Struct.new(:title, :slug).new("Billing", "billing")
+
+    previous_subtitle = RecordingStudioSupport.configuration.public_section_subtitle
+    previous_href = RecordingStudioSupport.configuration.public_contact_href
+    previous_label = RecordingStudioSupport.configuration.public_contact_label
+
+    RecordingStudioSupport.configuration.public_section_subtitle = nil
+    RecordingStudioSupport.configuration.public_contact_href = nil
+    RecordingStudioSupport.configuration.public_contact_label = "Contact support"
+
+    assert_equal "Find answers in Billing.", helper.support_public_section_subtitle(section)
+    assert_equal "Search in Billing…", helper.support_public_section_search_placeholder(section)
+    assert_nil helper.support_public_contact_href
+    assert_equal "Contact support", helper.support_public_contact_label
+    assert_equal "Need something else in Billing?", helper.support_public_contact_prompt(section)
+
+    RecordingStudioSupport.configuration.public_section_subtitle = ->(item) {
+      "Payments, invoices, and plan changes." if item.slug == "billing"
+    }
+    RecordingStudioSupport.configuration.public_contact_href = "mailto:help@example.com"
+    RecordingStudioSupport.configuration.public_contact_label = "Email us"
+
+    assert_equal "Payments, invoices, and plan changes.", helper.support_public_section_subtitle(section)
+    assert_equal "mailto:help@example.com", helper.support_public_contact_href
+    assert_equal "Email us", helper.support_public_contact_label
+  ensure
+    RecordingStudioSupport.configuration.public_section_subtitle = previous_subtitle
+    RecordingStudioSupport.configuration.public_contact_href = previous_href
+    RecordingStudioSupport.configuration.public_contact_label = previous_label
+  end
+
+  def test_support_page_snippet_uses_body_helper
+    helper = Object.new.extend(load_helper)
+
+    assert_equal "Pay & save <today>.", helper.support_page_snippet("<p>Pay &amp; save &lt;today&gt;.</p>")
+    assert_nil helper.support_page_snippet("")
+  end
+
   private
 
   def load_helper

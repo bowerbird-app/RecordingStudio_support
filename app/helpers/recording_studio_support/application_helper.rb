@@ -10,6 +10,49 @@ module RecordingStudioSupport
       Body.meta_description(body)
     end
 
+    def support_page_snippet(body)
+      Body.snippet(body)
+    end
+
+    def support_public_section_subtitle(section)
+      configured = RecordingStudioSupport.configuration.public_section_subtitle
+      result = if configured.respond_to?(:call)
+        configured.call(section)
+      else
+        configured
+      end
+
+      result.to_s.presence || "Find answers in #{section.title}."
+    end
+
+    def support_public_section_search_placeholder(section)
+      "Search in #{section.title}…"
+    end
+
+    def support_public_contact_href
+      RecordingStudioSupport.configuration.public_contact_href.presence
+    end
+
+    def support_public_contact_label
+      RecordingStudioSupport.configuration.public_contact_label.presence || "Contact support"
+    end
+
+    def support_public_contact_prompt(section)
+      "Need something else in #{section.title}?"
+    end
+
+    def support_public_section_article(page)
+      href = page.published_url
+      return if href.blank?
+
+      {
+        title: page.title,
+        href: href,
+        snippet: support_page_snippet(page.body),
+        updated_at: page.updated_at
+      }
+    end
+
     def support_publish_path(recording)
       engine = publishable_engine_routes
       return if engine.blank? || recording.blank?

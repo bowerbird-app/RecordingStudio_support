@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.1] - 2026-09-08
+
+Public help section show uses snippet cards, breadcrumbs, and an optional host contact slot.
+
+### Added
+- Public `/help/sections/:slug` shows Flatpack Breadcrumb (Help → section), PageTitle subtitle, in-section Search (`Search in {section}…`), stacked clickable Card snippets with Timestamp, and EmptyState when nothing matches
+- Optional host contact footer on the public section show via `public_contact_href` / `public_contact_label` (hidden when href is blank — gem stays chat-free by default)
+- `public_section_subtitle` config (string or callable receiving the section) for the topic blurb; default is `Find answers in {title}.`
+- `Body.snippet` plain-text excerpt (~120 characters) for card previews
+
+### Changed
+- Public section show drops the divided List + Published badge (live pages only; badge was redundant)
+- Public section page nav backs to `/help` and omits Close
+- Section search still filters pages in that section by title **and** body (`?q=`)
+
+### Upgrade notes
+- No migrations or route changes
+- To show a contact button on public section pages, set `RecordingStudioSupport.configure { |c| c.public_contact_href = "…"; c.public_contact_label = "Contact support" }`
+- Optional: set `public_section_subtitle` to a string or `->(section) { … }` for per-topic blurbs
+- Staff `/support/sections/...` is unchanged
+
 ## [0.8.0] - 2026-09-04
 
 Dummy host sign-in uses Recording Studio Users auth screens. Support gem code is unchanged.
@@ -346,7 +367,9 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.7.4...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.1...HEAD
+[0.8.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.0...v0.8.1
+[0.8.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.7.4...v0.8.0
 [0.7.4]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.7.3...v0.7.4
 [0.7.3]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.7.2...v0.7.3
 [0.7.2]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.7.2

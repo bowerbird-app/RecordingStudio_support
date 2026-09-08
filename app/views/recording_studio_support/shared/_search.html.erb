@@ -9,7 +9,7 @@
   <%= render FlatPack::Search::Component.new(
     name: "q",
     value: query,
-    placeholder: "Search support",
+    placeholder: local_assigns.fetch(:placeholder, "Search support"),
     max_width: :none
   ) %>
 <% end %>

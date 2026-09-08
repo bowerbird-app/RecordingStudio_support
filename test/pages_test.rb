@@ -26,7 +26,7 @@ class PagesTest < Minitest::Test
     assert_includes index, 'render "recording_studio_support/shared/search"'
     assert_includes search, "FlatPack::Search::Component"
     assert_includes search, 'name: "q"'
-    assert_includes search, 'placeholder: "Search support"'
+    assert_includes search, 'local_assigns.fetch(:placeholder, "Search support")'
     assert_includes search, "max_width: :none"
     assert_includes search, 'class: "w-full"'
     assert_includes search, "--search-input-background-color: var(--color-white)"
@@ -63,18 +63,29 @@ class PagesTest < Minitest::Test
     [staff_show, public_show].each do |show|
       refute_includes show, "support_page_count_badge"
     end
-    assert_includes public_show, "support_published_badge"
+    refute_includes public_show, "support_published_badge"
     assert_includes staff_show, "support_published_badge"
     assert_includes staff_show, "support_page_status_badge"
     assert_includes staff_show, "can_edit_support_pages?"
     assert_includes staff_show, "current_support_actor.present?"
 
-    [staff_index, public_index, staff_show, public_show].each do |view|
+    [staff_index, public_index, staff_show].each do |view|
       assert_includes view, 'render "recording_studio_support/shared/link_list"'
       refute_includes view, "FlatPack::Card::Component"
       refute_includes view, 'text: "Read"'
       refute_includes view, 'text: "Open"'
     end
+
+    assert_includes public_show, "FlatPack::Breadcrumb::Component"
+    assert_includes public_show, "FlatPack::Card::Component"
+    assert_includes public_show, "FlatPack::Timestamp::Component"
+    assert_includes public_show, "support_public_contact_href"
+    assert_includes public_show, 'hover: :subtle'
+    assert_includes public_show, "style: :interactive"
+    refute_includes public_show, 'render "recording_studio_support/shared/link_list"'
+    refute_includes public_show, 'text: "Read"'
+    refute_includes public_show, 'text: "Open"'
+    refute_includes public_show, "page_nav_anchor_url"
 
     assert_includes list, "FlatPack::Card::Component"
     assert_includes list, "card.body"

@@ -37,4 +37,17 @@ class BodyTest < Minitest::Test
     assert_nil RecordingStudioSupport::Body.meta_description("   ")
     assert_nil RecordingStudioSupport::Body.meta_description(nil)
   end
+
+  def test_snippet_truncates_plain_text_shorter_than_meta_description
+    long = "a" * 200
+    snippet = RecordingStudioSupport::Body.snippet("<p>#{long}</p>")
+
+    assert_equal 120, snippet.length
+    assert snippet.end_with?("...")
+  end
+
+  def test_snippet_is_blank_for_empty_body
+    assert_nil RecordingStudioSupport::Body.snippet("   ")
+    assert_nil RecordingStudioSupport::Body.snippet(nil)
+  end
 end

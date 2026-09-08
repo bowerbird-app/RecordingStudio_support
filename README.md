@@ -150,9 +150,23 @@ Page reads are logs (`recording_studio_support_page_views`), not extra pages in 
 
 Logged-out people can read sections and live pages. Drafts 404.
 
-Public `/help` lists sections. A section show lists `SupportPage.indexable` pages in that section. Do not copy that logic. Public `/help?q=` and staff `/support?q=` search section names. Page search lives on a section show. Both lists use Flatpack Search at full width (`max_width: :none`, placeholder “Search support”). Flatpack Search has no fill or height API; Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Section and page lists share one Flatpack List with a trailing `chevron-right` icon, wrapped in a Card body. Section rows on public and staff Help show a Flatpack Badge with the published page count. Page rows on `/help/sections/...` show a Published badge. On `/support/sections/...`, logged-out visitors see no status badge; signed-in non-editors see Published on live pages only; Accessible `:edit` users see every kept page with Draft/Published status and open staff preview. Drafts stay off public `/help` lists. No Read / Open buttons. Public and staff help use Recording Studio's default layout (`UsesDefaultLayout` / `recording_studio/default_layout`). Point Publishable `public_layout` at that layout. Do not use `recording_studio_publishable/application`. Put Flatpack's built-in rounded theme on `<html data-theme="rounded">` — core's body attribute is not enough. Dummy's default-layout override shows the host-side fix. Before Flatpack CSS, declare `@layer theme, base, components, utilities` so TipTap borders survive Tailwind preflight when `flat_pack/rich_text` loads before Tailwind.
+Public `/help` lists sections. A section show lists `SupportPage.indexable` pages in that section. Do not copy that logic. Public `/help?q=` and staff `/support?q=` search section names. Page search lives on a section show and filters pages **in that section** by title and body (`?q=`).
 
-Help titles come from `RecordingStudioSupport.configure`. Defaults stay “Help” / “Find an answer.” for public and staff, and “Pages people use when they get stuck.” for the admin section.
+Public and staff Help **home** lists use Flatpack Search at full width (`max_width: :none`, placeholder “Search support”). Flatpack Search has no fill or height API; Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Section rows on those homes share one Flatpack List with a trailing `chevron-right` icon, wrapped in a Card body, plus a Flatpack Badge with the published page count.
+
+Public **section** show (`/help/sections/:slug`) is its own card stack — not the home `link_list` shape:
+
+1. Default layout page nav — Back to `/help`, no Close
+2. Flatpack Breadcrumb — Help → current section title (last crumb has no href)
+3. Flatpack PageTitle — section title, subtitle, `variant: :h1`
+4. Flatpack Search — placeholder `Search in {section}…`, white input tokens as above
+5. Stacked Flatpack Cards (`href`, `clickable: true`, `hover: :subtle`, `style: :interactive`) — title, muted plain-text snippet (~120 chars from the body; omitted when blank), Flatpack Timestamp from `updated_at`
+6. Optional host contact Card + secondary Button — only when `public_contact_href` is set
+7. Flatpack EmptyState when the query matches nothing or the section has no live pages
+
+No Published badge on public section cards (implied by indexable). Drafts stay off public `/help` lists. No Read / Open buttons. Staff `/support/sections/...` still uses the list + badge rules for editors vs visitors. Public and staff help use Recording Studio's default layout (`UsesDefaultLayout` / `recording_studio/default_layout`). Point Publishable `public_layout` at that layout. Do not use `recording_studio_publishable/application`. Put Flatpack's built-in rounded theme on `<html data-theme="rounded">` — core's body attribute is not enough. Dummy's default-layout override shows the host-side fix. Before Flatpack CSS, declare `@layer theme, base, components, utilities` so TipTap borders survive Tailwind preflight when `flat_pack/rich_text` loads before Tailwind.
+
+Help titles come from `RecordingStudioSupport.configure`. Defaults stay “Help” / “Find an answer.” for public and staff, and “Pages people use when they get stuck.” for the admin section. Section blurbs and the optional contact slot are host-configurable:
 
 ```ruby
 RecordingStudioSupport.configure do |config|
@@ -164,8 +178,18 @@ RecordingStudioSupport.configure do |config|
   config.public_help_subtitle = "Find an answer."
   config.admin_help_title = "Help"
   config.admin_help_subtitle = "Pages people use when they get stuck."
+  config.public_section_subtitle = ->(section) {
+    case section.slug
+    when "billing" then "Payments, invoices, and plan changes."
+    end
+  }
+  # Optional. Blank href keeps the gem chat-free (footer hidden).
+  config.public_contact_href = nil
+  config.public_contact_label = "Contact support"
 end
 ```
+
+When `public_section_subtitle` is blank or the callable returns blank, the section show uses `Find answers in {title}.`
 
 Public show is Publishable's published route (`/help/:uuid/:slug`). It is a simple article: Flatpack `PageTitle`, optional Updated line, and long-form body in `prose` (Flatpack’s text/content pattern — there is no Content component). The document `<title>` is the page title. Meta description is plain text from the body (HTML stripped, entities decoded, max 160 characters). When the section has other published pages, a horizontal rule and Flatpack **Related** list follow the body. No live banner, no sign-in alert, no Edit, trash, or Access. Do not wrap the body in a skinny card.
 

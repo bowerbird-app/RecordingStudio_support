@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+## 0.8.1
+
+Public help section show uses snippet cards and an optional host contact slot.
+
+### Host app
+
+1. No migrations or route changes.
+2. Public `/help/sections/:slug` no longer lists pages with a Published badge. Cards link to the public article URL.
+3. To show a contact footer on public section pages, set `public_contact_href` (and optionally `public_contact_label`) in `RecordingStudioSupport.configure`. Leave href blank to hide the slot.
+4. Optional: set `public_section_subtitle` to a string or `->(section) { … }` for the topic blurb under the section title. Default is `Find answers in {title}.`
+5. Staff `/support/sections/...` is unchanged.
+
+### Verify
+
+```bash
+bundle exec rake test:all
+```
+
 ## 0.7.4
 
 Staff/admin process flows docs. Support authorize uses the page/section workspace root (or AdminRoot).
