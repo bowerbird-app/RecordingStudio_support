@@ -22,7 +22,7 @@ gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable
 gem "recording_studio_support", github: "bowerbird-app/RecordingStudio_support"
 # Host-owned auth (not a Support gemspec dependency):
 gem "recording_studio_user", github: "bowerbird-app/RecordingStudio_users", tag: "v0.9.0"
-gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.148"
+gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.171"
 ```
 
 ```ruby
@@ -228,7 +228,7 @@ Dummy kit pins:
 | Publishable | `v0.2.0` |
 | Moveable | `3.0.0` |
 | Root Switchable | `v0.5.0` |
-| FlatPack | `v0.1.148` |
+| FlatPack | `v0.1.171` |
 
 ```bash
 cd test/dummy
