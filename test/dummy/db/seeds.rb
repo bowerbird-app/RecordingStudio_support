@@ -101,10 +101,24 @@ grant_workspace_access = lambda do |recording, actor|
   end
 end
 
-# Create the admin user
-user = User.find_or_create_by!(email: "admin@admin.com") do |u|
-  u.password = "Password"
-  u.password_confirmation = "Password"
+# Create the admin user through Users (Devise actor + Profile under People).
+user = User.find_by(email: "admin@admin.com")
+if user.nil?
+  user = RecordingStudioUser.create_user!(
+    email: "admin@admin.com",
+    password: "Password",
+    first_name: "Avery",
+    last_name: "Admin",
+    time_zone: "UTC"
+  )
+elsif RecordingStudioUser.profile_for(user).nil?
+  RecordingStudioUser.record_profile!(
+    user,
+    first_name: "Avery",
+    last_name: "Admin",
+    time_zone: "UTC",
+    actor: user
+  )
 end
 
 # Create the workspace recordables
