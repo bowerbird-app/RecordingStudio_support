@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+## 0.7.4
+
+Staff/admin process flows docs. Support authorize uses the page/section workspace root (or AdminRoot).
+
+### Host app
+
+1. No migrations or route changes.
+2. Accessible grants stay on the **workspace root** (and AdminRoot for staff). Support no longer treats “`:edit` on the switched current root” as enough to mutate another workspace’s page or section by UUID. Unauthorized **edit** / **update** redirects to the show page. Other denied writes show a **No access** page (403).
+3. Before adding Edit, trash, publish/unpublish, or restore UI, read `docs/process-flows.md`.
+
+### Verify
+
+```bash
+bundle exec rake test:all
+```
+
 ## 0.7.3
 
 Public section URLs use a Support-owned slug. Staff Help hub can create pages and sections.

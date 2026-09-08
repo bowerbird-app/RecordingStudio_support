@@ -3,9 +3,10 @@
 module RecordingStudioSupport
   class PagesController < ApplicationController
     before_action :require_support_root!
+    before_action :set_page_recording, only: %i[show edit update trash]
+    before_action :set_page_parent_section_for_authorization, only: %i[new create]
     before_action -> { authorize_support!(:view) }, only: %i[show]
     before_action -> { authorize_support!(:edit) }, only: %i[new create edit update trash]
-    before_action :set_page_recording, only: %i[show edit update trash]
     before_action :load_section_choices, only: %i[new create]
 
     def show
@@ -50,6 +51,10 @@ module RecordingStudioSupport
       @page_recording = Pages.find_kept!(id: params[:id])
     rescue ActiveRecord::RecordNotFound
       head :not_found
+    end
+
+    def set_page_parent_section_for_authorization
+      @section_recording = page_parent_section_recording
     end
 
     def load_section_choices

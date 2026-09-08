@@ -1,0 +1,18 @@
+<% recording_studio_page_nav(
+     title: "No access",
+     page_nav_anchor_url: root_path,
+     page_nav_anchor_label: "Close"
+   ) %>
+
+<div class="flex w-full flex-col gap-6">
+  <%= render FlatPack::PageTitle::Component.new(
+    title: "No access",
+    subtitle: "That help belongs to another workspace.",
+    variant: :h1
+  ) %>
+
+  <%= render FlatPack::Alert::Component.new(
+    description: "Ask someone with access to that workspace to make the change — or switch to a workspace you can edit.",
+    style: :danger
+  ) %>
+</div>

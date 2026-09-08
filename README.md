@@ -195,6 +195,8 @@ RecordingStudioAccessible.bootstrap_owner_access!(
 
 The section is a hub with two tables: **Support pages** and **Support sections**. It shows a page-count number, not See every page or Latest pages. The pages table lists every page, draft or live, with search, Published/Draft, section, **Edit** and **Move** on each row, and **New page** at the top. The sections table has search, a **Count** column (`1` / `2` for every kept page in that section), **Edit**, and **New section**. That count is a Family Admin `column`, not a custom cell. Staff and public Help lists still show published counts only. Edit and New open the existing Support forms (`/support/new`, `/support/:id/edit`, `/support/sections/new`, `/support/sections/:id/edit`). Those forms use Save and Cancel as two Flatpack Buttons in one row. Move opens Moveable. The tables skip the default “Table data” heading and row count. Workspace `/support` is also a write hub for Accessible `:edit` users (**New section** / **New page**). Owner page preview stays read-only aside from Publish and trash. Do not put Edit on the owner preview.
 
+Who can create, revise, publish, and trash — and what is still display-only or Admin-only — is spelled out in [docs/process-flows.md](docs/process-flows.md). Access stays Accessible on the workspace (and admin) root, not per page. Staff authorize checks that content’s workspace root (or AdminRoot) after the page/section is loaded, so an editor of one workspace cannot mutate another’s help by UUID.
+
 ## Dummy host
 
 `test/dummy/` is a host that proves the gem. It is not the product.
