@@ -37,8 +37,9 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Find an answer."
     assert_includes response.body, "max-w-none"
     assert_includes response.body, "card-border-color"
-    assert_select "ul[role='list']"
+    assert_select "ul[role='list'][class*='rounded-none']"
     assert_select "li[role='listitem']"
+    assert_match(/\[&amp;&gt;\*\]:rounded-none|\[&amp;>\*\]:rounded-none|\[&>\*\]:rounded-none/, response.body)
     assert_includes response.body, "chevron-right"
     assert_select "[class*='badge-default-background-color']", text: "1", count: 2
     assert_select "[class*='badge-default-background-color']", text: "2", count: 1

@@ -21,6 +21,7 @@ Public help section show uses snippet cards, breadcrumbs, and an optional host c
 - Public section show drops the divided List + Published badge (live pages only; badge was redundant)
 - Public section page nav backs to `/help` and omits Close
 - Section search still filters pages in that section by title **and** body (`?q=`)
+- Public `/help` section rows use square corners (`square_rows` on the shared link list) instead of Flatpack List::Item’s default radius
 
 ### Upgrade notes
 - No migrations or route changes

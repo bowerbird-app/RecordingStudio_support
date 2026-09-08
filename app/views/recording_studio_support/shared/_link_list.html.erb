@@ -1,6 +1,10 @@
+<%# square_rows: true drops List::Item corner radius (Flatpack square corners via [&>*]:rounded-none). %>
 <%= render FlatPack::Card::Component.new do |card| %>
   <% card.body do %>
-    <%= render FlatPack::List::Component.new(divider: true) do %>
+    <%= render FlatPack::List::Component.new(
+      divider: true,
+      class: ("[&>*]:rounded-none" if local_assigns[:square_rows])
+    ) do %>
       <% items.each do |item| %>
         <%= render FlatPack::List::Item.new(
           href: item.fetch(:href),

@@ -152,7 +152,7 @@ Logged-out people can read sections and live pages. Drafts 404.
 
 Public `/help` lists sections. A section show lists `SupportPage.indexable` pages in that section. Do not copy that logic. Public `/help?q=` and staff `/support?q=` search section names. Page search lives on a section show and filters pages **in that section** by title and body (`?q=`).
 
-Public and staff Help **home** lists use Flatpack Search at full width (`max_width: :none`, placeholder “Search support”). Flatpack Search has no fill or height API; Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Section rows on those homes share one Flatpack List with a trailing `chevron-right` icon, wrapped in a Card body, plus a Flatpack Badge with the published page count.
+Public and staff Help **home** lists use Flatpack Search at full width (`max_width: :none`, placeholder “Search support”). Flatpack Search has no fill or height API; Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Section rows on those homes share one Flatpack List with a trailing `chevron-right` icon, wrapped in a Card body, plus a Flatpack Badge with the published page count. Public `/help` passes `square_rows: true` on that list so row corners stay square (`[&>*]:rounded-none`); staff `/support` keeps Flatpack’s default row radius.
 
 Public **section** show (`/help/sections/:slug`) is its own card stack — not the home `link_list` shape:
 

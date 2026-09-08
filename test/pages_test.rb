@@ -92,10 +92,18 @@ class PagesTest < Minitest::Test
     assert_includes list, "FlatPack::List::Component"
     assert_includes list, "FlatPack::List::Item"
     assert_includes list, "support_list_chevron"
+    assert_includes list, "square_rows"
+    assert_includes list, "[&>*]:rounded-none"
     refute_includes list, "card.header"
     refute_match(/List::Component\.new\([^)]*border:/, list)
     refute_includes list, 'text: "Read"'
     refute_includes list, 'text: "Open"'
+
+    assert_includes public_index, "square_rows: true"
+    staff_sections_index = File.read(
+      File.expand_path("../app/views/recording_studio_support/sections/index.html.erb", __dir__)
+    )
+    refute_includes staff_sections_index, "square_rows"
   end
 
   def test_owner_preview_has_no_edit
