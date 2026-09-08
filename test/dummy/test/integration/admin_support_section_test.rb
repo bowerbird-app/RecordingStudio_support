@@ -18,7 +18,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
-    assert_select "body[data-theme='rounded']"
+    assert_flatpack_rounded_theme
     assert_includes response.body, "Help"
     assert_includes response.body, "Support pages"
     assert_includes response.body, "Support sections"
@@ -39,7 +39,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
-    assert_select "body[data-theme='rounded']"
+    assert_flatpack_rounded_theme
     assert_includes response.body, "Support pages"
     assert_includes response.body, "New page"
     assert_includes response.body, "/support/new"
@@ -139,7 +139,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "1 pages"
     refute_includes response.body, "2 page"
     assert_equal(
-      { "Billing" => "1", "Developers" => "1", "Getting started" => "2" },
+      { "Billing" => "2", "Developers" => "1", "Getting started" => "2" },
       section_page_counts_from_table(response.body)
     )
     getting_started_edit = RecordingStudioSupport::Admin::Queries.edit_section_path(

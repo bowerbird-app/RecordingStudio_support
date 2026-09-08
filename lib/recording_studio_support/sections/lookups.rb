@@ -10,6 +10,23 @@ module RecordingStudioSupport
         ).includes(:recordable).find(id)
       end
 
+      def find_kept_by_slug!(slug:)
+        recording = RecordingStudioSupport::Sections.kept
+                                                    .joins(RecordingStudioSupport::Sections.section_join_sql)
+                                                    .where(recording_studio_support_sections: { slug: slug.to_s })
+                                                    .includes(:recordable)
+                                                    .first
+        raise ActiveRecord::RecordNotFound if recording.blank?
+
+        recording
+      end
+
+      UUID_PATTERN = /\A[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\z/i
+
+      def public_key_uuid?(key)
+        key.to_s.match?(UUID_PATTERN)
+      end
+
       def allowed_parent_root?(root_recording)
         return false unless root_recording
 

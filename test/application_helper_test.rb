@@ -10,6 +10,15 @@ class ApplicationHelperTest < Minitest::Test
     assert_equal "Updated August 21, 2026", helper.support_page_updated_on(Time.utc(2026, 8, 21, 15, 30))
   end
 
+  def test_support_page_meta_description_uses_plain_escaped_body_text
+    helper = Object.new.extend(load_helper)
+
+    assert_equal "Pay & save <today>.", helper.support_page_meta_description(
+      "<p>Pay &amp; save &lt;today&gt;.</p>"
+    )
+    assert_nil helper.support_page_meta_description("")
+  end
+
   def test_support_publish_path_is_blank_without_routes
     helper = Object.new.extend(load_helper)
 
@@ -32,6 +41,49 @@ class ApplicationHelperTest < Minitest::Test
     assert_includes source, "Sections.public_index"
     assert_includes source, "@query = params[:q]"
     assert_includes source, "@publishable&.publish_at"
+  end
+
+  def test_sections_controller_skips_auth_for_public_browse
+    source = File.read(
+      File.expand_path("../app/controllers/recording_studio_support/sections_controller.rb", __dir__)
+    )
+    index = File.read(
+      File.expand_path("../app/views/recording_studio_support/sections/index.html.erb", __dir__)
+    )
+
+    assert_includes source, "skip_before_action :authenticate_user!, only: %i[index show]"
+    assert_includes source, "before_action :require_support_root!, except: %i[index show]"
+    assert_includes source, "support_section_index_recordings"
+    assert_includes source, "Sections.public_index"
+    refute_includes source, "authorize_support!(:view)"
+    assert_includes index, "can_edit_support_pages?"
+    assert_includes index, "Nothing live yet"
+
+    set_idx = source.index("before_action :set_section_recording")
+    auth_idx = source.index("authorize_support!(:edit)")
+    assert set_idx, "sections load before authorize"
+    assert auth_idx, "sections authorize edit"
+    assert set_idx < auth_idx, "section ownership root must load before authorize"
+  end
+
+  def test_pages_controller_loads_ownership_root_before_authorize
+    source = File.read(
+      File.expand_path("../app/controllers/recording_studio_support/pages_controller.rb", __dir__)
+    )
+    application = File.read(
+      File.expand_path("../app/controllers/recording_studio_support/application_controller.rb", __dir__)
+    )
+
+    set_idx = source.index("before_action :set_page_recording")
+    parent_idx = source.index("before_action :set_page_parent_section_for_authorization")
+    view_idx = source.index("authorize_support!(:view)")
+    edit_idx = source.index("authorize_support!(:edit)")
+
+    assert set_idx < view_idx
+    assert set_idx < edit_idx
+    assert parent_idx < edit_idx
+    assert_includes application, "content_root_for_authorization"
+    assert_includes application, "admin_access_recording"
   end
 
   def test_support_recording_title_reads_the_page_title
@@ -59,7 +111,7 @@ class ApplicationHelperTest < Minitest::Test
     assert_includes source, "def support_page_count_badge"
     assert_includes source, "FlatPack::Badge::Component"
     assert_includes source, "style: :default"
-    assert_includes source, "size: :sm"
+    assert_includes source, "size: :xs"
     refute_includes source, "removable: true"
     refute_includes source, "pluralize"
     refute_includes source, "def support_page_image_url"
@@ -74,7 +126,10 @@ class ApplicationHelperTest < Minitest::Test
     assert_includes source, "def support_published_badge"
     assert_includes source, 'text: "Published"'
     assert_includes source, "style: :success"
-    assert_includes source, "size: :sm"
+    assert_includes source, "size: :xs"
+    assert_includes source, "def support_page_status_badge"
+    assert_includes source, 'text: "Draft"'
+    assert_includes source, "size: :xs"
   end
 
   def test_support_list_chevron_uses_the_flatpack_icon

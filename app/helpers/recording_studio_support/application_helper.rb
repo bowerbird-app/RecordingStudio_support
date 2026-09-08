@@ -6,6 +6,10 @@ module RecordingStudioSupport
       Body.sanitize(body).html_safe
     end
 
+    def support_page_meta_description(body)
+      Body.meta_description(body)
+    end
+
     def support_publish_path(recording)
       engine = publishable_engine_routes
       return if engine.blank? || recording.blank?
@@ -43,12 +47,21 @@ module RecordingStudioSupport
       RecordingStudioSupport.configuration.public_pages_path
     end
 
-    def support_public_section_path(recording)
+    def support_public_section_path(recording, **options)
+      slug = support_public_section_slug(recording)
+
       if respond_to?(:main_app) && main_app.respond_to?(:public_help_section_path)
-        return main_app.public_help_section_path(recording)
+        return main_app.public_help_section_path(slug, **options)
       end
 
-      "#{support_public_help_path}/sections/#{recording.id}"
+      path = "#{support_public_help_path}/sections/#{slug}"
+      return path if options.blank?
+
+      "#{path}?#{options.to_query}"
+    end
+
+    def support_public_section_slug(recording)
+      recording&.recordable&.slug.presence || recording&.id
     end
 
     def support_recording_title(recording)
@@ -69,12 +82,12 @@ module RecordingStudioSupport
       render FlatPack::Badge::Component.new(
         text: support_page_count_label(page_count),
         style: :default,
-        size: :sm
+        size: :xs
       )
     end
 
     def support_published_badge
-      render FlatPack::Badge::Component.new(text: "Published", style: :success, size: :sm)
+      render FlatPack::Badge::Component.new(text: "Published", style: :success, size: :xs)
     end
 
     def support_page_status_badge(recording)
@@ -83,7 +96,7 @@ module RecordingStudioSupport
           publishable: recording.current_publishable
         )
       else
-        render FlatPack::Badge::Component.new(text: "Draft", style: :info, size: :sm)
+        render FlatPack::Badge::Component.new(text: "Draft", style: :info, size: :xs)
       end
     end
 

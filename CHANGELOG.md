@@ -25,6 +25,72 @@ Dummy host sign-in uses Recording Studio Users auth screens. Support gem code is
 - Replace host Devise session views with Users auth routes. Delete host `devise/sessions` overrides
 - Gemspec ranges `accessible ~> 0.6` and `attachable ~> 0.4` already allow the dummy pins under pessimistic versioning
 
+## [0.7.4] - 2026-09-07
+
+Document admin/staff process flows after 0.7.3. Enforce workspace-root ownership on Support authorize.
+
+### Added
+- `docs/process-flows.md` — ownership (Accessible on the workspace root), CRUD surface × action × role matrix, Draft ↔ Live gaps, and versioning (revise/events vs gem semver). Planned follow-up order for later implementation
+- Staff authorize loads the page/section (or create parent section) first, then checks Accessible on that content’s workspace root or AdminRoot. Cross-workspace edit/create/trash by UUID is forbidden
+- Forbidden Support writes render a **No access** screen (status 403) instead of an empty body
+- Unauthorized **edit** / **update** redirects to the page or section show instead of the No access screen
+
+### Changed
+- README Admin Support points at that process-flow picture
+- `recordings_for_support_authorization` no longer falls back to the switched current root once a content root is known
+
+### Upgrade notes
+- No schema or route changes. Hosts that relied on “any `:edit` on the current workspace lets you mutate another workspace’s page by id” must grant Accessible on the page’s workspace (or AdminRoot) instead
+- Read `docs/process-flows.md` before wiring more Admin/staff CTAs
+
+## [0.7.3] - 2026-09-07
+
+Staff Help hub can add pages and sections. Public section URLs use readable slugs. Staff show uses a Live/Draft status button beside Publish.
+
+### Added
+- Staff `/support` shows **New section** and **New page** for Accessible `:edit` users. Section show also offers **New page**
+- `SupportSection#slug` for public section URLs (`/help/sections/:slug`). Generated from the title. No FriendlyId — Support owns the column, same idea as Publishable page slugs
+- UUID bookmarks at `/help/sections/:uuid` redirect to the canonical slug URL
+- Public article show lists **Related** published pages from the same section (Flatpack list under a horizontal rule)
+- Public article `<title>` uses the page title; meta description uses plain text from the body (tags stripped, entities unescaped, truncated to 160)
+
+### Changed
+- Public `/help` index drops Close (Back only via default layout history)
+- Public section and article shows still Close to `/help`
+- `/support` and `/support/sections/:id` are readable without signing in; New section / New page / write screens stay Accessible `:edit`
+- Logged-out `/support/sections/:id` omits the Published badge on page rows
+- Accessible `:edit` users see drafts on `/support/sections/:id` (status badge + link to staff preview)
+- Staff live pages show a **Live** or **Draft** status button between Publish and trash (no live alert banner)
+- Staff Publish and trash sit in the same PageTitle row; trash is an icon-only ghost button
+- Host public section route param is `:slug` (install generator updated)
+- Section count and Published badges use Flatpack Badge `size: :xs`
+- Dummy layouts declare `@layer theme, base, components, utilities` before Flatpack CSS so TipTap borders survive Tailwind preflight
+- Public article body uses Flatpack PageTitle plus long-form `prose` content (same idea as Flatpack’s text/content demo; no Content component)
+- Help/support search uses Flatpack Search with a white (`--color-white`) field so it reads as enabled, not muted
+
+### Upgrade notes
+- Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` for the section `slug` column. Existing titles are backfilled
+- Change the host route from `/help/sections/:id` to `/help/sections/:slug` **before** the Publishable mount. Staff `/support/sections/:id` stays on recording UUIDs
+- Slugs overwrite when the section title changes. Old slug URLs 404; UUID bookmarks still redirect
+- Do not add FriendlyId. Page public URLs stay Publishable `/help/:uuid/:slug`
+- Hosts that forced login on every `/support` request can leave Devise `authenticate_user!` on the host ApplicationController; Support skips it for section index/show only
+- Host layouts that load `flat_pack/rich_text` before Tailwind should declare `@layer theme, base, components, utilities` first so TipTap borders keep their width
+
+## [0.7.2] - 2026-09-03
+
+Dummy and host help screens use Flatpack's built-in rounded theme on `<html>`.
+
+### Changed
+- Dummy overrides `recording_studio/default_layout` so `<html data-theme="rounded">` is set. Core still puts `data-theme` on `<body>`; that is not enough for Flatpack component tokens (buttons stay the default purple/blue)
+- Dummy layouts load Flatpack CSS in kit order: `flat_pack/variables`, `flat_pack/application`, `flat_pack/rich_text`, then Tailwind
+- Login layout also loads `flat_pack/rich_text` and keeps the same html theme
+
+### Upgrade notes
+- Set `<html data-theme="rounded">` on the layout used by `/help`, `/support`, and `/admin`. Do not rely on core's body attribute
+- Dummy's `test/dummy/app/views/layouts/recording_studio/default_layout.html.erb` is the host-side pattern. Copy that html attribute, not a custom theme
+- Keep `UsesDefaultLayout`. Do not switch to `recording_studio_publishable/application` or a sidebar shell
+- No schema or public API changes
+
 ## [0.7.1] - 2026-09-03
 
 Cloud Agent Builds fetch Cursor skills at Build. Warm rebuilds skip the install steps when Ruby, bundle, and Postgres are already usable.
@@ -280,7 +346,10 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.7.1...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.7.4...HEAD
+[0.7.4]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.7.3...v0.7.4
+[0.7.3]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.7.2...v0.7.3
+[0.7.2]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.7.2
 [0.7.1]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.7.1
 [0.7.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.7.0
 [0.6.0]: https://github.com/bowerbird-app/RecordingStudio_support/releases/tag/v0.6.0

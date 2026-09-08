@@ -11,7 +11,7 @@ class PagesTest < Minitest::Test
 
   def test_pages_helpers_exist
     %i[for_root for_section find_for_root! find_kept! create! revise! trash! move! recording_for
-       public_indexable public_for_section kept_count_by_section public_count_by_section
+       public_indexable public_for_section related_public_for kept_count_by_section public_count_by_section
        default_section_for section_for].each do |method_name|
       assert RecordingStudioSupport::Pages.respond_to?(method_name), "expected Pages.#{method_name}"
     end
@@ -29,14 +29,19 @@ class PagesTest < Minitest::Test
     assert_includes search, 'placeholder: "Search support"'
     assert_includes search, "max_width: :none"
     assert_includes search, 'class: "w-full"'
+    assert_includes search, "--search-input-background-color: var(--color-white)"
+    assert_includes search, "--search-input-border-color: var(--surface-border-color)"
     refute_includes search, "size:"
     refute_includes search, "fill:"
     assert_includes index, "Nothing matches that"
     refute_includes index, "Elasticsearch"
     refute_includes index, "searchkick"
     refute_includes index, "SearchPage"
-    refute_includes index, "New page"
-    refute_includes index, "new_page_path"
+    assert_includes index, "New page"
+    assert_includes index, "new_page_path"
+    assert_includes index, "New section"
+    assert_includes index, "new_section_path"
+    assert_includes index, "can_edit_support_pages?"
   end
 
   def test_section_and_page_lists_wrap_list_in_card
@@ -57,8 +62,12 @@ class PagesTest < Minitest::Test
     end
     [staff_show, public_show].each do |show|
       refute_includes show, "support_page_count_badge"
-      assert_includes show, "support_published_badge"
     end
+    assert_includes public_show, "support_published_badge"
+    assert_includes staff_show, "support_published_badge"
+    assert_includes staff_show, "support_page_status_badge"
+    assert_includes staff_show, "can_edit_support_pages?"
+    assert_includes staff_show, "current_support_actor.present?"
 
     [staff_index, public_index, staff_show, public_show].each do |view|
       assert_includes view, 'render "recording_studio_support/shared/link_list"'
@@ -84,6 +93,12 @@ class PagesTest < Minitest::Test
     refute_includes show, "edit_page_path"
     refute_includes show, 'text: "Edit"'
     assert_includes show, "Publish"
+    assert_includes show, 'icon: "trash"'
+    assert_includes show, "icon_only: true"
+    refute_includes show, "View now"
+    refute_includes show, "This page is live."
+    refute_includes show, "FlatPack::Alert::Component"
+    assert_includes show, 'text: live ? "Live" : "Draft"'
   end
 
   def test_public_index_uses_indexable_pages_not_copied_logic
@@ -96,6 +111,7 @@ class PagesTest < Minitest::Test
     assert_includes pages, "SupportPage.indexable"
     assert_includes pages, "def public_indexable(query: nil)"
     assert_includes pages, "def public_for_section"
+    assert_includes pages, "def related_public_for"
     assert_includes pages, ".distinct.order(:title)"
     refute_includes pages, "meta_robots"
     refute_includes pages, "noindex"
@@ -114,12 +130,18 @@ class PagesTest < Minitest::Test
   def test_public_show_is_a_simple_article
     show = File.read(File.expand_path("../app/views/recording_studio_support/public_pages/show.html.erb", __dir__))
 
+    assert_includes show, "FlatPack::PageTitle::Component"
+    assert_includes show, 'class="prose max-w-none'
     assert_includes show, "support_page_body_html"
+    assert_includes show, "recording_studio_seo_description"
+    assert_includes show, "support_page_meta_description"
+    assert_includes show, "Related"
+    assert_includes show, 'render "recording_studio_support/shared/link_list"'
+    assert_includes show, "FlatPack::SectionTitle::Component"
     refute_includes show, "Pictures"
     refute_includes show, "This page is live"
     refute_includes show, "Not live yet"
     refute_includes show, "FlatPack::Alert::Component"
-    refute_includes show, "FlatPack::Card::Component"
     refute_includes show, 'text: "Edit"'
     refute_includes show, "Move to trash"
     refute_includes show, "support_visible_images"

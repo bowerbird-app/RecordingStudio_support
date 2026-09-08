@@ -28,6 +28,13 @@ module RecordingStudioSupport
         apply_page_query(SupportPage.indexable.where(id: page_ids), query).distinct.order(:title)
       end
 
+      def related_public_for(page, section_recording: nil)
+        section = section_recording || recording_for(page)&.then { |recording| section_for(recording) }
+        return SupportPage.none if page.blank? || section.blank?
+
+        public_for_section(section).where.not(id: page.id)
+      end
+
       def find_for_root!(root_recording:, id:)
         workspace = Sections.parent_root_for(root_recording)
         kept_pages(workspace).includes(:recordable).find(id)

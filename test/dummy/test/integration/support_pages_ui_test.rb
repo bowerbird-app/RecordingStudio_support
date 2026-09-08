@@ -20,12 +20,15 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Getting started"
     assert_includes response.body, "Billing"
     assert_includes response.body, "Developers"
-    refute_includes response.body, "New page"
+    assert_includes response.body, "New page"
+    assert_includes response.body, "New section"
+    assert_includes response.body, 'href="/support/new"'
+    assert_includes response.body, 'href="/support/sections/new"'
     refute_includes response.body, "How do I change my password?"
     assert_includes response.body, "flat-pack-page-nav"
     refute_includes response.body, "Studio Workspace"
     assert_includes response.body, "flat_pack/application"
-    assert_select "body[data-theme='rounded']"
+    assert_flatpack_rounded_theme
     assert_select "a[aria-label='Close'][href='/']"
     refute_includes response.body, "Sign out"
     refute_includes response.body, "/users/sign_out"
@@ -39,8 +42,8 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_select "ul[role='list']"
     assert_select "li[role='listitem']"
     assert_includes response.body, "chevron-right"
-    assert_select "[class*='badge-default-background-color']", text: "1", count: 3
-    refute_includes response.body, ">2<"
+    assert_select "[class*='badge-default-background-color']", text: "1", count: 2
+    assert_select "[class*='badge-default-background-color']", text: "2", count: 1
     refute_includes response.body, "1 page"
     refute_includes response.body, "2 pages"
     refute_includes response.body, "<span>Open</span>"
@@ -51,7 +54,7 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     get "/support", params: { q: "Getting started" }
 
     assert_response :success
-    assert_select "body[data-theme='rounded']"
+    assert_flatpack_rounded_theme
     assert_select "form[role='search']"
     assert_includes response.body, "Getting started"
     refute_includes response.body, "Billing"
@@ -75,10 +78,13 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "How do I sign in?"
-    refute_includes response.body, "How do I change my password?"
+    assert_includes response.body, "How do I change my password?"
     refute_includes response.body, "How do I update payment details?"
     assert_includes response.body, "Published"
-    refute_includes response.body, "New page"
+    assert_includes response.body, "Draft"
+    assert_includes response.body, "New page"
+    assert_includes response.body, "href=\"/support/new?section_id=#{section.id}\""
+    assert_includes response.body, "href=\"/support/#{seeded_page('How do I change my password?').id}\""
     refute_includes response.body, "recordable"
     assert_includes response.body, "card-border-color"
     assert_select "ul[role='list']"
@@ -94,7 +100,9 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "How do I change my password?"
-    assert_includes response.body, "Not live yet. This preview is just for you."
+    assert_includes response.body, ">Draft<"
+    refute_includes response.body, "This page is live."
+    refute_includes response.body, "Not live yet"
     refute_includes response.body, "Edit page"
     refute_includes response.body, "href=\"/support/#{recording.id}/edit\""
     refute_match(/<a[^>]*>\s*Edit\s*<\/a>/, response.body)
@@ -123,8 +131,12 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "href=\"/support/#{recording.id}/edit\""
     refute_includes response.body, "Edit page"
     assert_includes response.body, "Publish"
-    assert_includes response.body, "This page is live."
-    assert_includes response.body, "Move to trash"
+    assert_includes response.body, ">Live<"
+    refute_includes response.body, "This page is live."
+    refute_includes response.body, "View now"
+    refute_includes response.body, "Open live page"
+    assert_includes response.body, 'aria-label="Move to trash"'
+    refute_match(/>\s*Move to trash\s*</, response.body)
     assert RecordingStudioSupport::PageView.exists?(recording_id: recording.id)
   end
 
@@ -245,13 +257,29 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Getting started"
     refute_includes response.body, "New page"
+    refute_includes response.body, "New section"
+
+    get "/support/sections/#{seeded_section('Getting started').id}"
+
+    assert_response :success
+    assert_includes response.body, "How do I sign in?"
+    refute_includes response.body, "How do I change my password?"
+    refute_includes response.body, "New page"
+
+    recording = seeded_page("How do I change my password?")
+    get "/support/#{recording.id}/edit"
+    assert_redirected_to "/support/#{recording.id}"
+    follow_redirect!
+    assert_response :success
+    assert_includes response.body, "How do I change my password?"
+    refute_includes response.body, "Edit page"
 
     get "/support/new"
 
     assert_response :forbidden
   end
 
-  test "viewer without access is forbidden" do
+  test "viewer without access can still read public support lists" do
     stranger = User.create!(
       email: "stranger-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
@@ -260,6 +288,18 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     sign_in stranger
 
     get "/support"
+
+    assert_response :success
+    assert_includes response.body, "Getting started"
+    refute_includes response.body, "New page"
+    refute_includes response.body, "New section"
+
+    get "/support/sections/#{seeded_section('Getting started').id}"
+
+    assert_response :success
+    refute_includes response.body, "New page"
+
+    get "/support/new"
 
     assert_response :forbidden
   end
@@ -276,7 +316,125 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "How do I change my password?"
   end
 
+  test "editor of one workspace cannot edit another workspace page by id" do
+    editor = User.create!(
+      email: "editor-a-#{SecureRandom.hex(4)}@example.com",
+      password: "Password",
+      password_confirmation: "Password"
+    )
+    workspace_a = Workspace.create!(name: "Workspace A #{SecureRandom.hex(4)}")
+    workspace_b = Workspace.create!(name: "Workspace B #{SecureRandom.hex(4)}")
+    root_a = RecordingStudio.root_recording_for(workspace_a)
+    root_b = RecordingStudio.root_recording_for(workspace_b)
+    grant_role!(root_a, editor, :edit)
+    grant_role!(root_b, editor, :view)
+
+    section_b = record_support_section(root_b, title: "B only section")
+    page_b = record_support_page(root_b, section_b, title: "B only page")
+    section_a = record_support_section(root_a, title: "A section")
+    page_a = record_support_page(root_a, section_a, title: "A page")
+
+    sign_in editor
+    switch_to_root!(root_b)
+
+    get "/support/#{page_b.id}/edit"
+    assert_redirected_to "/support/#{page_b.id}"
+    follow_redirect!
+    assert_response :success
+    assert_includes response.body, "B only page"
+    refute_includes response.body, "Edit page"
+
+    get "/support/#{page_a.id}/edit"
+    assert_response :success
+    assert_includes response.body, "Edit page"
+
+    patch "/support/#{page_b.id}", params: { page: { title: "Hijacked", body: "Nope" } }
+    assert_redirected_to "/support/#{page_b.id}"
+    assert_equal "B only page", page_b.reload.recordable.title
+
+    post "/support/#{page_b.id}/trash"
+    assert_response :forbidden
+    assert_nil page_b.reload.trashed_at
+
+    get "/support/new", params: { section_id: section_b.id }
+    assert_response :forbidden
+
+    post "/support", params: {
+      page: { title: "Smuggled", body: "Nope", section_id: section_b.id }
+    }
+    assert_response :forbidden
+    titles = RecordingStudio::Recording.where(
+      parent_recording_id: section_b.id,
+      recordable_type: "RecordingStudioSupport::SupportPage",
+      trashed_at: nil
+    ).filter_map { |recording| recording.recordable&.title }
+    refute_includes titles, "Smuggled"
+  end
+
+  test "editor of one workspace cannot revise or trash another workspace section" do
+    editor = User.create!(
+      email: "section-editor-a-#{SecureRandom.hex(4)}@example.com",
+      password: "Password",
+      password_confirmation: "Password"
+    )
+    workspace_a = Workspace.create!(name: "Section A #{SecureRandom.hex(4)}")
+    workspace_b = Workspace.create!(name: "Section B #{SecureRandom.hex(4)}")
+    root_a = RecordingStudio.root_recording_for(workspace_a)
+    root_b = RecordingStudio.root_recording_for(workspace_b)
+    grant_role!(root_a, editor, :edit)
+    grant_role!(root_b, editor, :view)
+
+    section_b = record_support_section(root_b, title: "Keep my name")
+
+    sign_in editor
+    switch_to_root!(root_b)
+
+    get "/support/sections/#{section_b.id}/edit"
+    assert_redirected_to "/support/sections/#{section_b.id}"
+    follow_redirect!
+    assert_response :success
+    assert_includes response.body, "Keep my name"
+    refute_includes response.body, "Edit section"
+
+    patch "/support/sections/#{section_b.id}", params: { section: { title: "Renamed" } }
+    assert_redirected_to "/support/sections/#{section_b.id}"
+    assert_equal "Keep my name", section_b.reload.recordable.title
+
+    post "/support/sections/#{section_b.id}/trash"
+    assert_response :forbidden
+    assert_nil section_b.reload.trashed_at
+  end
+
+  test "public help article shows related pages from the same section" do
+    current = seeded_page("How do I update payment details?")
+    related = seeded_page("Where is my invoice?")
+    current_path = current.recordable.published_url
+    related_path = related.recordable.published_url
+
+    assert current_path.present?
+    assert related_path.present?
+
+    get current_path
+
+    assert_response :success
+    assert_select "h1", text: "How do I update payment details?"
+    assert_includes response.body, 'class="prose max-w-none'
+    assert_includes response.body, "Related"
+    assert_select "ul[role='list']"
+    assert_select "a[href=?]", related_path
+  end
+
   private
+
+  def switch_to_root!(root_recording)
+    patch "/recording_studio_root_switchable/v1/root_switch", params: {
+      scope: "all_workspaces",
+      root_switch: {
+        root_recording_id: root_recording.id,
+        return_to: "/support"
+      }
+    }
+  end
 
   def grant_role!(recording, actor, role)
     original = RecordingStudioAccessible.configuration.access_management_authorizer
