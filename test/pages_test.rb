@@ -80,7 +80,7 @@ class PagesTest < Minitest::Test
     assert_includes public_show, "FlatPack::Card::Component"
     assert_includes public_show, "FlatPack::Timestamp::Component"
     assert_includes public_show, "support_public_contact_href"
-    assert_includes public_show, 'hover: :subtle'
+    assert_includes public_show, "hover: :subtle"
     assert_includes public_show, "style: :interactive"
     refute_includes public_show, 'render "recording_studio_support/shared/link_list"'
     refute_includes public_show, 'text: "Read"'

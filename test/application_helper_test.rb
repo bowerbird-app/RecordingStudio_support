@@ -105,7 +105,7 @@ class ApplicationHelperTest < Minitest::Test
 
   def test_support_page_count_badge_uses_the_flatpack_badge
     source = File.read(
-      File.expand_path("../app/helpers/recording_studio_support/application_helper.rb", __dir__)
+      File.expand_path("../app/helpers/recording_studio_support/list_helper.rb", __dir__)
     )
 
     assert_includes source, "def support_page_count_badge"
@@ -120,7 +120,7 @@ class ApplicationHelperTest < Minitest::Test
 
   def test_support_published_badge_uses_the_flatpack_badge
     source = File.read(
-      File.expand_path("../app/helpers/recording_studio_support/application_helper.rb", __dir__)
+      File.expand_path("../app/helpers/recording_studio_support/list_helper.rb", __dir__)
     )
 
     assert_includes source, "def support_published_badge"
@@ -134,7 +134,7 @@ class ApplicationHelperTest < Minitest::Test
 
   def test_support_list_chevron_uses_the_flatpack_icon
     source = File.read(
-      File.expand_path("../app/helpers/recording_studio_support/application_helper.rb", __dir__)
+      File.expand_path("../app/helpers/recording_studio_support/list_helper.rb", __dir__)
     )
 
     assert_includes source, "def support_list_chevron"
@@ -195,8 +195,10 @@ class ApplicationHelperTest < Minitest::Test
   private
 
   def load_helper
-    path = File.expand_path("../app/helpers/recording_studio_support/application_helper.rb", __dir__)
-    require path
+    dir = File.expand_path("../app/helpers/recording_studio_support", __dir__)
+    require File.join(dir, "public_section_helper.rb")
+    require File.join(dir, "list_helper.rb")
+    require File.join(dir, "application_helper.rb")
     RecordingStudioSupport::ApplicationHelper
   end
 end

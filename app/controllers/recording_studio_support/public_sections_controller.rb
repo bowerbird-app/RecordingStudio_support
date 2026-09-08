@@ -13,10 +13,8 @@ module RecordingStudioSupport
 
       @section = @section_recording.recordable
       @query = params[:q].to_s.strip
-      @section_subtitle = section_subtitle_for(@section)
-      @articles = Pages.public_for_section(@section_recording, query: @query).filter_map do |page|
-        article_for(page)
-      end
+      @section_subtitle = PublicSection.subtitle_for(@section)
+      @articles = PublicSection.articles_for(@section_recording, query: @query)
     rescue ActiveRecord::RecordNotFound
       head :not_found
     end
@@ -41,35 +39,6 @@ module RecordingStudioSupport
       redirect_options = {}
       redirect_options[:q] = params[:q] if params[:q].present?
       redirect_to main_app.public_help_section_path(slug, **redirect_options), status: :moved_permanently
-    end
-
-    def section_subtitle_for(section)
-      configured = RecordingStudioSupport.configuration.public_section_subtitle
-      result = if configured.respond_to?(:call)
-        configured.call(section)
-      else
-        configured
-      end
-
-      result.to_s.presence || "Find answers in #{section.title}."
-    end
-
-    def article_for(page)
-      href = page.published_url
-      return if href.blank?
-
-      {
-        title: page.title,
-        href: href,
-        snippet: Body.snippet(page.body),
-        updated_at: article_updated_at(page)
-      }
-    end
-
-    def article_updated_at(page)
-      recording = Pages.recording_for(page)
-      publishable = recording&.current_publishable if recording.respond_to?(:current_publishable)
-      publishable&.publish_at.presence || recording&.updated_at.presence || page.created_at
     end
   end
 end

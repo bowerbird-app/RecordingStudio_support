@@ -2,61 +2,15 @@
 
 module RecordingStudioSupport
   module ApplicationHelper
+    include RecordingStudioSupport::PublicSectionHelper
+    include RecordingStudioSupport::ListHelper
+
     def support_page_body_html(body)
       Body.sanitize(body).html_safe
     end
 
     def support_page_meta_description(body)
       Body.meta_description(body)
-    end
-
-    def support_page_snippet(body)
-      Body.snippet(body)
-    end
-
-    def support_public_section_subtitle(section)
-      configured = RecordingStudioSupport.configuration.public_section_subtitle
-      result = if configured.respond_to?(:call)
-        configured.call(section)
-      else
-        configured
-      end
-
-      result.to_s.presence || "Find answers in #{section.title}."
-    end
-
-    def support_public_section_search_placeholder(section)
-      "Search in #{section.title}…"
-    end
-
-    def support_public_contact_href
-      RecordingStudioSupport.configuration.public_contact_href.presence
-    end
-
-    def support_public_contact_label
-      RecordingStudioSupport.configuration.public_contact_label.presence || "Contact support"
-    end
-
-    def support_public_contact_prompt(section)
-      "Need something else in #{section.title}?"
-    end
-
-    def support_public_section_article(page)
-      href = page.published_url
-      return if href.blank?
-
-      {
-        title: page.title,
-        href: href,
-        snippet: support_page_snippet(page.body),
-        updated_at: support_public_section_article_updated_at(page)
-      }
-    end
-
-    def support_public_section_article_updated_at(page)
-      recording = Pages.recording_for(page)
-      publishable = recording&.current_publishable if recording.respond_to?(:current_publishable)
-      publishable&.publish_at.presence || recording&.updated_at.presence || page.created_at
     end
 
     def support_publish_path(recording)
@@ -117,45 +71,6 @@ module RecordingStudioSupport
       return unless recording.respond_to?(:recordable)
 
       recording.recordable&.title
-    end
-
-    def support_list_chevron
-      render FlatPack::Shared::IconComponent.new(name: "chevron-right", size: :md)
-    end
-
-    def support_page_count_label(page_count)
-      page_count.to_s
-    end
-
-    def support_page_count_badge(page_count)
-      render FlatPack::Badge::Component.new(
-        text: support_page_count_label(page_count),
-        style: :default,
-        size: :xs
-      )
-    end
-
-    def support_published_badge
-      render FlatPack::Badge::Component.new(text: "Published", style: :success, size: :xs)
-    end
-
-    def support_page_status_badge(recording)
-      if recording.respond_to?(:current_publishable) && recording.current_publishable
-        render RecordingStudioPublishable::StatusBadge::Component.new(
-          publishable: recording.current_publishable
-        )
-      else
-        render FlatPack::Badge::Component.new(text: "Draft", style: :info, size: :xs)
-      end
-    end
-
-    def support_section_options(section_recordings)
-      Array(section_recordings).filter_map do |recording|
-        title = support_recording_title(recording)
-        next if title.blank?
-
-        [title, recording.id]
-      end
     end
 
     private
