@@ -10,7 +10,8 @@
   <%= render "recording_studio_support/shared/search",
         url: support_public_section_path(@section_recording),
         query: @query,
-        placeholder: support_public_section_search_placeholder(@section) %>
+        placeholder: support_public_section_search_placeholder(@section),
+        size: :lg %>
 
   <% if @articles.any? %>
     <%= render FlatPack::Grid::Component.new(cols: 1, gap: :lg) do %>

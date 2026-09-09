@@ -1,3 +1,4 @@
+<% size = local_assigns.fetch(:size, :md) %>
 <%= form_with url: url, method: :get, html: {
       role: "search",
       class: "w-full",
@@ -11,6 +12,6 @@
     value: query,
     placeholder: local_assigns.fetch(:placeholder, "Search support"),
     max_width: :none,
-    size: :lg
+    size: size
   ) %>
 <% end %>

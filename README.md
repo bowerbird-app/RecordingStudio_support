@@ -152,26 +152,28 @@ Logged-out people can read sections and live pages. Drafts 404.
 
 Public `/help` lists sections. A section show lists `SupportPage.indexable` pages in that section. Do not copy that logic. Public `/help?q=` and staff `/support?q=` search section names. Page search lives on a section show and filters pages **in that section** by title and body (`?q=`).
 
-Public and staff Help **home** lists use Flatpack Search at full width (`max_width: :none`, `size: :lg`, placeholder “Search support”). Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Section rows on those homes share one Flatpack List with a trailing `chevron-right` icon, wrapped in a Card body, plus a Flatpack Badge with the published page count. Public `/help` passes `square_rows: true` — flush Card body (`padding: :none`) and Flatpack’s grouped square-corner class (`[&>*]:rounded-none`, same pattern as ButtonGroup / SegmentedButtons). Staff `/support` keeps the default Card padding and List::Item radius.
+Public and staff Help homes use Flatpack Search at full width (`max_width: :none`, placeholder “Search support”). Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Public `/help` and public section show pass `size: :lg` (Flatpack `0.1.175+` / pin `v0.1.177`); staff search keeps the default `:md`.
+
+**Public `/help` home** stacks interactive clickable Flatpack Cards in a Grid (`cols: 1`, `gap: :lg`, `style: :interactive`, `hover: :strong`, body `padding: :lg`, `theme: { background: "#ffffff" }`). Interactive (not elevated) is what Flatpack uses for a visible strong hover — elevated already ships `shadow-md`, so `hover: :strong` on elevated barely changes. Each card shows the section title and a muted **N article(s)** line (no Badge). PageTitle is `public_help_title` only — no subtitle on this page.
+
+**Staff `/support` home** still uses the shared `link_list`: Flatpack List with a trailing `chevron-right`, wrapped in a Card body, plus a Flatpack Badge with the published page count (default Card padding and List::Item radius).
 
 Public **section** show (`/help/sections/:slug`) is its own card stack — not the home `link_list` shape:
 
 1. Default layout page nav — history Back, plus a PageNav **secondary** Home (home icon → `/help`, tooltip/aria `"Home"`). No Close
 2. Flatpack PageTitle — section title, subtitle, `variant: :h1`
-3. Flatpack Search — placeholder `Search in {section}…`, white input tokens as above
+3. Flatpack Search — `size: :lg`, placeholder `Search in {section}…`, white input tokens as above
 4. Flatpack Grid (`cols: 1`, `gap: :lg`) of full-width interactive Cards (`href`, `clickable: true`, `hover: :strong`, `style: :interactive`, white `theme: { background: "var(--color-white)" }`) — Body padding `:lg`, title, muted plain-text snippet (~120 chars from the body; omitted when blank), Flatpack Timestamp from publish time (`publish_at`, then recording `updated_at`, then page `created_at`)
 5. Optional host contact Card + secondary Button — only when `public_contact_href` is set
 6. Flatpack EmptyState when the query matches nothing or the section has no live pages
 
 Hosts that override `recording_studio/default_layout` (as the dummy does) should pass Flatpack `secondary_anchor_href` / `secondary_anchor_icon` / `secondary_anchor_tooltip` from `content_for` keys `page_nav_secondary_anchor_url`, `page_nav_secondary_anchor_icon`, and `page_nav_secondary_anchor_tooltip`. Map `page_nav_anchor_url` to Flatpack’s `anchor_href` (not the old `anchor_url`). Core `recording_studio_page_nav` does not yet forward secondary slots — Support’s public section show sets those `content_for` keys via `support_public_section_page_nav`.
 
-Section search uses the shared Search partial at `size: :lg` (same as Help/support homes).
-
 Interactive + `hover: :strong` needs a host Tailwind utilities-layer override for the border color change: Flatpack’s hover rules live in `@layer components`, but the card also applies Tailwind’s `border-[var(--card-border-color)]` utility, and utilities win on hover. Dummy’s `app/assets/tailwind/application.css` shows the override hosts should copy until Flatpack moves those hover rules.
 
 No Published badge on public section cards (implied by indexable). Drafts stay off public `/help` lists. No Read / Open buttons. Staff `/support/sections/...` still uses the list + badge rules for editors vs visitors. Public and staff help use Recording Studio's default layout (`UsesDefaultLayout` / `recording_studio/default_layout`). Point Publishable `public_layout` at that layout. Do not use `recording_studio_publishable/application`. Put Flatpack's built-in rounded theme on `<html data-theme="rounded">` — core's body attribute is not enough. Dummy's default-layout override shows the host-side fix. Before Flatpack CSS, declare `@layer theme, base, components, utilities` so TipTap borders survive Tailwind preflight when `flat_pack/rich_text` loads before Tailwind.
 
-Help titles come from `RecordingStudioSupport.configure`. Defaults stay “Help” / “Find an answer.” for public and staff, and “Pages people use when they get stuck.” for the admin section. Section blurbs and the optional contact slot are host-configurable:
+Help titles come from `RecordingStudioSupport.configure`. Staff defaults stay “Help” / “Find an answer.” Public default title is **Hi, how can we help?** (`public_help_subtitle` remains configurable but the shipped `/help` home does not render it). Admin section default subtitle is “Pages people use when they get stuck.” Section blurbs and the optional contact slot are host-configurable:
 
 ```ruby
 RecordingStudioSupport.configure do |config|
@@ -179,7 +181,7 @@ RecordingStudioSupport.configure do |config|
   config.public_pages_path = "/help"
   config.help_title = "Help"
   config.help_subtitle = "Find an answer."
-  config.public_help_title = "Help"
+  config.public_help_title = "Hi, how can we help?"
   config.public_help_subtitle = "Find an answer."
   config.admin_help_title = "Help"
   config.admin_help_subtitle = "Pages people use when they get stuck."

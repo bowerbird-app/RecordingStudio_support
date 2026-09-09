@@ -103,6 +103,14 @@ class ApplicationHelperTest < Minitest::Test
     assert_equal "2", helper.support_page_count_label(2)
   end
 
+  def test_support_article_count_label_pluralizes
+    helper = Object.new.extend(load_helper)
+
+    assert_equal "0 articles", helper.support_article_count_label(0)
+    assert_equal "1 article", helper.support_article_count_label(1)
+    assert_equal "2 articles", helper.support_article_count_label(2)
+  end
+
   def test_support_page_count_badge_uses_the_flatpack_badge
     source = File.read(
       File.expand_path("../app/helpers/recording_studio_support/list_helper.rb", __dir__)
@@ -112,8 +120,9 @@ class ApplicationHelperTest < Minitest::Test
     assert_includes source, "FlatPack::Badge::Component"
     assert_includes source, "style: :default"
     assert_includes source, "size: :xs"
+    assert_includes source, "def support_article_count_label"
+    assert_includes source, "pluralize"
     refute_includes source, "removable: true"
-    refute_includes source, "pluralize"
     refute_includes source, "def support_page_image_url"
     refute_includes source, "def support_visible_images"
   end
@@ -147,7 +156,7 @@ class ApplicationHelperTest < Minitest::Test
 
     assert_equal "Help", helper.support_help_title
     assert_equal "Find an answer.", helper.support_help_subtitle
-    assert_equal "Help", helper.support_public_help_title
+    assert_equal "Hi, how can we help?", helper.support_public_help_title
     assert_equal "Find an answer.", helper.support_public_help_subtitle
     assert_equal "/help", helper.support_public_help_path
   end
