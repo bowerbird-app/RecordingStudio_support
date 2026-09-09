@@ -13,7 +13,7 @@ module RecordingStudioSupport
 
     private
 
-    def support_body_node(node, muted: false)
+    def support_body_node(node)
       return if node.text? && node.content.blank?
       return ERB::Util.html_escape(node.content) if node.text?
 
@@ -24,7 +24,7 @@ module RecordingStudioSupport
         support_body_list(node, ordered: false)
       when "blockquote"
         content_tag(:div, class: MUTED_BODY_CLASS) do
-          safe_join(node.children.filter_map { |child| support_body_node(child, muted: true) })
+          safe_join(node.children.filter_map { |child| support_body_node(child) })
         end
       else
         node.to_html.html_safe
