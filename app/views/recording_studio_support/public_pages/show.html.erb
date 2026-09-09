@@ -21,12 +21,14 @@
       ) %>
     <% end %>
 
-    <%= render FlatPack::PageTitle::Component.new(
-      title: @page.title,
-      subtitle: @page.description.presence,
-      variant: :h1,
-      class: "mb-0"
-    ) %>
+    <%# -mb-6 cancels PageTitle's stock mb-6 so gap-1.5 owns header rhythm %>
+    <div class="-mb-6">
+      <%= render FlatPack::PageTitle::Component.new(
+        title: @page.title,
+        subtitle: @page.description.presence,
+        variant: :h1
+      ) %>
+    </div>
 
     <% if @updated_at.present? %>
       <%= render FlatPack::Timestamp::Component.new(

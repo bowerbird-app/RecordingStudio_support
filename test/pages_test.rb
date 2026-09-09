@@ -157,7 +157,7 @@ class PagesTest < Minitest::Test
     assert_includes show, "FlatPack::Badge::Component"
     assert_includes show, "size: :lg"
     assert_includes show, "FlatPack::PageTitle::Component"
-    assert_includes show, 'class: "mb-0"'
+    assert_includes show, "-mb-6"
     assert_includes show, "FlatPack::Timestamp::Component"
     assert_includes show, "@page.description"
     assert_includes show, 'class="prose max-w-none'

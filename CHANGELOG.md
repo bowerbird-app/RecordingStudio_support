@@ -22,7 +22,7 @@ Public help articles use a Badge → Title → description → date header, drop
 - Article date uses the same fallback as section cards (`publish_at` → recording `updated_at` → `created_at`)
 - Dummy default layout wires PageNav `secondary_anchor_*` (Home) for Flatpack
 - Article body pipeline renders TipTap `ol`/`ul` as Flatpack `List` (ordered steps keep markers); `blockquote` tips use muted theme tokens
-- Public article header uses stock Timestamp (no hand class), a larger section Badge (`size: :lg`), tighter Badge → Title → date → body spacing, and `PageTitle` with `mb-0` so the stack does not inherit the default title bottom margin
+- Public article header uses stock Timestamp (no hand class), a larger section Badge (`size: :lg`), tighter Badge → Title → date → body spacing, and a `-mb-6` wrap so PageTitle’s stock bottom margin does not open a wireframe gap before the date
 - Dummy payment article seed uses a billing UI screenshot (`how-to-update-payment.jpg`) instead of a keyboard photo; tip copy sits in a muted blockquote
 
 ### Upgrade notes
