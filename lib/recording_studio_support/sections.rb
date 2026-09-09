@@ -52,7 +52,6 @@ module RecordingStudioSupport
       end
     end
 
-
     def trash!(recording:, actor: nil)
       assign_actor(actor) do
         recording.recording_studio_trashable_trash!(actor: actor || Current.actor)

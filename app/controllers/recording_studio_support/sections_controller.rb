@@ -49,7 +49,6 @@ module RecordingStudioSupport
       render_invalid_section(e, template: :edit)
     end
 
-
     def trash
       Sections.trash!(recording: @section_recording, actor: current_support_actor)
       redirect_to RecordingStudioSupport::Admin::Queries.admin_sections_screen_path,
@@ -73,6 +72,5 @@ module RecordingStudioSupport
       flash.now[:alert] = "Couldn't save that section. Check the name and icon, then try again."
       render template, status: :unprocessable_entity
     end
-
   end
 end

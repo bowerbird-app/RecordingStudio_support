@@ -28,7 +28,6 @@ module RecordingStudioSupport
     before_validation :assign_slug_from_title
     before_validation :normalize_icon
 
-
     def self.slug_for(title, excluding_id: nil)
       base = title.to_s.parameterize.presence || "section"
       base = "section" if RESERVED_SLUGS.include?(base)
@@ -82,4 +81,3 @@ module RecordingStudioSupport
     end
   end
 end
-
