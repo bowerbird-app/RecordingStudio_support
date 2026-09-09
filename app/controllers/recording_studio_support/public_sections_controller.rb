@@ -13,7 +13,8 @@ module RecordingStudioSupport
 
       @section = @section_recording.recordable
       @query = params[:q].to_s.strip
-      @pages = Pages.public_for_section(@section_recording, query: @query)
+      @section_subtitle = RecordingStudioSupport::PublicSection.subtitle_for(@section)
+      @articles = RecordingStudioSupport::PublicSection.articles_for(@section_recording, query: @query)
     rescue ActiveRecord::RecordNotFound
       head :not_found
     end

@@ -105,7 +105,7 @@ class ApplicationHelperTest < Minitest::Test
 
   def test_support_page_count_badge_uses_the_flatpack_badge
     source = File.read(
-      File.expand_path("../app/helpers/recording_studio_support/application_helper.rb", __dir__)
+      File.expand_path("../app/helpers/recording_studio_support/list_helper.rb", __dir__)
     )
 
     assert_includes source, "def support_page_count_badge"
@@ -120,7 +120,7 @@ class ApplicationHelperTest < Minitest::Test
 
   def test_support_published_badge_uses_the_flatpack_badge
     source = File.read(
-      File.expand_path("../app/helpers/recording_studio_support/application_helper.rb", __dir__)
+      File.expand_path("../app/helpers/recording_studio_support/list_helper.rb", __dir__)
     )
 
     assert_includes source, "def support_published_badge"
@@ -134,7 +134,7 @@ class ApplicationHelperTest < Minitest::Test
 
   def test_support_list_chevron_uses_the_flatpack_icon
     source = File.read(
-      File.expand_path("../app/helpers/recording_studio_support/application_helper.rb", __dir__)
+      File.expand_path("../app/helpers/recording_studio_support/list_helper.rb", __dir__)
     )
 
     assert_includes source, "def support_list_chevron"
@@ -152,11 +152,53 @@ class ApplicationHelperTest < Minitest::Test
     assert_equal "/help", helper.support_public_help_path
   end
 
+  def test_public_section_helpers_cover_subtitle_search_and_contact
+    helper = Object.new.extend(load_helper)
+    section = Struct.new(:title, :slug).new("Billing", "billing")
+
+    previous_subtitle = RecordingStudioSupport.configuration.public_section_subtitle
+    previous_href = RecordingStudioSupport.configuration.public_contact_href
+    previous_label = RecordingStudioSupport.configuration.public_contact_label
+
+    RecordingStudioSupport.configuration.public_section_subtitle = nil
+    RecordingStudioSupport.configuration.public_contact_href = nil
+    RecordingStudioSupport.configuration.public_contact_label = "Contact support"
+
+    assert_equal "Find answers in Billing.", helper.support_public_section_subtitle(section)
+    assert_equal "Search in Billing…", helper.support_public_section_search_placeholder(section)
+    assert_nil helper.support_public_contact_href
+    assert_equal "Contact support", helper.support_public_contact_label
+    assert_equal "Need something else in Billing?", helper.support_public_contact_prompt(section)
+
+    RecordingStudioSupport.configuration.public_section_subtitle = lambda do |item|
+      "Payments, invoices, and plan changes." if item.slug == "billing"
+    end
+    RecordingStudioSupport.configuration.public_contact_href = "mailto:help@example.com"
+    RecordingStudioSupport.configuration.public_contact_label = "Email us"
+
+    assert_equal "Payments, invoices, and plan changes.", helper.support_public_section_subtitle(section)
+    assert_equal "mailto:help@example.com", helper.support_public_contact_href
+    assert_equal "Email us", helper.support_public_contact_label
+  ensure
+    RecordingStudioSupport.configuration.public_section_subtitle = previous_subtitle
+    RecordingStudioSupport.configuration.public_contact_href = previous_href
+    RecordingStudioSupport.configuration.public_contact_label = previous_label
+  end
+
+  def test_support_page_snippet_uses_body_helper
+    helper = Object.new.extend(load_helper)
+
+    assert_equal "Pay & save <today>.", helper.support_page_snippet("<p>Pay &amp; save &lt;today&gt;.</p>")
+    assert_nil helper.support_page_snippet("")
+  end
+
   private
 
   def load_helper
-    path = File.expand_path("../app/helpers/recording_studio_support/application_helper.rb", __dir__)
-    require path
+    dir = File.expand_path("../app/helpers/recording_studio_support", __dir__)
+    require File.join(dir, "public_section_helper.rb")
+    require File.join(dir, "list_helper.rb")
+    require File.join(dir, "application_helper.rb")
     RecordingStudioSupport::ApplicationHelper
   end
 end

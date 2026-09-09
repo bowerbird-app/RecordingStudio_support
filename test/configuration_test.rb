@@ -64,9 +64,24 @@ class ConfigurationTest < Minitest::Test
     assert_equal "Find an answer.", configuration.public_help_subtitle
     assert_equal "Help", configuration.admin_help_title
     assert_equal "Pages people use when they get stuck.", configuration.admin_help_subtitle
+    assert_nil configuration.public_section_subtitle
+    assert_nil configuration.public_contact_href
+    assert_equal "Contact support", configuration.public_contact_label
     assert_instance_of RecordingStudio::Hooks, configuration.hooks
   ensure
     ENV["RECORDING_STUDIO_SUPPORT_API_KEY"] = previous_value
+  end
+
+  def test_public_section_and_contact_config_merge
+    @configuration.merge!(
+      public_section_subtitle: "Topic blurb.",
+      public_contact_href: "mailto:help@example.com",
+      public_contact_label: "Email us"
+    )
+
+    assert_equal "Topic blurb.", @configuration.public_section_subtitle
+    assert_equal "mailto:help@example.com", @configuration.public_contact_href
+    assert_equal "Email us", @configuration.public_contact_label
   end
 
   def test_merge_accepts_string_keys

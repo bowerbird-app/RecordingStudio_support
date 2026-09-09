@@ -7,6 +7,7 @@ module RecordingStudioSupport
     TAGS = %w[p br hr h1 h2 h3 h4 h5 h6 strong em u s ul ol li blockquote pre code a span img].freeze
     ATTRIBUTES = %w[href rel target src alt].freeze
     META_DESCRIPTION_LENGTH = 160
+    SNIPPET_LENGTH = 120
 
     def sanitize(html)
       html_sanitizer.sanitize(html.to_s, tags: TAGS, attributes: ATTRIBUTES).to_s
@@ -20,12 +21,20 @@ module RecordingStudioSupport
     end
 
     def meta_description(html)
+      truncate_plain_text(html, META_DESCRIPTION_LENGTH)
+    end
+
+    def snippet(html)
+      truncate_plain_text(html, SNIPPET_LENGTH)
+    end
+
+    def truncate_plain_text(html, length)
       text = plain_text(html)
       return if text.blank?
 
-      return text if text.length <= META_DESCRIPTION_LENGTH
+      return text if text.length <= length
 
-      text.truncate(META_DESCRIPTION_LENGTH)
+      text.truncate(length)
     end
 
     def html_sanitizer

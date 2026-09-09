@@ -12,7 +12,10 @@ module RecordingStudioSupport
       public_help_title: "Help",
       public_help_subtitle: "Find an answer.",
       admin_help_title: "Help",
-      admin_help_subtitle: "Pages people use when they get stuck."
+      admin_help_subtitle: "Pages people use when they get stuck.",
+      public_section_subtitle: nil,
+      public_contact_href: nil,
+      public_contact_label: "Contact support"
     }.freeze
 
     attr_accessor :api_key, *DEFAULTS.keys

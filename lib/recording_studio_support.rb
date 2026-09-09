@@ -17,6 +17,7 @@ require "recording_studio_support/sections"
 require "recording_studio_support/admin"
 require "recording_studio_support/page_nav_compat"
 require "recording_studio_support/body"
+require "recording_studio_support/public_section"
 
 module RecordingStudioSupport
   class << self

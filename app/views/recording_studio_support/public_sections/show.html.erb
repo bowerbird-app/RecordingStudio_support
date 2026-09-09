@@ -1,25 +1,52 @@
 <% recording_studio_page_nav(
      title: @section.title,
-     page_nav_back_url: support_public_help_path,
-     page_nav_anchor_url: support_public_help_path,
-     page_nav_anchor_label: "Close"
+     page_nav_back_url: support_public_help_path
    ) %>
 
 <div class="flex w-full flex-col gap-6">
+  <%= render FlatPack::Breadcrumb::Component.new(
+    items: [
+      { text: support_public_help_title, href: support_public_help_path },
+      { text: @section.title }
+    ]
+  ) %>
+
   <%= render FlatPack::PageTitle::Component.new(
     title: @section.title,
+    subtitle: @section_subtitle,
     variant: :h1
   ) %>
 
-  <%= render "recording_studio_support/shared/search", url: support_public_section_path(@section_recording), query: @query %>
+  <%= render "recording_studio_support/shared/search",
+        url: support_public_section_path(@section_recording),
+        query: @query,
+        placeholder: support_public_section_search_placeholder(@section) %>
 
-  <% if @pages.any? %>
-    <%= render "recording_studio_support/shared/link_list", items: @pages.filter_map { |page|
-      href = page.published_url
-      next if href.blank?
-
-      { title: page.title, href: href, meta: support_published_badge }
-    } %>
+  <% if @articles.any? %>
+    <%= render FlatPack::Grid::Component.new(cols: 1, gap: :sm) do %>
+      <% @articles.each do |article| %>
+        <%= render FlatPack::Card::Component.new(
+          href: article.fetch(:href),
+          clickable: true,
+          hover: :subtle,
+          style: :interactive
+        ) do |card| %>
+          <% card.body do %>
+            <h3 class="text-base font-semibold text-[var(--surface-content-color)]"><%= article.fetch(:title) %></h3>
+            <% if article[:snippet].present? %>
+              <p class="mt-2 text-sm text-[var(--surface-muted-content-color)]"><%= article.fetch(:snippet) %></p>
+            <% end %>
+            <% if article[:updated_at].present? %>
+              <%= render FlatPack::Timestamp::Component.new(
+                timestamp: article.fetch(:updated_at),
+                class: "mt-2 text-sm text-[var(--surface-muted-content-color)]",
+                fallback_text: support_page_updated_on(article.fetch(:updated_at))
+              ) %>
+            <% end %>
+          <% end %>
+        <% end %>
+      <% end %>
+    <% end %>
   <% elsif @query.present? %>
     <%= render FlatPack::EmptyState::Component.new(
       title: "Nothing matches that",
@@ -30,5 +57,20 @@
       title: "Nothing live yet",
       description: "Check back soon."
     ) %>
+  <% end %>
+
+  <% if (contact_href = support_public_contact_href).present? %>
+    <%= render FlatPack::Card::Component.new(style: :default) do |card| %>
+      <% card.body do %>
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <p class="text-[var(--surface-content-color)]"><%= support_public_contact_prompt(@section) %></p>
+          <%= render FlatPack::Button::Component.new(
+            text: support_public_contact_label,
+            style: :secondary,
+            href: contact_href
+          ) %>
+        </div>
+      <% end %>
+    <% end %>
   <% end %>
 </div>

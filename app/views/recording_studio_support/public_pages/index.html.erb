@@ -10,7 +10,9 @@
   <%= render "recording_studio_support/shared/search", url: support_public_help_path, query: @query %>
 
   <% if @section_recordings.any? %>
-    <%= render "recording_studio_support/shared/link_list", items: @section_recordings.map { |recording|
+    <%= render "recording_studio_support/shared/link_list",
+      square_rows: true,
+      items: @section_recordings.map { |recording|
       {
         title: support_recording_title(recording),
         href: support_public_section_path(recording),

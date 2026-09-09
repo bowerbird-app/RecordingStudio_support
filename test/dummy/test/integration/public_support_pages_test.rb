@@ -37,8 +37,11 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Find an answer."
     assert_includes response.body, "max-w-none"
     assert_includes response.body, "card-border-color"
-    assert_select "ul[role='list']"
+    assert_select "ul[role='list'][class*='rounded-none']"
     assert_select "li[role='listitem']"
+    assert_match(/\[&amp;&gt;\*\]:rounded-none|\[&amp;>\*\]:rounded-none|\[&>\*\]:rounded-none/, response.body)
+    # square_rows flushes the Flatpack Card body so List sits on the kit surface
+    assert_includes response.body, "overflow-hidden"
     assert_includes response.body, "chevron-right"
     assert_select "[class*='badge-default-background-color']", text: "1", count: 2
     assert_select "[class*='badge-default-background-color']", text: "2", count: 1
@@ -186,27 +189,79 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
   test "logged out visitors see published pages on a section and drafts stay hidden" do
     section = seeded_section("Getting started")
     slug = section.recordable.slug
+    page = seeded_page("How do I sign in?").recordable
+    path = page.published_url
 
     assert_equal "getting-started", slug
+    assert path.present?
 
     get "/help/sections/#{slug}"
 
     assert_response :success
     assert_includes response.body, "Getting started"
+    assert_includes response.body, "Find answers in Getting started."
     assert_includes response.body, "How do I sign in?"
     refute_includes response.body, "How do I change my password?"
-    assert_includes response.body, "Published"
-    assert_select "input[name='q'][placeholder='Search support']"
+    refute_includes response.body, "Published"
+    assert_select "input[name='q'][placeholder=?]", "Search in Getting started…"
+    assert_select "a[href=?]", path, text: /How do I sign in?/
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_flatpack_rounded_theme
+    assert_includes response.body, "flat-pack-page-nav"
+    assert_select "[aria-label='Go back']"
+    assert_select "[aria-label='Close']", count: 0
+    assert_includes response.body, "flat-pack-breadcrumb"
+    assert_includes response.body, "flat-pack-timestamp"
+    assert_select "h3", text: "How do I sign in?"
+    assert_includes response.body, "grid-cols-1"
     refute_includes response.body, "Sign out"
     refute_includes response.body, 'href="/users/sign_in"'
     refute_includes response.body, "recordable"
-    assert_includes response.body, "card-border-color"
-    assert_select "ul[role='list']"
-    assert_includes response.body, "chevron-right"
+    refute_includes response.body, "Need something else"
+    refute_includes response.body, "Contact support"
+    assert_select "ul[role='list']", count: 0
+    refute_includes response.body, "chevron-right"
     refute_includes response.body, "<span>Read</span>"
     refute_includes response.body, "<span>Open</span>"
+  end
+
+  test "billing section shows configured subtitle snippet cards and contact when set" do
+    section = seeded_section("Billing")
+    payment = seeded_page("How do I update payment details?").recordable
+    invoice = seeded_page("Where is my invoice?").recordable
+
+    previous_href = RecordingStudioSupport.configuration.public_contact_href
+    previous_label = RecordingStudioSupport.configuration.public_contact_label
+    RecordingStudioSupport.configuration.public_contact_href = "mailto:help@example.com"
+    RecordingStudioSupport.configuration.public_contact_label = "Contact support"
+
+    get "/help/sections/#{section.recordable.slug}"
+
+    assert_response :success
+    assert_includes response.body, "Billing"
+    assert_includes response.body, "Payments, invoices, and plan changes."
+    assert_select "input[name='q'][placeholder=?]", "Search in Billing…"
+    assert_select "a[href=?]", payment.published_url
+    assert_select "a[href=?]", invoice.published_url
+    assert_includes response.body, "Open billing and save the card"
+    assert_includes response.body, "Open Billing, then Invoices"
+    assert_includes response.body, "Need something else in Billing?"
+    assert_select "a[href=?]", "mailto:help@example.com", text: "Contact support"
+    refute_includes response.body, "Published"
+  ensure
+    RecordingStudioSupport.configuration.public_contact_href = previous_href
+    RecordingStudioSupport.configuration.public_contact_label = previous_label
+  end
+
+  test "public section search with no hits shows empty state" do
+    section = seeded_section("Getting started")
+
+    get "/help/sections/#{section.recordable.slug}", params: { q: "no-such-help-page" }
+
+    assert_response :success
+    assert_includes response.body, "Nothing matches that"
+    assert_includes response.body, "Try another word."
+    refute_includes response.body, "How do I sign in?"
   end
 
   test "public section uuid bookmarks redirect to the slug url" do

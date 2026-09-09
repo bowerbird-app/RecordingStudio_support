@@ -1,6 +1,11 @@
+<%# square_rows: true uses Flatpack's grouped square-corner pattern (same [&>*]:rounded-none
+    as ButtonGroup / SegmentedButtons) plus a flush Card body so List rows sit on the kit. %>
 <%= render FlatPack::Card::Component.new do |card| %>
-  <% card.body do %>
-    <%= render FlatPack::List::Component.new(divider: true) do %>
+  <% card.body(padding: (local_assigns[:square_rows] ? :none : :md)) do %>
+    <%= render FlatPack::List::Component.new(
+      divider: true,
+      class: ("[&>*]:rounded-none" if local_assigns[:square_rows])
+    ) do %>
       <% items.each do |item| %>
         <%= render FlatPack::List::Item.new(
           href: item.fetch(:href),

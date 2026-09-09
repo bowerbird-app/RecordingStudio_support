@@ -2,6 +2,9 @@
 
 module RecordingStudioSupport
   module ApplicationHelper
+    include RecordingStudioSupport::PublicSectionHelper
+    include RecordingStudioSupport::ListHelper
+
     def support_page_body_html(body)
       Body.sanitize(body).html_safe
     end
@@ -68,45 +71,6 @@ module RecordingStudioSupport
       return unless recording.respond_to?(:recordable)
 
       recording.recordable&.title
-    end
-
-    def support_list_chevron
-      render FlatPack::Shared::IconComponent.new(name: "chevron-right", size: :md)
-    end
-
-    def support_page_count_label(page_count)
-      page_count.to_s
-    end
-
-    def support_page_count_badge(page_count)
-      render FlatPack::Badge::Component.new(
-        text: support_page_count_label(page_count),
-        style: :default,
-        size: :xs
-      )
-    end
-
-    def support_published_badge
-      render FlatPack::Badge::Component.new(text: "Published", style: :success, size: :xs)
-    end
-
-    def support_page_status_badge(recording)
-      if recording.respond_to?(:current_publishable) && recording.current_publishable
-        render RecordingStudioPublishable::StatusBadge::Component.new(
-          publishable: recording.current_publishable
-        )
-      else
-        render FlatPack::Badge::Component.new(text: "Draft", style: :info, size: :xs)
-      end
-    end
-
-    def support_section_options(section_recordings)
-      Array(section_recordings).filter_map do |recording|
-        title = support_recording_title(recording)
-        next if title.blank?
-
-        [title, recording.id]
-      end
     end
 
     private
