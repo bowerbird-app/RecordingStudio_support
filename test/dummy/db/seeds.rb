@@ -63,7 +63,7 @@ PASSWORD_BODY = <<~HTML.freeze unless defined?(PASSWORD_BODY)
   <h2>Open account settings</h2>
   <p>Open your account settings and pick a new password.</p>
   <h2>Use it next time</h2>
-  <p>Sign out, then sign in with the new password.</p>
+  <p>Come back with the new password the next time you sign in.</p>
 HTML
 
 find_or_record_child = lambda do |recordable, root_recording, parent_recording|
