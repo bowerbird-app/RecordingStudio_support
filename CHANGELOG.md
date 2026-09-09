@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.2] - 2026-09-09
+
+Public `/help` home is a welcoming entry: new title, larger search, elevated section cards.
+
+### Changed
+- Default `public_help_title` is **Hi, how can we help?** (install template and dummy initializer match)
+- Public `/help` PageTitle drops the subtitle (config `public_help_subtitle` stays for hosts who still want it elsewhere)
+- Public `/help` sections are elevated clickable Flatpack Cards in a Grid (`hover: :strong`, header `divider: false`, `padding: :md`) with a plain **N article(s)** line — no Badge, no shared `link_list` / `square_rows`
+- Public `/help` Search is temporarily larger via kit-safe `system_arguments` class overrides until Flatpack Search gains a real `size` API; section search stays the default size
+- Staff `/support` list + count Badge markup is unchanged
+
+### Upgrade notes
+- No migrations or route changes
+- Hosts that hard-coded `public_help_title = "Help"` keep that string until they change the initializer
+- Breadcrumbs that use `support_public_help_title` show the new default
+- If you overrode `public_pages/index`, switch section rows to elevated Cards and drop `link_list` / page-count Badges on that page only
+
 ## [0.8.1] - 2026-09-08
 
 Public help section show uses snippet cards, breadcrumbs, and an optional host contact slot.

@@ -1,3 +1,6 @@
+<%# prominent: true enlarges the input via system_arguments until Flatpack Search
+    gains a real size API. Home-only — section search stays the default size. %>
+<% prominent = local_assigns[:prominent] %>
 <%= form_with url: url, method: :get, html: {
       role: "search",
       class: "w-full",
@@ -10,6 +13,7 @@
     name: "q",
     value: query,
     placeholder: local_assigns.fetch(:placeholder, "Search support"),
-    max_width: :none
+    max_width: :none,
+    **(prominent ? { class: "[&_input]:py-3.5 [&_input]:text-base [&_input]:pl-11" } : {})
   ) %>
 <% end %>

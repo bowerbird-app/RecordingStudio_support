@@ -152,7 +152,11 @@ Logged-out people can read sections and live pages. Drafts 404.
 
 Public `/help` lists sections. A section show lists `SupportPage.indexable` pages in that section. Do not copy that logic. Public `/help?q=` and staff `/support?q=` search section names. Page search lives on a section show and filters pages **in that section** by title and body (`?q=`).
 
-Public and staff Help **home** lists use Flatpack Search at full width (`max_width: :none`, placeholder “Search support”). Flatpack Search has no fill or height API; Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Section rows on those homes share one Flatpack List with a trailing `chevron-right` icon, wrapped in a Card body, plus a Flatpack Badge with the published page count. Public `/help` passes `square_rows: true` — flush Card body (`padding: :none`) and Flatpack’s grouped square-corner class (`[&>*]:rounded-none`, same pattern as ButtonGroup / SegmentedButtons). Staff `/support` keeps the default Card padding and List::Item radius.
+Public and staff Help homes use Flatpack Search at full width (`max_width: :none`, placeholder “Search support”). Flatpack Search has no fill or height API; Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Public `/help` also passes a temporary larger-input class override (`prominent: true` on the shared search partial) until Flatpack Search gains a real `size` API — section search stays the default size.
+
+**Public `/help` home** stacks elevated clickable Flatpack Cards in a Grid (`cols: 1`, `gap: :md`, `style: :elevated`, `hover: :strong`, `padding: :md`, header `divider: false`). Each card shows the section title and a muted **N article(s)** line (no Badge). PageTitle is `public_help_title` only — no subtitle on this page.
+
+**Staff `/support` home** still uses the shared `link_list`: Flatpack List with a trailing `chevron-right`, wrapped in a Card body, plus a Flatpack Badge with the published page count (default Card padding and List::Item radius).
 
 Public **section** show (`/help/sections/:slug`) is its own card stack — not the home `link_list` shape:
 
@@ -166,7 +170,7 @@ Public **section** show (`/help/sections/:slug`) is its own card stack — not t
 
 No Published badge on public section cards (implied by indexable). Drafts stay off public `/help` lists. No Read / Open buttons. Staff `/support/sections/...` still uses the list + badge rules for editors vs visitors. Public and staff help use Recording Studio's default layout (`UsesDefaultLayout` / `recording_studio/default_layout`). Point Publishable `public_layout` at that layout. Do not use `recording_studio_publishable/application`. Put Flatpack's built-in rounded theme on `<html data-theme="rounded">` — core's body attribute is not enough. Dummy's default-layout override shows the host-side fix. Before Flatpack CSS, declare `@layer theme, base, components, utilities` so TipTap borders survive Tailwind preflight when `flat_pack/rich_text` loads before Tailwind.
 
-Help titles come from `RecordingStudioSupport.configure`. Defaults stay “Help” / “Find an answer.” for public and staff, and “Pages people use when they get stuck.” for the admin section. Section blurbs and the optional contact slot are host-configurable:
+Help titles come from `RecordingStudioSupport.configure`. Staff defaults stay “Help” / “Find an answer.” Public default title is **Hi, how can we help?** (`public_help_subtitle` remains configurable but the shipped `/help` home does not render it). Admin section default subtitle is “Pages people use when they get stuck.” Section blurbs and the optional contact slot are host-configurable:
 
 ```ruby
 RecordingStudioSupport.configure do |config|
@@ -174,7 +178,7 @@ RecordingStudioSupport.configure do |config|
   config.public_pages_path = "/help"
   config.help_title = "Help"
   config.help_subtitle = "Find an answer."
-  config.public_help_title = "Help"
+  config.public_help_title = "Hi, how can we help?"
   config.public_help_subtitle = "Find an answer."
   config.admin_help_title = "Help"
   config.admin_help_subtitle = "Pages people use when they get stuck."
