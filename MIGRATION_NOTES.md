@@ -4,7 +4,7 @@
 
 ## 0.8.2
 
-Public help section show: no breadcrumb, PageNav Home secondary, elevated article cards.
+Public help section show: no breadcrumb, PageNav Home secondary, interactive article cards.
 
 ### Host app
 
@@ -15,8 +15,8 @@ Public help section show: no breadcrumb, PageNav Home secondary, elevated articl
    - `page_nav_secondary_anchor_tooltip` → `secondary_anchor_tooltip`
    - `page_nav_anchor_url` → `anchor_href` (Flatpack no longer uses `anchor_url`)
 3. Public section show sets the secondary Home slot via `support_public_section_page_nav`. Staff `/support` and public `/help` homepage are unchanged.
-4. Public section article cards use Grid `gap: :lg`, Body `padding: :lg`, and a white card background via Flatpack `theme: { background: "var(--color-white)" }`.
-5. If elevated Cards with `hover: :strong` do not change on hover, add Flatpack’s hover tokens in your Tailwind **utilities** layer (dummy `app/assets/tailwind/application.css` has the snippet). Flatpack’s kit rules are in `@layer components`, so Tailwind utilities like `shadow-md` and `border-[var(--card-border-color)]` currently win.
+4. Public section article cards use `style: :interactive`, Grid `gap: :lg`, Body `padding: :lg`, and a white card background via Flatpack `theme: { background: "var(--color-white)" }`.
+5. If Cards with `hover: :strong` do not change on hover, add Flatpack’s hover tokens in your Tailwind **utilities** layer (dummy `app/assets/tailwind/application.css` has the snippet). Flatpack’s kit rules are in `@layer components`, so Tailwind utilities like `border-[var(--card-border-color)]` currently win.
 
 ### Verify
 

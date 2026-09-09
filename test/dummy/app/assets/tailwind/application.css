@@ -1,11 +1,11 @@
 @import "tailwindcss" source(none);
 
 /*
-  Flatpack Card hover:strong is defined in @layer components, but elevated cards
-  also apply Tailwind utilities (shadow-md, border-[var(--card-border-color)]).
-  Utilities win on hover, so the kit hover never shows. Re-assert Flatpack's
-  hover tokens in utilities until Flatpack moves those rules. Hosts that use
-  elevated + hover:strong need the same override (see MIGRATION_NOTES).
+  Flatpack Card hover:strong is defined in @layer components, but interactive
+  cards also apply Tailwind utilities (border-[var(--card-border-color)]).
+  Utilities win on hover, so the kit border hover never shows. Re-assert
+  Flatpack's hover tokens in utilities until Flatpack moves those rules.
+  Hosts that use hover:strong need the same override (see MIGRATION_NOTES).
 */
 @layer utilities {
   .fp-card-hover-strong:hover {
