@@ -16,35 +16,27 @@ module RecordingStudioSupport
     def support_body_node(node)
       return if node.text? && node.content.blank?
       return ERB::Util.html_escape(node.content) if node.text?
+      return support_body_list(node, ordered: node.name == "ol") if %w[ol ul].include?(node.name)
+      return support_body_blockquote(node) if node.name == "blockquote"
 
-      case node.name
-      when "ol"
-        support_body_list(node, ordered: true)
-      when "ul"
-        support_body_list(node, ordered: false)
-      when "blockquote"
-        content_tag(:div, class: MUTED_BODY_CLASS) do
-          safe_join(node.children.filter_map { |child| support_body_node(child) })
-        end
-      else
-        node.to_html.html_safe
+      node.to_html.html_safe
+    end
+
+    def support_body_blockquote(node)
+      content_tag(:div, class: MUTED_BODY_CLASS) do
+        safe_join(node.children.filter_map { |child| support_body_node(child) })
       end
     end
 
     def support_body_list(node, ordered:)
-      render FlatPack::List::Component.new(
-        ordered: ordered,
-        spacing: :dense,
-        class: "not-prose"
-      ) do
-        safe_join(
-          node.xpath("./li").map do |item|
-            render(FlatPack::List::Item.new) do
-              Body.sanitize(item.inner_html).html_safe
-            end
-          end
-        )
+      items = node.xpath("./li").map { |item| support_body_list_item(item) }
+      render FlatPack::List::Component.new(ordered: ordered, spacing: :dense, class: "not-prose") do
+        safe_join(items)
       end
+    end
+
+    def support_body_list_item(item)
+      render(FlatPack::List::Item.new) { Body.sanitize(item.inner_html).html_safe }
     end
   end
 end

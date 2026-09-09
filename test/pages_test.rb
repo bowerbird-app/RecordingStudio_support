@@ -187,7 +187,7 @@ class PagesTest < Minitest::Test
 
     assert_includes body_helper, "FlatPack::List::Component"
     assert_includes body_helper, "FlatPack::List::Item"
-    assert_includes body_helper, "ordered: true"
+    assert_includes body_helper, 'ordered: node.name == "ol"'
     assert_includes body_helper, "blockquote"
     assert_includes body_helper, "surface-muted-content-color"
     assert_includes body_helper, "opacity-75"

@@ -219,6 +219,7 @@ class ApplicationHelperTest < Minitest::Test
     dir = File.expand_path("../app/helpers/recording_studio_support", __dir__)
     require File.join(dir, "public_section_helper.rb")
     require File.join(dir, "list_helper.rb")
+    require File.join(dir, "body_helper.rb")
     require File.join(dir, "application_helper.rb")
     RecordingStudioSupport::ApplicationHelper
   end
