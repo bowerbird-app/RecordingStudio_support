@@ -6,18 +6,20 @@ module RecordingStudioSupport
   # always uses history.back for back unless Flatpack is given a back override.
   module PageNavCompat
     def initialize(**kwargs)
-      if kwargs.key?(:anchor_url)
-        kwargs[:anchor_href] = kwargs[:anchor_href].presence || kwargs.delete(:anchor_url)
-        kwargs.delete(:anchor_url)
-      end
-      if kwargs.key?(:secondary_anchor_url)
-        kwargs[:secondary_anchor_href] =
-          kwargs[:secondary_anchor_href].presence || kwargs.delete(:secondary_anchor_url)
-        kwargs.delete(:secondary_anchor_url)
-      end
+      map_url_to_href!(kwargs, :anchor_url, :anchor_href)
+      map_url_to_href!(kwargs, :secondary_anchor_url, :secondary_anchor_href)
       kwargs.delete(:back_url)
       # Mutated kwargs must be passed through. Bare `super` would send the original keywords.
       super(**kwargs) # rubocop:disable Style/SuperArguments
+    end
+
+    private
+
+    def map_url_to_href!(kwargs, url_key, href_key)
+      return unless kwargs.key?(url_key)
+
+      kwargs[href_key] = kwargs[href_key].presence || kwargs.delete(url_key)
+      kwargs.delete(url_key)
     end
   end
 end

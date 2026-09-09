@@ -159,7 +159,7 @@ class PagesTest < Minitest::Test
     assert_includes show, "support_page_body_html"
     assert_includes show, "recording_studio_seo_description"
     assert_includes show, "support_page_meta_description"
-    assert_includes show, 'page_nav_secondary_anchor'
+    assert_includes show, "page_nav_secondary_anchor"
     assert_includes show, '"home"'
     assert_includes show, '"Home"'
     refute_includes show, "Related"
