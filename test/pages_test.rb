@@ -155,8 +155,9 @@ class PagesTest < Minitest::Test
     )
 
     assert_includes show, "FlatPack::Badge::Component"
-    assert_includes show, "size: :md"
+    assert_includes show, "size: :lg"
     assert_includes show, "FlatPack::PageTitle::Component"
+    assert_includes show, 'class: "mb-0"'
     assert_includes show, "FlatPack::Timestamp::Component"
     assert_includes show, "@page.description"
     assert_includes show, 'class="prose max-w-none'
@@ -166,10 +167,11 @@ class PagesTest < Minitest::Test
     assert_includes show, "page_nav_secondary_anchor"
     assert_includes show, '"home"'
     assert_includes show, '"Home"'
-    assert_includes show, 'gap-4'
-    assert_includes show, 'gap-2'
+    assert_includes show, 'gap-3'
+    assert_includes show, 'gap-1.5'
     refute_includes show, 'class: "text-sm text-[var(--surface-muted-content-color)]"'
     refute_includes show, "size: :sm"
+    refute_includes show, "size: :md"
     refute_includes show, "Related"
     refute_includes show, 'render "recording_studio_support/shared/link_list"'
     refute_includes show, "FlatPack::SectionTitle::Component"
