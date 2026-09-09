@@ -418,7 +418,10 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h1", text: "How do I update payment details?"
-    assert_includes response.body, 'class="prose max-w-none'
+    assert_includes response.body, 'class="mt-8 prose max-w-none'
+    assert_includes response.body, 'class="w-fit"'
+    assert_match(/\bUpdated [A-Z][a-z]+ \d{1,2}, \d{4}\b/, response.body)
+    refute_match(/\bago\b/, response.body)
     assert_select "a[aria-label='Home'][href='/help']"
     refute_includes response.body, "Related"
     assert_select "a[href=?]", related_path, count: 0

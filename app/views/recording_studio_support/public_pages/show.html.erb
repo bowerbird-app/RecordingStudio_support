@@ -10,15 +10,17 @@
      support_page_meta_description(@page.body, description: @page.description)
    ) %>
 
-<div class="flex w-full flex-col gap-3">
+<div class="flex w-full flex-col">
   <div class="flex flex-col gap-1.5">
     <% section_title = support_recording_title(@section_recording) %>
     <% if section_title.present? %>
-      <%= render FlatPack::Badge::Component.new(
-        text: section_title,
-        style: :default,
-        size: :lg
-      ) %>
+      <div class="w-fit">
+        <%= render FlatPack::Badge::Component.new(
+          text: section_title,
+          style: :default,
+          size: :lg
+        ) %>
+      </div>
     <% end %>
 
     <%# -mb-6 cancels PageTitle's stock mb-6 so gap-1.5 owns header rhythm %>
@@ -31,15 +33,16 @@
     </div>
 
     <% if @updated_at.present? %>
+      <%# Timestamp always prefers relative labels; pass nil so fallback shows the calendar day. %>
       <%= render FlatPack::Timestamp::Component.new(
-        timestamp: @updated_at,
+        timestamp: nil,
         fallback_text: support_page_updated_on(@updated_at)
       ) %>
     <% end %>
   </div>
 
   <% if @page.body.present? %>
-    <div class="prose max-w-none text-(--surface-content-color)">
+    <div class="mt-8 prose max-w-none text-(--surface-content-color)">
       <%= support_page_body_html(@page.body) %>
     </div>
   <% end %>
