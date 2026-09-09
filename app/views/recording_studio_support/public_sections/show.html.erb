@@ -1,16 +1,6 @@
-<% recording_studio_page_nav(
-     title: @section.title,
-     page_nav_back_url: support_public_help_path
-   ) %>
+<% support_public_section_page_nav(title: @section.title) %>
 
 <div class="flex w-full flex-col gap-6">
-  <%= render FlatPack::Breadcrumb::Component.new(
-    items: [
-      { text: support_public_help_title, href: support_public_help_path },
-      { text: @section.title }
-    ]
-  ) %>
-
   <%= render FlatPack::PageTitle::Component.new(
     title: @section.title,
     subtitle: @section_subtitle,
@@ -20,18 +10,20 @@
   <%= render "recording_studio_support/shared/search",
         url: support_public_section_path(@section_recording),
         query: @query,
-        placeholder: support_public_section_search_placeholder(@section) %>
+        placeholder: support_public_section_search_placeholder(@section),
+        size: :lg %>
 
   <% if @articles.any? %>
-    <%= render FlatPack::Grid::Component.new(cols: 1, gap: :sm) do %>
+    <%= render FlatPack::Grid::Component.new(cols: 1, gap: :lg) do %>
       <% @articles.each do |article| %>
         <%= render FlatPack::Card::Component.new(
           href: article.fetch(:href),
           clickable: true,
-          hover: :subtle,
-          style: :interactive
+          hover: :strong,
+          style: :interactive,
+          theme: { background: "var(--color-white)" }
         ) do |card| %>
-          <% card.body do %>
+          <% card.body(padding: :lg) do %>
             <h3 class="text-base font-semibold text-[var(--surface-content-color)]"><%= article.fetch(:title) %></h3>
             <% if article[:snippet].present? %>
               <p class="mt-2 text-sm text-[var(--surface-muted-content-color)]"><%= article.fetch(:snippet) %></p>

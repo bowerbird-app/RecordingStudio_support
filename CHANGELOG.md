@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.8.2] - 2026-09-09
+## [0.9.1] - 2026-09-09
 
 Public help articles use a Badge → Title → description → date header, drop Related, and add an optional `description` field.
 
@@ -20,7 +20,6 @@ Public help articles use a Badge → Title → description → date header, drop
 - Public article show removes the Related block; controller no longer loads `@related_pages`
 - Meta description prefers `description` when present, otherwise the body plain-text excerpt (`Body.meta_description`)
 - Article date uses the same fallback as section cards (`publish_at` → recording `updated_at` → `created_at`)
-- Dummy default layout wires PageNav `secondary_anchor_*` (Home) for Flatpack
 - Article body pipeline renders TipTap `ol`/`ul` as Flatpack `List` (ordered steps keep markers, dense spacing, zero item padding for prose-tight rows); `blockquote` tips keep Flatpack list conversion and match article body text color
 - Public article header uses stock Timestamp fallback for a calendar day (`Updated …`), a larger section Badge (`size: :lg`) wrapped in `w-fit` so it stays an inline chip, tighter Badge → Title → date spacing, a `-mb-6` wrap so PageTitle’s stock bottom margin does not open a wireframe gap before the date, and `mt-8` before the article body
 - Dummy payment article seed uses a billing UI screenshot (`how-to-update-payment.jpg`) instead of a keyboard photo; tip copy sits in a blockquote with body-matching color
@@ -28,8 +27,78 @@ Public help articles use a Badge → Title → description → date header, drop
 ### Upgrade notes
 - Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` for the `description` column
 - Existing pages keep `description` nil until edited or re-seeded
-- Hosts that override `recording_studio/default_layout` can pass `secondary_anchor_url` / `secondary_anchor_href` for Home; otherwise retarget the primary Close control
-- Public article body tip `blockquote` blocks now use the same text color as the rest of the article (no muted/opacity treatment). List items in article bodies drop Flatpack’s interactive padding so steps sit tighter
+- Public article body tip `blockquote` blocks use the same text color as the rest of the article (no muted/opacity treatment). List items in article bodies drop Flatpack’s interactive padding so steps sit tighter
+
+## [0.9.0] - 2026-09-09
+
+Staff Support moves under Admin. Public help stays on `/help`.
+
+### Added
+- Staff engine mount default `/admin/support` with `pages_path` matching that prefix
+- Host redirect from `/support` (and nested bookmarks) to `/admin`
+- Staff engine authorize uses the Admin access recording only (same bar as Admin)
+
+### Changed
+- Admin Support tables are the staff hub. Engine root `/admin/support` redirects to `/admin`
+- Write, preview, Publish, trash, and TipTap uploads live under `/admin/support…`
+- Workspace `:edit` no longer opens staff Support. Grant Accessible on the admin root
+- `/admin/support` is never anonymous. Public browse is `/help` only
+- Dummy mounts Support before Admin so `/admin/support` is not swallowed by `/admin`
+
+### Upgrade notes
+- Remount `RecordingStudioSupport::Engine` at `/admin/support` **before** `recording_studio_admin_for … at: "/admin"`
+- Set `RecordingStudioSupport.configure { |c| c.pages_path = "/admin/support" }`
+- Redirect `/support` to `/admin` (or drop the old mount)
+- Switch to the admin root, then open `/admin`. Grant Accessible on AdminRoot
+- Workspace editors without AdminRoot access lose the old `/support` write path. Public `/help` is unchanged
+
+## [0.8.4] - 2026-09-09
+
+Public help section show drops breadcrumb, adds PageNav Home, and uses interactive article cards.
+
+### Changed
+- Public `/help/sections/:slug` removes Flatpack Breadcrumb
+- PageNav keeps history Back and adds a secondary Home control (home icon → `/help`, tooltip/aria `"Home"`) via host layout `content_for` keys
+- Article cards use `style: :interactive` and `hover: :strong` (still full-width `Grid` `cols: 1`) with `gap: :lg`, Body `padding: :lg`, and white `theme: { background: "var(--color-white)" }`
+- Public section Search uses Flatpack `size: :lg` (shared partial still defaults to `:md` for staff)
+- Dummy `recording_studio/default_layout` maps `page_nav_secondary_anchor_*` to Flatpack `secondary_anchor_*`, and `page_nav_anchor_url` to `anchor_href`
+- Dummy Tailwind utilities re-assert Flatpack `fp-card-hover-strong:hover` so strong hover is visible (Tailwind utilities were beating Flatpack’s `@layer components` hover rules)
+
+### Upgrade notes
+- No migrations or route changes
+- Hosts with a `default_layout` override should wire `page_nav_secondary_anchor_url` / `_icon` / `_tooltip` into Flatpack PageNav `secondary_anchor_href` / `_icon` / `_tooltip`, and pass Close through `anchor_href` (Flatpack renamed away from `anchor_url`)
+- Hosts using Cards with `hover: :strong` should copy the dummy’s `@layer utilities` `.fp-card-hover-strong:hover` override until Flatpack ships a kit fix
+- Public `/help` homepage behavior stays as in 0.8.2 / 0.8.3; this release targets public section show
+
+## [0.8.3] - 2026-09-09
+
+Public `/help` section cards use a white background.
+
+### Changed
+- Public `/help` section Cards set Flatpack `theme: { background: "#ffffff" }` (still `style: :interactive`, `hover: :strong`)
+
+### Upgrade notes
+- No migrations or route changes
+- If you overrode `public_pages/index`, pass the white Card `theme` (or keep your override intentionally)
+
+## [0.8.2] - 2026-09-09
+
+Public `/help` home is a welcoming entry: new title, larger search, interactive section cards.
+
+### Changed
+- Default `public_help_title` is **Hi, how can we help?** (install template and dummy initializer match)
+- Public `/help` PageTitle drops the subtitle (config `public_help_subtitle` stays for hosts who still want it elsewhere)
+- Public `/help` sections are interactive clickable Flatpack Cards in a Grid (`gap: :lg`, `style: :interactive`, `hover: :strong`, body `padding: :lg`) with a plain **N article(s)** line — no Badge, no shared `link_list` / `square_rows`
+- Public `/help` Search uses Flatpack Search `size: :lg` (requires Flatpack `0.1.175+`); section and staff search stay the default `:md`
+- Dummy / Gemfile pin Flatpack to `v0.1.177`
+- Staff `/support` list + count Badge markup is unchanged
+
+### Upgrade notes
+- No migrations or route changes
+- Hosts that hard-coded `public_help_title = "Help"` keep that string until they change the initializer
+- Breadcrumbs that use `support_public_help_title` show the new default
+- If you overrode `public_pages/index`, switch section rows to interactive Cards and drop `link_list` / page-count Badges on that page only
+- Bump Flatpack to `v0.1.177` (or at least `0.1.175+` for Search `size:`). Public `/help` passes `size: :lg` on the shared search partial; remove any temporary Search class overrides for height/type
 
 ## [0.8.1] - 2026-09-08
 
@@ -392,7 +461,11 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.2...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.1...HEAD
+[0.9.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.0...v0.9.1
+[0.9.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.4...v0.9.0
+[0.8.4]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.3...v0.8.4
+[0.8.3]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.2...v0.8.3
 [0.8.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.7.4...v0.8.0

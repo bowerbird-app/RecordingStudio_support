@@ -42,7 +42,8 @@ module RecordingStudioSupport
 
     def trash
       Pages.trash!(recording: @page_recording, actor: current_support_actor)
-      redirect_to root_path, notice: "That page is in the trash."
+      redirect_to RecordingStudioSupport::Admin::Queries.admin_pages_screen_path,
+                  notice: "That page is in the trash."
     end
 
     private

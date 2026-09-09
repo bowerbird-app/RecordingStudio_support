@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.8.2", ::RecordingStudioSupport::VERSION
+    assert_equal "0.9.1", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -47,9 +47,10 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "3.0.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_icons"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.171"'
+    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.177"'
     refute_includes gemfile, "recording_studio/v3.0.0"
     refute_includes gemfile, 'tag: "v0.6.1"'
+    refute_includes gemfile, 'tag: "v0.1.171"'
     refute_includes gemfile, 'tag: "v0.1.133"'
     refute_includes gemfile, 'tag: "0.3.1"'
   end
@@ -121,6 +122,16 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes default_layout, 'stylesheet_link_tag "flat_pack/application"'
     assert_includes default_layout, 'stylesheet_link_tag "flat_pack/rich_text"'
     assert_includes default_layout, 'stylesheet_link_tag "tailwind"'
+    assert_includes default_layout, "secondary_anchor_href"
+    assert_includes default_layout, "page_nav_secondary_anchor_url"
+    assert_includes default_layout, "page_nav_secondary_anchor_icon"
+    assert_includes default_layout, "page_nav_secondary_anchor_tooltip"
+    assert_includes default_layout, ":anchor_href"
+    refute_includes default_layout, "page_nav_options[:anchor_url]"
+    tailwind_source = File.read(File.expand_path("dummy/app/assets/tailwind/application.css", __dir__))
+    assert_includes tailwind_source, ".fp-card-hover-strong:hover"
+    assert_includes tailwind_source, "--card-hover-strong-shadow"
+    assert_includes tailwind_source, "@layer utilities"
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack_sidebar.html.erb", __dir__))
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack/_sidebar.html.erb", __dir__))
     refute File.exist?(File.expand_path("dummy/app/views/devise/sessions/new.html.erb", __dir__))
@@ -261,14 +272,14 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "Recording Studio Support"
     assert_includes readme, "v4.2.0"
     assert_includes readme, "v0.9.1"
-    assert_includes readme, "v0.1.171"
+    assert_includes readme, "v0.1.177"
     assert_includes readme, "v0.9.0"
     assert_includes readme, "Support page"
     assert_includes readme, "SupportSection"
     assert_includes readme, "Help section"
     assert_includes readme, "Moveable"
     assert_includes readme, "tag: \"v2.0.2\""
-    assert_includes readme, "/support"
+    assert_includes readme, "/admin/support"
     assert_includes readme, "help_title"
     assert_includes readme, "flat-pack--tiptap"
     assert_includes readme, "section :support"
@@ -363,7 +374,8 @@ class RecordingStudioSupportTest < Minitest::Test
   def test_dummy_mounts_support_and_admin
     routes = File.read(File.expand_path("dummy/config/routes.rb", __dir__))
 
-    assert_includes routes, 'mount RecordingStudioSupport::Engine, at: "/support"'
+    assert_includes routes, 'mount RecordingStudioSupport::Engine, at: "/admin/support"'
+    assert_includes routes, 'get "/support", to: redirect("/admin")'
     assert_includes routes, "recording_studio_admin_for :admin, at: \"/admin\", root_section: :support"
     assert_includes routes, 'mount RecordingStudioAccessible::Engine, at: "/admin/access"'
     assert_includes routes, 'mount RecordingStudioPublishable::Engine, at: "/"'

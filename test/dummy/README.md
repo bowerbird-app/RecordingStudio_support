@@ -7,8 +7,8 @@ This Rails app exists to prove Recording Studio Support in a real host. It is no
 - Recording Studio Users auth (Devise actor + People/Profile) with a seeded admin user
 - `Current.actor` wiring for Recording Studio events
 - Root workspace plus seeded help sections and pages, one with an inline picture in the body
-- Support screens mounted at `/support` (section browse is public; write screens need sign-in)
-- Public help at `/help` for logged-out visitors (default-layout chrome, Card-wrapped Flatpack List of sections with published page-count badges, then published pages)
+- Support screens mounted at `/admin/support` (Admin-gated forms and preview). Old `/support` redirects to `/admin`
+- Public help at `/help` for logged-out visitors (default-layout chrome, interactive Flatpack Cards with an **N article(s)** line, then published pages)
 - Admin Support section mounted at `/admin` on an admin root (switch to **Admin** in the top control first — Admin 2.0 gates staff screens on that root)
 - Support pages opt into Trashable, Moveable, and Publishable. Dummy Folder and Page do not.
 - Recording Studio default layout (`UsesDefaultLayout`) with dummy's `<html data-theme="rounded">` override so Flatpack's built-in rounded theme actually applies; back/close chrome on Support and Admin Support screens; Sign out and the workspace switcher on dummy host pages only; Flatpack CSS/JS, Turbo, and Tailwind source scanning. Users auth also puts `rounded` on `<html>`.
@@ -40,13 +40,13 @@ Auth uses `layouts/recording_studio_user/auth` with `html data-theme="rounded"`.
 
 ## Layouts and assets
 
-Authenticated pages include `RecordingStudio::UsesDefaultLayout` and render `recording_studio/default_layout`. That layout owns the back/close chrome and Flatpack flash alerts. Dummy overrides the layout file so `<html data-theme="rounded">` is set — Flatpack's built-in rounded theme, the same one the live kit uses. Core puts `data-theme` on `<body>` only, which does not recolor buttons and other component tokens. Do not invent a custom theme or a sidebar shell.
+Authenticated pages include `RecordingStudio::UsesDefaultLayout` and render `recording_studio/default_layout`. That layout owns the back/close chrome and Flatpack flash alerts. Dummy overrides the layout file so `<html data-theme="rounded">` is set — Flatpack's built-in rounded theme, the same one the live kit uses. Core puts `data-theme` on `<body>` only, which does not recolor buttons and other component tokens. Do not invent a custom theme or a sidebar shell. The override also maps `page_nav_anchor_url` → Flatpack `anchor_href` and `page_nav_secondary_anchor_*` → `secondary_anchor_*` (Home on public section show).
 
-Public and staff help use the same default layout. Do not use Publishable's application layout or invent a Support-only public shell. Support and Admin Support screens are back/close only. Sign out and the workspace switcher stay off `/support`, `/help`, and `/admin`. Access can stay on Admin. Do not put a login button in that chrome.
+Public and staff help use the same default layout. Do not use Publishable's application layout or invent a Support-only public shell. Support and Admin Support screens are back/close only. Sign out and the workspace switcher stay off `/admin/support`, `/help`, and `/admin`. Access can stay on Admin. Do not put a login button in that chrome.
 
 Users gem sign-in and sign-up use `layouts/recording_studio_user/auth`. That layout loads Tailwind, Flatpack stylesheets (`flat_pack/variables`, `flat_pack/application`, `flat_pack/rich_text`), and Importmap JS (`@hotwired/turbo-rails`). Host `layouts/application` is not in the auth stack.
 
-The host injects Sign out and Root Switchable through `app/views/recording_studio/_default_layout_head.html.erb` for dummy host pages only, not Support or Admin Support screens. Do not put the switcher or a Sign out button in the home view body. Flatpack CSS loads from the layout in kit order (`flat_pack/variables`, `flat_pack/application`, `flat_pack/rich_text`, then Tailwind). Declare `@layer theme, base, components, utilities` before those sheets so TipTap editor borders are not cleared by Tailwind preflight.
+The host injects Sign out and Root Switchable through `app/views/recording_studio/_default_layout_head.html.erb` for dummy host pages only, not Support or Admin Support screens. Do not put the switcher or a Sign out button in the home view body. Flatpack CSS loads from the layout in kit order (`flat_pack/variables`, `flat_pack/application`, `flat_pack/rich_text`, then Tailwind). Declare `@layer theme, base, components, utilities` before those sheets so TipTap editor borders are not cleared by Tailwind preflight. Dummy Tailwind also re-asserts `.fp-card-hover-strong:hover` in `@layer utilities` so interactive Card strong hover is not blocked by Tailwind’s border utilities.
 
 Help-page edit uses Flatpack `TextArea` with `rich_text: true`, `preset: :content`, and image upload. Importmap pins TipTap packages plus `controllers/flat_pack/tiptap_controller`. `app/javascript/application.js` imports `controllers`, and `controllers/index.js` registers `flat-pack--tiptap` so the toolbar and body HTML hydrate on first paint. Do not add Trix or Action Text. Pictures go in the body.
 
@@ -62,11 +62,12 @@ OTP is off (`otp_enabled = false`). OmniAuth Continue-with buttons appear only w
 - `/help` - public help sections (no sign-in)
 - `/help/sections/:slug` - published pages in a section (declare this before the Publishable mount; UUID bookmarks redirect)
 - `/help/:uuid/:slug` - public help page through Publishable
-- `/support` - help sections (public browse; add `?q=` to search). New section / New page for editors. Page preview and forms stay signed-in
-- `/support/sections/:id` - published pages in a section (public browse)
-- `/admin` - Admin Support hub (pick **Admin** in the top control first)
+- `/admin` - Admin Support hub (pick **Admin** in the top control first). Old `/support` redirects here
 - `/admin/screens/support_pages` - table of every help page with search, Published/Draft, and section; Edit, Move, and New page open from here
 - `/admin/screens/support_sections` - table of every help section with a numeric page count; Edit and New section open from here
+- `/admin/support/new` - New page form (Admin Accessible)
+- `/admin/support/:id` - staff preview, Publish, and trash
+- `/admin/support/:id/edit` - Edit page form
 - `/recording_studio` - redirects to `/` while the mounted Recording Studio engine stays available under that prefix for non-root routes
 - `/users/sign_in` - Users gem email-first sign-in
 - `/users/sign_in/password` - Users gem password step
@@ -75,8 +76,8 @@ OTP is off (`otp_enabled = false`). OmniAuth Continue-with buttons appear only w
 
 ## Why This App Exists
 
-Use this app to click through public help, staff help pages, and the Admin Support section. If a layout, route, asset source, or Recording Studio initializer change breaks here, the gem likely needs adjustment before reuse.
+Use this app to click through public help, Admin Support, and staff forms under `/admin/support`. If a layout, route, asset source, or Recording Studio initializer change breaks here, the gem likely needs adjustment before reuse.
 
-Seeds three sections under Studio Workspace: **Billing**, **Developers**, and **Getting started**. Live pages carry a short `description` summary. **How do I sign in?** is a live article with headings, a list, and an inline photograph (`public/how-to-sign-in.jpg`, Wikimedia Commons CC0 laptop keyboard). **How do I update payment details?** is a longer Billing article with ordered card-field steps, tip blockquote (same text color as the article), and a billing UI screenshot at `public/how-to-update-payment.jpg`. **How do I change my password?** stays a draft under Getting started. Billing also has **Where is my invoice?**; Developers has one live page. Admin sections table Count is `2` on Getting started and Billing, and `1` on Developers. Public Help and non-editor `/support` lists still show published counts/pages only; editors see drafts on `/support/sections/:id`. A few page reads are logged as support events.
+Seeds three sections under Studio Workspace: **Billing**, **Developers**, and **Getting started**. Live pages carry a short `description` summary. **How do I sign in?** is a live article with headings, a list, and an inline photograph (`public/how-to-sign-in.jpg`, Wikimedia Commons CC0 laptop keyboard). **How do I update payment details?** is a longer Billing article with ordered card-field steps, tip blockquote (same text color as the article), and a billing UI screenshot at `public/how-to-update-payment.jpg`. **How do I change my password?** stays a draft under Getting started. Billing also has **Where is my invoice?**; Developers has one live page. Admin sections table Count is `2` on Getting started and Billing, and `1` on Developers. Public Help lists show published counts/pages only; staff section show under `/admin/support/sections/:id` lists drafts too. A few page reads are logged as support events.
 
 Public and staff help use Recording Studio's shared default layout with dummy's html rounded theme. Sign-in uses the Users gem auth layout. Both put `rounded` on `<html>`.

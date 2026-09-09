@@ -10,6 +10,11 @@ module RecordingStudioSupport
       page_count.to_s
     end
 
+    def support_article_count_label(page_count)
+      count = page_count.to_i
+      "#{count} #{'article'.pluralize(count)}"
+    end
+
     def support_page_count_badge(page_count)
       render FlatPack::Badge::Component.new(
         text: support_page_count_label(page_count),

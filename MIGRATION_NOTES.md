@@ -2,9 +2,9 @@
 
 ## Unreleased
 
-## 0.8.2
+## 0.9.1
 
-Public article show header (Badge → Title → description → date), optional `description` field, PageNav Home.
+Public article show header (Badge → Title → description → date), optional `description` field, PageNav Home, prose-tight body lists.
 
 ### Host app
 
@@ -12,7 +12,84 @@ Public article show header (Badge → Title → description → date), optional 
 2. Existing pages have `description` nil until an editor saves one (or you re-seed). Title stays required.
 3. Public `/help/:uuid/:slug` no longer lists Related pages. Meta description uses `description` when set, otherwise the body excerpt.
 4. Article PageNav uses secondary Home to `/help` (icon `home`, tooltip `"Home"`) instead of Close. Back still goes to the section (or `/help` with no section).
-5. If the host overrides `recording_studio/default_layout`, pass Flatpack PageNav `secondary_anchor_href` (or `secondary_anchor_url` via Support's PageNavCompat) from `content_for(:page_nav_secondary_anchor_*)`. Until Recording Studio's layout helper lists those slots, set `content_for` in the view or retarget the primary Close control to Home.
+5. If the host overrides `recording_studio/default_layout`, map `page_nav_secondary_anchor_*` into Flatpack `secondary_anchor_href` / `_icon` / `_tooltip` (same wiring as 0.8.4).
+6. Tip `blockquote` copy in article bodies uses the same text color as the rest of the article. Body list items drop Flatpack’s interactive padding for prose-tight spacing.
+
+### Verify
+
+```bash
+bundle exec rake test:all
+```
+
+## 0.9.0
+
+Staff Support is an Admin surface. Public `/help` is unchanged.
+
+### Host app
+
+1. Remount the Support engine at `/admin/support` **before** `recording_studio_admin_for … at: "/admin"`. Keep Accessible at `/admin/access`.
+2. Set `config.pages_path = "/admin/support"` so Admin New/Edit/Move URLs match.
+3. Redirect `/support` and `/support/*` to `/admin` (or remove the old mount).
+4. Grant Accessible on the **admin root**. Switch to that root before opening `/admin`. Workspace `:edit` is not enough for staff forms.
+5. Open staff work from Admin Support tables. Preview, Publish, trash, and the body editor stay on `/admin/support…`.
+6. Public `/help` stays the visitor surface. Do not browse staff content anonymously.
+
+### Verify
+
+```bash
+bundle exec rake test:all
+```
+
+## 0.8.4
+
+Public help section show: no breadcrumb, PageNav Home secondary, interactive article cards.
+
+### Host app
+
+1. No migrations or route changes.
+2. If you override `recording_studio/default_layout`, map these `content_for` keys into Flatpack PageNav:
+   - `page_nav_secondary_anchor_url` → `secondary_anchor_href`
+   - `page_nav_secondary_anchor_icon` → `secondary_anchor_icon`
+   - `page_nav_secondary_anchor_tooltip` → `secondary_anchor_tooltip`
+   - `page_nav_anchor_url` → `anchor_href` (Flatpack no longer uses `anchor_url`)
+3. Public section show sets the secondary Home slot via `support_public_section_page_nav`. Staff `/support` and public `/help` homepage stay as in 0.8.2 / 0.8.3.
+4. Public section article cards use `style: :interactive`, Grid `gap: :lg`, Body `padding: :lg`, and a white card background via Flatpack `theme: { background: "var(--color-white)" }`.
+5. Public section Search passes `size: :lg` (shared partial still defaults to `:md` for staff). Rebuild Tailwind after Flatpack `v0.1.177`.
+6. If Cards with `hover: :strong` do not change on hover, add Flatpack’s hover tokens in your Tailwind **utilities** layer (dummy `app/assets/tailwind/application.css` has the snippet). Flatpack’s kit rules are in `@layer components`, so Tailwind utilities like `border-[var(--card-border-color)]` currently win.
+
+### Verify
+
+```bash
+bundle exec rake test:all
+```
+
+## 0.8.3
+
+Public `/help` section cards use a white Flatpack Card background.
+
+### Host app
+
+1. No migrations or route changes.
+2. Public `/help` section Cards set `theme: { background: "#ffffff" }`. If you overrode `public_pages/index`, adopt that (or keep your override intentionally).
+
+### Verify
+
+```bash
+bundle exec rake test:all
+```
+
+## 0.8.2
+
+Public `/help` home uses a welcoming title, larger search, and interactive section cards.
+
+### Host app
+
+1. No migrations or route changes.
+2. Default `public_help_title` is **Hi, how can we help?**. Update your initializer if you still set `"Help"` and want the new words. Breadcrumbs that use `support_public_help_title` inherit the string.
+3. Public `/help` no longer renders `public_help_subtitle`. Staff `/support` still uses `help_subtitle`.
+4. Public `/help` section rows are interactive clickable Cards (`hover: :strong`) with an **N article(s)** line. Staff `/support` still uses `link_list` + count Badge.
+5. If you overrode `public_pages/index`, adopt the Card + Grid layout (or keep your override intentionally).
+6. Bump Flatpack to `v0.1.177` (or at least `0.1.175+`) so Search accepts `size:`. Public `/help` uses `size: :lg`. Drop any temporary Search height/type class overrides. Section and staff search stay default `:md`.
 
 ### Verify
 

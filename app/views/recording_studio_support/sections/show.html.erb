@@ -1,7 +1,7 @@
 <% recording_studio_page_nav(
      title: @section.title,
-     page_nav_back_url: root_path,
-     page_nav_anchor_url: root_path,
+     page_nav_back_url: RecordingStudioSupport::Admin::Queries.admin_sections_screen_path,
+     page_nav_anchor_url: RecordingStudioSupport::Admin::Queries.admin_sections_screen_path,
      page_nav_anchor_label: "Close"
    ) %>
 
@@ -24,8 +24,7 @@
 
   <%= render "recording_studio_support/shared/search", url: section_path(@section_recording), query: @query %>
 
-  <% list_items = if can_edit_support_pages?
-    Array(@page_recordings).filter_map { |recording|
+  <% list_items = Array(@page_recordings).filter_map { |recording|
       page = recording.recordable
       next if page.blank?
 
@@ -34,19 +33,7 @@
         href: page_path(recording),
         meta: support_page_status_badge(recording)
       }
-    }
-  else
-    Array(@pages).filter_map { |page|
-      href = page.published_url
-      next if href.blank?
-
-      {
-        title: page.title,
-        href: href,
-        meta: (support_published_badge if current_support_actor.present?)
-      }
-    }
-  end %>
+    } %>
 
   <% if list_items.any? %>
     <%= render "recording_studio_support/shared/link_list", items: list_items %>
@@ -57,8 +44,8 @@
     ) %>
   <% else %>
     <%= render FlatPack::EmptyState::Component.new(
-      title: "Nothing live yet",
-      description: "Check back soon."
+      title: "Nothing here yet",
+      description: "Add a page to get going."
     ) %>
   <% end %>
 </div>
