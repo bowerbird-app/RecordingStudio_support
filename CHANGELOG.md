@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.2] - 2026-09-09
+
+Help sections can show a Heroicons icon on the public `/help` list.
+
+### Added
+- Optional `icon` string on `recording_studio_support_sections` — paste a [Heroicons](https://heroicons.com/) short name (e.g. `credit-card`)
+- Staff section new/edit form field for Icon
+- Public `/help` section cards render the icon to the left of the title and article count when set
+- Dummy seeds set icons on Billing (`credit-card`), Developers (`code-bracket`), and Getting started (`rocket-launch`)
+
+### Upgrade notes
+- Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` for the `icon` column
+- Existing sections keep `icon` nil until edited or re-seeded; blank icons skip the glyph on `/help`
+
 ## [0.9.1] - 2026-09-09
 
 Public help articles use a Badge → Title → description → date header, drop Related, and add an optional `description` field.
@@ -463,7 +477,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.1...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.2...HEAD
+[0.9.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.4...v0.9.0
 [0.8.4]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.3...v0.8.4

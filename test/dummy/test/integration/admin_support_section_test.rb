@@ -178,7 +178,23 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Save"
     assert_includes response.body, "Cancel"
     assert_includes response.body, "/admin/screens/support_sections"
+    assert_select "input[name='section[title]']"
+    assert_select "input[name='section[icon]']"
+    assert_includes response.body, "rocket-launch"
     refute_includes response.body, "flat-pack-button-group"
+  end
+
+  test "staff can update a section icon" do
+    section = seeded_section("Billing")
+
+    patch "/admin/support/sections/#{section.id}", params: {
+      section: { title: "Billing", icon: "banknotes" }
+    }
+
+    assert_redirected_to "/admin/support/sections/#{section.id}"
+    follow_redirect!
+    assert_includes response.body, "Section updated."
+    assert_equal "banknotes", section.reload.recordable.icon
   end
 
   test "admin support section hides host chrome and keeps access" do

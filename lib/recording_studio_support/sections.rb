@@ -29,7 +29,7 @@ module RecordingStudioSupport
       )
     end
 
-    def create!(root_recording:, title:, actor: nil)
+    def create!(root_recording:, title:, icon: nil, actor: nil)
       workspace = parent_root_for(root_recording)
       raise ArgumentError, "Help sections belong under a workspace." if workspace.blank?
 
@@ -37,18 +37,21 @@ module RecordingStudioSupport
         workspace.record(SupportSection) do |section|
           section.title = title.to_s.strip
           section.slug = SupportSection.slug_for(title)
+          section.icon = icon
         end
       end
     end
 
-    def revise!(recording:, title:, actor: nil)
+    def revise!(recording:, title:, icon: nil, actor: nil)
       assign_actor(actor) do
         recording.root_recording.revise(recording) do |section|
           section.title = title.to_s.strip
           section.slug = SupportSection.slug_for(title, excluding_id: recording.recordable_id)
+          section.icon = icon
         end
       end
     end
+
 
     def trash!(recording:, actor: nil)
       assign_actor(actor) do

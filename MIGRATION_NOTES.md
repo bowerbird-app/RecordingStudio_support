@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+## 0.9.2
+
+Optional Heroicons `icon` on help sections for the public `/help` list.
+
+### Host app
+
+1. Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate`. Adds optional `icon` on `recording_studio_support_sections`.
+2. Existing sections have `icon` nil until an editor saves one (or you re-seed). Blank icons skip the glyph on `/help`.
+3. Staff paste a [Heroicons](https://heroicons.com/) short name (e.g. `credit-card`) on section new/edit. Flatpack `IconComponent` renders it — no extra Heroicons gem.
+
+### Verify
+
+```bash
+bundle exec rake test:all
+```
+
 ## 0.9.1
 
 Public article show header (Badge → Title → description → date), optional `description` field, PageNav Home, Flatpack ContentEditor content-surface body.

@@ -8,6 +8,15 @@
       error: @section.errors[:title].presence&.to_sentence
     ) %>
 
+    <%= render FlatPack::TextInput::Component.new(
+      name: "section[icon]",
+      label: "Icon",
+      value: @section.icon,
+      placeholder: "credit-card",
+      help_text: "Paste a Heroicons name from heroicons.com — leave blank for none.",
+      error: @section.errors[:icon].presence&.to_sentence
+    ) %>
+
     <%= render "recording_studio_support/shared/form_actions", cancel_url: cancel_url %>
   </div>
 <% end %>
