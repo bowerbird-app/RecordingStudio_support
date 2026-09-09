@@ -206,6 +206,8 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "How do I change my password?"
     refute_includes response.body, "Published"
     assert_select "input[name='q'][placeholder=?]", "Search in Getting started…"
+    refute_includes response.body, "[&amp;_input]:py-3.5"
+    refute_includes response.body, "[&amp;_input]:text-base"
     assert_select "a[href=?]", path, text: /How do I sign in?/
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_flatpack_rounded_theme
