@@ -188,6 +188,7 @@ class PagesTest < Minitest::Test
     assert_includes body_helper, "ordered: true"
     assert_includes body_helper, "blockquote"
     assert_includes body_helper, "surface-muted-content-color"
+    assert_includes body_helper, "opacity-75"
   end
 
   def test_page_form_uses_rich_text_uploads

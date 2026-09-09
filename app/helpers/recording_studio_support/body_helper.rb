@@ -2,7 +2,9 @@
 
 module RecordingStudioSupport
   module BodyHelper
-    MUTED_BODY_CLASS = "not-prose text-[var(--surface-muted-content-color)]"
+    # Secondary tip blocks: muted token + stock opacity so Flatpack List item
+    # content-color still reads quieter than the main steps.
+    MUTED_BODY_CLASS = "not-prose text-[var(--surface-muted-content-color)] opacity-75"
 
     def support_page_body_html(body)
       fragment = Body.loofah_fragment(Body.sanitize(body))
@@ -11,7 +13,7 @@ module RecordingStudioSupport
 
     private
 
-    def support_body_node(node)
+    def support_body_node(node, muted: false)
       return if node.text? && node.content.blank?
       return ERB::Util.html_escape(node.content) if node.text?
 
@@ -22,7 +24,7 @@ module RecordingStudioSupport
         support_body_list(node, ordered: false)
       when "blockquote"
         content_tag(:div, class: MUTED_BODY_CLASS) do
-          safe_join(node.children.filter_map { |child| support_body_node(child) })
+          safe_join(node.children.filter_map { |child| support_body_node(child, muted: true) })
         end
       else
         node.to_html.html_safe
