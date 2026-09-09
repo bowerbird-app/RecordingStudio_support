@@ -22,6 +22,9 @@ class PagesTest < Minitest::Test
     search = File.read(
       File.expand_path("../app/views/recording_studio_support/shared/_search.html.erb", __dir__)
     )
+    public_index = File.read(
+      File.expand_path("../app/views/recording_studio_support/public_pages/index.html.erb", __dir__)
+    )
 
     assert_includes index, 'render "recording_studio_support/shared/search"'
     assert_includes search, "FlatPack::Search::Component"
@@ -31,8 +34,11 @@ class PagesTest < Minitest::Test
     assert_includes search, 'class: "w-full"'
     assert_includes search, "--search-input-background-color: var(--color-white)"
     assert_includes search, "--search-input-border-color: var(--surface-border-color)"
-    refute_includes search, "size:"
-    refute_includes search, "fill:"
+    assert_includes search, "local_assigns.fetch(:size, :md)"
+    assert_includes search, "size: size"
+    refute_includes search, "prominent"
+    refute_includes search, "[&_input]:py-3.5"
+    assert_includes public_index, "size: :lg"
     assert_includes index, "Nothing matches that"
     refute_includes index, "Elasticsearch"
     refute_includes index, "searchkick"
@@ -57,9 +63,9 @@ class PagesTest < Minitest::Test
       File.expand_path("../app/views/recording_studio_support/shared/_link_list.html.erb", __dir__)
     )
 
-    [staff_index, public_index].each do |index|
-      assert_includes index, "support_page_count_badge"
-    end
+    assert_includes staff_index, "support_page_count_badge"
+    refute_includes public_index, "support_page_count_badge"
+    assert_includes public_index, "support_article_count_label"
     [staff_show, public_show].each do |show|
       refute_includes show, "support_page_count_badge"
     end
@@ -69,12 +75,29 @@ class PagesTest < Minitest::Test
     assert_includes staff_show, "can_edit_support_pages?"
     assert_includes staff_show, "current_support_actor.present?"
 
-    [staff_index, public_index, staff_show].each do |view|
+    [staff_index, staff_show].each do |view|
       assert_includes view, 'render "recording_studio_support/shared/link_list"'
       refute_includes view, "FlatPack::Card::Component"
       refute_includes view, 'text: "Read"'
       refute_includes view, 'text: "Open"'
     end
+
+    refute_includes public_index, 'render "recording_studio_support/shared/link_list"'
+    assert_includes public_index, "FlatPack::Grid::Component"
+    assert_includes public_index, "FlatPack::Card::Component"
+    assert_includes public_index, "style: :interactive"
+    assert_includes public_index, "clickable: true"
+    assert_includes public_index, "hover: :strong"
+    assert_includes public_index, "padding: :lg"
+    assert_includes public_index, "gap: :lg"
+    assert_includes public_index, 'theme: { background: "#ffffff" }'
+    assert_includes public_index, "card.body(padding: :lg)"
+    refute_includes public_index, "style: :elevated"
+    refute_includes public_index, "card.header"
+    refute_includes public_index, "support_public_help_subtitle"
+    refute_includes public_index, "square_rows"
+    refute_includes public_index, 'text: "Read"'
+    refute_includes public_index, 'text: "Open"'
 
     assert_includes public_show, "FlatPack::Breadcrumb::Component"
     assert_includes public_show, "FlatPack::Grid::Component"
@@ -101,11 +124,7 @@ class PagesTest < Minitest::Test
     refute_includes list, 'text: "Read"'
     refute_includes list, 'text: "Open"'
 
-    assert_includes public_index, "square_rows: true"
-    staff_sections_index = File.read(
-      File.expand_path("../app/views/recording_studio_support/sections/index.html.erb", __dir__)
-    )
-    refute_includes staff_sections_index, "square_rows"
+    refute_includes staff_index, "square_rows"
   end
 
   def test_owner_preview_has_no_edit
@@ -138,8 +157,9 @@ class PagesTest < Minitest::Test
     refute_includes pages, "noindex"
     assert_includes public_index, 'render "recording_studio_support/shared/search"'
     assert_includes public_index, "support_public_help_title"
-    assert_includes public_index, 'render "recording_studio_support/shared/link_list"'
-    refute_includes public_index, "FlatPack::Card::Component"
+    assert_includes public_index, "FlatPack::Card::Component"
+    assert_includes public_index, "support_article_count_label"
+    refute_includes public_index, 'render "recording_studio_support/shared/link_list"'
     refute_includes public_index, 'text: "Read"'
     refute_includes public_index, "recordable"
     assert_includes support_page, "RecordingStudio::Capabilities::Publishable.to"
