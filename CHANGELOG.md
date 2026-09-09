@@ -21,7 +21,7 @@ Public help articles use a Badge → Title → description → date header, drop
 - Meta description prefers `description` when present, otherwise the body plain-text excerpt (`Body.meta_description`)
 - Article date uses the same fallback as section cards (`publish_at` → recording `updated_at` → `created_at`)
 - Article body pipeline renders TipTap `ol`/`ul` as Flatpack `List` (ordered steps keep markers, dense spacing; items omit List::Item padding so rows stay prose-tight); `blockquote` tips keep Flatpack list conversion and match article body text color
-- Public article header uses stock Timestamp fallback for a calendar day (`Updated …`), a larger section Badge (`size: :lg`) wrapped in `w-fit` so it stays an inline chip, tighter Badge → Title → date spacing, a `-mb-6` wrap so PageTitle’s stock bottom margin does not open a wireframe gap before the date, and Flatpack ContentEditor content-surface classes (`flat-pack-content-editor-content`) for the article body with `mt-8` above and `mb-5` below
+- Public article header uses stock Timestamp fallback for a calendar day (`Updated …`), a larger section Badge (`size: :lg`) wrapped in `w-fit` so it stays an inline chip, tighter Badge → Title → date spacing, a `-mb-6` wrap so PageTitle’s stock bottom margin does not open a wireframe gap before the date, and Flatpack ContentEditor content-surface classes (`flat-pack-content-editor-content`) for the article body with `mt-8` above and `mb-8 pb-8` below
 - Dummy payment article seed uses a billing UI screenshot (`how-to-update-payment.jpg`) instead of a keyboard photo; tip copy sits in a blockquote with body-matching color
 
 ### Upgrade notes
