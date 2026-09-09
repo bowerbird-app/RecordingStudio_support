@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.4] - 2026-09-09
+
+Public help section show drops breadcrumb, adds PageNav Home, and uses interactive article cards.
+
+### Changed
+- Public `/help/sections/:slug` removes Flatpack Breadcrumb
+- PageNav keeps history Back and adds a secondary Home control (home icon → `/help`, tooltip/aria `"Home"`) via host layout `content_for` keys
+- Article cards use `style: :interactive` and `hover: :strong` (still full-width `Grid` `cols: 1`) with `gap: :lg`, Body `padding: :lg`, and white `theme: { background: "var(--color-white)" }`
+- Public section Search uses Flatpack `size: :lg` (shared partial still defaults to `:md` for staff)
+- Dummy `recording_studio/default_layout` maps `page_nav_secondary_anchor_*` to Flatpack `secondary_anchor_*`, and `page_nav_anchor_url` to `anchor_href`
+- Dummy Tailwind utilities re-assert Flatpack `fp-card-hover-strong:hover` so strong hover is visible (Tailwind utilities were beating Flatpack’s `@layer components` hover rules)
+
+### Upgrade notes
+- No migrations or route changes
+- Hosts with a `default_layout` override should wire `page_nav_secondary_anchor_url` / `_icon` / `_tooltip` into Flatpack PageNav `secondary_anchor_href` / `_icon` / `_tooltip`, and pass Close through `anchor_href` (Flatpack renamed away from `anchor_url`)
+- Hosts using Cards with `hover: :strong` should copy the dummy’s `@layer utilities` `.fp-card-hover-strong:hover` override until Flatpack ships a kit fix
+- Public `/help` homepage behavior stays as in 0.8.2 / 0.8.3; this release targets public section show
+
 ## [0.8.3] - 2026-09-09
 
 Public `/help` section cards use a white background.
@@ -398,7 +416,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.3...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.4...HEAD
+[0.8.4]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.3...v0.8.4
 [0.8.3]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.2...v0.8.3
 [0.8.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.0...v0.8.1

@@ -152,7 +152,7 @@ Logged-out people can read sections and live pages. Drafts 404.
 
 Public `/help` lists sections. A section show lists `SupportPage.indexable` pages in that section. Do not copy that logic. Public `/help?q=` and staff `/support?q=` search section names. Page search lives on a section show and filters pages **in that section** by title and body (`?q=`).
 
-Public and staff Help homes use Flatpack Search at full width (`max_width: :none`, placeholder “Search support”). Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Public `/help` passes `size: :lg` (Flatpack `0.1.175+` / pin `v0.1.177`); section and staff search keep the default `:md`.
+Public and staff Help homes use Flatpack Search at full width (`max_width: :none`, placeholder “Search support”). Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Public `/help` and public section show pass `size: :lg` (Flatpack `0.1.175+` / pin `v0.1.177`); staff search keeps the default `:md`.
 
 **Public `/help` home** stacks interactive clickable Flatpack Cards in a Grid (`cols: 1`, `gap: :lg`, `style: :interactive`, `hover: :strong`, body `padding: :lg`, `theme: { background: "#ffffff" }`). Interactive (not elevated) is what Flatpack uses for a visible strong hover — elevated already ships `shadow-md`, so `hover: :strong` on elevated barely changes. Each card shows the section title and a muted **N article(s)** line (no Badge). PageTitle is `public_help_title` only — no subtitle on this page.
 
@@ -160,13 +160,16 @@ Public and staff Help homes use Flatpack Search at full width (`max_width: :none
 
 Public **section** show (`/help/sections/:slug`) is its own card stack — not the home `link_list` shape:
 
-1. Default layout page nav — Back to `/help`, no Close
-2. Flatpack Breadcrumb — Help → current section title (last crumb has no href)
-3. Flatpack PageTitle — section title, subtitle, `variant: :h1`
-4. Flatpack Search — placeholder `Search in {section}…`, white input tokens as above
-5. Flatpack Grid (`cols: 1`) of clickable Cards (`href`, `clickable: true`, `hover: :subtle`, `style: :interactive`) — title, muted plain-text snippet (~120 chars from the body; omitted when blank), Flatpack Timestamp from publish time (`publish_at`, then recording `updated_at`, then page `created_at`)
-6. Optional host contact Card + secondary Button — only when `public_contact_href` is set
-7. Flatpack EmptyState when the query matches nothing or the section has no live pages
+1. Default layout page nav — history Back, plus a PageNav **secondary** Home (home icon → `/help`, tooltip/aria `"Home"`). No Close
+2. Flatpack PageTitle — section title, subtitle, `variant: :h1`
+3. Flatpack Search — `size: :lg`, placeholder `Search in {section}…`, white input tokens as above
+4. Flatpack Grid (`cols: 1`, `gap: :lg`) of full-width interactive Cards (`href`, `clickable: true`, `hover: :strong`, `style: :interactive`, white `theme: { background: "var(--color-white)" }`) — Body padding `:lg`, title, muted plain-text snippet (~120 chars from the body; omitted when blank), Flatpack Timestamp from publish time (`publish_at`, then recording `updated_at`, then page `created_at`)
+5. Optional host contact Card + secondary Button — only when `public_contact_href` is set
+6. Flatpack EmptyState when the query matches nothing or the section has no live pages
+
+Hosts that override `recording_studio/default_layout` (as the dummy does) should pass Flatpack `secondary_anchor_href` / `secondary_anchor_icon` / `secondary_anchor_tooltip` from `content_for` keys `page_nav_secondary_anchor_url`, `page_nav_secondary_anchor_icon`, and `page_nav_secondary_anchor_tooltip`. Map `page_nav_anchor_url` to Flatpack’s `anchor_href` (not the old `anchor_url`). Core `recording_studio_page_nav` does not yet forward secondary slots — Support’s public section show sets those `content_for` keys via `support_public_section_page_nav`.
+
+Interactive + `hover: :strong` needs a host Tailwind utilities-layer override for the border color change: Flatpack’s hover rules live in `@layer components`, but the card also applies Tailwind’s `border-[var(--card-border-color)]` utility, and utilities win on hover. Dummy’s `app/assets/tailwind/application.css` shows the override hosts should copy until Flatpack moves those hover rules.
 
 No Published badge on public section cards (implied by indexable). Drafts stay off public `/help` lists. No Read / Open buttons. Staff `/support/sections/...` still uses the list + badge rules for editors vs visitors. Public and staff help use Recording Studio's default layout (`UsesDefaultLayout` / `recording_studio/default_layout`). Point Publishable `public_layout` at that layout. Do not use `recording_studio_publishable/application`. Put Flatpack's built-in rounded theme on `<html data-theme="rounded">` — core's body attribute is not enough. Dummy's default-layout override shows the host-side fix. Before Flatpack CSS, declare `@layer theme, base, components, utilities` so TipTap borders survive Tailwind preflight when `flat_pack/rich_text` loads before Tailwind.
 

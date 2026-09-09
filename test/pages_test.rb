@@ -99,13 +99,21 @@ class PagesTest < Minitest::Test
     refute_includes public_index, 'text: "Read"'
     refute_includes public_index, 'text: "Open"'
 
-    assert_includes public_show, "FlatPack::Breadcrumb::Component"
+    refute_includes public_show, "FlatPack::Breadcrumb::Component"
+    assert_includes public_show, "support_public_section_page_nav"
     assert_includes public_show, "FlatPack::Grid::Component"
     assert_includes public_show, "FlatPack::Card::Component"
     assert_includes public_show, "FlatPack::Timestamp::Component"
     assert_includes public_show, "support_public_contact_href"
-    assert_includes public_show, "hover: :subtle"
+    assert_includes public_show, "size: :lg"
+    assert_includes public_show, "hover: :strong"
     assert_includes public_show, "style: :interactive"
+    assert_includes public_show, 'theme: { background: "var(--color-white)" }'
+    assert_includes public_show, "gap: :lg"
+    assert_includes public_show, "card.body(padding: :lg)"
+    refute_includes public_show, "hover: :subtle"
+    refute_includes public_show, "style: :elevated"
+    refute_includes public_show, "gap: :sm"
     refute_includes public_show, 'render "recording_studio_support/shared/link_list"'
     refute_includes public_show, 'text: "Read"'
     refute_includes public_show, 'text: "Open"'

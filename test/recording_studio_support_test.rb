@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.8.3", ::RecordingStudioSupport::VERSION
+    assert_equal "0.8.4", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -50,6 +50,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.177"'
     refute_includes gemfile, "recording_studio/v3.0.0"
     refute_includes gemfile, 'tag: "v0.6.1"'
+    refute_includes gemfile, 'tag: "v0.1.171"'
     refute_includes gemfile, 'tag: "v0.1.133"'
     refute_includes gemfile, 'tag: "0.3.1"'
   end
@@ -121,6 +122,16 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes default_layout, 'stylesheet_link_tag "flat_pack/application"'
     assert_includes default_layout, 'stylesheet_link_tag "flat_pack/rich_text"'
     assert_includes default_layout, 'stylesheet_link_tag "tailwind"'
+    assert_includes default_layout, "secondary_anchor_href"
+    assert_includes default_layout, "page_nav_secondary_anchor_url"
+    assert_includes default_layout, "page_nav_secondary_anchor_icon"
+    assert_includes default_layout, "page_nav_secondary_anchor_tooltip"
+    assert_includes default_layout, ":anchor_href"
+    refute_includes default_layout, "page_nav_options[:anchor_url]"
+    tailwind_source = File.read(File.expand_path("dummy/app/assets/tailwind/application.css", __dir__))
+    assert_includes tailwind_source, ".fp-card-hover-strong:hover"
+    assert_includes tailwind_source, "--card-hover-strong-shadow"
+    assert_includes tailwind_source, "@layer utilities"
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack_sidebar.html.erb", __dir__))
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack/_sidebar.html.erb", __dir__))
     refute File.exist?(File.expand_path("dummy/app/views/devise/sessions/new.html.erb", __dir__))
