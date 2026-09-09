@@ -37,14 +37,14 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "form[role='search'][class~='w-full']"
     assert_select "input[name='q'][placeholder='Search support']"
     assert_includes response.body, "max-w-none"
-    assert_includes response.body, "[&amp;_input]:py-3.5"
-    assert_includes response.body, "[&amp;_input]:text-base"
+    assert_includes response.body, "search-padding-y-lg"
     assert_includes response.body, "shadow-md"
     assert_includes response.body, "fp-card-hover-strong"
     assert_includes response.body, "grid-cols-1"
     assert_select "ul[role='list']", count: 0
     refute_includes response.body, "chevron-right"
     refute_includes response.body, "badge-default-background-color"
+    refute_includes response.body, "[&amp;_input]:py-3.5"
     assert_includes response.body, "1 article"
     assert_includes response.body, "2 articles"
     refute_includes response.body, "1 page"
@@ -206,8 +206,8 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "How do I change my password?"
     refute_includes response.body, "Published"
     assert_select "input[name='q'][placeholder=?]", "Search in Getting started…"
-    refute_includes response.body, "[&amp;_input]:py-3.5"
-    refute_includes response.body, "[&amp;_input]:text-base"
+    refute_includes response.body, "search-padding-y-lg"
+    assert_includes response.body, "search-padding-y-md"
     assert_select "a[href=?]", path, text: /How do I sign in?/
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_flatpack_rounded_theme

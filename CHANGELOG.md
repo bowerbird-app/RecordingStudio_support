@@ -15,7 +15,8 @@ Public `/help` home is a welcoming entry: new title, larger search, elevated sec
 - Default `public_help_title` is **Hi, how can we help?** (install template and dummy initializer match)
 - Public `/help` PageTitle drops the subtitle (config `public_help_subtitle` stays for hosts who still want it elsewhere)
 - Public `/help` sections are elevated clickable Flatpack Cards in a Grid (`hover: :strong`, header `divider: false`, `padding: :md`) with a plain **N article(s)** line — no Badge, no shared `link_list` / `square_rows`
-- Public `/help` Search is temporarily larger via kit-safe `system_arguments` class overrides until Flatpack Search gains a real `size` API; section search stays the default size
+- Public `/help` Search uses Flatpack Search `size: :lg` (requires Flatpack `0.1.175+`); section and staff search stay the default `:md`
+- Dummy / Gemfile pin Flatpack to the `0.1.175` Search-size commit (`4bd0e1c`) until the `v0.1.175` tag ships
 - Staff `/support` list + count Badge markup is unchanged
 
 ### Upgrade notes
@@ -23,6 +24,7 @@ Public `/help` home is a welcoming entry: new title, larger search, elevated sec
 - Hosts that hard-coded `public_help_title = "Help"` keep that string until they change the initializer
 - Breadcrumbs that use `support_public_help_title` show the new default
 - If you overrode `public_pages/index`, switch section rows to elevated Cards and drop `link_list` / page-count Badges on that page only
+- Bump Flatpack to `0.1.175+` (Search `size:`). Public `/help` passes `size: :lg` on the shared search partial; remove any temporary Search class overrides for height/type
 
 ## [0.8.1] - 2026-09-08
 

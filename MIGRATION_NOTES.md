@@ -13,7 +13,7 @@ Public `/help` home uses a welcoming title, larger search, and elevated section 
 3. Public `/help` no longer renders `public_help_subtitle`. Staff `/support` still uses `help_subtitle`.
 4. Public `/help` section rows are elevated clickable Cards with an **N article(s)** line. Staff `/support` still uses `link_list` + count Badge.
 5. If you overrode `public_pages/index`, adopt the Card + Grid layout (or keep your override intentionally).
-6. Home Search size is a temporary `system_arguments` override; remove it when Flatpack Search ships a `size` API.
+6. Bump Flatpack to `0.1.175+` so Search accepts `size:`. Public `/help` uses `size: :lg`. Drop any temporary Search height/type class overrides. Section and staff search stay default `:md`.
 
 ### Verify
 
