@@ -159,7 +159,7 @@ Public **section** show (`/help/sections/:slug`) is its own card stack — not t
 1. Default layout page nav — history Back, plus a PageNav **secondary** Home (home icon → `/help`, tooltip/aria `"Home"`). No Close
 2. Flatpack PageTitle — section title, subtitle, `variant: :h1`
 3. Flatpack Search — placeholder `Search in {section}…`, white input tokens as above
-4. Flatpack Grid (`cols: 1`, `gap: :lg`) of full-width elevated Cards (`href`, `clickable: true`, `hover: :strong`, `style: :elevated`) — Body padding `:lg`, title, muted plain-text snippet (~120 chars from the body; omitted when blank), Flatpack Timestamp from publish time (`publish_at`, then recording `updated_at`, then page `created_at`)
+4. Flatpack Grid (`cols: 1`, `gap: :lg`) of full-width elevated Cards (`href`, `clickable: true`, `hover: :strong`, `style: :elevated`, white `theme: { background: "var(--color-white)" }`) — Body padding `:lg`, title, muted plain-text snippet (~120 chars from the body; omitted when blank), Flatpack Timestamp from publish time (`publish_at`, then recording `updated_at`, then page `created_at`)
 5. Optional host contact Card + secondary Button — only when `public_contact_href` is set
 6. Flatpack EmptyState when the query matches nothing or the section has no live pages
 

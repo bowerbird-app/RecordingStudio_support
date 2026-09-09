@@ -84,6 +84,7 @@ class PagesTest < Minitest::Test
     assert_includes public_show, "support_public_contact_href"
     assert_includes public_show, "hover: :strong"
     assert_includes public_show, "style: :elevated"
+    assert_includes public_show, 'theme: { background: "var(--color-white)" }'
     assert_includes public_show, "gap: :lg"
     assert_includes public_show, "card.body(padding: :lg)"
     refute_includes public_show, "hover: :subtle"
