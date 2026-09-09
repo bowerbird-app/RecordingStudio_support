@@ -10,14 +10,14 @@
      support_page_meta_description(@page.body, description: @page.description)
    ) %>
 
-<div class="flex w-full flex-col gap-6">
-  <div class="flex flex-col gap-3">
+<div class="flex w-full flex-col gap-4">
+  <div class="flex flex-col gap-2">
     <% section_title = support_recording_title(@section_recording) %>
     <% if section_title.present? %>
       <%= render FlatPack::Badge::Component.new(
         text: section_title,
         style: :default,
-        size: :sm
+        size: :md
       ) %>
     <% end %>
 
@@ -30,7 +30,6 @@
     <% if @updated_at.present? %>
       <%= render FlatPack::Timestamp::Component.new(
         timestamp: @updated_at,
-        class: "text-sm text-[var(--surface-muted-content-color)]",
         fallback_text: support_page_updated_on(@updated_at)
       ) %>
     <% end %>

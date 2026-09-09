@@ -152,7 +152,15 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Open billing and save the card you want us to use."
     assert_includes response.body, 'class="prose max-w-none'
     assert_select "h2", text: "Open billing"
-    assert_select "img[src='/how-to-update-payment.jpg']"
+    assert_select "h2", text: "Add or replace a card"
+    assert_select "h2", text: "Save and confirm"
+    assert_select "img[src='/how-to-update-payment.jpg'][alt*='Billing']"
+    assert_select "ol.flat-pack-list", count: 1
+    assert_select "ol.flat-pack-list li", text: /Name on the card/
+    assert_select "ol.flat-pack-list li", text: /Card number/
+    assert_select "ol.flat-pack-list li", text: /Expiry and security code/
+    assert_select "[class*='surface-muted-content-color']", text: /You can keep more than one card/
+    assert_select "[class*='surface-muted-content-color']", text: /Need a receipt/
     assert_select "a[aria-label='Home'][href='/help']"
     refute_includes response.body, "Related"
     assert_select "a[href=?]", related_path, count: 0

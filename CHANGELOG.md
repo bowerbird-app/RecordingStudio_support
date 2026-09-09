@@ -21,6 +21,9 @@ Public help articles use a Badge → Title → description → date header, drop
 - Meta description prefers `description` when present, otherwise the body plain-text excerpt (`Body.meta_description`)
 - Article date uses the same fallback as section cards (`publish_at` → recording `updated_at` → `created_at`)
 - Dummy default layout wires PageNav `secondary_anchor_*` (Home) for Flatpack
+- Article body pipeline renders TipTap `ol`/`ul` as Flatpack `List` (ordered steps keep markers); `blockquote` tips use muted theme tokens
+- Public article header uses stock Timestamp (no hand class), a larger section Badge (`size: :md`), and tighter Badge → Title → date → body spacing
+- Dummy payment article seed uses a billing UI screenshot (`how-to-update-payment.jpg`) instead of a keyboard photo; tip copy sits in a muted blockquote
 
 ### Upgrade notes
 - Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` for the `description` column

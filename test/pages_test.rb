@@ -150,8 +150,12 @@ class PagesTest < Minitest::Test
 
   def test_public_show_is_a_simple_article
     show = File.read(File.expand_path("../app/views/recording_studio_support/public_pages/show.html.erb", __dir__))
+    body_helper = File.read(
+      File.expand_path("../app/helpers/recording_studio_support/body_helper.rb", __dir__)
+    )
 
     assert_includes show, "FlatPack::Badge::Component"
+    assert_includes show, "size: :md"
     assert_includes show, "FlatPack::PageTitle::Component"
     assert_includes show, "FlatPack::Timestamp::Component"
     assert_includes show, "@page.description"
@@ -162,6 +166,10 @@ class PagesTest < Minitest::Test
     assert_includes show, "page_nav_secondary_anchor"
     assert_includes show, '"home"'
     assert_includes show, '"Home"'
+    assert_includes show, 'gap-4'
+    assert_includes show, 'gap-2'
+    refute_includes show, 'class: "text-sm text-[var(--surface-muted-content-color)]"'
+    refute_includes show, "size: :sm"
     refute_includes show, "Related"
     refute_includes show, 'render "recording_studio_support/shared/link_list"'
     refute_includes show, "FlatPack::SectionTitle::Component"
@@ -173,6 +181,13 @@ class PagesTest < Minitest::Test
     refute_includes show, 'text: "Edit"'
     refute_includes show, "Move to trash"
     refute_includes show, "support_visible_images"
+    refute_includes show, "FlatPack::Card::Component"
+
+    assert_includes body_helper, "FlatPack::List::Component"
+    assert_includes body_helper, "FlatPack::List::Item"
+    assert_includes body_helper, "ordered: true"
+    assert_includes body_helper, "blockquote"
+    assert_includes body_helper, "surface-muted-content-color"
   end
 
   def test_page_form_uses_rich_text_uploads

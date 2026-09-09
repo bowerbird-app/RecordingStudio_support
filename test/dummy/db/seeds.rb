@@ -18,7 +18,7 @@ HTML
 PAYMENT_BODY = <<~HTML.freeze unless defined?(PAYMENT_BODY)
   <h2>Open billing</h2>
   <p>From your workspace, open Billing. You will see the card on file and a place to change it.</p>
-  <p><img src="/how-to-update-payment.jpg" alt="Billing settings with card on file"></p>
+  <p><img src="/how-to-update-payment.jpg" alt="Billing settings with card on file and payment fields"></p>
   <h2>Add or replace a card</h2>
   <p>Choose Update payment details, then enter the new card.</p>
   <ol>
@@ -28,11 +28,13 @@ PAYMENT_BODY = <<~HTML.freeze unless defined?(PAYMENT_BODY)
   </ol>
   <h2>Save and confirm</h2>
   <p>Choose Save. The next invoice uses the card you just saved.</p>
-  <ul>
-    <li>You can keep more than one card on file in some plans</li>
-    <li>Failed charges still show under Invoices until they clear</li>
-  </ul>
-  <p>Need a receipt instead? Open Invoices and download the PDF.</p>
+  <blockquote>
+    <ul>
+      <li>You can keep more than one card on file in some plans</li>
+      <li>Failed charges still show under Invoices until they clear</li>
+    </ul>
+    <p>Need a receipt instead? Open Invoices and download the PDF.</p>
+  </blockquote>
 HTML
 
 INVOICE_BODY = <<~HTML.freeze unless defined?(INVOICE_BODY)
