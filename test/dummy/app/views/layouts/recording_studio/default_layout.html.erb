@@ -19,6 +19,7 @@
     <%= stylesheet_link_tag "flat_pack/variables", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "flat_pack/application", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "flat_pack/rich_text", "data-turbo-track": "reload" %>
+    <%= stylesheet_link_tag "flat_pack/content_editor", "data-turbo-track": "reload" %>
     <%= stylesheet_link_tag "tailwind", "data-turbo-track": "reload" %>
     <% if lookup_context.exists?("recording_studio/default_layout_head", [], true) %>
       <%= render "recording_studio/default_layout_head" %>
@@ -61,6 +62,8 @@
         back_label: content_for(:page_nav_back_label).presence || "Go back",
         back_style: (content_for(:page_nav_back_style).presence || "secondary").to_sym,
         back_size: (content_for(:page_nav_back_size).presence || "md").to_sym,
+        secondary_anchor_icon: content_for(:page_nav_secondary_anchor_icon).presence || "home",
+        secondary_anchor_tooltip: content_for(:page_nav_secondary_anchor_tooltip).presence || "Home",
         anchor_icon: content_for(:page_nav_anchor_icon).presence || "x-mark",
         anchor_label: content_for(:page_nav_anchor_label).presence || "Close"
       } %>

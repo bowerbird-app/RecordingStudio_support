@@ -63,7 +63,7 @@ module RecordingStudioSupport
     end
 
     def page_params
-      params.fetch(:page, {}).permit(:title, :body, :section_id)
+      params.fetch(:page, {}).permit(:title, :description, :body, :section_id)
     end
 
     def create_page!(section)
@@ -77,13 +77,18 @@ module RecordingStudioSupport
     def page_write_attrs
       {
         title: page_params[:title],
+        description: page_params[:description],
         body: page_params[:body],
         actor: current_support_actor
       }
     end
 
     def render_missing_section
-      @page = SupportPage.new(title: page_params[:title], body: page_params[:body])
+      @page = SupportPage.new(
+        title: page_params[:title],
+        description: page_params[:description],
+        body: page_params[:body]
+      )
       flash.now[:alert] = "Add a section first, then you can write a page."
       render :new, status: :unprocessable_entity
     end

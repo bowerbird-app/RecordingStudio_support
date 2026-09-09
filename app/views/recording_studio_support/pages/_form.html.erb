@@ -19,6 +19,13 @@
     ) %>
 
     <%= render FlatPack::TextArea::Component.new(
+      name: "page[description]",
+      label: "Description",
+      value: @page.description,
+      rows: 2
+    ) %>
+
+    <%= render FlatPack::TextArea::Component.new(
       name: "page[body]",
       label: "Body",
       value: @page.body,

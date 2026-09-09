@@ -202,11 +202,11 @@ end
 
 When `public_section_subtitle` is blank or the callable returns blank, the section show uses `Find answers in {title}.`
 
-Public show is Publishable's published route (`/help/:uuid/:slug`). It is a simple article: Flatpack `PageTitle`, optional Updated line, and long-form body in `prose` (Flatpack’s text/content pattern — there is no Content component). The document `<title>` is the page title. Meta description is plain text from the body (HTML stripped, entities decoded, max 160 characters). When the section has other published pages, a horizontal rule and Flatpack **Related** list follow the body. No live banner, no sign-in alert, no Edit, trash, or Access. Do not wrap the body in a skinny card.
+Public show is Publishable's published route (`/help/:uuid/:slug`). Header order is Flatpack Badge (section title, stock `size: :lg`, wrapped in `w-fit` so it stays an inline chip) → `PageTitle` (title + optional `description` subtitle; wrapped to cancel stock `mb-6`) → stock Timestamp fallback showing the calendar day via `support_page_updated_on` (not relative “N ago”) → long-form body on Flatpack ContentEditor’s content surface (`flat-pack-content-editor-content`, via `support_page_body_class`, with `mt-8` above and `mb-8 pb-8` below the body). There is no separate Content component; that class is the kit’s TipTap display typography. Body `ol`/`ul` render through Flatpack `List` with dense spacing and prose-tight list rows (Flatpack `List::Item` padding is skipped so steps are not spaced like interactive nav); wrap tip copy in `blockquote` so nested lists still go through Flatpack (tip text uses the same surface content color as the article). The document `<title>` is the page title. Meta description prefers the page `description` when set; otherwise plain text from the body (HTML stripped, entities decoded, max 160 characters). There is no Related list. PageNav backs to the section (or `/help`) and offers Home to `/help` (no Close). No live banner, no sign-in alert, no Edit, trash, or Access. Do not wrap the title stack or body in an extra card.
 
 Staff preview unpublished pages on the authenticated show at `/admin/support/:id`. That is the same staff screen, not a second preview app. Staff show keeps Publish, a Live/Draft status button, and an icon-only trash control in the PageTitle row. It does not show a Pictures gallery.
 
-The body editor is Flatpack `TextArea` with `rich_text: true`, `preset: :content`, and `uploads: { url: uploads_path }`. That upload endpoint is the same contract as ContentEditor (`upload_url` posts a file and returns `{ "url": "..." }`). `Body.sanitize` keeps `img` (`src`, `alt`).
+The body editor is Flatpack `TextArea` with `rich_text: true`, `preset: :content`, and `uploads: { url: uploads_path }`. That upload endpoint is the same contract as ContentEditor (`upload_url` posts a file and returns `{ "url": "..." }`). `Body.sanitize` keeps `img` (`src`, `alt`). Staff forms also take an optional plain **Description** summary above Body.
 
 ## Admin Support
 
@@ -273,7 +273,7 @@ bin/dev
 
 Then open `/help` without signing in. Search the lists with `?q=`. Sign-in for Admin and staff forms is Users gem two-step login. Dummy uses Flatpack's built-in `rounded` theme on `<html data-theme="rounded">` for Users auth, public help, staff forms, and Admin. For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root. Edit, Move, and New live on the Admin tables. Forms and preview open under `/admin/support`. Old `/support` links redirect to `/admin`.
 
-Seeds three sections: **Billing**, **Developers**, and **Getting started**. **How do I sign in?** is a live article with headings, a list, and an inline photograph. **How do I change my password?** stays a draft under Getting started. Billing has two live pages so Related links show on public article show; Developers has one.
+Seeds three sections: **Billing**, **Developers**, and **Getting started**. Live articles include a short `description`, multi-section HTML bodies, and inline images where helpful (**How do I sign in?** and **How do I update payment details?**). **How do I change my password?** stays a draft under Getting started. Billing and Developers keep multiple/live pages for section lists.
 
 ## Cloud Agent boot
 

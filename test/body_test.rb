@@ -50,4 +50,14 @@ class BodyTest < Minitest::Test
     assert_nil RecordingStudioSupport::Body.snippet("   ")
     assert_nil RecordingStudioSupport::Body.snippet(nil)
   end
+
+  def test_sanitize_keeps_blockquote_for_secondary_tips
+    html = RecordingStudioSupport::Body.sanitize(
+      "<h2>Save</h2><blockquote><ul><li>Tip</li></ul><p>Receipt note</p></blockquote>"
+    )
+
+    assert_includes html, "<blockquote>"
+    assert_includes html, "<li>Tip</li>"
+    assert_includes html, "<p>Receipt note</p>"
+  end
 end

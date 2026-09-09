@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.9.0", ::RecordingStudioSupport::VERSION
+    assert_equal "0.9.1", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -121,6 +121,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes default_layout, 'stylesheet_link_tag "flat_pack/variables"'
     assert_includes default_layout, 'stylesheet_link_tag "flat_pack/application"'
     assert_includes default_layout, 'stylesheet_link_tag "flat_pack/rich_text"'
+    assert_includes default_layout, 'stylesheet_link_tag "flat_pack/content_editor"'
     assert_includes default_layout, 'stylesheet_link_tag "tailwind"'
     assert_includes default_layout, "secondary_anchor_href"
     assert_includes default_layout, "page_nav_secondary_anchor_url"
@@ -145,6 +146,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes application_layout, 'stylesheet_link_tag "flat_pack/variables"'
     assert_includes application_layout, 'stylesheet_link_tag "flat_pack/application"'
     assert_includes application_layout, 'stylesheet_link_tag "flat_pack/rich_text"'
+    assert_includes application_layout, 'stylesheet_link_tag "flat_pack/content_editor"'
     assert_includes application_layout, "javascript_importmap_tags"
     assert_includes application_layout, "FlatPack::Alert::Component"
     assert_includes application_layout, "min-h-screen"

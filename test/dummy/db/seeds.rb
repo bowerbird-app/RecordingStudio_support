@@ -15,6 +15,59 @@ SIGN_IN_BODY = <<~HTML.freeze unless defined?(SIGN_IN_BODY)
   <p>Then choose Sign in. Still stuck? Ask a teammate who already has access.</p>
 HTML
 
+PAYMENT_BODY = <<~HTML.freeze unless defined?(PAYMENT_BODY)
+  <h2>Open billing</h2>
+  <p>From your workspace, open Billing. You will see the card on file and a place to change it.</p>
+  <p><img src="/how-to-update-payment.jpg" alt="Billing settings with card on file and payment fields"></p>
+  <h2>Add or replace a card</h2>
+  <p>Choose Update payment details, then enter the new card.</p>
+  <ol>
+    <li>Name on the card</li>
+    <li>Card number</li>
+    <li>Expiry and security code</li>
+  </ol>
+  <h2>Save and confirm</h2>
+  <p>Choose Save. The next invoice uses the card you just saved.</p>
+  <blockquote>
+    <ul>
+      <li>You can keep more than one card on file in some plans</li>
+      <li>Failed charges still show under Invoices until they clear</li>
+    </ul>
+    <p>Need a receipt instead? Open Invoices and download the PDF.</p>
+  </blockquote>
+HTML
+
+INVOICE_BODY = <<~HTML.freeze unless defined?(INVOICE_BODY)
+  <h2>Find Invoices</h2>
+  <p>Open Billing, then Invoices. Paid invoices sit at the top of the list.</p>
+  <h2>Download a PDF</h2>
+  <p>Pick any paid invoice and choose Download. The PDF opens in a new tab.</p>
+  <ul>
+    <li>Date and amount</li>
+    <li>Plan name</li>
+    <li>Last four digits of the card charged</li>
+  </ul>
+HTML
+
+API_KEY_BODY = <<~HTML.freeze unless defined?(API_KEY_BODY)
+  <h2>Open developer settings</h2>
+  <p>In your workspace, open Developer settings. The API key is on that page.</p>
+  <h2>Copy the key</h2>
+  <p>Choose Copy. Treat the key like a password — do not paste it into chat or a public repo.</p>
+  <ol>
+    <li>Copy the key</li>
+    <li>Store it in your secret store</li>
+    <li>Rotate it if it leaks</li>
+  </ol>
+HTML
+
+PASSWORD_BODY = <<~HTML.freeze unless defined?(PASSWORD_BODY)
+  <h2>Open account settings</h2>
+  <p>Open your account settings and pick a new password.</p>
+  <h2>Use it next time</h2>
+  <p>Come back with the new password the next time you sign in.</p>
+HTML
+
 find_or_record_child = lambda do |recordable, root_recording, parent_recording|
   RecordingStudio::Recording.find_by(
     root_recording: root_recording,
@@ -44,7 +97,7 @@ find_or_record_support_section = lambda do |root_recording, title:|
   end
 end
 
-find_or_record_support_page = lambda do |root_recording, parent_recording, title:, body:|
+find_or_record_support_page = lambda do |root_recording, parent_recording, title:, body:, description: nil|
   existing = RecordingStudio::Recording.where(
     root_recording: root_recording,
     recordable_type: "RecordingStudioSupport::SupportPage",
@@ -56,10 +109,12 @@ find_or_record_support_page = lambda do |root_recording, parent_recording, title
       existing.move_to!(new_parent: parent_recording, actor: Current.actor)
       existing.reload
     end
-    if existing.recordable.body != body
-      root_recording.revise(existing) do |page|
-        page.title = title
-        page.body = body
+    page = existing.recordable
+    if page.body != body || page.description.to_s != description.to_s
+      root_recording.revise(existing) do |revised|
+        revised.title = title
+        revised.description = description
+        revised.body = body
       end
     end
     return existing.reload
@@ -67,6 +122,7 @@ find_or_record_support_page = lambda do |root_recording, parent_recording, title
 
   root_recording.record(RecordingStudioSupport::SupportPage, parent_recording: parent_recording) do |page|
     page.title = title
+    page.description = description
     page.body = body
   end
 end
@@ -155,31 +211,36 @@ begin
     root_recording,
     getting_started_section,
     title: "How do I sign in?",
+    description: "Use the email and password you were given.",
     body: SIGN_IN_BODY
   )
   password_page = find_or_record_support_page.call(
     root_recording,
     getting_started_section,
     title: "How do I change my password?",
-    body: "Open your account settings and pick a new password. Then use the new one next time."
+    description: "Pick a new password in account settings.",
+    body: PASSWORD_BODY
   )
   billing_page = find_or_record_support_page.call(
     root_recording,
     billing_section,
     title: "How do I update payment details?",
-    body: "Open billing and save the card you want us to use."
+    description: "Open billing and save the card you want us to use.",
+    body: PAYMENT_BODY
   )
   invoice_page = find_or_record_support_page.call(
     root_recording,
     billing_section,
     title: "Where is my invoice?",
-    body: "Open Billing, then Invoices. Download any paid invoice as a PDF."
+    description: "Open Billing, then Invoices. Download any paid invoice as a PDF.",
+    body: INVOICE_BODY
   )
   developers_page = find_or_record_support_page.call(
     root_recording,
     developers_section,
     title: "Where do I find my API key?",
-    body: "Open your developer settings. The key is on that page."
+    description: "Open your developer settings. The key is on that page.",
+    body: API_KEY_BODY
   )
 
   ensure_publish_state = lambda do |page_recording, slug:, status:, **attributes|

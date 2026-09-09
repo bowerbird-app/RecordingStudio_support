@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+## 0.9.1
+
+Public article show header (Badge → Title → description → date), optional `description` field, PageNav Home, Flatpack ContentEditor content-surface body.
+
+### Host app
+
+1. Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate`. Adds optional `description` on `recording_studio_support_pages`.
+2. Existing pages have `description` nil until an editor saves one (or you re-seed). Title stays required.
+3. Public `/help/:uuid/:slug` no longer lists Related pages. Meta description uses `description` when set, otherwise the body excerpt.
+4. Article PageNav uses secondary Home to `/help` (icon `home`, tooltip `"Home"`) instead of Close. Back still goes to the section (or `/help` with no section).
+5. If the host overrides `recording_studio/default_layout`, map `page_nav_secondary_anchor_*` into Flatpack `secondary_anchor_href` / `_icon` / `_tooltip` (same wiring as 0.8.4).
+6. Tip `blockquote` copy in article bodies uses the same text color as the rest of the article. Body lists use Flatpack `List` markers without `List::Item` interactive padding so steps stay prose-tight.
+7. Article bodies use Flatpack ContentEditor’s display surface (`flat-pack-content-editor-content` via `support_page_body_class`), not Tailwind `prose`. Public show adds `mt-8` above and `mb-8 pb-8` below the body. Do not mount ContentEditor on the public page. Hosts must load `flat_pack/content_editor` stylesheet (same pattern as Flatpack’s dummy: link it next to `flat_pack/rich_text`).
+
+### Verify
+
+```bash
+bundle exec rake test:all
+```
+
 ## 0.9.0
 
 Staff Support is an Admin surface. Public `/help` is unchanged.

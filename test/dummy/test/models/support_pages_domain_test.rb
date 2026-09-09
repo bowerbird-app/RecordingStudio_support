@@ -25,14 +25,17 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
     recording = RecordingStudioSupport::Pages.create!(
       parent_recording: @section_recording,
       title: "Office hours",
+      description: "When the desk is open.",
       body: "Tuesday mornings.",
       actor: @user
     )
     original_id = recording.recordable_id
+    assert_equal "When the desk is open.", recording.recordable.description
 
     RecordingStudioSupport::Pages.revise!(
       recording: recording,
       title: "Office hours",
+      description: "Wednesday desk hours.",
       body: "Wednesday mornings.",
       actor: @user
     )
@@ -40,6 +43,7 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
     recording.reload
     assert_not_equal original_id, recording.recordable_id
     assert_equal "Wednesday mornings.", recording.recordable.body
+    assert_equal "Wednesday desk hours.", recording.recordable.description
     assert_equal @section_recording, recording.parent_recording
   end
 

@@ -4,12 +4,12 @@ module RecordingStudioSupport
   module ApplicationHelper
     include RecordingStudioSupport::PublicSectionHelper
     include RecordingStudioSupport::ListHelper
+    include RecordingStudioSupport::BodyHelper
 
-    def support_page_body_html(body)
-      Body.sanitize(body).html_safe
-    end
+    def support_page_meta_description(body, description: nil)
+      summary = description.to_s.strip.presence
+      return summary if summary.present?
 
-    def support_page_meta_description(body)
       Body.meta_description(body)
     end
 

@@ -44,7 +44,7 @@
   <% end %>
 
   <% if @page.body.present? %>
-    <div class="prose max-w-none text-(--surface-content-color)">
+    <div class="<%= support_page_body_class %>">
       <%= support_page_body_html(@page.body) %>
     </div>
   <% else %>
