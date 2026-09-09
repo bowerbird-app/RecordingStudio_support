@@ -190,10 +190,15 @@ class PagesTest < Minitest::Test
     assert_includes body_helper, "FlatPack::List::Component"
     assert_includes body_helper, "FlatPack::List::Item"
     assert_includes body_helper, 'ordered: node.name == "ol"'
+    assert_includes body_helper, "spacing: :dense"
+    assert_includes body_helper, "ARTICLE_LIST_ITEM_CLASS"
+    assert_includes body_helper, "py-0 px-0"
     assert_includes body_helper, "blockquote"
-    assert_includes body_helper, "surface-muted-content-color"
-    assert_includes body_helper, "opacity-75"
+    assert_includes body_helper, 'class: "not-prose"'
+    refute_includes body_helper, "surface-muted-content-color"
+    refute_includes body_helper, "opacity-75"
   end
+
 
   def test_page_form_uses_rich_text_uploads
     form = File.read(File.expand_path("../app/views/recording_studio_support/pages/_form.html.erb", __dir__))

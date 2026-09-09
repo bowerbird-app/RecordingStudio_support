@@ -2,9 +2,9 @@
 
 module RecordingStudioSupport
   module BodyHelper
-    # Secondary tip blocks: muted token + stock opacity so Flatpack List item
-    # content-color still reads quieter than the main steps.
-    MUTED_BODY_CLASS = "not-prose text-[var(--surface-muted-content-color)] opacity-75"
+    # Flatpack List::Item defaults to interactive padding (py-3 px-4). Article
+    # body lists need prose-tight rows, so strip that padding on each item.
+    ARTICLE_LIST_ITEM_CLASS = "py-0 px-0"
 
     def support_page_body_html(body)
       fragment = Body.loofah_fragment(Body.sanitize(body))
@@ -22,8 +22,10 @@ module RecordingStudioSupport
       node.to_html.html_safe
     end
 
+    # TipTap tips stay in blockquote so nested lists still go through Flatpack
+    # List. Color matches surrounding prose (surface content), not muted tokens.
     def support_body_blockquote(node)
-      content_tag(:div, class: MUTED_BODY_CLASS) do
+      content_tag(:div, class: "not-prose") do
         safe_join(node.children.filter_map { |child| support_body_node(child) })
       end
     end
@@ -36,7 +38,9 @@ module RecordingStudioSupport
     end
 
     def support_body_list_item(item)
-      render(FlatPack::List::Item.new) { Body.sanitize(item.inner_html).html_safe }
+      render(FlatPack::List::Item.new(class: ARTICLE_LIST_ITEM_CLASS)) do
+        Body.sanitize(item.inner_html).html_safe
+      end
     end
   end
 end

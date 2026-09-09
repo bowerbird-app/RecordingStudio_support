@@ -21,14 +21,15 @@ Public help articles use a Badge → Title → description → date header, drop
 - Meta description prefers `description` when present, otherwise the body plain-text excerpt (`Body.meta_description`)
 - Article date uses the same fallback as section cards (`publish_at` → recording `updated_at` → `created_at`)
 - Dummy default layout wires PageNav `secondary_anchor_*` (Home) for Flatpack
-- Article body pipeline renders TipTap `ol`/`ul` as Flatpack `List` (ordered steps keep markers); `blockquote` tips use muted theme tokens
+- Article body pipeline renders TipTap `ol`/`ul` as Flatpack `List` (ordered steps keep markers, dense spacing, zero item padding for prose-tight rows); `blockquote` tips keep Flatpack list conversion and match article body text color
 - Public article header uses stock Timestamp fallback for a calendar day (`Updated …`), a larger section Badge (`size: :lg`) wrapped in `w-fit` so it stays an inline chip, tighter Badge → Title → date spacing, a `-mb-6` wrap so PageTitle’s stock bottom margin does not open a wireframe gap before the date, and `mt-8` before the article body
-- Dummy payment article seed uses a billing UI screenshot (`how-to-update-payment.jpg`) instead of a keyboard photo; tip copy sits in a muted blockquote
+- Dummy payment article seed uses a billing UI screenshot (`how-to-update-payment.jpg`) instead of a keyboard photo; tip copy sits in a blockquote with body-matching color
 
 ### Upgrade notes
 - Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` for the `description` column
 - Existing pages keep `description` nil until edited or re-seeded
 - Hosts that override `recording_studio/default_layout` can pass `secondary_anchor_url` / `secondary_anchor_href` for Home; otherwise retarget the primary Close control
+- Public article body tip `blockquote` blocks now use the same text color as the rest of the article (no muted/opacity treatment). List items in article bodies drop Flatpack’s interactive padding so steps sit tighter
 
 ## [0.8.1] - 2026-09-08
 
