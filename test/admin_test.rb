@@ -95,9 +95,10 @@ class AdminTest < Minitest::Test
   def test_queries_build_authenticated_page_paths
     recording = Struct.new(:id).new("page-123")
 
-    assert_equal "/support/page-123", RecordingStudioSupport::Admin::Queries.page_path(recording)
-    assert_equal "/support/page-123/edit", RecordingStudioSupport::Admin::Queries.edit_page_path(recording)
-    assert_equal "/support/new", RecordingStudioSupport::Admin::Queries.new_page_path
+    assert_equal "/admin/support/page-123", RecordingStudioSupport::Admin::Queries.page_path(recording)
+    assert_equal "/admin/support/page-123/edit", RecordingStudioSupport::Admin::Queries.edit_page_path(recording)
+    assert_equal "/admin/support/new", RecordingStudioSupport::Admin::Queries.new_page_path
+    assert_equal "/admin", RecordingStudioSupport::Admin::Queries.admin_hub_path
     assert_equal "/admin/screens/support_pages", RecordingStudioSupport::Admin::Queries.admin_pages_screen_path
     assert_equal "/admin/screens/support_sections", RecordingStudioSupport::Admin::Queries.admin_sections_screen_path
   end

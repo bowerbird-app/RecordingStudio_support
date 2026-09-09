@@ -35,6 +35,8 @@ class InstallGeneratorTest < Minitest::Test
     end
 
     assert_includes routes, "mount RecordingStudioSupport::Engine, at: \"/addons/recording\""
+    assert_includes routes, 'get "/support", to: redirect("/admin")'
+    assert_includes routes, 'get "/support/*legacy_support_path", to: redirect("/admin")'
     assert_includes routes, "mount RecordingStudioPublishable::Engine, at: \"/\""
     assert_includes routes, 'mount RecordingStudioMoveable::Engine, at: "/recording_studio_moveable"'
     assert_includes routes, public_help_route
@@ -49,7 +51,9 @@ class InstallGeneratorTest < Minitest::Test
       generator.mount_engine
     end
 
-    assert_includes routes, "mount RecordingStudioSupport::Engine, at: \"/support\""
+    assert_includes routes, "mount RecordingStudioSupport::Engine, at: \"/admin/support\""
+    assert_includes routes, 'get "/support", to: redirect("/admin")'
+    assert_includes routes, 'get "/support/*legacy_support_path", to: redirect("/admin")'
     assert_includes routes, "mount RecordingStudioPublishable::Engine, at: \"/\""
     assert_includes routes, 'mount RecordingStudioMoveable::Engine, at: "/recording_studio_moveable"'
     assert_includes routes, public_help_route
@@ -182,7 +186,7 @@ class InstallGeneratorTest < Minitest::Test
     assert_includes install_guide, "bin/rails generate recording_studio_trashable:migrations"
     assert_includes install_guide, "bin/rails generate recording_studio_orderable:migrations"
     assert_includes install_guide, "bin/rails db:migrate"
-    assert_includes install_guide, "Authenticated Support screens"
+    assert_includes install_guide, "Staff Support forms"
     assert_includes install_guide, "section :support"
     assert_includes install_guide, "recording_studio_admin_for"
     assert_includes install_guide, "help_title"

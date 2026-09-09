@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 RecordingStudioSupport.configure do |config|
-  config.pages_path = "/support"
+  config.pages_path = "<%= options[:mount_path] %>"
   config.public_pages_path = "/help"
   config.help_title = "Help"
   config.help_subtitle = "Find an answer."

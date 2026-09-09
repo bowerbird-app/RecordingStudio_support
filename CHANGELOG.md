@@ -7,6 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.0] - 2026-09-09
+
+Staff Support moves under Admin. Public help stays on `/help`.
+
+### Added
+- Staff engine mount default `/admin/support` with `pages_path` matching that prefix
+- Host redirect from `/support` (and nested bookmarks) to `/admin`
+- Staff engine authorize uses the Admin access recording only (same bar as Admin)
+
+### Changed
+- Admin Support tables are the staff hub. Engine root `/admin/support` redirects to `/admin`
+- Write, preview, Publish, trash, and TipTap uploads live under `/admin/support…`
+- Workspace `:edit` no longer opens staff Support. Grant Accessible on the admin root
+- `/admin/support` is never anonymous. Public browse is `/help` only
+- Dummy mounts Support before Admin so `/admin/support` is not swallowed by `/admin`
+
+### Upgrade notes
+- Remount `RecordingStudioSupport::Engine` at `/admin/support` **before** `recording_studio_admin_for … at: "/admin"`
+- Set `RecordingStudioSupport.configure { |c| c.pages_path = "/admin/support" }`
+- Redirect `/support` to `/admin` (or drop the old mount)
+- Switch to the admin root, then open `/admin`. Grant Accessible on AdminRoot
+- Workspace editors without AdminRoot access lose the old `/support` write path. Public `/help` is unchanged
+
 ## [0.8.4] - 2026-09-09
 
 Public help section show drops breadcrumb, adds PageNav Home, and uses interactive article cards.
@@ -416,7 +439,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.4...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.0...HEAD
+[0.9.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.4...v0.9.0
 [0.8.4]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.3...v0.8.4
 [0.8.3]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.2...v0.8.3
 [0.8.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.1...v0.8.2

@@ -5,7 +5,7 @@ module RecordingStudioSupport
     DEFAULTS = {
       enable_feature_x: false,
       timeout: 5,
-      pages_path: "/support",
+      pages_path: "/admin/support",
       public_pages_path: "/help",
       help_title: "Help",
       help_subtitle: "Find an answer.",

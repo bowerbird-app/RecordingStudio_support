@@ -43,7 +43,7 @@ class ApplicationHelperTest < Minitest::Test
     assert_includes source, "@publishable&.publish_at"
   end
 
-  def test_sections_controller_skips_auth_for_public_browse
+  def test_sections_controller_requires_admin_for_staff_browse
     source = File.read(
       File.expand_path("../app/controllers/recording_studio_support/sections_controller.rb", __dir__)
     )
@@ -51,19 +51,18 @@ class ApplicationHelperTest < Minitest::Test
       File.expand_path("../app/views/recording_studio_support/sections/index.html.erb", __dir__)
     )
 
-    assert_includes source, "skip_before_action :authenticate_user!, only: %i[index show]"
-    assert_includes source, "before_action :require_support_root!, except: %i[index show]"
-    assert_includes source, "support_section_index_recordings"
-    assert_includes source, "Sections.public_index"
-    refute_includes source, "authorize_support!(:view)"
+    refute_includes source, "skip_before_action :authenticate_user!"
+    assert_includes source, "authorize_support!(:view)"
+    assert_includes source, "redirect_to RecordingStudioSupport::Admin::Queries.admin_hub_path"
+    refute_includes source, "Sections.public_index"
+    refute_includes source, "support_section_index_recordings"
     assert_includes index, "can_edit_support_pages?"
-    assert_includes index, "Nothing live yet"
 
     set_idx = source.index("before_action :set_section_recording")
     auth_idx = source.index("authorize_support!(:edit)")
     assert set_idx, "sections load before authorize"
     assert auth_idx, "sections authorize edit"
-    assert set_idx < auth_idx, "section ownership root must load before authorize"
+    assert set_idx < auth_idx, "section must load before authorize"
   end
 
   def test_pages_controller_loads_ownership_root_before_authorize
@@ -82,8 +81,9 @@ class ApplicationHelperTest < Minitest::Test
     assert set_idx < view_idx
     assert set_idx < edit_idx
     assert parent_idx < edit_idx
-    assert_includes application, "content_root_for_authorization"
     assert_includes application, "admin_access_recording"
+    refute_includes application, "content_root_for_authorization"
+    refute_includes application, "recordings_for_support_authorization"
   end
 
   def test_support_recording_title_reads_the_page_title

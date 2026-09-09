@@ -48,6 +48,10 @@ module RecordingStudioSupport
         Sections.apply_query(relation, value)
       end
 
+      def admin_hub_path
+        "/admin"
+      end
+
       def admin_pages_screen_path
         "/admin/screens/support_pages"
       end

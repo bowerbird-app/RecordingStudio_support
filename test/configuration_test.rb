@@ -56,7 +56,7 @@ class ConfigurationTest < Minitest::Test
     assert_equal "env-token", configuration.api_key
     assert_equal false, configuration.enable_feature_x
     assert_equal 5, configuration.timeout
-    assert_equal "/support", configuration.pages_path
+    assert_equal "/admin/support", configuration.pages_path
     assert_equal "/help", configuration.public_pages_path
     assert_equal "Help", configuration.help_title
     assert_equal "Find an answer.", configuration.help_subtitle

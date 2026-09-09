@@ -36,22 +36,7 @@ module RecordingStudioSupport
     end
 
     def deny_support_access!
-      if support_edit_action? && support_show_path_for_denial
-        redirect_to support_show_path_for_denial
-      else
-        render "recording_studio_support/shared/forbidden", status: :forbidden
-      end
-    end
-
-    def support_edit_action?
-      action_name.in?(%w[edit update])
-    end
-
-    def support_show_path_for_denial
-      return page_path(@page_recording) if @page_recording
-      return section_path(@section_recording) if @section_recording
-
-      nil
+      render "recording_studio_support/shared/forbidden", status: :forbidden
     end
 
     def can_edit_support_pages?
@@ -60,32 +45,14 @@ module RecordingStudioSupport
 
     def support_access_allowed?(role)
       actor = current_support_actor
-      return false if actor.blank?
+      recording = admin_access_recording
+      return false if actor.blank? || recording.blank?
 
-      recordings_for_support_authorization.any? do |recording|
-        RecordingStudioAccessible.authorized?(
-          actor: actor,
-          recording: recording,
-          role: role
-        )
-      end
-    end
-
-    # Ownership is the workspace root of the page/section (or the parent
-    # section when creating). AdminRoot grants still open staff tools.
-    # Do not fall back to the switched current root once a content root is known —
-    # that would let an editor of workspace A mutate content under workspace B.
-    def recordings_for_support_authorization
-      content_root = content_root_for_authorization
-      if content_root
-        [content_root, admin_access_recording].compact.uniq
-      else
-        [current_support_root_recording, admin_access_recording].compact.uniq
-      end
-    end
-
-    def content_root_for_authorization
-      @page_recording&.root_recording || @section_recording&.root_recording
+      RecordingStudioAccessible.authorized?(
+        actor: actor,
+        recording: recording,
+        role: role
+      )
     end
 
     def admin_access_recording
