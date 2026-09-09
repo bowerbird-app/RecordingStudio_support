@@ -2,6 +2,11 @@
 
 module RecordingStudioSupport
   module BodyHelper
+    # Flatpack ContentEditor’s content region is the kit’s long-form TipTap
+    # display surface (heading scale, paragraph rhythm, image rules). Public
+    # and staff article bodies reuse that class; they do not mount the editor.
+    ARTICLE_BODY_CLASS = "flat-pack-content-editor-content max-w-none"
+
     # Flatpack List::Item always applies interactive py-3 px-4 after system
     # classes, so TailwindMerge keeps that padding. Article body rows use the
     # same marker structure without Item’s hit-target padding.
@@ -10,6 +15,10 @@ module RecordingStudioSupport
     def support_page_body_html(body)
       fragment = Body.loofah_fragment(Body.sanitize(body))
       safe_join(fragment.children.filter_map { |node| support_body_node(node) })
+    end
+
+    def support_page_body_class(extra = nil)
+      [ARTICLE_BODY_CLASS, extra].compact.join(" ")
     end
 
     private

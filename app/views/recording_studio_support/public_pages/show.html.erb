@@ -42,7 +42,7 @@
   </div>
 
   <% if @page.body.present? %>
-    <div class="mt-8 prose max-w-none text-(--surface-content-color)">
+    <div class="<%= support_page_body_class("mt-8") %>">
       <%= support_page_body_html(@page.body) %>
     </div>
   <% end %>

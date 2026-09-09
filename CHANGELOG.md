@@ -21,13 +21,15 @@ Public help articles use a Badge → Title → description → date header, drop
 - Meta description prefers `description` when present, otherwise the body plain-text excerpt (`Body.meta_description`)
 - Article date uses the same fallback as section cards (`publish_at` → recording `updated_at` → `created_at`)
 - Article body pipeline renders TipTap `ol`/`ul` as Flatpack `List` (ordered steps keep markers, dense spacing; items omit List::Item padding so rows stay prose-tight); `blockquote` tips keep Flatpack list conversion and match article body text color
-- Public article header uses stock Timestamp fallback for a calendar day (`Updated …`), a larger section Badge (`size: :lg`) wrapped in `w-fit` so it stays an inline chip, tighter Badge → Title → date spacing, a `-mb-6` wrap so PageTitle’s stock bottom margin does not open a wireframe gap before the date, and `mt-8` before the article body
+- Public article header uses stock Timestamp fallback for a calendar day (`Updated …`), a larger section Badge (`size: :lg`) wrapped in `w-fit` so it stays an inline chip, tighter Badge → Title → date spacing, a `-mb-6` wrap so PageTitle’s stock bottom margin does not open a wireframe gap before the date, and Flatpack ContentEditor content-surface classes (`flat-pack-content-editor-content`) for the article body with `mt-8` before it
 - Dummy payment article seed uses a billing UI screenshot (`how-to-update-payment.jpg`) instead of a keyboard photo; tip copy sits in a blockquote with body-matching color
 
 ### Upgrade notes
 - Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` for the `description` column
 - Existing pages keep `description` nil until edited or re-seeded
 - Public article body tip `blockquote` blocks use the same text color as the rest of the article (no muted/opacity treatment). Article body lists use Flatpack `List` markers without `List::Item` padding so steps sit tighter
+- Hosts that overrode public or staff article show body wrappers should drop Tailwind `prose` and use `support_page_body_class` (Flatpack `flat-pack-content-editor-content`) so TipTap display typography matches ContentEditor
+- Load `stylesheet_link_tag "flat_pack/content_editor"` beside `flat_pack/rich_text` so the content-surface styles apply (Propshaft does not expand the `@import` inside `flat_pack/application`)
 
 ## [0.9.0] - 2026-09-09
 
@@ -180,7 +182,7 @@ Staff Help hub can add pages and sections. Public section URLs use readable slug
 - Host public section route param is `:slug` (install generator updated)
 - Section count and Published badges use Flatpack Badge `size: :xs`
 - Dummy layouts declare `@layer theme, base, components, utilities` before Flatpack CSS so TipTap borders survive Tailwind preflight
-- Public article body uses Flatpack PageTitle plus long-form `prose` content (same idea as Flatpack’s text/content demo; no Content component)
+- Public article body uses Flatpack PageTitle plus Flatpack ContentEditor content-surface classes for long-form TipTap display (no separate Content component)
 - Help/support search uses Flatpack Search with a white (`--color-white`) field so it reads as enabled, not muted
 
 ### Upgrade notes

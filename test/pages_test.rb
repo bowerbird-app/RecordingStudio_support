@@ -191,7 +191,7 @@ class PagesTest < Minitest::Test
     assert_includes show, "timestamp: nil"
     assert_includes show, "support_page_updated_on"
     assert_includes show, "@page.description"
-    assert_includes show, 'class="mt-8 prose max-w-none'
+    assert_includes show, "support_page_body_class"
     assert_includes show, "support_page_body_html"
     assert_includes show, "recording_studio_seo_description"
     assert_includes show, "support_page_meta_description"
@@ -215,6 +215,9 @@ class PagesTest < Minitest::Test
     refute_includes show, "support_visible_images"
     refute_includes show, "FlatPack::Card::Component"
 
+    assert_includes body_helper, "ARTICLE_BODY_CLASS"
+    assert_includes body_helper, "flat-pack-content-editor-content"
+    assert_includes body_helper, "support_page_body_class"
     assert_includes body_helper, "FlatPack::List::Component"
     assert_includes body_helper, "flat-pack-list-item-marker"
     assert_includes body_helper, 'ordered: node.name == "ol"'
@@ -225,6 +228,7 @@ class PagesTest < Minitest::Test
     assert_includes body_helper, 'class: "not-prose"'
     refute_includes body_helper, "surface-muted-content-color"
     refute_includes body_helper, "opacity-75"
+    refute_includes body_helper, "prose max-w-none"
   end
 
   def test_page_form_uses_rich_text_uploads

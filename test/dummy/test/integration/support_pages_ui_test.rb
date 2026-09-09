@@ -352,7 +352,8 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h1", text: "How do I update payment details?"
-    assert_includes response.body, 'class="mt-8 prose max-w-none'
+    assert_includes response.body, "flat-pack-content-editor-content"
+    assert_includes response.body, "mt-8"
     assert_includes response.body, 'class="w-fit"'
     assert_match(/\bUpdated [A-Z][a-z]+ \d{1,2}, \d{4}\b/, response.body)
     refute_match(/\bago\b/, response.body)
