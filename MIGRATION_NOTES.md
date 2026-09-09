@@ -13,7 +13,7 @@ Public article show header (Badge → Title → description → date), optional 
 3. Public `/help/:uuid/:slug` no longer lists Related pages. Meta description uses `description` when set, otherwise the body excerpt.
 4. Article PageNav uses secondary Home to `/help` (icon `home`, tooltip `"Home"`) instead of Close. Back still goes to the section (or `/help` with no section).
 5. If the host overrides `recording_studio/default_layout`, map `page_nav_secondary_anchor_*` into Flatpack `secondary_anchor_href` / `_icon` / `_tooltip` (same wiring as 0.8.4).
-6. Tip `blockquote` copy in article bodies uses the same text color as the rest of the article. Body list items drop Flatpack’s interactive padding for prose-tight spacing.
+6. Tip `blockquote` copy in article bodies uses the same text color as the rest of the article. Body lists use Flatpack `List` markers without `List::Item` interactive padding so steps stay prose-tight.
 
 ### Verify
 

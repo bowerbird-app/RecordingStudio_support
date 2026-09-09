@@ -2,9 +2,10 @@
 
 module RecordingStudioSupport
   module BodyHelper
-    # Flatpack List::Item defaults to interactive padding (py-3 px-4). Article
-    # body lists need prose-tight rows, so strip that padding on each item.
-    ARTICLE_LIST_ITEM_CLASS = "py-0 px-0"
+    # Flatpack List::Item always applies interactive py-3 px-4 after system
+    # classes, so TailwindMerge keeps that padding. Article body rows use the
+    # same marker structure without Item’s hit-target padding.
+    ARTICLE_LIST_ITEM_CLASS = "flex items-start text-[var(--surface-content-color)]"
 
     def support_page_body_html(body)
       fragment = Body.loofah_fragment(Body.sanitize(body))
@@ -38,8 +39,11 @@ module RecordingStudioSupport
     end
 
     def support_body_list_item(item)
-      render(FlatPack::List::Item.new(class: ARTICLE_LIST_ITEM_CLASS)) do
-        Body.sanitize(item.inner_html).html_safe
+      content_tag(:li, class: ARTICLE_LIST_ITEM_CLASS, role: "listitem") do
+        safe_join([
+          content_tag(:span, "", class: "flat-pack-list-item-marker", aria: {hidden: true}),
+          content_tag(:div, Body.sanitize(item.inner_html).html_safe, class: "min-w-0 flex-1")
+        ])
       end
     end
   end

@@ -166,7 +166,8 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "ol.flat-pack-list li", text: /Name on the card/
     assert_select "ol.flat-pack-list li", text: /Card number/
     assert_select "ol.flat-pack-list li", text: /Expiry and security code/
-    assert_includes response.body, "py-0 px-0"
+    assert_select "ol.flat-pack-list li[class*='py-3']", count: 0
+    assert_select "ol.flat-pack-list li[class*='px-4']", count: 0
     assert_includes response.body, "You can keep more than one card on file in some plans"
     assert_includes response.body, "Need a receipt instead?"
     refute_match(/opacity-75[^>]*>You can keep more than one card/, response.body)
