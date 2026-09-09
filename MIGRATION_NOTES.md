@@ -2,6 +2,25 @@
 
 ## Unreleased
 
+## 0.9.0
+
+Staff Support is an Admin surface. Public `/help` is unchanged.
+
+### Host app
+
+1. Remount the Support engine at `/admin/support` **before** `recording_studio_admin_for … at: "/admin"`. Keep Accessible at `/admin/access`.
+2. Set `config.pages_path = "/admin/support"` so Admin New/Edit/Move URLs match.
+3. Redirect `/support` and `/support/*` to `/admin` (or remove the old mount).
+4. Grant Accessible on the **admin root**. Switch to that root before opening `/admin`. Workspace `:edit` is not enough for staff forms.
+5. Open staff work from Admin Support tables. Preview, Publish, trash, and the body editor stay on `/admin/support…`.
+6. Public `/help` stays the visitor surface. Do not browse staff content anonymously.
+
+### Verify
+
+```bash
+bundle exec rake test:all
+```
+
 ## 0.8.1
 
 Public help section show uses snippet cards and an optional host contact slot.

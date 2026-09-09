@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.8.1", ::RecordingStudioSupport::VERSION
+    assert_equal "0.9.0", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -268,7 +268,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "Help section"
     assert_includes readme, "Moveable"
     assert_includes readme, "tag: \"v2.0.2\""
-    assert_includes readme, "/support"
+    assert_includes readme, "/admin/support"
     assert_includes readme, "help_title"
     assert_includes readme, "flat-pack--tiptap"
     assert_includes readme, "section :support"
@@ -363,7 +363,8 @@ class RecordingStudioSupportTest < Minitest::Test
   def test_dummy_mounts_support_and_admin
     routes = File.read(File.expand_path("dummy/config/routes.rb", __dir__))
 
-    assert_includes routes, 'mount RecordingStudioSupport::Engine, at: "/support"'
+    assert_includes routes, 'mount RecordingStudioSupport::Engine, at: "/admin/support"'
+    assert_includes routes, 'get "/support", to: redirect("/admin")'
     assert_includes routes, "recording_studio_admin_for :admin, at: \"/admin\", root_section: :support"
     assert_includes routes, 'mount RecordingStudioAccessible::Engine, at: "/admin/access"'
     assert_includes routes, 'mount RecordingStudioPublishable::Engine, at: "/"'

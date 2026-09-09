@@ -153,7 +153,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     sign_in @user
     recording = seeded_page("How do I change my password?")
 
-    get "/support/#{recording.id}"
+    get "/admin/support/#{recording.id}"
 
     assert_response :success
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
@@ -273,30 +273,27 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/help/sections/getting-started"
   end
 
-  test "logged out visitors can read support sections without CRUD" do
-    get "/support"
+  test "logged out visitors cannot preview staff pages" do
+    recording = seeded_page("How do I change my password?")
 
-    assert_response :success
-    assert_includes response.body, "Getting started"
-    assert_includes response.body, "Billing"
-    assert_includes response.body, "Developers"
-    refute_includes response.body, "New page"
-    refute_includes response.body, "New section"
-    refute_includes response.body, "Sign out"
-    refute_includes response.body, 'href="/users/sign_in"'
+    get "/admin/support/#{recording.id}"
 
-    section = seeded_section("Billing")
-    get "/support/sections/#{section.id}"
-
-    assert_response :success
-    assert_includes response.body, "Billing"
-    refute_includes response.body, "New page"
-    refute_includes response.body, "Published"
-    refute_includes response.body, "How do I change my password?"
+    assert_response :redirect
+    assert_match "/users/sign_in", response.redirect_url
   end
 
-  test "logged out visitors are asked to sign in for support write screens" do
-    get "/support/new"
+  test "logged out visitors are sent from old support bookmarks to admin" do
+    get "/support"
+
+    assert_redirected_to "/admin"
+
+    get "/support/sections/#{seeded_section('Billing').id}"
+
+    assert_redirected_to "/admin"
+  end
+
+  test "logged out visitors are asked to sign in for staff support" do
+    get "/admin/support/new"
 
     assert_response :redirect
     assert_match "/users/sign_in", response.redirect_url

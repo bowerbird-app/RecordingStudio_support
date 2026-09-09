@@ -64,10 +64,10 @@ class PagesTest < Minitest::Test
       refute_includes show, "support_page_count_badge"
     end
     refute_includes public_show, "support_published_badge"
-    assert_includes staff_show, "support_published_badge"
+    refute_includes staff_show, "support_published_badge"
     assert_includes staff_show, "support_page_status_badge"
     assert_includes staff_show, "can_edit_support_pages?"
-    assert_includes staff_show, "current_support_actor.present?"
+    refute_includes staff_show, "current_support_actor.present?"
 
     [staff_index, public_index, staff_show].each do |view|
       assert_includes view, 'render "recording_studio_support/shared/link_list"'

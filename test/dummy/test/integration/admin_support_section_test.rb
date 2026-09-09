@@ -42,7 +42,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_flatpack_rounded_theme
     assert_includes response.body, "Support pages"
     assert_includes response.body, "New page"
-    assert_includes response.body, "/support/new"
+    assert_includes response.body, "/admin/support/new"
     assert_includes response.body, 'name="search"'
     assert_includes response.body, 'name="status"'
     assert_includes response.body, 'name="section"'
@@ -123,7 +123,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Support sections"
     assert_includes response.body, "New section"
-    assert_includes response.body, "/support/sections/new"
+    assert_includes response.body, "/admin/support/sections/new"
 
     get "/admin/screens/support_sections/table"
 
@@ -154,9 +154,9 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     get "/admin/screens/support_pages/table"
 
     assert_response :success
-    assert_includes response.body, "/support/#{recording.id}/edit"
+    assert_includes response.body, "/admin/support/#{recording.id}/edit"
 
-    get "/support/#{recording.id}/edit"
+    get "/admin/support/#{recording.id}/edit"
 
     assert_response :success
     assert_includes response.body, "Edit page"
@@ -171,7 +171,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
   test "section edit is reachable from the admin sections table" do
     section = seeded_section("Getting started")
 
-    get "/support/sections/#{section.id}/edit"
+    get "/admin/support/sections/#{section.id}/edit"
 
     assert_response :success
     assert_includes response.body, "Edit section"
@@ -209,7 +209,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     switch_to_admin_root!
 
     recording = seeded_page("How do I change my password?")
-    get "/support/#{recording.id}/edit"
+    get "/admin/support/#{recording.id}/edit"
 
     assert_response :success
     assert_includes response.body, "Edit page"

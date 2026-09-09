@@ -12,12 +12,14 @@ module RecordingStudioSupport
       class_option(
         :mount_path,
         type: :string,
-        default: "/support",
-        desc: "Route prefix used when mounting the authenticated Support screens"
+        default: "/admin/support",
+        desc: "Route prefix used when mounting the staff Support screens"
       )
 
       def mount_engine
         route %(mount RecordingStudioSupport::Engine, at: "#{options[:mount_path]}")
+        route %(get "/support", to: redirect("/admin"))
+        route %(get "/support/*legacy_support_path", to: redirect("/admin"))
         route %(mount RecordingStudioPublishable::Engine, at: "/")
         route %(mount RecordingStudioMoveable::Engine, at: "/recording_studio_moveable")
         route %(get "/help", to: RecordingStudioSupport::PublicPagesController.action(:index), as: :public_help)
