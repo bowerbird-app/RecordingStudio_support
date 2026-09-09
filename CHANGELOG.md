@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.3] - 2026-09-09
+
+Public `/help` section cards use a white background.
+
+### Changed
+- Public `/help` section Cards set Flatpack `theme: { background: "#ffffff" }` (still `style: :interactive`, `hover: :strong`)
+
+### Upgrade notes
+- No migrations or route changes
+- If you overrode `public_pages/index`, pass the white Card `theme` (or keep your override intentionally)
+
 ## [0.8.2] - 2026-09-09
 
 Public `/help` home is a welcoming entry: new title, larger search, interactive section cards.
@@ -14,7 +25,7 @@ Public `/help` home is a welcoming entry: new title, larger search, interactive 
 ### Changed
 - Default `public_help_title` is **Hi, how can we help?** (install template and dummy initializer match)
 - Public `/help` PageTitle drops the subtitle (config `public_help_subtitle` stays for hosts who still want it elsewhere)
-- Public `/help` sections are interactive clickable Flatpack Cards in a Grid (`gap: :lg`, `style: :interactive`, `hover: :strong`, body `padding: :lg`, white `theme: { background: "#ffffff" }`) with a plain **N article(s)** line — no Badge, no shared `link_list` / `square_rows`
+- Public `/help` sections are interactive clickable Flatpack Cards in a Grid (`gap: :lg`, `style: :interactive`, `hover: :strong`, body `padding: :lg`) with a plain **N article(s)** line — no Badge, no shared `link_list` / `square_rows`
 - Public `/help` Search uses Flatpack Search `size: :lg` (requires Flatpack `0.1.175+`); section and staff search stay the default `:md`
 - Dummy / Gemfile pin Flatpack to `v0.1.177`
 - Staff `/support` list + count Badge markup is unchanged
@@ -387,7 +398,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.2...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.3...HEAD
+[0.8.3]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.2...v0.8.3
 [0.8.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.1...v0.8.2
 [0.8.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.0...v0.8.1
 [0.8.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.7.4...v0.8.0
