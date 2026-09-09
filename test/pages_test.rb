@@ -265,11 +265,23 @@ class PagesTest < Minitest::Test
     assert_includes form, 'name: "section[icon]"'
     assert_includes form, 'label: "Icon"'
     assert_includes form, "heroicons.com"
+    assert_includes form, "recording-studio-support--section-icon-preview"
+    assert_includes form, "FlatPack::Shared::IconComponent"
     assert_includes controller, "permit(:title, :icon)"
     assert_includes controller, "icon: section_params[:icon]"
     assert_includes sections, "icon: nil"
     assert_includes model, "ICON_FORMAT"
     assert_includes model, "normalize_icon"
+
+    preview = File.read(
+      File.expand_path(
+        "../app/javascript/recording_studio_support/controllers/section_icon_preview_controller.js",
+        __dir__
+      )
+    )
+    assert_includes preview, "nameValue"
+    assert_includes preview, "normalize"
+    assert_includes preview, "getControllerForElementAndIdentifier"
   end
 
   def test_page_view_model_is_a_log_table

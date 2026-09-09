@@ -35,3 +35,9 @@ pin_all_from RecordingStudioAttachable::Engine.root.join("app/javascript/control
   to: "controllers/recording_studio_attachable"
 pin "recording_studio_attachable/tiptap/attachment_image_addon",
   to: "recording_studio_attachable/tiptap/attachment_image_addon.js"
+
+if defined?(RecordingStudioSupport::Engine)
+  pin_all_from RecordingStudioSupport::Engine.root.join("app/javascript/recording_studio_support/controllers"),
+               under: "controllers/recording_studio_support",
+               to: "recording_studio_support/controllers"
+end
