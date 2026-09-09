@@ -12,16 +12,16 @@
         size: :lg %>
 
   <% if @section_recordings.any? %>
-    <%= render FlatPack::Grid::Component.new(cols: 1, gap: :md) do %>
+    <%= render FlatPack::Grid::Component.new(cols: 1, gap: :lg) do %>
       <% @section_recordings.each do |recording| %>
         <%= render FlatPack::Card::Component.new(
           style: :elevated,
           clickable: true,
           href: support_public_section_path(recording),
           hover: :strong,
-          padding: :md
+          padding: :lg
         ) do |card| %>
-          <% card.header(divider: false) do %>
+          <% card.body(padding: :lg) do %>
             <h3 class="text-base font-semibold text-[var(--surface-content-color)]"><%= support_recording_title(recording) %></h3>
             <p class="mt-1 text-sm text-[var(--surface-muted-content-color)]"><%= support_article_count_label(@page_counts.fetch(recording.id, 0)) %></p>
           <% end %>

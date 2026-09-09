@@ -41,6 +41,8 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "shadow-md"
     assert_includes response.body, "fp-card-hover-strong"
     assert_includes response.body, "grid-cols-1"
+    assert_includes response.body, "gap-6"
+    assert_includes response.body, "card-padding-lg"
     assert_select "ul[role='list']", count: 0
     refute_includes response.body, "chevron-right"
     refute_includes response.body, "badge-default-background-color"

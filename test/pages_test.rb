@@ -88,8 +88,10 @@ class PagesTest < Minitest::Test
     assert_includes public_index, "style: :elevated"
     assert_includes public_index, "clickable: true"
     assert_includes public_index, "hover: :strong"
-    assert_includes public_index, "padding: :md"
-    assert_includes public_index, "divider: false"
+    assert_includes public_index, "padding: :lg"
+    assert_includes public_index, "gap: :lg"
+    assert_includes public_index, "card.body(padding: :lg)"
+    refute_includes public_index, "card.header"
     refute_includes public_index, "support_public_help_subtitle"
     refute_includes public_index, "square_rows"
     refute_includes public_index, 'text: "Read"'
