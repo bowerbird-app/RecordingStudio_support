@@ -83,7 +83,8 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "ul li", text: "Your email"
     assert_select "img[src='/how-to-sign-in.jpg'][alt='Sign-in form']"
     assert_includes response.body, "flat-pack-timestamp"
-    assert_select "time.flat-pack-timestamp"
+    assert_select "span.flat-pack-timestamp", text: /\bUpdated [A-Z][a-z]+ \d{1,2}, \d{4}\b/
+    refute_select "time.flat-pack-timestamp"
     refute_includes response.body, "How do I change my password?"
     refute_includes response.body, "This page is live"
     refute_includes response.body, "Not live yet"
@@ -161,11 +162,16 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "h2", text: "Save and confirm"
     assert_select "img[src='/how-to-update-payment.jpg'][alt*='Billing']"
     assert_select "ol.flat-pack-list", count: 1
+    assert_select "ol.flat-pack-list.space-y-1", count: 1
     assert_select "ol.flat-pack-list li", text: /Name on the card/
     assert_select "ol.flat-pack-list li", text: /Card number/
     assert_select "ol.flat-pack-list li", text: /Expiry and security code/
-    assert_select "[class*='surface-muted-content-color']", text: /You can keep more than one card/
-    assert_select "[class*='surface-muted-content-color']", text: /Need a receipt/
+    assert_includes response.body, "py-0 px-0"
+    assert_includes response.body, "You can keep more than one card on file in some plans"
+    assert_includes response.body, "Need a receipt instead?"
+    refute_match(/opacity-75[^>]*>You can keep more than one card/, response.body)
+    refute_select "[class*='surface-muted-content-color']", text: /You can keep more than one card/
+    refute_select "[class*='surface-muted-content-color']", text: /Need a receipt/
     assert_match(/\bUpdated [A-Z][a-z]+ \d{1,2}, \d{4}\b/, response.body)
     refute_match(/\bago\b/, response.body)
     assert_select "a[aria-label='Home'][href='/help']"
