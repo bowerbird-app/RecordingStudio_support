@@ -14,7 +14,7 @@ Public article show header (Badge → Title → description → date), optional 
 4. Article PageNav uses secondary Home to `/help` (icon `home`, tooltip `"Home"`) instead of Close. Back still goes to the section (or `/help` with no section).
 5. If the host overrides `recording_studio/default_layout`, map `page_nav_secondary_anchor_*` into Flatpack `secondary_anchor_href` / `_icon` / `_tooltip` (same wiring as 0.8.4).
 6. Tip `blockquote` copy in article bodies uses the same text color as the rest of the article. Body lists use Flatpack `List` markers without `List::Item` interactive padding so steps stay prose-tight.
-7. Article bodies use Flatpack ContentEditor’s display surface (`flat-pack-content-editor-content` via `support_page_body_class`), not Tailwind `prose`. Public show adds `mt-8`. Do not mount ContentEditor on the public page. Hosts must load `flat_pack/content_editor` stylesheet (same pattern as Flatpack’s dummy: link it next to `flat_pack/rich_text`).
+7. Article bodies use Flatpack ContentEditor’s display surface (`flat-pack-content-editor-content` via `support_page_body_class`), not Tailwind `prose`. Public show adds `mt-8` above and `mb-5` below the body. Do not mount ContentEditor on the public page. Hosts must load `flat_pack/content_editor` stylesheet (same pattern as Flatpack’s dummy: link it next to `flat_pack/rich_text`).
 
 ### Verify
 

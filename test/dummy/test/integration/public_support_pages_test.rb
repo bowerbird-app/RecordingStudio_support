@@ -158,6 +158,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Open billing and save the card you want us to use."
     assert_includes response.body, "flat-pack-content-editor-content"
     assert_includes response.body, "mt-8"
+    assert_includes response.body, "mb-5"
     assert_select "h2", text: "Open billing"
     assert_select "h2", text: "Add or replace a card"
     assert_select "h2", text: "Save and confirm"

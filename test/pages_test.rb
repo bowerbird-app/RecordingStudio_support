@@ -192,6 +192,7 @@ class PagesTest < Minitest::Test
     assert_includes show, "support_page_updated_on"
     assert_includes show, "@page.description"
     assert_includes show, "support_page_body_class"
+    assert_includes show, '"mt-8 mb-5"'
     assert_includes show, "support_page_body_html"
     assert_includes show, "recording_studio_seo_description"
     assert_includes show, "support_page_meta_description"
