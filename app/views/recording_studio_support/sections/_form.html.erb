@@ -17,7 +17,9 @@
       <div class="flex items-start gap-3">
         <div
           class="<%= [
-            "flex h-11 w-11 shrink-0 items-center justify-center",
+            "box-border flex shrink-0 items-center justify-center",
+            "h-[calc(1.25rem+2*var(--form-control-padding)+2px)]",
+            "w-[calc(1.25rem+2*var(--form-control-padding)+2px)]",
             "rounded-[var(--radius-md)] border border-[var(--surface-border-color)]",
             "bg-[var(--surface-background-color)] text-[var(--surface-content-color)]",
             (@section.icon.presence ? nil : "opacity-40")

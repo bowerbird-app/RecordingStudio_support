@@ -265,6 +265,8 @@ class PagesTest < Minitest::Test
     assert_includes form, 'name: "section[icon]"'
     assert_includes form, ">Icon</label>"
     assert_includes form, "items-start gap-3"
+    assert_includes form, "h-[calc(1.25rem+2*var(--form-control-padding)+2px)]"
+    refute_includes form, "h-11 w-11"
     assert_includes form, "heroicons.com"
     assert_includes form, "recording-studio-support--section-icon-preview"
     assert_includes form, "FlatPack::Shared::IconComponent"
