@@ -263,10 +263,13 @@ class PagesTest < Minitest::Test
     model = File.read(File.expand_path("../app/models/recording_studio_support/support_section.rb", __dir__))
 
     assert_includes form, 'name: "section[icon]"'
-    assert_includes form, 'label: "Icon"'
+    assert_includes form, ">Icon</label>"
+    assert_includes form, "items-start gap-3"
     assert_includes form, "heroicons.com"
     assert_includes form, "recording-studio-support--section-icon-preview"
     assert_includes form, "FlatPack::Shared::IconComponent"
+    refute_includes form, 'label: "Icon"'
+    refute_includes form, "items-end"
     assert_includes controller, "permit(:title, :icon)"
     assert_includes controller, "icon: section_params[:icon]"
     assert_includes sections, "icon: nil"
