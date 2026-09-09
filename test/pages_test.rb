@@ -167,8 +167,8 @@ class PagesTest < Minitest::Test
     assert_includes show, "page_nav_secondary_anchor"
     assert_includes show, '"home"'
     assert_includes show, '"Home"'
-    assert_includes show, 'gap-3'
-    assert_includes show, 'gap-1.5'
+    assert_includes show, "gap-3"
+    assert_includes show, "gap-1.5"
     refute_includes show, 'class: "text-sm text-[var(--surface-muted-content-color)]"'
     refute_includes show, "size: :sm"
     refute_includes show, "size: :md"
