@@ -227,7 +227,6 @@ class PagesTest < Minitest::Test
     refute_includes body_helper, "opacity-75"
   end
 
-
   def test_page_form_uses_rich_text_uploads
     form = File.read(File.expand_path("../app/views/recording_studio_support/pages/_form.html.erb", __dir__))
     actions = File.read(

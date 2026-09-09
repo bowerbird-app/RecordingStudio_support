@@ -41,9 +41,9 @@ module RecordingStudioSupport
     def support_body_list_item(item)
       content_tag(:li, class: ARTICLE_LIST_ITEM_CLASS, role: "listitem") do
         safe_join([
-          content_tag(:span, "", class: "flat-pack-list-item-marker", aria: {hidden: true}),
-          content_tag(:div, Body.sanitize(item.inner_html).html_safe, class: "min-w-0 flex-1")
-        ])
+                    content_tag(:span, "", class: "flat-pack-list-item-marker", aria: { hidden: true }),
+                    content_tag(:div, Body.sanitize(item.inner_html).html_safe, class: "min-w-0 flex-1")
+                  ])
       end
     end
   end
