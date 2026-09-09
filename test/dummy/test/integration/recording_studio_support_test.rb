@@ -33,6 +33,7 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert connection.table_exists?(:admin_roots)
     assert connection.column_exists?(:recording_studio_support_pages, :title)
     assert connection.column_exists?(:recording_studio_support_pages, :body)
+    assert connection.column_exists?(:recording_studio_support_pages, :description)
     refute connection.column_exists?(:recording_studio_support_pages, :updated_at)
     assert connection.table_exists?(:recording_studio_attachable_attachments)
     assert connection.table_exists?(:active_storage_blobs)

@@ -12,22 +12,24 @@ module RecordingStudioSupport
 
     SUPPORT_PAGE_TYPE = "RecordingStudioSupport::SupportPage"
 
-    def create!(parent_recording:, title:, body:, actor: nil)
+    def create!(parent_recording:, title:, body:, description: nil, actor: nil)
       assign_actor(actor) do
         parent_recording.root_recording.record(
           SupportPage,
           parent_recording: parent_recording
         ) do |page|
           page.title = title.to_s.strip
+          page.description = description.to_s.strip.presence
           page.body = Body.sanitize(body)
         end
       end
     end
 
-    def revise!(recording:, title:, body:, actor: nil)
+    def revise!(recording:, title:, body:, description: nil, actor: nil)
       assign_actor(actor) do
         recording.root_recording.revise(recording) do |page|
           page.title = title.to_s.strip
+          page.description = description.to_s.strip.presence
           page.body = Body.sanitize(body)
         end
       end

@@ -191,11 +191,11 @@ end
 
 When `public_section_subtitle` is blank or the callable returns blank, the section show uses `Find answers in {title}.`
 
-Public show is Publishable's published route (`/help/:uuid/:slug`). It is a simple article: Flatpack `PageTitle`, optional Updated line, and long-form body in `prose` (Flatpack’s text/content pattern — there is no Content component). The document `<title>` is the page title. Meta description is plain text from the body (HTML stripped, entities decoded, max 160 characters). When the section has other published pages, a horizontal rule and Flatpack **Related** list follow the body. No live banner, no sign-in alert, no Edit, trash, or Access. Do not wrap the body in a skinny card.
+Public show is Publishable's published route (`/help/:uuid/:slug`). Header order is Flatpack Badge (section title) → `PageTitle` (title + optional `description` subtitle) → Timestamp (publish/updated day) → long-form body in `prose` (Flatpack’s text/content pattern — there is no Content component). The document `<title>` is the page title. Meta description prefers the page `description` when set; otherwise plain text from the body (HTML stripped, entities decoded, max 160 characters). There is no Related list. PageNav backs to the section (or `/help`) and offers Home to `/help` (no Close). No live banner, no sign-in alert, no Edit, trash, or Access. Do not wrap the body in a skinny card.
 
 Staff preview unpublished pages on the authenticated show. That is the same staff screen, not a second preview app. Staff show keeps Publish, a Live/Draft status button, and an icon-only trash control in the PageTitle row. It does not show a Pictures gallery.
 
-The body editor is Flatpack `TextArea` with `rich_text: true`, `preset: :content`, and `uploads: { url: uploads_path }`. That upload endpoint is the same contract as ContentEditor (`upload_url` posts a file and returns `{ "url": "..." }`). `Body.sanitize` keeps `img` (`src`, `alt`).
+The body editor is Flatpack `TextArea` with `rich_text: true`, `preset: :content`, and `uploads: { url: uploads_path }`. That upload endpoint is the same contract as ContentEditor (`upload_url` posts a file and returns `{ "url": "..." }`). `Body.sanitize` keeps `img` (`src`, `alt`). Staff forms also take an optional plain **Description** summary above Body.
 
 ## Admin Support
 
@@ -262,7 +262,7 @@ bin/dev
 
 Then open `/help` or `/support` without signing in. Search the lists with `?q=`. Sign-in for write screens and Admin is Users gem two-step login. Dummy uses Flatpack's built-in `rounded` theme on `<html data-theme="rounded">` for Users auth, public help, staff help, and Admin. For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root. Edit and Move live on the Admin tables. New also appears on `/support` for editors, and on the Admin tables.
 
-Seeds three sections: **Billing**, **Developers**, and **Getting started**. **How do I sign in?** is a live article with headings, a list, and an inline photograph. **How do I change my password?** stays a draft under Getting started. Billing has two live pages so Related links show on public article show; Developers has one.
+Seeds three sections: **Billing**, **Developers**, and **Getting started**. Live articles include a short `description`, multi-section HTML bodies, and inline images where helpful (**How do I sign in?** and **How do I update payment details?**). **How do I change my password?** stays a draft under Getting started. Billing and Developers keep multiple/live pages for section lists.
 
 ## Cloud Agent boot
 

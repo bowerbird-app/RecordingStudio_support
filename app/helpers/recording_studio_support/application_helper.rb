@@ -9,7 +9,10 @@ module RecordingStudioSupport
       Body.sanitize(body).html_safe
     end
 
-    def support_page_meta_description(body)
+    def support_page_meta_description(body, description: nil)
+      summary = description.to_s.strip.presence
+      return summary if summary.present?
+
       Body.meta_description(body)
     end
 

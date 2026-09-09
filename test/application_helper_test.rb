@@ -40,7 +40,28 @@ class ApplicationHelperTest < Minitest::Test
     refute_match(/^\s*layout\s/, source)
     assert_includes source, "Sections.public_index"
     assert_includes source, "@query = params[:q]"
-    assert_includes source, "@publishable&.publish_at"
+    assert_includes source, "PublicSection.article_updated_at"
+    refute_includes source, "@related_pages"
+    refute_includes source, "@publishable&.publish_at"
+  end
+
+  def test_support_page_meta_description_prefers_description_when_present
+    helper = Object.new.extend(load_helper)
+
+    assert_equal(
+      "Short summary for search.",
+      helper.support_page_meta_description(
+        "<p>Long body that would otherwise become the excerpt.</p>",
+        description: "Short summary for search."
+      )
+    )
+    assert_equal(
+      "Long body that would otherwise become the excerpt.",
+      helper.support_page_meta_description(
+        "<p>Long body that would otherwise become the excerpt.</p>",
+        description: "   "
+      )
+    )
   end
 
   def test_sections_controller_skips_auth_for_public_browse

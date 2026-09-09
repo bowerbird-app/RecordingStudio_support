@@ -24,4 +24,12 @@ class PageNavCompatTest < Minitest::Test
     refute nav.kwargs.key?(:back_url)
     assert_equal true, nav.kwargs[:extra]
   end
+
+  def test_maps_secondary_anchor_url_to_secondary_anchor_href
+    nav = @nav_class.new(secondary_anchor_url: "/help", secondary_anchor_icon: "home")
+
+    assert_equal "/help", nav.kwargs[:secondary_anchor_href]
+    refute nav.kwargs.key?(:secondary_anchor_url)
+    assert_equal "home", nav.kwargs[:secondary_anchor_icon]
+  end
 end

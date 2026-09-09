@@ -73,10 +73,13 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Open the sign-in page"
     assert_includes response.body, "Your email"
     assert_includes response.body, "Updated"
+    assert_includes response.body, "Getting started"
+    assert_select "[class*='badge-default-background-color']", text: "Getting started"
     assert_select "h2", text: "Open the sign-in page"
     assert_select "h2", text: "Enter your details"
     assert_select "ul li", text: "Your email"
     assert_select "img[src='/how-to-sign-in.jpg'][alt='Sign-in form']"
+    assert_includes response.body, "flat-pack-timestamp"
     refute_includes response.body, "How do I change my password?"
     refute_includes response.body, "This page is live"
     refute_includes response.body, "Not live yet"
@@ -84,10 +87,12 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "Move to trash"
     refute_includes response.body, ">Edit<"
     refute_includes response.body, "/admin/access"
+    refute_includes response.body, "Related"
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_includes response.body, "flat-pack-page-nav"
     assert_select "[aria-label='Go back']"
-    assert_select "[aria-label='Close']"
+    assert_select "a[aria-label='Home'][href='/help']"
+    assert_select "[aria-label='Close']", count: 0
     refute_includes response.body, "flat-pack-top-nav"
     refute_includes response.body, "recording_studio_publishable/application"
     refute_includes response.body, "Sign out"
@@ -96,13 +101,27 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "recordable"
   end
 
-  test "published article meta description escapes markup from the body" do
+  test "published article meta description prefers description over body" do
+    current = seeded_page("How do I update payment details?")
+    path = current.recordable.published_url
+    assert path.present?
+
+    get path
+
+    assert_response :success
+    assert_select "meta[name='description']" do |nodes|
+      assert_equal "Open billing and save the card you want us to use.", nodes.first["content"]
+    end
+  end
+
+  test "published article meta description falls back to body when description blank" do
     current = seeded_page("How do I update payment details?")
     path = current.recordable.published_url
     assert path.present?
 
     root = RecordingStudio.root_recording_for(Workspace.find_by!(name: "Studio Workspace"))
     root.revise(current) do |page|
+      page.description = nil
       page.body = "<p>Pay &amp; save the card. &lt;Keep receipts&gt;.</p>"
     end
 
@@ -116,7 +135,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "published billing article lists related pages" do
+  test "published billing article shows header without related pages" do
     current = seeded_page("How do I update payment details?")
     related = seeded_page("Where is my invoice?")
     path = current.recordable.published_url
@@ -129,11 +148,14 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h1", text: "How do I update payment details?"
+    assert_select "[class*='badge-default-background-color']", text: "Billing"
+    assert_includes response.body, "Open billing and save the card you want us to use."
     assert_includes response.body, 'class="prose max-w-none'
-    assert_includes response.body, "Related"
-    assert_select "hr"
-    assert_select "ul[role='list']"
-    assert_select "a[href=?]", related_path, text: "Where is my invoice?"
+    assert_select "h2", text: "Open billing"
+    assert_select "img[src='/how-to-update-payment.jpg']"
+    assert_select "a[aria-label='Home'][href='/help']"
+    refute_includes response.body, "Related"
+    assert_select "a[href=?]", related_path, count: 0
   end
 
   test "logged out visitors cannot read a draft page" do
@@ -243,7 +265,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "input[name='q'][placeholder=?]", "Search in Billing…"
     assert_select "a[href=?]", payment.published_url
     assert_select "a[href=?]", invoice.published_url
-    assert_includes response.body, "Open billing and save the card"
+    assert_includes response.body, "From your workspace, open Billing"
     assert_includes response.body, "Open Billing, then Invoices"
     assert_includes response.body, "Need something else in Billing?"
     assert_select "a[href=?]", "mailto:help@example.com", text: "Contact support"

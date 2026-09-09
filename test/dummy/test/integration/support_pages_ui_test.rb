@@ -405,7 +405,7 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_nil section_b.reload.trashed_at
   end
 
-  test "public help article shows related pages from the same section" do
+  test "public help article shows section badge and home without related pages" do
     current = seeded_page("How do I update payment details?")
     related = seeded_page("Where is my invoice?")
     current_path = current.recordable.published_url
@@ -419,9 +419,9 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "h1", text: "How do I update payment details?"
     assert_includes response.body, 'class="prose max-w-none'
-    assert_includes response.body, "Related"
-    assert_select "ul[role='list']"
-    assert_select "a[href=?]", related_path
+    assert_select "a[aria-label='Home'][href='/help']"
+    refute_includes response.body, "Related"
+    assert_select "a[href=?]", related_path, count: 0
   end
 
   private

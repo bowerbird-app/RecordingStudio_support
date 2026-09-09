@@ -151,14 +151,21 @@ class PagesTest < Minitest::Test
   def test_public_show_is_a_simple_article
     show = File.read(File.expand_path("../app/views/recording_studio_support/public_pages/show.html.erb", __dir__))
 
+    assert_includes show, "FlatPack::Badge::Component"
     assert_includes show, "FlatPack::PageTitle::Component"
+    assert_includes show, "FlatPack::Timestamp::Component"
+    assert_includes show, "@page.description"
     assert_includes show, 'class="prose max-w-none'
     assert_includes show, "support_page_body_html"
     assert_includes show, "recording_studio_seo_description"
     assert_includes show, "support_page_meta_description"
-    assert_includes show, "Related"
-    assert_includes show, 'render "recording_studio_support/shared/link_list"'
-    assert_includes show, "FlatPack::SectionTitle::Component"
+    assert_includes show, 'page_nav_secondary_anchor'
+    assert_includes show, '"home"'
+    assert_includes show, '"Home"'
+    refute_includes show, "Related"
+    refute_includes show, 'render "recording_studio_support/shared/link_list"'
+    refute_includes show, "FlatPack::SectionTitle::Component"
+    refute_includes show, "page_nav_anchor_url"
     refute_includes show, "Pictures"
     refute_includes show, "This page is live"
     refute_includes show, "Not live yet"
@@ -174,6 +181,8 @@ class PagesTest < Minitest::Test
       File.expand_path("../app/views/recording_studio_support/shared/_form_actions.html.erb", __dir__)
     )
 
+    assert_includes form, 'name: "page[description]"'
+    assert_includes form, 'label: "Description"'
     assert_includes form, "preset: :content"
     assert_includes form, "uploads: { url: uploads_path }"
     assert_includes form, "image"

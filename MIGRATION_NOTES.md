@@ -2,6 +2,24 @@
 
 ## Unreleased
 
+## 0.8.2
+
+Public article show header (Badge → Title → description → date), optional `description` field, PageNav Home.
+
+### Host app
+
+1. Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate`. Adds optional `description` on `recording_studio_support_pages`.
+2. Existing pages have `description` nil until an editor saves one (or you re-seed). Title stays required.
+3. Public `/help/:uuid/:slug` no longer lists Related pages. Meta description uses `description` when set, otherwise the body excerpt.
+4. Article PageNav uses secondary Home to `/help` (icon `home`, tooltip `"Home"`) instead of Close. Back still goes to the section (or `/help` with no section).
+5. If the host overrides `recording_studio/default_layout`, pass Flatpack PageNav `secondary_anchor_href` (or `secondary_anchor_url` via Support's PageNavCompat) from `content_for(:page_nav_secondary_anchor_*)`. Until Recording Studio's layout helper lists those slots, set `content_for` in the view or retarget the primary Close control to Home.
+
+### Verify
+
+```bash
+bundle exec rake test:all
+```
+
 ## 0.8.1
 
 Public help section show uses snippet cards and an optional host contact slot.
