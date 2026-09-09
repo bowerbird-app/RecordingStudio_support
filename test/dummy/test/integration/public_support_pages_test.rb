@@ -36,6 +36,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "input[name='q'][placeholder='Search support']"
     assert_includes response.body, "Find an answer."
     assert_includes response.body, "max-w-none"
+    assert_includes response.body, "search-padding-y-lg"
     assert_includes response.body, "card-border-color"
     assert_select "ul[role='list'][class*='rounded-none']"
     assert_select "li[role='listitem']"
@@ -204,6 +205,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "How do I change my password?"
     refute_includes response.body, "Published"
     assert_select "input[name='q'][placeholder=?]", "Search in Getting started…"
+    assert_includes response.body, "search-padding-y-lg"
     assert_select "a[href=?]", path, text: /How do I sign in?/
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_flatpack_rounded_theme

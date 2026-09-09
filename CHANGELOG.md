@@ -15,14 +15,18 @@ Public help section show drops breadcrumb, adds PageNav Home, and uses interacti
 - Public `/help/sections/:slug` removes Flatpack Breadcrumb
 - PageNav keeps history Back and adds a secondary Home control (home icon → `/help`, tooltip/aria `"Home"`) via host layout `content_for` keys
 - Article cards use `style: :interactive` and `hover: :strong` (still full-width `Grid` `cols: 1`) with `gap: :lg`, Body `padding: :lg`, and white `theme: { background: "var(--color-white)" }`
+- Shared Help/support Search uses Flatpack `size: :lg`
+- Dummy pins Flatpack `v0.1.177` (Search size API)
 - Dummy `recording_studio/default_layout` maps `page_nav_secondary_anchor_*` to Flatpack `secondary_anchor_*`, and `page_nav_anchor_url` to `anchor_href`
 - Dummy Tailwind utilities re-assert Flatpack `fp-card-hover-strong:hover` so strong hover is visible (Tailwind utilities were beating Flatpack’s `@layer components` hover rules)
 
 ### Upgrade notes
 - No migrations or route changes
+- Bump Flatpack to `v0.1.177` (or later) for Search `size:`
 - Hosts with a `default_layout` override should wire `page_nav_secondary_anchor_url` / `_icon` / `_tooltip` into Flatpack PageNav `secondary_anchor_href` / `_icon` / `_tooltip`, and pass Close through `anchor_href` (Flatpack renamed away from `anchor_url`)
 - Hosts using Cards with `hover: :strong` should copy the dummy’s `@layer utilities` `.fp-card-hover-strong:hover` override until Flatpack ships a kit fix
-- Staff `/support` and public `/help` homepage are unchanged
+- Staff `/support` and public `/help` homepage are unchanged aside from the shared Search large size
+- Rebuild host Tailwind after the Flatpack bump so Search `size: :lg` padding utilities are generated
 
 ## [0.8.1] - 2026-09-08
 
