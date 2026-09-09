@@ -47,7 +47,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "3.0.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_icons"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/flatpack", ref: "4bd0e1c46b6da8b18699379d4c8e33da52aa10cd"'
+    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.177"'
     refute_includes gemfile, "recording_studio/v3.0.0"
     refute_includes gemfile, 'tag: "v0.6.1"'
     refute_includes gemfile, 'tag: "v0.1.133"'
@@ -261,7 +261,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "Recording Studio Support"
     assert_includes readme, "v4.2.0"
     assert_includes readme, "v0.9.1"
-    assert_includes readme, "0.1.175"
+    assert_includes readme, "v0.1.177"
     assert_includes readme, "v0.9.0"
     assert_includes readme, "Support page"
     assert_includes readme, "SupportSection"

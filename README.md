@@ -22,7 +22,7 @@ gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable
 gem "recording_studio_support", github: "bowerbird-app/RecordingStudio_support"
 # Host-owned auth (not a Support gemspec dependency):
 gem "recording_studio_user", github: "bowerbird-app/RecordingStudio_users", tag: "v0.9.0"
-gem "flat_pack", github: "bowerbird-app/flatpack", ref: "4bd0e1c46b6da8b18699379d4c8e33da52aa10cd" # 0.1.175
+gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.177"
 ```
 
 ```ruby
@@ -152,7 +152,7 @@ Logged-out people can read sections and live pages. Drafts 404.
 
 Public `/help` lists sections. A section show lists `SupportPage.indexable` pages in that section. Do not copy that logic. Public `/help?q=` and staff `/support?q=` search section names. Page search lives on a section show and filters pages **in that section** by title and body (`?q=`).
 
-Public and staff Help homes use Flatpack Search at full width (`max_width: :none`, placeholder “Search support”). Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Public `/help` passes `size: :lg` (Flatpack `0.1.175+`); section and staff search keep the default `:md`.
+Public and staff Help homes use Flatpack Search at full width (`max_width: :none`, placeholder “Search support”). Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Public `/help` passes `size: :lg` (Flatpack `0.1.175+` / pin `v0.1.177`); section and staff search keep the default `:md`.
 
 **Public `/help` home** stacks elevated clickable Flatpack Cards in a Grid (`cols: 1`, `gap: :lg`, `style: :elevated`, `hover: :strong`, body `padding: :lg`). Each card shows the section title and a muted **N article(s)** line (no Badge). PageTitle is `public_help_title` only — no subtitle on this page.
 
@@ -256,7 +256,7 @@ Dummy kit pins:
 | Publishable | `v0.2.0` |
 | Moveable | `3.0.0` |
 | Root Switchable | `v0.5.0` |
-| FlatPack | `0.1.175` |
+| FlatPack | `v0.1.177` |
 
 ```bash
 cd test/dummy
