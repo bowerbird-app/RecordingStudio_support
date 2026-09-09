@@ -216,6 +216,8 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "flat-pack-timestamp"
     assert_includes response.body, "shadow-md"
     assert_includes response.body, "fp-card-hover-strong"
+    assert_includes response.body, "gap-6"
+    assert_includes response.body, "card-padding-lg"
     assert_select "h3", text: "How do I sign in?"
     assert_includes response.body, "grid-cols-1"
     refute_includes response.body, "Sign out"
@@ -255,6 +257,8 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "flat-pack-breadcrumb"
     assert_includes response.body, "shadow-md"
     assert_includes response.body, "fp-card-hover-strong"
+    assert_includes response.body, "gap-6"
+    assert_includes response.body, "card-padding-lg"
     refute_includes response.body, "Published"
   ensure
     RecordingStudioSupport.configuration.public_contact_href = previous_href

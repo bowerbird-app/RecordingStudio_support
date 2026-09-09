@@ -14,12 +14,14 @@ Public help section show drops breadcrumb, adds PageNav Home, and elevates artic
 ### Changed
 - Public `/help/sections/:slug` removes Flatpack Breadcrumb
 - PageNav keeps history Back and adds a secondary Home control (home icon → `/help`, tooltip/aria `"Home"`) via host layout `content_for` keys
-- Article cards use `style: :elevated` and `hover: :strong` (still full-width `Grid` `cols: 1`)
+- Article cards use `style: :elevated` and `hover: :strong` (still full-width `Grid` `cols: 1`) with `gap: :lg` and Body `padding: :lg`
 - Dummy `recording_studio/default_layout` maps `page_nav_secondary_anchor_*` to Flatpack `secondary_anchor_*`, and `page_nav_anchor_url` to `anchor_href`
+- Dummy Tailwind utilities re-assert Flatpack `fp-card-hover-strong:hover` so elevated + strong hover is visible (Tailwind utilities were beating Flatpack’s `@layer components` hover rules)
 
 ### Upgrade notes
 - No migrations or route changes
 - Hosts with a `default_layout` override should wire `page_nav_secondary_anchor_url` / `_icon` / `_tooltip` into Flatpack PageNav `secondary_anchor_href` / `_icon` / `_tooltip`, and pass Close through `anchor_href` (Flatpack renamed away from `anchor_url`)
+- Hosts using elevated Cards with `hover: :strong` should copy the dummy’s `@layer utilities` `.fp-card-hover-strong:hover` override until Flatpack ships a kit fix
 - Staff `/support` and public `/help` homepage are unchanged
 
 ## [0.8.1] - 2026-09-08

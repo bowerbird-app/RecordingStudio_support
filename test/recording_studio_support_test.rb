@@ -127,6 +127,10 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes default_layout, "page_nav_secondary_anchor_tooltip"
     assert_includes default_layout, ":anchor_href"
     refute_includes default_layout, "page_nav_options[:anchor_url]"
+    tailwind_source = File.read(File.expand_path("dummy/app/assets/tailwind/application.css", __dir__))
+    assert_includes tailwind_source, ".fp-card-hover-strong:hover"
+    assert_includes tailwind_source, "--card-hover-strong-shadow"
+    assert_includes tailwind_source, "@layer utilities"
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack_sidebar.html.erb", __dir__))
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack/_sidebar.html.erb", __dir__))
     refute File.exist?(File.expand_path("dummy/app/views/devise/sessions/new.html.erb", __dir__))

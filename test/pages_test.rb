@@ -84,8 +84,11 @@ class PagesTest < Minitest::Test
     assert_includes public_show, "support_public_contact_href"
     assert_includes public_show, "hover: :strong"
     assert_includes public_show, "style: :elevated"
+    assert_includes public_show, "gap: :lg"
+    assert_includes public_show, "card.body(padding: :lg)"
     refute_includes public_show, "hover: :subtle"
     refute_includes public_show, "style: :interactive"
+    refute_includes public_show, "gap: :sm"
     refute_includes public_show, 'render "recording_studio_support/shared/link_list"'
     refute_includes public_show, 'text: "Read"'
     refute_includes public_show, 'text: "Open"'

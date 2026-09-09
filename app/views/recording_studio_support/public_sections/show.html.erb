@@ -13,7 +13,7 @@
         placeholder: support_public_section_search_placeholder(@section) %>
 
   <% if @articles.any? %>
-    <%= render FlatPack::Grid::Component.new(cols: 1, gap: :sm) do %>
+    <%= render FlatPack::Grid::Component.new(cols: 1, gap: :lg) do %>
       <% @articles.each do |article| %>
         <%= render FlatPack::Card::Component.new(
           href: article.fetch(:href),
@@ -21,7 +21,7 @@
           hover: :strong,
           style: :elevated
         ) do |card| %>
-          <% card.body do %>
+          <% card.body(padding: :lg) do %>
             <h3 class="text-base font-semibold text-[var(--surface-content-color)]"><%= article.fetch(:title) %></h3>
             <% if article[:snippet].present? %>
               <p class="mt-2 text-sm text-[var(--surface-muted-content-color)]"><%= article.fetch(:snippet) %></p>
