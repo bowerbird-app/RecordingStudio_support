@@ -16,7 +16,9 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_flatpack_rounded_theme
-    assert_includes response.body, "Help"
+    assert_includes response.body, "Hi, how can we help?"
+    refute_match(/>\s*Help\s*</, response.body)
+    refute_includes response.body, "Find an answer."
     assert_includes response.body, "Getting started"
     assert_includes response.body, "Billing"
     assert_includes response.body, "Developers"
@@ -34,17 +36,19 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "flat_pack/application"
     assert_select "form[role='search'][class~='w-full']"
     assert_select "input[name='q'][placeholder='Search support']"
-    assert_includes response.body, "Find an answer."
     assert_includes response.body, "max-w-none"
-    assert_includes response.body, "card-border-color"
-    assert_select "ul[role='list'][class*='rounded-none']"
-    assert_select "li[role='listitem']"
-    assert_match(/\[&amp;&gt;\*\]:rounded-none|\[&amp;>\*\]:rounded-none|\[&>\*\]:rounded-none/, response.body)
-    # square_rows flushes the Flatpack Card body so List sits on the kit surface
-    assert_includes response.body, "overflow-hidden"
-    assert_includes response.body, "chevron-right"
-    assert_select "[class*='badge-default-background-color']", text: "1", count: 2
-    assert_select "[class*='badge-default-background-color']", text: "2", count: 1
+    assert_includes response.body, "search-padding-y-lg"
+    assert_includes response.body, "fp-card-hover-strong"
+    refute_includes response.body, "shadow-md"
+    assert_includes response.body, "grid-cols-1"
+    assert_includes response.body, "gap-6"
+    assert_includes response.body, "card-padding-lg"
+    assert_select "ul[role='list']", count: 0
+    refute_includes response.body, "chevron-right"
+    refute_includes response.body, "badge-default-background-color"
+    refute_includes response.body, "[&amp;_input]:py-3.5"
+    assert_includes response.body, "1 article"
+    assert_includes response.body, "2 articles"
     refute_includes response.body, "1 page"
     refute_includes response.body, "2 pages"
     refute_includes response.body, "<span>Read</span>"
@@ -204,14 +208,22 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "How do I change my password?"
     refute_includes response.body, "Published"
     assert_select "input[name='q'][placeholder=?]", "Search in Getting started…"
+    assert_includes response.body, "search-padding-y-lg"
     assert_select "a[href=?]", path, text: /How do I sign in?/
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_flatpack_rounded_theme
     assert_includes response.body, "flat-pack-page-nav"
     assert_select "[aria-label='Go back']"
+    assert_select "[aria-label='Home']"
+    assert_select "a[href='/help'][aria-label='Home']"
     assert_select "[aria-label='Close']", count: 0
-    assert_includes response.body, "flat-pack-breadcrumb"
+    refute_includes response.body, "flat-pack-breadcrumb"
     assert_includes response.body, "flat-pack-timestamp"
+    assert_includes response.body, "fp-card-hover-strong"
+    assert_includes response.body, "gap-6"
+    assert_includes response.body, "card-padding-lg"
+    assert_includes response.body, "--card-background-color: var(--color-white)"
+    refute_includes response.body, "shadow-md dark:shadow-lg"
     assert_select "h3", text: "How do I sign in?"
     assert_includes response.body, "grid-cols-1"
     refute_includes response.body, "Sign out"
@@ -247,6 +259,13 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Open Billing, then Invoices"
     assert_includes response.body, "Need something else in Billing?"
     assert_select "a[href=?]", "mailto:help@example.com", text: "Contact support"
+    assert_select "a[href='/help'][aria-label='Home']"
+    refute_includes response.body, "flat-pack-breadcrumb"
+    assert_includes response.body, "fp-card-hover-strong"
+    assert_includes response.body, "gap-6"
+    assert_includes response.body, "card-padding-lg"
+    assert_includes response.body, "--card-background-color: var(--color-white)"
+    refute_includes response.body, "shadow-md dark:shadow-lg"
     refute_includes response.body, "Published"
   ensure
     RecordingStudioSupport.configuration.public_contact_href = previous_href

@@ -8,7 +8,7 @@ This Rails app exists to prove Recording Studio Support in a real host. It is no
 - `Current.actor` wiring for Recording Studio events
 - Root workspace plus seeded help sections and pages, one with an inline picture in the body
 - Support screens mounted at `/admin/support` (Admin-gated forms and preview). Old `/support` redirects to `/admin`
-- Public help at `/help` for logged-out visitors (default-layout chrome, Card-wrapped Flatpack List of sections with published page-count badges, then published pages)
+- Public help at `/help` for logged-out visitors (default-layout chrome, interactive Flatpack Cards with an **N article(s)** line, then published pages)
 - Admin Support section mounted at `/admin` on an admin root (switch to **Admin** in the top control first — Admin 2.0 gates staff screens on that root)
 - Support pages opt into Trashable, Moveable, and Publishable. Dummy Folder and Page do not.
 - Recording Studio default layout (`UsesDefaultLayout`) with dummy's `<html data-theme="rounded">` override so Flatpack's built-in rounded theme actually applies; back/close chrome on Support and Admin Support screens; Sign out and the workspace switcher on dummy host pages only; Flatpack CSS/JS, Turbo, and Tailwind source scanning. Users auth also puts `rounded` on `<html>`.
@@ -40,13 +40,13 @@ Auth uses `layouts/recording_studio_user/auth` with `html data-theme="rounded"`.
 
 ## Layouts and assets
 
-Authenticated pages include `RecordingStudio::UsesDefaultLayout` and render `recording_studio/default_layout`. That layout owns the back/close chrome and Flatpack flash alerts. Dummy overrides the layout file so `<html data-theme="rounded">` is set — Flatpack's built-in rounded theme, the same one the live kit uses. Core puts `data-theme` on `<body>` only, which does not recolor buttons and other component tokens. Do not invent a custom theme or a sidebar shell.
+Authenticated pages include `RecordingStudio::UsesDefaultLayout` and render `recording_studio/default_layout`. That layout owns the back/close chrome and Flatpack flash alerts. Dummy overrides the layout file so `<html data-theme="rounded">` is set — Flatpack's built-in rounded theme, the same one the live kit uses. Core puts `data-theme` on `<body>` only, which does not recolor buttons and other component tokens. Do not invent a custom theme or a sidebar shell. The override also maps `page_nav_anchor_url` → Flatpack `anchor_href` and `page_nav_secondary_anchor_*` → `secondary_anchor_*` (Home on public section show).
 
 Public and staff help use the same default layout. Do not use Publishable's application layout or invent a Support-only public shell. Support and Admin Support screens are back/close only. Sign out and the workspace switcher stay off `/admin/support`, `/help`, and `/admin`. Access can stay on Admin. Do not put a login button in that chrome.
 
 Users gem sign-in and sign-up use `layouts/recording_studio_user/auth`. That layout loads Tailwind, Flatpack stylesheets (`flat_pack/variables`, `flat_pack/application`, `flat_pack/rich_text`), and Importmap JS (`@hotwired/turbo-rails`). Host `layouts/application` is not in the auth stack.
 
-The host injects Sign out and Root Switchable through `app/views/recording_studio/_default_layout_head.html.erb` for dummy host pages only, not Support or Admin Support screens. Do not put the switcher or a Sign out button in the home view body. Flatpack CSS loads from the layout in kit order (`flat_pack/variables`, `flat_pack/application`, `flat_pack/rich_text`, then Tailwind). Declare `@layer theme, base, components, utilities` before those sheets so TipTap editor borders are not cleared by Tailwind preflight.
+The host injects Sign out and Root Switchable through `app/views/recording_studio/_default_layout_head.html.erb` for dummy host pages only, not Support or Admin Support screens. Do not put the switcher or a Sign out button in the home view body. Flatpack CSS loads from the layout in kit order (`flat_pack/variables`, `flat_pack/application`, `flat_pack/rich_text`, then Tailwind). Declare `@layer theme, base, components, utilities` before those sheets so TipTap editor borders are not cleared by Tailwind preflight. Dummy Tailwind also re-asserts `.fp-card-hover-strong:hover` in `@layer utilities` so interactive Card strong hover is not blocked by Tailwind’s border utilities.
 
 Help-page edit uses Flatpack `TextArea` with `rich_text: true`, `preset: :content`, and image upload. Importmap pins TipTap packages plus `controllers/flat_pack/tiptap_controller`. `app/javascript/application.js` imports `controllers`, and `controllers/index.js` registers `flat-pack--tiptap` so the toolbar and body HTML hydrate on first paint. Do not add Trix or Action Text. Pictures go in the body.
 

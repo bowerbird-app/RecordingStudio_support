@@ -60,7 +60,7 @@ class ConfigurationTest < Minitest::Test
     assert_equal "/help", configuration.public_pages_path
     assert_equal "Help", configuration.help_title
     assert_equal "Find an answer.", configuration.help_subtitle
-    assert_equal "Help", configuration.public_help_title
+    assert_equal "Hi, how can we help?", configuration.public_help_title
     assert_equal "Find an answer.", configuration.public_help_subtitle
     assert_equal "Help", configuration.admin_help_title
     assert_equal "Pages people use when they get stuck.", configuration.admin_help_subtitle
