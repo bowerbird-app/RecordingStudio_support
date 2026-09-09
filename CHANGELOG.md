@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.8.2] - 2026-09-09
+
+Public help section show drops breadcrumb, adds PageNav Home, and elevates article cards.
+
+### Changed
+- Public `/help/sections/:slug` removes Flatpack Breadcrumb
+- PageNav keeps history Back and adds a secondary Home control (home icon → `/help`, tooltip/aria `"Home"`) via host layout `content_for` keys
+- Article cards use `style: :elevated` and `hover: :strong` (still full-width `Grid` `cols: 1`)
+- Dummy `recording_studio/default_layout` maps `page_nav_secondary_anchor_*` to Flatpack `secondary_anchor_*`, and `page_nav_anchor_url` to `anchor_href`
+
+### Upgrade notes
+- No migrations or route changes
+- Hosts with a `default_layout` override should wire `page_nav_secondary_anchor_url` / `_icon` / `_tooltip` into Flatpack PageNav `secondary_anchor_href` / `_icon` / `_tooltip`, and pass Close through `anchor_href` (Flatpack renamed away from `anchor_url`)
+- Staff `/support` and public `/help` homepage are unchanged
+
 ## [0.8.1] - 2026-09-08
 
 Public help section show uses snippet cards, breadcrumbs, and an optional host contact slot.

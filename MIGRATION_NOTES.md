@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+## 0.8.2
+
+Public help section show: no breadcrumb, PageNav Home secondary, elevated article cards.
+
+### Host app
+
+1. No migrations or route changes.
+2. If you override `recording_studio/default_layout`, map these `content_for` keys into Flatpack PageNav:
+   - `page_nav_secondary_anchor_url` → `secondary_anchor_href`
+   - `page_nav_secondary_anchor_icon` → `secondary_anchor_icon`
+   - `page_nav_secondary_anchor_tooltip` → `secondary_anchor_tooltip`
+   - `page_nav_anchor_url` → `anchor_href` (Flatpack no longer uses `anchor_url`)
+3. Public section show sets the secondary Home slot via `support_public_section_page_nav`. Staff `/support` and public `/help` homepage are unchanged.
+
+### Verify
+
+```bash
+bundle exec rake test:all
+```
+
 ## 0.8.1
 
 Public help section show uses snippet cards and an optional host contact slot.

@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.8.1", ::RecordingStudioSupport::VERSION
+    assert_equal "0.8.2", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -121,6 +121,12 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes default_layout, 'stylesheet_link_tag "flat_pack/application"'
     assert_includes default_layout, 'stylesheet_link_tag "flat_pack/rich_text"'
     assert_includes default_layout, 'stylesheet_link_tag "tailwind"'
+    assert_includes default_layout, "secondary_anchor_href"
+    assert_includes default_layout, "page_nav_secondary_anchor_url"
+    assert_includes default_layout, "page_nav_secondary_anchor_icon"
+    assert_includes default_layout, "page_nav_secondary_anchor_tooltip"
+    assert_includes default_layout, ":anchor_href"
+    refute_includes default_layout, "page_nav_options[:anchor_url]"
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack_sidebar.html.erb", __dir__))
     refute File.exist?(File.expand_path("dummy/app/views/layouts/flat_pack/_sidebar.html.erb", __dir__))
     refute File.exist?(File.expand_path("dummy/app/views/devise/sessions/new.html.erb", __dir__))

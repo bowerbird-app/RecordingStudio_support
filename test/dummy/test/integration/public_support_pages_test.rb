@@ -209,9 +209,13 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_flatpack_rounded_theme
     assert_includes response.body, "flat-pack-page-nav"
     assert_select "[aria-label='Go back']"
+    assert_select "[aria-label='Home']"
+    assert_select "a[href='/help'][aria-label='Home']"
     assert_select "[aria-label='Close']", count: 0
-    assert_includes response.body, "flat-pack-breadcrumb"
+    refute_includes response.body, "flat-pack-breadcrumb"
     assert_includes response.body, "flat-pack-timestamp"
+    assert_includes response.body, "shadow-md"
+    assert_includes response.body, "fp-card-hover-strong"
     assert_select "h3", text: "How do I sign in?"
     assert_includes response.body, "grid-cols-1"
     refute_includes response.body, "Sign out"
@@ -247,6 +251,10 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Open Billing, then Invoices"
     assert_includes response.body, "Need something else in Billing?"
     assert_select "a[href=?]", "mailto:help@example.com", text: "Contact support"
+    assert_select "a[href='/help'][aria-label='Home']"
+    refute_includes response.body, "flat-pack-breadcrumb"
+    assert_includes response.body, "shadow-md"
+    assert_includes response.body, "fp-card-hover-strong"
     refute_includes response.body, "Published"
   ensure
     RecordingStudioSupport.configuration.public_contact_href = previous_href

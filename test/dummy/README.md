@@ -40,7 +40,7 @@ Auth uses `layouts/recording_studio_user/auth` with `html data-theme="rounded"`.
 
 ## Layouts and assets
 
-Authenticated pages include `RecordingStudio::UsesDefaultLayout` and render `recording_studio/default_layout`. That layout owns the back/close chrome and Flatpack flash alerts. Dummy overrides the layout file so `<html data-theme="rounded">` is set — Flatpack's built-in rounded theme, the same one the live kit uses. Core puts `data-theme` on `<body>` only, which does not recolor buttons and other component tokens. Do not invent a custom theme or a sidebar shell.
+Authenticated pages include `RecordingStudio::UsesDefaultLayout` and render `recording_studio/default_layout`. That layout owns the back/close chrome and Flatpack flash alerts. Dummy overrides the layout file so `<html data-theme="rounded">` is set — Flatpack's built-in rounded theme, the same one the live kit uses. Core puts `data-theme` on `<body>` only, which does not recolor buttons and other component tokens. Do not invent a custom theme or a sidebar shell. The override also maps `page_nav_anchor_url` → Flatpack `anchor_href` and `page_nav_secondary_anchor_*` → `secondary_anchor_*` (Home on public section show).
 
 Public and staff help use the same default layout. Do not use Publishable's application layout or invent a Support-only public shell. Support and Admin Support screens are back/close only. Sign out and the workspace switcher stay off `/support`, `/help`, and `/admin`. Access can stay on Admin. Do not put a login button in that chrome.
 
