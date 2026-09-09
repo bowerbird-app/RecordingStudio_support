@@ -154,7 +154,7 @@ Public `/help` lists sections. A section show lists `SupportPage.indexable` page
 
 Public and staff Help homes use Flatpack Search at full width (`max_width: :none`, placeholder “Search support”). Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Public `/help` passes `size: :lg` (Flatpack `0.1.175+` / pin `v0.1.177`); section and staff search keep the default `:md`.
 
-**Public `/help` home** stacks interactive clickable Flatpack Cards in a Grid (`cols: 1`, `gap: :lg`, `style: :interactive`, `hover: :strong`, body `padding: :lg`). Interactive (not elevated) is what Flatpack uses for a visible strong hover — elevated already ships `shadow-md`, so `hover: :strong` on elevated barely changes. Each card shows the section title and a muted **N article(s)** line (no Badge). PageTitle is `public_help_title` only — no subtitle on this page.
+**Public `/help` home** stacks interactive clickable Flatpack Cards in a Grid (`cols: 1`, `gap: :lg`, `style: :interactive`, `hover: :strong`, body `padding: :lg`, `theme: { background: "#ffffff" }`). Interactive (not elevated) is what Flatpack uses for a visible strong hover — elevated already ships `shadow-md`, so `hover: :strong` on elevated barely changes. Each card shows the section title and a muted **N article(s)** line (no Badge). PageTitle is `public_help_title` only — no subtitle on this page.
 
 **Staff `/support` home** still uses the shared `link_list`: Flatpack List with a trailing `chevron-right`, wrapped in a Card body, plus a Flatpack Badge with the published page count (default Card padding and List::Item radius).
 

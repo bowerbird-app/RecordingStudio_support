@@ -90,6 +90,7 @@ class PagesTest < Minitest::Test
     assert_includes public_index, "hover: :strong"
     assert_includes public_index, "padding: :lg"
     assert_includes public_index, "gap: :lg"
+    assert_includes public_index, 'theme: { background: "#ffffff" }'
     assert_includes public_index, "card.body(padding: :lg)"
     refute_includes public_index, "style: :elevated"
     refute_includes public_index, "card.header"

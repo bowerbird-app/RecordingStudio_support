@@ -4,14 +4,14 @@
 
 ## 0.8.2
 
-Public `/help` home uses a welcoming title, larger search, and elevated section cards.
+Public `/help` home uses a welcoming title, larger search, and interactive section cards.
 
 ### Host app
 
 1. No migrations or route changes.
 2. Default `public_help_title` is **Hi, how can we help?**. Update your initializer if you still set `"Help"` and want the new words. Breadcrumbs that use `support_public_help_title` inherit the string.
 3. Public `/help` no longer renders `public_help_subtitle`. Staff `/support` still uses `help_subtitle`.
-4. Public `/help` section rows are elevated clickable Cards with an **N article(s)** line. Staff `/support` still uses `link_list` + count Badge.
+4. Public `/help` section rows are interactive clickable Cards (`hover: :strong`, white `theme: { background: "#ffffff" }`) with an **N article(s)** line. Staff `/support` still uses `link_list` + count Badge.
 5. If you overrode `public_pages/index`, adopt the Card + Grid layout (or keep your override intentionally).
 6. Bump Flatpack to `v0.1.177` (or at least `0.1.175+`) so Search accepts `size:`. Public `/help` uses `size: :lg`. Drop any temporary Search height/type class overrides. Section and staff search stay default `:md`.
 
