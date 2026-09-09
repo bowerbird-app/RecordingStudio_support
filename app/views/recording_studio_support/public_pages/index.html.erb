@@ -15,7 +15,7 @@
     <%= render FlatPack::Grid::Component.new(cols: 1, gap: :lg) do %>
       <% @section_recordings.each do |recording| %>
         <%= render FlatPack::Card::Component.new(
-          style: :elevated,
+          style: :interactive,
           clickable: true,
           href: support_public_section_path(recording),
           hover: :strong,

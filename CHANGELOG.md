@@ -14,7 +14,7 @@ Public `/help` home is a welcoming entry: new title, larger search, elevated sec
 ### Changed
 - Default `public_help_title` is **Hi, how can we help?** (install template and dummy initializer match)
 - Public `/help` PageTitle drops the subtitle (config `public_help_subtitle` stays for hosts who still want it elsewhere)
-- Public `/help` sections are elevated clickable Flatpack Cards in a Grid (`gap: :lg`, `hover: :strong`, body `padding: :lg`) with a plain **N article(s)** line — no Badge, no shared `link_list` / `square_rows`
+- Public `/help` sections are interactive clickable Flatpack Cards in a Grid (`gap: :lg`, `style: :interactive`, `hover: :strong`, body `padding: :lg`) with a plain **N article(s)** line — no Badge, no shared `link_list` / `square_rows`
 - Public `/help` Search uses Flatpack Search `size: :lg` (requires Flatpack `0.1.175+`); section and staff search stay the default `:md`
 - Dummy / Gemfile pin Flatpack to `v0.1.177`
 - Staff `/support` list + count Badge markup is unchanged
