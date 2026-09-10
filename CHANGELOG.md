@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.3] - 2026-09-10
+
+Public `/help` section cards sit in a responsive Flatpack grid.
+
+### Changed
+- Help home section cards use `FlatPack::Grid` `cols: 3` (one column on small screens, three on large) instead of a single stacked column
+- Card body stacks icon above title and article count for a tile layout
+
+### Upgrade notes
+- Visual only. No migration. Redeploy / refresh hosts that render the gem’s public help index.
+
 ## [0.9.2] - 2026-09-09
 
 Help sections can show a Heroicons icon on the public `/help` list.
@@ -491,7 +502,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.2...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.3...HEAD
+[0.9.3]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.2...v0.9.3
 [0.9.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.4...v0.9.0

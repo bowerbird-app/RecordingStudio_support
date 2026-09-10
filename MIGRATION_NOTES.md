@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+## 0.9.3
+
+Public `/help` section list is a responsive Flatpack card grid (1 column mobile, 3 columns desktop).
+
+### Host app
+
+1. No migration. Visual layout change only on the public help index.
+2. Hosts that override `recording_studio_support/public_pages/index` keep their own layout until they adopt the gem template.
+
+### Verify
+
+```bash
+bundle exec rake test:all
+```
+
+Open `/help` at a large viewport (three cards across) and a narrow viewport (one card per row).
+
 ## 0.9.2
 
 Optional Heroicons `icon` on help sections for the public `/help` list.
