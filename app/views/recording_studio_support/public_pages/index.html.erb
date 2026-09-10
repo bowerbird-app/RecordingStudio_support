@@ -12,7 +12,7 @@
         size: :lg %>
 
   <% if @section_recordings.any? %>
-    <%= render FlatPack::Grid::Component.new(cols: 1, gap: :lg) do %>
+    <%= render FlatPack::Grid::Component.new(cols: 3, gap: :lg) do %>
       <% @section_recordings.each do |recording| %>
         <%= render FlatPack::Card::Component.new(
           style: :interactive,
@@ -23,17 +23,16 @@
           theme: { background: "#ffffff" }
         ) do |card| %>
           <% card.body(padding: :lg) do %>
-            <div class="flex items-start gap-3">
+            <div class="flex h-full flex-col gap-3">
               <% if support_section_icon_name(recording).present? %>
-                <div class="mt-0.5 shrink-0"><%= support_section_icon(recording) %></div>
+                <div class="shrink-0"><%= support_section_icon(recording) %></div>
               <% end %>
-              <div class="min-w-0 flex-1">
+              <div class="min-w-0">
                 <h3 class="text-base font-semibold text-[var(--surface-content-color)]"><%= support_recording_title(recording) %></h3>
                 <p class="mt-1 text-sm text-[var(--surface-muted-content-color)]"><%= support_article_count_label(@page_counts.fetch(recording.id, 0)) %></p>
               </div>
             </div>
           <% end %>
-
         <% end %>
       <% end %>
     <% end %>

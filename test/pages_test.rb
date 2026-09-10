@@ -68,7 +68,8 @@ class PagesTest < Minitest::Test
     assert_includes public_index, "support_article_count_label"
     assert_includes public_index, "support_section_icon"
     assert_includes public_index, "support_section_icon_name"
-    assert_includes public_index, "flex items-start gap-3"
+    assert_includes public_index, "flex h-full flex-col gap-3"
+    assert_includes public_index, "cols: 3"
     [staff_show, public_show].each do |show|
       refute_includes show, "support_page_count_badge"
     end
