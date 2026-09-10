@@ -13,7 +13,7 @@ Help pages (articles) get the same optional Heroicons `icon` as sections, defaul
 
 ### Added
 - Optional `icon` string on `recording_studio_support_pages`
-- Staff page new/edit Icon field with live Flatpack preview (shared with sections via `recording-studio-support--icon-preview`)
+- Staff page new/edit Icon field with live Flatpack preview, tucked with Section under collapsed **Advanced settings** after Body (shared with sections via `recording-studio-support--icon-preview`)
 - New pages prefill from the selected section’s icon; changing Section updates the field when it still matches the previous section default (or is blank)
 - Edit prefills a blank page icon from the parent section (saving without clearing stores that default)
 - Shared `HasHeroicon` concern for section and page normalization/validation

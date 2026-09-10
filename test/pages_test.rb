@@ -246,6 +246,8 @@ class PagesTest < Minitest::Test
     assert_includes form, 'label: "Description"'
     assert_includes form, "recording_studio_support/shared/icon_field"
     assert_includes form, 'scope: "page"'
+    assert_includes form, "FlatPack::Collapse::Component"
+    assert_includes form, 'title: "Advanced settings"'
     assert_includes form, "preset: :content"
     assert_includes form, "uploads: { url: uploads_path }"
     assert_includes form, "image"

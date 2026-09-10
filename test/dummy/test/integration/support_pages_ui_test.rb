@@ -124,6 +124,21 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "recording-studio-support--icon-preview"
     assert_includes response.body, 'data-flat-pack--icon-name-value="rocket-launch"'
     assert_includes response.body, "Defaults to the section icon"
+    assert_includes response.body, "Advanced settings"
+    assert_select "[data-controller='flat-pack--collapse'][data-flat-pack--collapse-open-value='false']"
+    assert_includes response.body, "page[section_id]"
+    # Title/Description/Body stay outside the collapse; Section + Icon are inside it.
+    body_pos = response.body.index('name="page[body]"')
+    advanced_pos = response.body.index("Advanced settings")
+    section_pos = response.body.index('name="page[section_id]"') || response.body.index("page[section_id]")
+    icon_pos = response.body.index('name="page[icon]"')
+    assert body_pos
+    assert advanced_pos
+    assert section_pos
+    assert icon_pos
+    assert_operator body_pos, :<, advanced_pos
+    assert_operator advanced_pos, :<, section_pos
+    assert_operator section_pos, :<, icon_pos
   end
 
   test "create and edit persist page icons" do

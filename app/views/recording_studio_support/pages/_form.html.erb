@@ -1,6 +1,7 @@
 <%= form_with url: url, method: method, scope: :page do %>
   <% controller = "recording-studio-support--icon-preview" %>
   <% with_section_icons = local_assigns[:section_choices].present? %>
+  <% advanced_open = @page.errors[:icon].present? %>
   <div
     class="flex flex-col gap-4"
     data-controller="<%= controller %>"
@@ -12,16 +13,6 @@
       data-action="input-><%= controller %>#sync"
     <% end %>
   >
-    <% if with_section_icons %>
-      <%= render FlatPack::Select::Component.new(
-        name: "page[section_id]",
-        label: "Section",
-        options: support_section_options(section_choices),
-        value: local_assigns[:selected_section_id],
-        required: true
-      ) %>
-    <% end %>
-
     <%= render FlatPack::TextInput::Component.new(
       name: "page[title]",
       label: "Title",
@@ -36,13 +27,6 @@
       value: @page.description,
       rows: 2
     ) %>
-
-    <%= render "recording_studio_support/shared/icon_field",
-               scope: "page",
-               value: @page.icon,
-               error: @page.errors[:icon].presence&.to_sentence,
-               help_text: "Paste a Heroicons name from heroicons.com — leave blank for none. Defaults to the section icon.",
-               preview: false %>
 
     <%= render FlatPack::TextArea::Component.new(
       name: "page[body]",
@@ -62,6 +46,31 @@
         uploads: { url: uploads_path }
       }
     ) %>
+
+    <%= render FlatPack::Collapse::Component.new(
+      id: "page-advanced-settings",
+      title: "Advanced settings",
+      open: advanced_open
+    ) do %>
+      <div class="flex flex-col gap-4">
+        <% if with_section_icons %>
+          <%= render FlatPack::Select::Component.new(
+            name: "page[section_id]",
+            label: "Section",
+            options: support_section_options(section_choices),
+            value: local_assigns[:selected_section_id],
+            required: true
+          ) %>
+        <% end %>
+
+        <%= render "recording_studio_support/shared/icon_field",
+                   scope: "page",
+                   value: @page.icon,
+                   error: @page.errors[:icon].presence&.to_sentence,
+                   help_text: "Paste a Heroicons name from heroicons.com — leave blank for none. Defaults to the section icon.",
+                   preview: false %>
+      </div>
+    <% end %>
 
     <%= render "recording_studio_support/shared/form_actions", cancel_url: cancel_url %>
   </div>

@@ -18,6 +18,22 @@ class SupportPageIconTest < Minitest::Test
     assert_includes form, "Defaults to the section icon"
     assert_includes form, "recording-studio-support--icon-preview"
     assert_includes form, "support_section_icon_map"
+    assert_includes form, "FlatPack::Collapse::Component"
+    assert_includes form, 'title: "Advanced settings"'
+    assert_includes form, "open: advanced_open"
+    assert_includes form, 'id: "page-advanced-settings"'
+    # Section + Icon sit after Body, inside Advanced settings.
+    body_index = form.index('label: "Body"')
+    advanced_index = form.index('title: "Advanced settings"')
+    section_index = form.index('label: "Section"')
+    icon_index = form.index('scope: "page"')
+    assert body_index
+    assert advanced_index
+    assert section_index
+    assert icon_index
+    assert_operator body_index, :<, advanced_index
+    assert_operator advanced_index, :<, section_index
+    assert_operator section_index, :<, icon_index
     assert_includes icon_field, "name: input_name"
     assert_includes icon_field, "FlatPack::Shared::IconComponent"
     assert_includes controller, ":icon"
