@@ -287,6 +287,8 @@ class PagesTest < Minitest::Test
     assert_includes preview, "nameValue"
     assert_includes preview, "normalize"
     assert_includes preview, "getControllerForElementAndIdentifier"
+    assert_includes preview, "hasDrawnPaths"
+    assert_includes preview, "Do not wipe those paths"
   end
 
   def test_page_view_model_is_a_log_table
