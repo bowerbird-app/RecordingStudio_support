@@ -13,12 +13,12 @@ class SupportPageIconTest < Minitest::Test
       File.expand_path("../app/views/recording_studio_support/shared/_icon_field.html.erb", __dir__)
     )
 
-    assert_includes form, 'recording_studio_support/shared/icon_field'
+    assert_includes form, "recording_studio_support/shared/icon_field"
     assert_includes form, 'scope: "page"'
     assert_includes form, "Defaults to the section icon"
     assert_includes form, "recording-studio-support--icon-preview"
     assert_includes form, "support_section_icon_map"
-    assert_includes icon_field, 'name: input_name'
+    assert_includes icon_field, "name: input_name"
     assert_includes icon_field, "FlatPack::Shared::IconComponent"
     assert_includes controller, ":icon"
     assert_includes controller, "icon: page_params[:icon]"

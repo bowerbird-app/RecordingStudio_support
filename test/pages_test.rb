@@ -244,7 +244,7 @@ class PagesTest < Minitest::Test
 
     assert_includes form, 'name: "page[description]"'
     assert_includes form, 'label: "Description"'
-    assert_includes form, 'recording_studio_support/shared/icon_field'
+    assert_includes form, "recording_studio_support/shared/icon_field"
     assert_includes form, 'scope: "page"'
     assert_includes form, "preset: :content"
     assert_includes form, "uploads: { url: uploads_path }"
@@ -267,7 +267,7 @@ class PagesTest < Minitest::Test
       File.expand_path("../app/views/recording_studio_support/shared/_icon_field.html.erb", __dir__)
     )
 
-    assert_includes form, 'recording_studio_support/shared/icon_field'
+    assert_includes form, "recording_studio_support/shared/icon_field"
     assert_includes form, 'scope: "section"'
     assert_includes icon_field, ">Icon</label>"
     assert_includes icon_field, "items-start gap-3"

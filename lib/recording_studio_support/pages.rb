@@ -12,6 +12,7 @@ module RecordingStudioSupport
 
     SUPPORT_PAGE_TYPE = "RecordingStudioSupport::SupportPage"
 
+    # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength -- public write API keeps optional fields explicit
     def create!(parent_recording:, title:, body:, description: nil, icon: nil, actor: nil)
       assign_actor(actor) do
         parent_recording.root_recording.record(
@@ -36,6 +37,7 @@ module RecordingStudioSupport
         end
       end
     end
+    # rubocop:enable Metrics/ParameterLists, Metrics/MethodLength
 
     def trash!(recording:, actor: nil)
       assign_actor(actor) do
