@@ -65,5 +65,11 @@ module RecordingStudioSupport
         [title, recording.id]
       end
     end
+
+    def support_section_icon_map(section_recordings)
+      Array(section_recordings).each_with_object({}) do |recording, map|
+        map[recording.id.to_s] = support_section_icon_name(recording).to_s
+      end
+    end
   end
 end

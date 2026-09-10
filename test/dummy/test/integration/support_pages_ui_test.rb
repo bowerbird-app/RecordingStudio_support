@@ -114,6 +114,85 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_select "img[alt='nope']"
   end
 
+  test "new page defaults icon from the selected section" do
+    section = seeded_section("Getting started")
+
+    get "/admin/support/new", params: { section_id: section.id }
+
+    assert_response :success
+    assert_select "input[name='page[icon]'][value='rocket-launch']"
+    assert_includes response.body, "recording-studio-support--icon-preview"
+    assert_includes response.body, 'data-flat-pack--icon-name-value="rocket-launch"'
+    assert_includes response.body, "Defaults to the section icon"
+    assert_includes response.body, "Advanced settings"
+    assert_select "[data-controller='flat-pack--collapse'][data-flat-pack--collapse-open-value='false']"
+    assert_includes response.body, "page[section_id]"
+    # Title/Description/Body stay outside the collapse; Section + Icon are inside it.
+    body_pos = response.body.index('name="page[body]"')
+    advanced_pos = response.body.index("Advanced settings")
+    section_pos = response.body.index('name="page[section_id]"') || response.body.index("page[section_id]")
+    icon_pos = response.body.index('name="page[icon]"')
+    assert body_pos
+    assert advanced_pos
+    assert section_pos
+    assert icon_pos
+    assert_operator body_pos, :<, advanced_pos
+    assert_operator advanced_pos, :<, section_pos
+    assert_operator section_pos, :<, icon_pos
+  end
+
+  test "create and edit persist page icons" do
+    section = seeded_section("Billing")
+
+    assert_difference -> { RecordingStudioSupport::SupportPage.count }, 1 do
+      post "/admin/support", params: {
+        page: {
+          section_id: section.id,
+          title: "How do I download a receipt?",
+          description: "Grab a PDF from billing.",
+          icon: "banknotes",
+          body: "Open Billing, then download the receipt."
+        }
+      }
+    end
+
+    recording = RecordingStudio::Recording.order(:created_at).last
+    assert_redirected_to "/admin/support/#{recording.id}"
+    assert_equal "banknotes", recording.recordable.icon
+
+    get "/admin/support/#{recording.id}/edit"
+
+    assert_response :success
+    assert_select "input[name='page[icon]'][value='banknotes']"
+
+    patch "/admin/support/#{recording.id}", params: {
+      page: {
+        title: "How do I download a receipt?",
+        description: "Grab a PDF from billing.",
+        icon: "receipt-percent",
+        body: "Open Billing, then download the receipt."
+      }
+    }
+
+    assert_redirected_to "/admin/support/#{recording.id}"
+    assert_equal "receipt-percent", recording.reload.recordable.icon
+  end
+
+  test "edit prefills blank page icon from the parent section" do
+    recording = RecordingStudioSupport::Pages.create!(
+      parent_recording: seeded_section("Developers"),
+      title: "How do I rotate keys?",
+      body: "Generate a new key, then retire the old one.",
+      actor: @user
+    )
+    assert_nil recording.recordable.icon
+
+    get "/admin/support/#{recording.id}/edit"
+
+    assert_response :success
+    assert_select "input[name='page[icon]'][value='code-bracket']"
+  end
+
   test "new and create go through public record helper" do
     get "/admin/support/new"
 

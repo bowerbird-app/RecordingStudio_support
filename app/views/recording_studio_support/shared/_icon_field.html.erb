@@ -1,0 +1,52 @@
+<%# locals: (scope:, value:, error: nil, help_text: nil, preview: true, section_icons: nil) %>
+<% controller = "recording-studio-support--icon-preview" %>
+<% input_name = "#{scope}[icon]" %>
+<% input_id = "#{scope}_icon" %>
+<% help = local_assigns.fetch(:help_text, "Paste a Heroicons name from heroicons.com — leave blank for none.") %>
+<% wrap_preview = local_assigns.fetch(:preview, true) %>
+<% if wrap_preview %>
+<div
+  data-controller="<%= controller %>"
+  data-<%= controller %>-input-name-value="<%= input_name %>"
+  <% if local_assigns[:section_icons] %>
+    data-<%= controller %>-section-icons-value="<%= ERB::Util.html_escape(section_icons.to_json) %>"
+    data-action="input-><%= controller %>#sync change-><%= controller %>#sectionChanged"
+  <% else %>
+    data-action="input-><%= controller %>#sync"
+  <% end %>
+>
+<% end %>
+  <label for="<%= input_id %>" class="mb-1.5 block text-sm font-medium text-[var(--surface-content-color)]">Icon</label>
+  <div class="flex items-start gap-3">
+    <div
+      class="<%= [
+        "box-border flex shrink-0 items-center justify-center",
+        "h-[calc(1.25rem+2*var(--form-control-padding)+2px)]",
+        "w-[calc(1.25rem+2*var(--form-control-padding)+2px)]",
+        "rounded-[var(--radius-md)] border border-[var(--surface-border-color)]",
+        "bg-[var(--surface-background-color)] text-[var(--surface-content-color)]",
+        (value.presence ? nil : "opacity-40")
+      ].compact.join(" ") %>"
+      data-<%= controller %>-target="frame"
+      aria-hidden="true"
+    >
+      <%= render FlatPack::Shared::IconComponent.new(
+        name: value.to_s,
+        size: :lg
+      ) %>
+    </div>
+
+    <div class="min-w-0 flex-1">
+      <%= render FlatPack::TextInput::Component.new(
+        name: input_name,
+        id: input_id,
+        value: value,
+        placeholder: "credit-card",
+        help_text: help,
+        error: error
+      ) %>
+    </div>
+  </div>
+<% if wrap_preview %>
+</div>
+<% end %>

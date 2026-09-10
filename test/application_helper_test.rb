@@ -172,6 +172,7 @@ class ApplicationHelperTest < Minitest::Test
     assert_includes source, '"chevron-right"'
     assert_includes source, "def support_section_icon"
     assert_includes source, "def support_section_icon_name"
+    assert_includes source, "def support_section_icon_map"
   end
 
   def test_help_copy_helpers_read_configuration

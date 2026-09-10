@@ -244,6 +244,11 @@ class PagesTest < Minitest::Test
 
     assert_includes form, 'name: "page[description]"'
     assert_includes form, 'label: "Description"'
+    assert_includes form, "recording_studio_support/shared/icon_field"
+    assert_includes form, 'scope: "page"'
+    assert_includes form, "FlatPack::Collapse::Component"
+    assert_includes form, 'title: "Advanced settings"'
+    assert_includes form, "border: false"
     assert_includes form, "preset: :content"
     assert_includes form, "uploads: { url: uploads_path }"
     assert_includes form, "image"
@@ -261,26 +266,29 @@ class PagesTest < Minitest::Test
     )
     sections = File.read(File.expand_path("../lib/recording_studio_support/sections.rb", __dir__))
     model = File.read(File.expand_path("../app/models/recording_studio_support/support_section.rb", __dir__))
+    icon_field = File.read(
+      File.expand_path("../app/views/recording_studio_support/shared/_icon_field.html.erb", __dir__)
+    )
 
-    assert_includes form, 'name: "section[icon]"'
-    assert_includes form, ">Icon</label>"
-    assert_includes form, "items-start gap-3"
-    assert_includes form, "h-[calc(1.25rem+2*var(--form-control-padding)+2px)]"
-    refute_includes form, "h-11 w-11"
-    assert_includes form, "heroicons.com"
-    assert_includes form, "recording-studio-support--section-icon-preview"
-    assert_includes form, "FlatPack::Shared::IconComponent"
-    refute_includes form, 'label: "Icon"'
-    refute_includes form, "items-end"
+    assert_includes form, "recording_studio_support/shared/icon_field"
+    assert_includes form, 'scope: "section"'
+    assert_includes icon_field, ">Icon</label>"
+    assert_includes icon_field, "items-start gap-3"
+    assert_includes icon_field, "h-[calc(1.25rem+2*var(--form-control-padding)+2px)]"
+    refute_includes icon_field, "h-11 w-11"
+    assert_includes icon_field, "heroicons.com"
+    assert_includes icon_field, "recording-studio-support--icon-preview"
+    assert_includes icon_field, "FlatPack::Shared::IconComponent"
+    refute_includes icon_field, 'label: "Icon"'
+    refute_includes icon_field, "items-end"
     assert_includes controller, "permit(:title, :icon)"
     assert_includes controller, "icon: section_params[:icon]"
     assert_includes sections, "icon: nil"
-    assert_includes model, "ICON_FORMAT"
-    assert_includes model, "normalize_icon"
+    assert_includes model, "Concerns::HasHeroicon"
 
     preview = File.read(
       File.expand_path(
-        "../app/javascript/recording_studio_support/controllers/section_icon_preview_controller.js",
+        "../app/javascript/recording_studio_support/controllers/icon_preview_controller.js",
         __dir__
       )
     )

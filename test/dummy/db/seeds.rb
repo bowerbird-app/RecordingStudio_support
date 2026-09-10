@@ -107,7 +107,7 @@ find_or_record_support_section = lambda do |root_recording, title:, icon: nil|
   end
 end
 
-find_or_record_support_page = lambda do |root_recording, parent_recording, title:, body:, description: nil|
+find_or_record_support_page = lambda do |root_recording, parent_recording, title:, body:, description: nil, icon: nil|
   existing = RecordingStudio::Recording.where(
     root_recording: root_recording,
     recordable_type: "RecordingStudioSupport::SupportPage",
@@ -120,10 +120,11 @@ find_or_record_support_page = lambda do |root_recording, parent_recording, title
       existing.reload
     end
     page = existing.recordable
-    if page.body != body || page.description.to_s != description.to_s
+    if page.body != body || page.description.to_s != description.to_s || page.icon.to_s != icon.to_s
       root_recording.revise(existing) do |revised|
         revised.title = title
         revised.description = description
+        revised.icon = icon
         revised.body = body
       end
     end
@@ -133,6 +134,7 @@ find_or_record_support_page = lambda do |root_recording, parent_recording, title
   root_recording.record(RecordingStudioSupport::SupportPage, parent_recording: parent_recording) do |page|
     page.title = title
     page.description = description
+    page.icon = icon
     page.body = body
   end
 end
@@ -222,6 +224,7 @@ begin
     getting_started_section,
     title: "How do I sign in?",
     description: "Use the email and password you were given.",
+    icon: getting_started_section.recordable.icon,
     body: SIGN_IN_BODY
   )
   password_page = find_or_record_support_page.call(
@@ -229,6 +232,7 @@ begin
     getting_started_section,
     title: "How do I change my password?",
     description: "Pick a new password in account settings.",
+    icon: getting_started_section.recordable.icon,
     body: PASSWORD_BODY
   )
   billing_page = find_or_record_support_page.call(
@@ -236,6 +240,7 @@ begin
     billing_section,
     title: "How do I update payment details?",
     description: "Open billing and save the card you want us to use.",
+    icon: billing_section.recordable.icon,
     body: PAYMENT_BODY
   )
   invoice_page = find_or_record_support_page.call(
@@ -243,6 +248,7 @@ begin
     billing_section,
     title: "Where is my invoice?",
     description: "Open Billing, then Invoices. Download any paid invoice as a PDF.",
+    icon: billing_section.recordable.icon,
     body: INVOICE_BODY
   )
   developers_page = find_or_record_support_page.call(
@@ -250,6 +256,7 @@ begin
     developers_section,
     title: "Where do I find my API key?",
     description: "Open your developer settings. The key is on that page.",
+    icon: developers_section.recordable.icon,
     body: API_KEY_BODY
   )
 

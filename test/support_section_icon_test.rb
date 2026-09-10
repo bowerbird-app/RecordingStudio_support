@@ -3,9 +3,9 @@
 require "test_helper"
 
 class SupportSectionIconTest < Minitest::Test
-  def test_support_section_model_defines_icon_normalization
+  def test_has_heroicon_concern_defines_icon_normalization
     source = File.read(
-      File.expand_path("../app/models/recording_studio_support/support_section.rb", __dir__)
+      File.expand_path("../app/models/recording_studio_support/concerns/has_heroicon.rb", __dir__)
     )
 
     assert_includes source, "ICON_FORMAT"
@@ -13,6 +13,18 @@ class SupportSectionIconTest < Minitest::Test
     assert_includes source, 'tr("_", "-")'
     assert_includes source, "allow_blank: true"
     assert_includes source, "Heroicons name"
+  end
+
+  def test_support_section_and_page_include_has_heroicon
+    section = File.read(
+      File.expand_path("../app/models/recording_studio_support/support_section.rb", __dir__)
+    )
+    page = File.read(
+      File.expand_path("../app/models/recording_studio_support/support_page.rb", __dir__)
+    )
+
+    assert_includes section, "Concerns::HasHeroicon"
+    assert_includes page, "Concerns::HasHeroicon"
   end
 
   def test_public_help_index_renders_section_icon_row

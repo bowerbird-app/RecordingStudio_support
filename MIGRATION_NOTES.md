@@ -2,6 +2,23 @@
 
 ## Unreleased
 
+## 0.9.3
+
+Optional Heroicons `icon` on help pages (articles), defaulting from the parent section on staff forms.
+
+### Host app
+
+1. Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate`. Adds optional `icon` on `recording_studio_support_pages`.
+2. Existing pages have `icon` nil until an editor saves one (or you re-seed). Blank icons stay blank.
+3. Staff page new/edit keeps Title, Description, and Body up front. Section and Icon sit under collapsed **Advanced settings** after Body (opens if the icon field has errors). New pages start from the selected section’s icon; you can clear or override it. Changing Section updates the icon when it still matches the previous section default. Edit also prefills a blank page icon from the parent section (saving without clearing stores that default).
+4. Stimulus controller is now `recording-studio-support--icon-preview` (was `section-icon-preview`). Same importmap pin and eager load as 0.9.2 — restart so the renamed file loads.
+
+### Verify
+
+```bash
+bundle exec rake test:all
+```
+
 ## 0.9.2
 
 Optional Heroicons `icon` on help sections for the public `/help` list.
