@@ -50,7 +50,8 @@
     <%= render FlatPack::Collapse::Component.new(
       id: "page-advanced-settings",
       title: "Advanced settings",
-      open: advanced_open
+      open: advanced_open,
+      border: false
     ) do %>
       <div class="flex flex-col gap-4">
         <% if with_section_icons %>

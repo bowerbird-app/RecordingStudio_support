@@ -21,6 +21,7 @@ class SupportPageIconTest < Minitest::Test
     assert_includes form, "FlatPack::Collapse::Component"
     assert_includes form, 'title: "Advanced settings"'
     assert_includes form, "open: advanced_open"
+    assert_includes form, "border: false"
     assert_includes form, 'id: "page-advanced-settings"'
     # Section + Icon sit after Body, inside Advanced settings.
     body_index = form.index('label: "Body"')
