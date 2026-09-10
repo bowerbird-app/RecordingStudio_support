@@ -82,7 +82,7 @@ find_or_record_child = lambda do |recordable, root_recording, parent_recording|
   ).recording
 end
 
-find_or_record_support_section = lambda do |root_recording, title:|
+find_or_record_support_section = lambda do |root_recording, title:, icon: nil|
   existing = RecordingStudio::Recording.where(
     root_recording: root_recording,
     parent_recording: root_recording,
@@ -90,10 +90,20 @@ find_or_record_support_section = lambda do |root_recording, title:|
     trashed_at: nil
   ).find { |recording| recording.recordable.title == title }
 
-  return existing if existing
+  if existing
+    section = existing.recordable
+    if section.icon.to_s != icon.to_s
+      root_recording.revise(existing) do |revised|
+        revised.icon = icon
+      end
+      existing.reload
+    end
+    return existing
+  end
 
   root_recording.record(RecordingStudioSupport::SupportSection) do |section|
     section.title = title
+    section.icon = icon
   end
 end
 
@@ -203,9 +213,9 @@ begin
     grant_workspace_access.call(recording, user)
   end
 
-  billing_section = find_or_record_support_section.call(root_recording, title: "Billing")
-  developers_section = find_or_record_support_section.call(root_recording, title: "Developers")
-  getting_started_section = find_or_record_support_section.call(root_recording, title: "Getting started")
+  billing_section = find_or_record_support_section.call(root_recording, title: "Billing", icon: "credit-card")
+  developers_section = find_or_record_support_section.call(root_recording, title: "Developers", icon: "code-bracket")
+  getting_started_section = find_or_record_support_section.call(root_recording, title: "Getting started", icon: "rocket-launch")
 
   sign_in_page = find_or_record_support_page.call(
     root_recording,

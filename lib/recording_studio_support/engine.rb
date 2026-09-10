@@ -137,3 +137,5 @@ module RecordingStudioSupport
     end
   end
 end
+
+require_relative "engine/javascript"

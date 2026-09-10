@@ -49,6 +49,9 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "[&amp;_input]:py-3.5"
     assert_includes response.body, "1 article"
     assert_includes response.body, "2 articles"
+    assert_includes response.body, 'data-flat-pack--icon-name-value="credit-card"'
+    assert_includes response.body, 'data-flat-pack--icon-name-value="code-bracket"'
+    assert_includes response.body, 'data-flat-pack--icon-name-value="rocket-launch"'
     refute_includes response.body, "1 page"
     refute_includes response.body, "2 pages"
     refute_includes response.body, "<span>Read</span>"

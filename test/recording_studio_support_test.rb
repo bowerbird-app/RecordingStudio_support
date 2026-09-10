@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.9.1", ::RecordingStudioSupport::VERSION
+    assert_equal "0.9.2", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -196,6 +196,8 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes controllers_js, "eagerLoadControllersFrom"
     assert_includes controllers_js, 'from "controllers/flat_pack/tiptap_controller"'
     assert_includes controllers_js, 'application.register("flat-pack--tiptap", TiptapController)'
+    assert_includes importmap, "controllers/recording_studio_support"
+    assert_includes controllers_js, 'eagerLoadControllersFrom("controllers/recording_studio_support"'
   end
 
   def test_dummy_default_layout_head_loads_flatpack_and_root_switch_chrome

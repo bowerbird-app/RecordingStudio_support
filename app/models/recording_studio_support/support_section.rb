@@ -6,6 +6,7 @@ module RecordingStudioSupport
 
     RESERVED_SLUGS = %w[sections new edit].freeze
     SLUG_FORMAT = /\A[a-z0-9]+(?:-[a-z0-9]+)*\z/
+    ICON_FORMAT = /\A[a-z0-9]+(?:-[a-z0-9]+)*\z/
 
     recording_studio_recordable label: "Help section",
                                 root: false,
@@ -19,9 +20,13 @@ module RecordingStudioSupport
     validates :title, presence: true
     validates :slug, presence: true
     validates :slug, format: { with: SLUG_FORMAT, message: "must use URL-safe lowercase slug segments" }
+    validates :icon,
+              format: { with: ICON_FORMAT, message: "must be a Heroicons name like credit-card" },
+              allow_blank: true
     validate :slug_is_not_reserved
 
     before_validation :assign_slug_from_title
+    before_validation :normalize_icon
 
     def self.slug_for(title, excluding_id: nil)
       base = title.to_s.parameterize.presence || "section"
@@ -62,6 +67,10 @@ module RecordingStudioSupport
       return if slug.present?
 
       self.slug = self.class.slug_for(title, excluding_id: id)
+    end
+
+    def normalize_icon
+      self.icon = icon.to_s.strip.downcase.tr("_", "-").presence
     end
 
     def slug_is_not_reserved

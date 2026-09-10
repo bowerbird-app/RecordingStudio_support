@@ -25,6 +25,7 @@ module RecordingStudioSupport
       @section_recording = Sections.create!(
         root_recording: section_parent_root_recording,
         title: section_params[:title],
+        icon: section_params[:icon],
         actor: current_support_actor
       )
       redirect_to section_path(@section_recording), notice: "Section ready. Add a page when you are."
@@ -40,9 +41,10 @@ module RecordingStudioSupport
       Sections.revise!(
         recording: @section_recording,
         title: section_params[:title],
+        icon: section_params[:icon],
         actor: current_support_actor
       )
-      redirect_to section_path(@section_recording), notice: "Section name updated."
+      redirect_to section_path(@section_recording), notice: "Section updated."
     rescue ActiveRecord::RecordInvalid => e
       render_invalid_section(e, template: :edit)
     end
@@ -62,12 +64,12 @@ module RecordingStudioSupport
     end
 
     def section_params
-      params.fetch(:section, {}).permit(:title)
+      params.fetch(:section, {}).permit(:title, :icon)
     end
 
     def render_invalid_section(error, template:)
       @section = error.record
-      flash.now[:alert] = "Couldn't save that section. Give it a name and try again."
+      flash.now[:alert] = "Couldn't save that section. Check the name and icon, then try again."
       render template, status: :unprocessable_entity
     end
   end

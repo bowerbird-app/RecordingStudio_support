@@ -15,3 +15,4 @@ application.register("flat-pack--tiptap", TiptapController)
 // so lazy loading must start at "controllers" to avoid duplicate path segments.
 lazyLoadControllersFrom("controllers", application)
 eagerLoadControllersFrom("controllers/recording_studio_attachable", application)
+eagerLoadControllersFrom("controllers/recording_studio_support", application)

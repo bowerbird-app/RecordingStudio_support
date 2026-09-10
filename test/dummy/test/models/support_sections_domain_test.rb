@@ -147,6 +147,28 @@ class SupportSectionsDomainTest < ActiveSupport::TestCase
     end
   end
 
+  test "section icon stores a heroicons name and clears when blank" do
+    section = RecordingStudioSupport::Sections.create!(
+      root_recording: @root_recording,
+      title: "Billing #{SecureRandom.hex(4)}",
+      icon: "Credit_Card",
+      actor: @user
+    )
+    assert_equal "credit-card", section.recordable.icon
+
+    revised = RecordingStudioSupport::Sections.revise!(
+      recording: section,
+      title: section.recordable.title,
+      icon: "  ",
+      actor: @user
+    )
+    assert_nil revised.recordable.icon
+
+    invalid = RecordingStudioSupport::SupportSection.new(title: "Nope", icon: "not a name!")
+    refute invalid.valid?
+    assert_includes invalid.errors[:icon].join, "Heroicons"
+  end
+
   test "duplicate section titles get distinct slugs" do
     title = "Billing #{SecureRandom.hex(4)}"
     first = record_support_section(@root_recording, title: title)

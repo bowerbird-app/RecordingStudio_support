@@ -170,6 +170,8 @@ class ApplicationHelperTest < Minitest::Test
     assert_includes source, "def support_list_chevron"
     assert_includes source, "FlatPack::Shared::IconComponent"
     assert_includes source, '"chevron-right"'
+    assert_includes source, "def support_section_icon"
+    assert_includes source, "def support_section_icon_name"
   end
 
   def test_help_copy_helpers_read_configuration

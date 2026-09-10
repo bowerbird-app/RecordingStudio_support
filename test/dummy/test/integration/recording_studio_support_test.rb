@@ -34,6 +34,8 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert connection.column_exists?(:recording_studio_support_pages, :title)
     assert connection.column_exists?(:recording_studio_support_pages, :body)
     assert connection.column_exists?(:recording_studio_support_pages, :description)
+    assert connection.column_exists?(:recording_studio_support_sections, :slug)
+    assert connection.column_exists?(:recording_studio_support_sections, :icon)
     refute connection.column_exists?(:recording_studio_support_pages, :updated_at)
     assert connection.table_exists?(:recording_studio_attachable_attachments)
     assert connection.table_exists?(:active_storage_blobs)
@@ -84,6 +86,9 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert_equal root_recording, getting_started_recording.parent_recording
     assert_equal root_recording, billing_recording.parent_recording
     assert_equal root_recording, developers_recording.parent_recording
+    assert_equal "credit-card", billing_section.icon
+    assert_equal "code-bracket", developers_section.icon
+    assert_equal "rocket-launch", getting_started_section.icon
     assert_equal getting_started_recording, support_page_recording.parent_recording
     assert_equal root_recording, support_page_recording.root_recording
     assert_equal getting_started_recording, password_page_recording.parent_recording

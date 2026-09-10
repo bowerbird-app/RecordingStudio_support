@@ -1,5 +1,9 @@
 <%= form_with url: url, method: method, scope: :section do %>
-  <div class="flex flex-col gap-4">
+  <div
+    class="flex flex-col gap-4"
+    data-controller="recording-studio-support--section-icon-preview"
+    data-action="input->recording-studio-support--section-icon-preview#sync"
+  >
     <%= render FlatPack::TextInput::Component.new(
       name: "section[title]",
       label: "Name",
@@ -7,6 +11,40 @@
       required: true,
       error: @section.errors[:title].presence&.to_sentence
     ) %>
+
+    <div>
+      <label for="section_icon" class="mb-1.5 block text-sm font-medium text-[var(--surface-content-color)]">Icon</label>
+      <div class="flex items-start gap-3">
+        <div
+          class="<%= [
+            "box-border flex shrink-0 items-center justify-center",
+            "h-[calc(1.25rem+2*var(--form-control-padding)+2px)]",
+            "w-[calc(1.25rem+2*var(--form-control-padding)+2px)]",
+            "rounded-[var(--radius-md)] border border-[var(--surface-border-color)]",
+            "bg-[var(--surface-background-color)] text-[var(--surface-content-color)]",
+            (@section.icon.presence ? nil : "opacity-40")
+          ].compact.join(" ") %>"
+          data-recording-studio-support--section-icon-preview-target="frame"
+          aria-hidden="true"
+        >
+          <%= render FlatPack::Shared::IconComponent.new(
+            name: @section.icon.to_s,
+            size: :lg
+          ) %>
+        </div>
+
+        <div class="min-w-0 flex-1">
+          <%= render FlatPack::TextInput::Component.new(
+            name: "section[icon]",
+            id: "section_icon",
+            value: @section.icon,
+            placeholder: "credit-card",
+            help_text: "Paste a Heroicons name from heroicons.com — leave blank for none.",
+            error: @section.errors[:icon].presence&.to_sentence
+          ) %>
+        </div>
+      </div>
+    </div>
 
     <%= render "recording_studio_support/shared/form_actions", cancel_url: cancel_url %>
   </div>

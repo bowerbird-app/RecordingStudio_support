@@ -66,6 +66,9 @@ class PagesTest < Minitest::Test
     assert_includes staff_index, "support_page_count_badge"
     refute_includes public_index, "support_page_count_badge"
     assert_includes public_index, "support_article_count_label"
+    assert_includes public_index, "support_section_icon"
+    assert_includes public_index, "support_section_icon_name"
+    assert_includes public_index, "flex items-start gap-3"
     [staff_show, public_show].each do |show|
       refute_includes show, "support_page_count_badge"
     end
@@ -167,6 +170,7 @@ class PagesTest < Minitest::Test
     assert_includes public_index, "support_public_help_title"
     assert_includes public_index, "FlatPack::Card::Component"
     assert_includes public_index, "support_article_count_label"
+    assert_includes public_index, "support_section_icon"
     refute_includes public_index, 'render "recording_studio_support/shared/link_list"'
     refute_includes public_index, 'text: "Read"'
     refute_includes public_index, "recordable"
@@ -248,6 +252,43 @@ class PagesTest < Minitest::Test
     assert_includes actions, 'text: "Cancel"'
     refute_includes actions, "ButtonGroup"
     refute_includes actions, "w-full"
+  end
+
+  def test_section_form_accepts_heroicon_name
+    form = File.read(File.expand_path("../app/views/recording_studio_support/sections/_form.html.erb", __dir__))
+    controller = File.read(
+      File.expand_path("../app/controllers/recording_studio_support/sections_controller.rb", __dir__)
+    )
+    sections = File.read(File.expand_path("../lib/recording_studio_support/sections.rb", __dir__))
+    model = File.read(File.expand_path("../app/models/recording_studio_support/support_section.rb", __dir__))
+
+    assert_includes form, 'name: "section[icon]"'
+    assert_includes form, ">Icon</label>"
+    assert_includes form, "items-start gap-3"
+    assert_includes form, "h-[calc(1.25rem+2*var(--form-control-padding)+2px)]"
+    refute_includes form, "h-11 w-11"
+    assert_includes form, "heroicons.com"
+    assert_includes form, "recording-studio-support--section-icon-preview"
+    assert_includes form, "FlatPack::Shared::IconComponent"
+    refute_includes form, 'label: "Icon"'
+    refute_includes form, "items-end"
+    assert_includes controller, "permit(:title, :icon)"
+    assert_includes controller, "icon: section_params[:icon]"
+    assert_includes sections, "icon: nil"
+    assert_includes model, "ICON_FORMAT"
+    assert_includes model, "normalize_icon"
+
+    preview = File.read(
+      File.expand_path(
+        "../app/javascript/recording_studio_support/controllers/section_icon_preview_controller.js",
+        __dir__
+      )
+    )
+    assert_includes preview, "nameValue"
+    assert_includes preview, "normalize"
+    assert_includes preview, "getControllerForElementAndIdentifier"
+    assert_includes preview, "hasDrawnPaths"
+    assert_includes preview, "Do not wipe those paths"
   end
 
   def test_page_view_model_is_a_log_table
