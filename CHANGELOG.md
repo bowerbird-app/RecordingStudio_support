@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.3] - 2026-09-10
+
+Help pages (articles) get the same optional Heroicons `icon` as sections, defaulting from the parent section on staff new/edit.
+
+### Added
+- Optional `icon` string on `recording_studio_support_pages`
+- Staff page new/edit Icon field with live Flatpack preview (shared with sections via `recording-studio-support--icon-preview`)
+- New pages prefill from the selected section’s icon; changing Section updates the field when it still matches the previous section default (or is blank)
+- Edit prefills a blank page icon from the parent section
+- Shared `HasHeroicon` concern for section and page normalization/validation
+- Dummy seeds copy each section’s icon onto its seeded pages
+
+### Changed
+- Stimulus controller renamed from `section-icon-preview` to `icon-preview` (same importmap pin / eager load)
+
+### Upgrade notes
+- Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` for the page `icon` column
+- Existing pages keep `icon` nil until edited or re-seeded; blank icons stay blank
+- No new Stimulus pin is required if you already eager-load Support controllers from 0.9.2 — the controller file name changed; restart the app so importmap picks it up
+
 ## [0.9.2] - 2026-09-09
 
 Help sections can show a Heroicons icon on the public `/help` list.
@@ -491,7 +511,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.2...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.3...HEAD
+[0.9.3]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.2...v0.9.3
 [0.9.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.0...v0.9.1
 [0.9.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.8.4...v0.9.0

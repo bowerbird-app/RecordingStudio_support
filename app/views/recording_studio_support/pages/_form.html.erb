@@ -1,6 +1,18 @@
 <%= form_with url: url, method: method, scope: :page do %>
-  <div class="flex flex-col gap-4">
-    <% if local_assigns[:section_choices] %>
+  <% controller = "recording-studio-support--icon-preview" %>
+  <% with_section_icons = local_assigns[:section_choices].present? %>
+  <div
+    class="flex flex-col gap-4"
+    data-controller="<%= controller %>"
+    data-<%= controller %>-input-name-value="page[icon]"
+    <% if with_section_icons %>
+      data-<%= controller %>-section-icons-value="<%= ERB::Util.html_escape(support_section_icon_map(section_choices).to_json) %>"
+      data-action="input-><%= controller %>#sync change-><%= controller %>#sectionChanged"
+    <% else %>
+      data-action="input-><%= controller %>#sync"
+    <% end %>
+  >
+    <% if with_section_icons %>
       <%= render FlatPack::Select::Component.new(
         name: "page[section_id]",
         label: "Section",
@@ -24,6 +36,13 @@
       value: @page.description,
       rows: 2
     ) %>
+
+    <%= render "recording_studio_support/shared/icon_field",
+               scope: "page",
+               value: @page.icon,
+               error: @page.errors[:icon].presence&.to_sentence,
+               help_text: "Paste a Heroicons name from heroicons.com — leave blank for none. Defaults to the section icon.",
+               preview: false %>
 
     <%= render FlatPack::TextArea::Component.new(
       name: "page[body]",

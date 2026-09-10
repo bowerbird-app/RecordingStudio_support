@@ -18,6 +18,7 @@ module RecordingStudioSupport
     def new
       @page = SupportPage.new
       @selected_section_id = params[:section_id].presence || @section_choices.first&.id
+      apply_default_page_icon_from_section!
     end
 
     def create
@@ -31,6 +32,8 @@ module RecordingStudioSupport
 
     def edit
       @page = @page_recording.recordable
+      @section_recording = Pages.section_for(@page_recording)
+      apply_default_page_icon_from_section!
     end
 
     def update
@@ -63,7 +66,7 @@ module RecordingStudioSupport
     end
 
     def page_params
-      params.fetch(:page, {}).permit(:title, :description, :body, :section_id)
+      params.fetch(:page, {}).permit(:title, :description, :body, :icon, :section_id)
     end
 
     def create_page!(section)
@@ -79,15 +82,32 @@ module RecordingStudioSupport
         title: page_params[:title],
         description: page_params[:description],
         body: page_params[:body],
+        icon: page_params[:icon],
         actor: current_support_actor
       }
+    end
+
+    def apply_default_page_icon_from_section!
+      return if @page.icon.present?
+
+      section = page_icon_source_section
+      return if section.blank?
+
+      @page.icon = section.icon
+    end
+
+    def page_icon_source_section
+      recording = @section_recording
+      recording ||= @section_choices&.find { |choice| choice.id.to_s == @selected_section_id.to_s }
+      recording&.recordable
     end
 
     def render_missing_section
       @page = SupportPage.new(
         title: page_params[:title],
         description: page_params[:description],
-        body: page_params[:body]
+        body: page_params[:body],
+        icon: page_params[:icon]
       )
       flash.now[:alert] = "Add a section first, then you can write a page."
       render :new, status: :unprocessable_entity
@@ -96,6 +116,7 @@ module RecordingStudioSupport
     def render_invalid_page(error, template:)
       @page = error.record
       @selected_section_id = page_params[:section_id]
+      @section_recording = Pages.section_for(@page_recording) if @page_recording
       flash.now[:alert] = "Couldn't save that page. Give it a title and try again."
       render template, status: :unprocessable_entity
     end

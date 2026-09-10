@@ -16,6 +16,7 @@ module RecordingStudioSupport
       public_layout: "recording_studio/default_layout",
       path: "/help/:uuid/:slug"
     )
+    include Concerns::HasHeroicon
 
     validates :title, presence: true
   end

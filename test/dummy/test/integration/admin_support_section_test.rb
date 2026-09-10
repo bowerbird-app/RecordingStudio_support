@@ -181,7 +181,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_select "input[name='section[title]']"
     assert_select "input[name='section[icon]']"
     assert_includes response.body, "rocket-launch"
-    assert_includes response.body, "recording-studio-support--section-icon-preview"
+    assert_includes response.body, "recording-studio-support--icon-preview"
     assert_includes response.body, 'data-flat-pack--icon-name-value="rocket-launch"'
     refute_includes response.body, "flat-pack-button-group"
   end

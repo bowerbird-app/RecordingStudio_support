@@ -26,16 +26,19 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
       parent_recording: @section_recording,
       title: "Office hours",
       description: "When the desk is open.",
+      icon: "clock",
       body: "Tuesday mornings.",
       actor: @user
     )
     original_id = recording.recordable_id
     assert_equal "When the desk is open.", recording.recordable.description
+    assert_equal "clock", recording.recordable.icon
 
     RecordingStudioSupport::Pages.revise!(
       recording: recording,
       title: "Office hours",
       description: "Wednesday desk hours.",
+      icon: "calendar-days",
       body: "Wednesday mornings.",
       actor: @user
     )
@@ -44,7 +47,32 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
     assert_not_equal original_id, recording.recordable_id
     assert_equal "Wednesday mornings.", recording.recordable.body
     assert_equal "Wednesday desk hours.", recording.recordable.description
+    assert_equal "calendar-days", recording.recordable.icon
     assert_equal @section_recording, recording.parent_recording
+  end
+
+  test "page icon normalizes and clears like section icons" do
+    recording = RecordingStudioSupport::Pages.create!(
+      parent_recording: @section_recording,
+      title: "Icon check #{SecureRandom.hex(4)}",
+      icon: "Credit_Card",
+      body: "Body",
+      actor: @user
+    )
+    assert_equal "credit-card", recording.recordable.icon
+
+    revised = RecordingStudioSupport::Pages.revise!(
+      recording: recording,
+      title: recording.recordable.title,
+      icon: "  ",
+      body: recording.recordable.body,
+      actor: @user
+    )
+    assert_nil revised.recordable.icon
+
+    invalid = RecordingStudioSupport::SupportPage.new(title: "Nope", icon: "not a name!")
+    refute invalid.valid?
+    assert_includes invalid.errors[:icon].join, "Heroicons"
   end
 
   test "page views are logs not recordings" do

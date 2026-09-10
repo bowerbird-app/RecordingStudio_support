@@ -1,13 +1,20 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Keeps the section form Heroicons preview in sync with the Icon field.
+// Keeps a Heroicons preview in sync with an Icon field (section or page forms).
 // FlatPack::Shared::IconComponent renders an empty SVG shell; flat-pack--icon
 // fills the paths. Do not wipe those paths unless the name actually changes.
+// On page forms, changing Section updates the icon when it still matches the
+// previous section default (or is blank).
 export default class extends Controller {
   static targets = ["frame"]
+  static values = {
+    inputName: { type: String, default: "section[icon]" },
+    sectionIcons: { type: Object, default: {} }
+  }
 
   connect() {
     this.lastName = null
+    this.trackedSectionDefault = this.normalize(this.iconInput?.value || "")
     this.sync({ force: false })
   }
 
@@ -42,6 +49,25 @@ export default class extends Controller {
     this.applyName(icon, name)
   }
 
+  sectionChanged(event) {
+    const select = event.target
+    if (!select || select.name !== "page[section_id]") return
+
+    const nextDefault = this.normalize(this.sectionIconsValue[select.value] || "")
+    const input = this.iconInput
+    if (!input) return
+
+    const current = this.normalize(input.value)
+    const stillOnPreviousDefault =
+      current === "" || current === this.normalize(this.trackedSectionDefault || "")
+
+    if (stillOnPreviousDefault) {
+      input.value = nextDefault
+      this.trackedSectionDefault = nextDefault
+      this.sync({ force: true })
+    }
+  }
+
   applyName(icon, name) {
     const iconController = this.application.getControllerForElementAndIdentifier(
       icon,
@@ -70,7 +96,7 @@ export default class extends Controller {
   }
 
   get iconInput() {
-    return this.element.querySelector('input[name="section[icon]"]')
+    return this.element.querySelector(`input[name="${this.inputNameValue}"]`)
   }
 
   get iconElement() {
