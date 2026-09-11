@@ -10,9 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_10_020000) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_11_080000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+  enable_extension "pg_trgm"
   enable_extension "pgcrypto"
 
   create_table "active_storage_attachments", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -169,6 +170,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_10_020000) do
     t.index ["root_recording_id"], name: "idx_rs_root_switchable_root_recording"
   end
 
+  create_table "recording_studio_search_queries", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.jsonb "embedding", null: false
+    t.datetime "embedding_at", null: false
+    t.string "embedding_model", null: false
+    t.integer "hit_count", default: 0, null: false
+    t.string "keyword", null: false
+    t.datetime "updated_at", null: false
+    t.index ["keyword", "embedding_model"], name: "index_rss_queries_on_keyword_and_model", unique: true
+  end
+
   create_table "recording_studio_support_page_views", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "actor_id"
     t.string "actor_type"
@@ -183,7 +195,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_10_020000) do
     t.datetime "created_at", null: false
     t.text "description"
     t.string "icon"
+    t.virtual "search_vector", type: :tsvector, as: "(setweight(to_tsvector('english'::regconfig, COALESCE((title)::text, ''::text)), 'A'::\"char\") || setweight(to_tsvector('english'::regconfig, COALESCE(body, ''::text)), 'D'::\"char\"))", stored: true
     t.string "title", null: false
+    t.index ["body"], name: "index_recording_studio_support_pages_on_body_trgm", opclass: :gin_trgm_ops, using: :gin
+    t.index ["search_vector"], name: "index_recording_studio_support_pages_on_search_vector", using: :gin
+    t.index ["title"], name: "index_recording_studio_support_pages_on_title_trgm", opclass: :gin_trgm_ops, using: :gin
   end
 
   create_table "recording_studio_support_sections", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

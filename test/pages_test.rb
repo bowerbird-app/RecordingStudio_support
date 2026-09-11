@@ -163,7 +163,10 @@ class PagesTest < Minitest::Test
     assert_includes pages, "def public_indexable(query: nil)"
     assert_includes pages, "def public_for_section"
     assert_includes pages, "def related_public_for"
-    assert_includes pages, ".distinct.order(:title)"
+    assert_includes pages, ".distinct.reorder(:title)"
+    assert_includes pages, "SupportPage.search(term)"
+    assert_includes pages, "relation.search(term)"
+    refute_includes pages, "ILIKE"
     refute_includes pages, "meta_robots"
     refute_includes pages, "noindex"
     assert_includes public_index, 'render "recording_studio_support/shared/search"'

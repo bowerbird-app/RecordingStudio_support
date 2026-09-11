@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.5] - 2026-09-11
+
+Help article (`SupportPage`) search uses Recording Studio Search trigram (`pg_trgm`), not `ILIKE`. Sections stay on `ILIKE`. No AI / pgvector.
+
+### Added
+- Dependency on `recording_studio_search` (`~> 0.3`); this repo vendors `vendor/recording_studio_search` at upstream `ce6265e10a732cd40bd83a8dd9c5cfe710ca22f7` while that repo is private to CI
+- `SupportPage` is searchable with `backend: :pg_trgm`, `against: { title: "A", body: "D" }`
+- Migration adds generated `search_vector` plus trigram indexes on `recording_studio_support_pages`
+- Dummy installs Search (`default_backend = :pg_trgm`) and the query-cache migration
+
+### Changed
+- `Pages::Lookups` page filters call `SupportPage.search` / relation search instead of title/body `ILIKE`
+- Section search (`Sections` and `/help?q=`) is unchanged (`ILIKE` on section titles)
+
+### Upgrade notes
+- Add `recording_studio_search` to the host Gemfile (GitHub pin until a tag exists; see README)
+- Run `bin/rails generate recording_studio_search:install` and migrate (query-cache table; no vector extension)
+- Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` for `search_vector` on support pages
+- Set `config.default_backend = :pg_trgm` in the Search initializer; do not run `searchable_pgvector` for Support
+
 ## [0.9.4] - 2026-09-11
 
 Dummy and host kit pins match current healthy Recording Studio org tags.

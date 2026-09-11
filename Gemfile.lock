@@ -98,7 +98,7 @@ GIT
 PATH
   remote: .
   specs:
-    recording_studio_support (0.9.4)
+    recording_studio_support (0.9.5)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
       recording_studio_accessible (~> 0.6)
@@ -107,7 +107,17 @@ PATH
       recording_studio_moveable (~> 3.0)
       recording_studio_orderable (~> 0.2)
       recording_studio_publishable (~> 0.2)
+      recording_studio_search (~> 0.3)
       recording_studio_trashable (~> 0.4)
+
+PATH
+  remote: vendor/recording_studio_search
+  specs:
+    recording_studio_search (0.3.0)
+      json (>= 2.21, < 3)
+      pgvector (>= 0.3)
+      rails (~> 8.1.0)
+      recording_studio (~> 4.2)
 
 GEM
   remote: https://rubygems.org/
@@ -217,7 +227,7 @@ GEM
       pp (>= 0.6.0)
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
-    json (2.17.1)
+    json (2.21.2)
     language_server-protocol (3.17.0.5)
     lint_roller (1.1.0)
     logger (1.7.0)
@@ -265,6 +275,7 @@ GEM
     parser (3.3.10.0)
       ast (~> 2.4.1)
       racc
+    pgvector (0.3.3)
     pp (0.6.3)
       prettyprint
     prettyprint (0.2.0)
@@ -410,6 +421,7 @@ DEPENDENCIES
   recording_studio_moveable (~> 3.0)!
   recording_studio_orderable (~> 0.2)!
   recording_studio_publishable (~> 0.2)!
+  recording_studio_search (~> 0.3)!
   recording_studio_support!
   recording_studio_trashable (~> 0.4)!
   rubocop
@@ -450,7 +462,7 @@ CHECKSUMS
   i18n (1.14.7) sha256=ceba573f8138ff2c0915427f1fc5bdf4aa3ab8ae88c8ce255eb3ecf0a11a5d0f
   io-console (0.8.1) sha256=1e15440a6b2f67b6ea496df7c474ed62c860ad11237f29b3bd187f054b925fcb
   irb (1.15.3) sha256=4349edff1efa7ff7bfd34cb9df74a133a588ba88c2718098b3b4468b81184aaa
-  json (2.17.1) sha256=e0e4824541336a44915436f53e7ea74c687314fb8f88080fa1456f6a34ead92e
+  json (2.21.2) sha256=1f1d3b7cf2b3ba1a69beca0bb6db13d5438b80bff3cd54cdaaa620b9b07c1c6a
   language_server-protocol (3.17.0.5) sha256=fd1e39a51a28bf3eec959379985a72e296e9f9acfce46f6a79d31ca8760803cc
   lint_roller (1.1.0) sha256=2c0c845b632a7d172cb849cc90c1bce937a28c5c8ccccb50dfd46a485003cc87
   logger (1.7.0) sha256=196edec7cc44b66cfb40f9755ce11b392f21f7967696af15d274dde7edff0203
@@ -476,6 +488,7 @@ CHECKSUMS
   pagy (9.4.0) sha256=db3f2e043f684155f18f78be62a81e8d033e39b9f97b1e1a8d12ad38d7bce738
   parallel (1.27.0) sha256=4ac151e1806b755fb4e2dc2332cbf0e54f2e24ba821ff2d3dcf86bf6dc4ae130
   parser (3.3.10.0) sha256=ce3587fa5cc55a88c4ba5b2b37621b3329aadf5728f9eafa36bbd121462aabd6
+  pgvector (0.3.3) sha256=9cad4b69487110b2dc26d57e6ba9ff2cbe72421c09e6d17397bb29e1551d1872
   pp (0.6.3) sha256=2951d514450b93ccfeb1df7d021cae0da16e0a7f95ee1e2273719669d0ab9df6
   prettyprint (0.2.0) sha256=2bc9e15581a94742064a3cc8b0fb9d45aae3d03a1baa6ef80922627a0766f193
   prism (1.6.0) sha256=bfc0281a81718c4872346bc858dc84abd3a60cae78336c65ad35c8fbff641c6b
@@ -501,7 +514,8 @@ CHECKSUMS
   recording_studio_moveable (3.0.1)
   recording_studio_orderable (0.2.2)
   recording_studio_publishable (0.2.1)
-  recording_studio_support (0.9.4)
+  recording_studio_search (0.3.0)
+  recording_studio_support (0.9.5)
   recording_studio_trashable (0.4.1)
   regexp_parser (2.11.3) sha256=ca13f381a173b7a93450e53459075c9b76a10433caadcb2f1180f2c741fc55a4
   reline (0.6.3) sha256=1198b04973565b36ec0f11542ab3f5cfeeec34823f4e54cebde90968092b1835

@@ -128,9 +128,18 @@ GIT
       view_component (~> 4.12.0)
 
 PATH
+  remote: ../../vendor/recording_studio_search
+  specs:
+    recording_studio_search (0.3.0)
+      json (>= 2.21, < 3)
+      pgvector (>= 0.3)
+      rails (~> 8.1.0)
+      recording_studio (~> 4.2)
+
+PATH
   remote: ../..
   specs:
-    recording_studio_support (0.9.4)
+    recording_studio_support (0.9.5)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
       recording_studio_accessible (~> 0.6)
@@ -139,6 +148,7 @@ PATH
       recording_studio_moveable (~> 3.0)
       recording_studio_orderable (~> 0.2)
       recording_studio_publishable (~> 0.2)
+      recording_studio_search (~> 0.3)
       recording_studio_trashable (~> 0.4)
 
 GEM
@@ -432,6 +442,7 @@ GEM
     pg (1.6.2-x86_64-darwin)
     pg (1.6.2-x86_64-linux)
     pg (1.6.2-x86_64-linux-musl)
+    pgvector (0.3.3)
     pp (0.6.4)
       prettyprint
     prettyprint (0.2.0)
@@ -648,6 +659,7 @@ DEPENDENCIES
   recording_studio_orderable!
   recording_studio_publishable!
   recording_studio_root_switchable!
+  recording_studio_search!
   recording_studio_support!
   recording_studio_trashable!
   recording_studio_user!
@@ -777,6 +789,7 @@ CHECKSUMS
   pg (1.6.2-x86_64-darwin) sha256=c441a55723584e2ae41749bf26024d7ffdfe1841b442308ed50cd6b7fda04115
   pg (1.6.2-x86_64-linux) sha256=525f438137f2d1411a1ebcc4208ec35cb526b5a3b285a629355c73208506a8ea
   pg (1.6.2-x86_64-linux-musl) sha256=e5c8668ffeaf7a9c3458a3dcb002dffa6d8ee1fca9ae534ffef861d2b15644ca
+  pgvector (0.3.3) sha256=9cad4b69487110b2dc26d57e6ba9ff2cbe72421c09e6d17397bb29e1551d1872
   pp (0.6.4) sha256=dfcb0fce700c41456265922884f9fe195d7fbb0674a3578e6c0f69588e82b570
   prettyprint (0.2.0) sha256=2bc9e15581a94742064a3cc8b0fb9d45aae3d03a1baa6ef80922627a0766f193
   prism (1.9.0) sha256=7b530c6a9f92c24300014919c9dcbc055bf4cdf51ec30aed099b06cd6674ef85
@@ -806,7 +819,8 @@ CHECKSUMS
   recording_studio_orderable (0.2.2)
   recording_studio_publishable (0.2.1)
   recording_studio_root_switchable (0.5.1)
-  recording_studio_support (0.9.4)
+  recording_studio_search (0.3.0)
+  recording_studio_support (0.9.5)
   recording_studio_trashable (0.4.1)
   recording_studio_user (0.11.0)
   regexp_parser (2.11.3) sha256=ca13f381a173b7a93450e53459075c9b76a10433caadcb2f1180f2c741fc55a4

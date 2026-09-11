@@ -19,6 +19,11 @@ gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderab
 gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.2.1"
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"
 gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.0.1"
+# Prefer GitHub once RecordingStudio_search is public (sibling gems already are).
+# This repo vendors that commit under vendor/recording_studio_search for CI.
+gem "recording_studio_search", "~> 0.3",
+    github: "bowerbird-app/RecordingStudio_search",
+    ref: "ce6265e10a732cd40bd83a8dd9c5cfe710ca22f7" # no tags yet; pin PR #1 / main tip
 gem "recording_studio_support", github: "bowerbird-app/RecordingStudio_support"
 # Host-owned auth (not a Support gemspec dependency):
 gem "recording_studio_user", github: "bowerbird-app/RecordingStudio_users", tag: "v0.11.0"
@@ -34,6 +39,7 @@ gem "recording_studio_attachable", "~> 0.4"
 gem "recording_studio_trashable", "~> 0.4"
 gem "recording_studio_orderable", "~> 0.2"
 gem "recording_studio_publishable", "~> 0.2"
+gem "recording_studio_search", "~> 0.3"
 gem "recording_studio_moveable", "~> 3.0"
 ```
 
@@ -41,6 +47,7 @@ Then:
 
 ```bash
 bundle install
+bin/rails generate recording_studio_search:install
 bin/rails generate recording_studio_support:install
 bin/rails generate recording_studio_support:migrations
 bin/rails generate recording_studio_attachable:migrations
@@ -50,6 +57,8 @@ bin/rails generate recording_studio_publishable:install
 bin/rails generate recording_studio_moveable:install
 bin/rails db:migrate
 ```
+
+Keep Search `default_backend = :pg_trgm`. Do not run `searchable_pgvector` for Support in this phase. `SupportPage` is already declared searchable (title weight A, body weight D).
 
 Install Active Storage if the host does not already have it. Pictures upload through the Flatpack body editor and sit in the page HTML.
 
@@ -155,7 +164,7 @@ Page reads are logs (`recording_studio_support_page_views`), not extra pages in 
 
 Logged-out people can read sections and live pages. Drafts 404.
 
-Public `/help` lists sections. A section show lists `SupportPage.indexable` pages in that section. Do not copy that logic. Public `/help?q=` searches section names. Page search lives on a public section show and filters pages **in that section** by title and body (`?q=`).
+Public `/help` lists sections. A section show lists `SupportPage.indexable` pages in that section. Do not copy that logic. Public `/help?q=` searches section names (`ILIKE`). Page search lives on a public section show and filters pages **in that section** via Recording Studio Search trigram on title/body (`?q=`). Staff section show and Admin support pages use the same page search. Sections are not Searchable yet.
 
 Public `/help` and public section show use Flatpack Search at full width (`max_width: :none`, placeholder “Search support”). Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Public `/help` and public section show pass `size: :lg` (Flatpack `0.1.175+` / pin `v0.1.177`); staff search on remaining engine screens keeps the default `:md`.
 
