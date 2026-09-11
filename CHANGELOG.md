@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.9.4] - 2026-09-11
+
+Dummy and host kit pins match current healthy Recording Studio org tags.
+
+### Changed
+- Recording Studio GitHub pin `v4.2.0` → `v4.2.1`
+- Dummy Users pin `v0.9.0` → `v0.11.0`
+- Dummy Root Switchable pin `v0.5.0` → `v0.5.1`
+- Moveable `3.0.0` → `v3.0.1`, Orderable `0.2.0` → `v0.2.2`, Publishable `v0.2.0` → `v0.2.1`, Trashable `0.4.0` → `v0.4.1`
+- Icons now pins the released tag `v0.1.1` instead of floating GitHub HEAD
+
+### Upgrade notes
+- Point host Gemfiles at the tags above. Gemspec `~>` constraints are unchanged.
+- Dummy does not enable Devise `:confirmable`; Users 0.11.0 confirmations mapping is only needed if the host turns that on.
+
 ## [0.9.3] - 2026-09-10
 
 Help pages (articles) get the same optional Heroicons `icon` as sections, defaulting from the parent section on staff new/edit.
@@ -511,7 +526,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.3...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.4...HEAD
+[0.9.4]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.3...v0.9.4
 [0.9.3]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.2...v0.9.3
 [0.9.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.1...v0.9.2
 [0.9.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.0...v0.9.1

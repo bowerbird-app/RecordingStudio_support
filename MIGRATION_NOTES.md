@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+## 0.9.4
+
+Kit GitHub tags only. Product Support behavior is unchanged. Gemspec `~>` ranges stay the same.
+
+### Host app
+
+1. Bump host Gemfile tags to Recording Studio `v4.2.1`, Users `v0.11.0` (if you use Users), Root Switchable `v0.5.1`, Moveable `v3.0.1`, Orderable `v0.2.2`, Publishable `v0.2.1`, Trashable `v0.4.1`, and Icons `v0.1.1`. Leave Accessible `v0.9.1`, Admin `v2.0.2`, Attachable `v0.5.1`, and Flatpack `v0.1.177`.
+2. `bundle install`. No Support schema or generator run.
+3. Users 0.11.0 adds password-reset and confirmation screens. Dummy stays without `:confirmable`. Hosts that use confirmable should map Devise confirmations to `recording_studio_user/auth/confirmations` as that gem’s upgrade notes say.
+
+### Verify
+
+```bash
+bundle exec rake test:all
+```
+
 ## 0.9.3
 
 Optional Heroicons `icon` on help pages (articles), defaulting from the parent section on staff forms.
