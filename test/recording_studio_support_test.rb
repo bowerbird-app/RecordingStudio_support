@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.9.4", ::RecordingStudioSupport::VERSION
+    assert_equal "0.9.5", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -29,6 +29,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemspec, 'spec.add_dependency "recording_studio_trashable", "~> 0.4"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_orderable", "~> 0.2"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_publishable", "~> 0.2"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_search", "~> 0.3"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_moveable", "~> 3.0"'
     refute_includes gemspec, 'spec.add_dependency "recording_studio_api"'
   end
@@ -44,6 +45,8 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.4.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.2.2"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.2.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_search"'
+    assert_includes gemfile, 'ref: "ce6265e10a732cd40bd83a8dd9c5cfe710ca22f7"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.0.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.1"'
@@ -95,6 +98,8 @@ class RecordingStudioSupportTest < Minitest::Test
     refute_includes source, "Capabilities::Orderable"
     assert_includes source, "RecordingStudio::Capabilities::Moveable.to"
     assert_includes source, "RecordingStudio::Capabilities::Publishable.to"
+    assert_includes source, "RecordingStudioSearch::Searchable"
+    assert_includes source, "searchable backend: :pg_trgm, against: { title: \"A\", body: \"D\" }"
     assert_includes source, "public_controller: \"recording_studio_support/public_pages\""
     assert_includes source, "public_action: :show"
     assert_includes source, "public_layout: \"recording_studio/default_layout\""
