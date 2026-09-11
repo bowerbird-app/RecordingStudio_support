@@ -21,7 +21,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      BUNDLE_GEMFILE: test/dummy/Gemfile
+      # Absolute path so working-directory: test/dummy does not double the relative Gemfile.
+      BUNDLE_GEMFILE: ${{ github.workspace }}/test/dummy/Gemfile
       BUNDLE_GITHUB__COM: x-access-token:${{ secrets.BOWERBIRD_ORG_CI_TOKEN }}
 
     steps:
@@ -43,7 +44,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      BUNDLE_GEMFILE: test/dummy/Gemfile
+      BUNDLE_GEMFILE: ${{ github.workspace }}/test/dummy/Gemfile
       BUNDLE_GITHUB__COM: x-access-token:${{ secrets.BOWERBIRD_ORG_CI_TOKEN }}
 
     steps:
@@ -65,7 +66,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     env:
-      BUNDLE_GEMFILE: test/dummy/Gemfile
+      BUNDLE_GEMFILE: ${{ github.workspace }}/test/dummy/Gemfile
       BUNDLE_GITHUB__COM: x-access-token:${{ secrets.BOWERBIRD_ORG_CI_TOKEN }}
 
     steps:
