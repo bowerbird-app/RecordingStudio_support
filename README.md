@@ -10,18 +10,18 @@ Add the gem next to Recording Studio 4.2, Accessible, Admin 2.0, Publishable 0.2
 
 ```ruby
 # Gemfile
-gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.2.0"
+gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.2.1"
 gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.9.1"
 gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.0.2"
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.5.1"
-gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "0.4.0"
-gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderable", tag: "0.2.0"
-gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.2.0"
-gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons"
-gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "3.0.0"
+gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.4.1"
+gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.2.2"
+gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.2.1"
+gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"
+gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.0.1"
 gem "recording_studio_support", github: "bowerbird-app/RecordingStudio_support"
 # Host-owned auth (not a Support gemspec dependency):
-gem "recording_studio_user", github: "bowerbird-app/RecordingStudio_users", tag: "v0.9.0"
+gem "recording_studio_user", github: "bowerbird-app/RecordingStudio_users", tag: "v0.11.0"
 gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.177"
 ```
 
@@ -243,7 +243,7 @@ Who can create, revise, publish, and trash is spelled out in [docs/process-flows
 
 `test/dummy/` is a host that proves the gem. It is not the product.
 
-Dummy help pages — public and staff — use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Dummy overrides that layout file only so Flatpack's built-in `rounded` theme sits on `<html data-theme="rounded">` (https://flatpack.bowerbird.io/). Core puts `data-theme` on `<body>` alone, which is not enough for component tokens. Support screens and Admin Support screens keep that chrome only. Dummy Sign out and Root Switchable stay on dummy host pages, not on `/admin/support`, `/help`, or `/admin`. Access can stay on Admin. Do not put a login button there. Sign-in uses the Users gem (`recording_studio_user` `v0.9.0`): email at `/users/sign_in`, password at `/users/sign_in/password`, layout `recording_studio_user/auth` with `html data-theme="rounded"`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`, `preset: :content`, image upload); dummy Stimulus registers `flat-pack--tiptap` on first paint.
+Dummy help pages — public and staff — use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Dummy overrides that layout file only so Flatpack's built-in `rounded` theme sits on `<html data-theme="rounded">` (https://flatpack.bowerbird.io/). Core puts `data-theme` on `<body>` alone, which is not enough for component tokens. Support screens and Admin Support screens keep that chrome only. Dummy Sign out and Root Switchable stay on dummy host pages, not on `/admin/support`, `/help`, or `/admin`. Access can stay on Admin. Do not put a login button there. Sign-in uses the Users gem (`recording_studio_user` `v0.11.0`): email at `/users/sign_in`, password at `/users/sign_in/password`, layout `recording_studio_user/auth` with `html data-theme="rounded"`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`, `preset: :content`, image upload); dummy Stimulus registers `flat-pack--tiptap` on first paint.
 
 | Field    | Value           |
 |----------|-----------------|
@@ -254,16 +254,17 @@ Dummy kit pins:
 
 | Gem | Pin |
 |-----|-----|
-| Recording Studio | `v4.2.0` |
+| Recording Studio | `v4.2.1` |
 | Accessible | `v0.9.1` |
 | Admin | `v2.0.2` |
 | Attachable | `v0.5.1` |
-| Users | `v0.9.0` |
-| Trashable | `0.4.0` |
-| Orderable | `0.2.0` |
-| Publishable | `v0.2.0` |
-| Moveable | `3.0.0` |
-| Root Switchable | `v0.5.0` |
+| Users | `v0.11.0` |
+| Trashable | `v0.4.1` |
+| Orderable | `v0.2.2` |
+| Publishable | `v0.2.1` |
+| Icons | `v0.1.1` |
+| Moveable | `v3.0.1` |
+| Root Switchable | `v0.5.1` |
 | FlatPack | `v0.1.177` |
 
 ```bash

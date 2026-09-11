@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.9.3", ::RecordingStudioSupport::VERSION
+    assert_equal "0.9.4", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -36,17 +36,17 @@ class RecordingStudioSupportTest < Minitest::Test
   def test_dummy_gemfile_pins_verified_4x_github_tags
     gemfile = File.read(File.expand_path("dummy/Gemfile", __dir__))
 
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.2.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.2.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.9.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.0.2"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.5.1"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_users", tag: "v0.9.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "0.4.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_orderable", tag: "0.2.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.2.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "3.0.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_icons"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_users", tag: "v0.11.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.4.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.2.2"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.2.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.0.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.1"'
     assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.177"'
     refute_includes gemfile, "recording_studio/v3.0.0"
     refute_includes gemfile, 'tag: "v0.6.1"'
@@ -274,10 +274,10 @@ class RecordingStudioSupportTest < Minitest::Test
     readme = File.read(File.expand_path("../README.md", __dir__))
 
     assert_includes readme, "Recording Studio Support"
-    assert_includes readme, "v4.2.0"
+    assert_includes readme, "v4.2.1"
     assert_includes readme, "v0.9.1"
     assert_includes readme, "v0.1.177"
-    assert_includes readme, "v0.9.0"
+    assert_includes readme, "v0.11.0"
     assert_includes readme, "Support page"
     assert_includes readme, "SupportSection"
     assert_includes readme, "Help section"
@@ -291,9 +291,9 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "/users/sign_in/password"
     refute_includes readme, "RecordingStudio::Capabilities::Attachable.to"
     assert_includes readme, "RecordingStudio::Capabilities::Publishable.to"
-    assert_includes readme, "tag: \"v0.2.0\""
+    assert_includes readme, "tag: \"v0.2.1\""
     assert_includes readme, "tag: \"v0.5.1\""
-    assert_includes readme, "tag: \"0.2.0\""
+    assert_includes readme, "tag: \"v0.2.2\""
     assert_includes readme, "/help"
     assert_includes readme, 'public_layout: "recording_studio/default_layout"'
     assert_includes readme, '<html data-theme="rounded">'
