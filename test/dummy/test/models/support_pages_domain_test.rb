@@ -91,7 +91,7 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
     refute_includes RecordingStudio.configuration.recordable_types, "RecordingStudioSupport::PageView"
   end
 
-  test "for_root ILIKE filters title and body" do
+  test "for_root trigram search filters title and body" do
     RecordingStudioSupport::Pages.create!(
       parent_recording: @section_recording,
       title: "How do I sign in?",
@@ -112,6 +112,27 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
     assert_equal ["How do I sign in?"], titles.call("sign in")
     assert_equal ["How do I change my password?"], titles.call("Pick a new")
     assert_empty titles.call("no-such-help-page")
+  end
+
+  test "SupportPage.search uses pg_trgm backend" do
+    RecordingStudioSupport::Pages.create!(
+      parent_recording: @section_recording,
+      title: "Refund timeline",
+      body: "Money returns in five days.",
+      actor: @user
+    )
+    RecordingStudioSupport::Pages.create!(
+      parent_recording: @section_recording,
+      title: "Shipping labels",
+      body: "Print from the orders screen.",
+      actor: @user
+    )
+
+    hits = RecordingStudioSupport::SupportPage.search("refund").map(&:title)
+
+    assert_equal ["Refund timeline"], hits
+    assert_equal :pg_trgm, RecordingStudioSearch::Registry.entry_for(RecordingStudioSupport::SupportPage).backend
+    assert_equal %i[title body], RecordingStudioSearch::Registry.entry_for(RecordingStudioSupport::SupportPage).against
   end
 
   test "find_kept finds a page without the current root" do
@@ -138,6 +159,7 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
 
   test "public_indexable uses Publishable indexable and hides drafts" do
     token = SecureRandom.hex(4)
+    draft_only = "zzdraft#{SecureRandom.hex(6)}"
     live = RecordingStudioSupport::Pages.create!(
       parent_recording: @section_recording,
       title: "Live help #{token}",
@@ -147,7 +169,7 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
     draft = RecordingStudioSupport::Pages.create!(
       parent_recording: @section_recording,
       title: "Draft help #{token}",
-      body: "Hidden draft token #{token}-draft.",
+      body: "Hidden draft marker #{draft_only}.",
       actor: @user
     )
 
@@ -162,7 +184,7 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
       [live.recordable.id],
       RecordingStudioSupport::Pages.public_indexable(query: "Live help #{token}").map(&:id)
     )
-    assert_empty RecordingStudioSupport::Pages.public_indexable(query: "#{token}-draft")
+    assert_empty RecordingStudioSupport::Pages.public_indexable(query: draft_only)
     assert live.recordable.indexable?
     refute draft.recordable.indexable?
   end

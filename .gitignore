@@ -56,3 +56,4 @@ pkg/
 
 # Rename script state
 .rename_state.yml
+vendor/recording_studio_search/

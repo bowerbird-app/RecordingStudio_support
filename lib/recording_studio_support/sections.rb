@@ -62,10 +62,9 @@ module RecordingStudioSupport
       term = query.to_s.strip
       return ordered(relation) if term.blank?
 
-      pattern = Pages.page_query_pattern(term)
       relation.joins(section_join_sql).where(
         "recording_studio_support_sections.title ILIKE :q",
-        q: pattern
+        q: "%#{ActiveRecord::Base.sanitize_sql_like(term)}%"
       )
     end
 
