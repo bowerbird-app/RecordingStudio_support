@@ -20,6 +20,9 @@ jobs:
     name: Bundler Audit
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      BUNDLE_GEMFILE: test/dummy/Gemfile
+      BUNDLE_GITHUB__COM: x-access-token:${{ secrets.BOWERBIRD_ORG_CI_TOKEN }}
 
     steps:
       - name: Checkout code
@@ -30,9 +33,6 @@ jobs:
         with:
           ruby-version: .ruby-version
           bundler-cache: true
-        env:
-          BUNDLE_GEMFILE: test/dummy/Gemfile
-          BUNDLE_GITHUB__COM: x-access-token:${{ secrets.BOWERBIRD_ORG_CI_TOKEN }}
 
       - name: Scan gems for known vulnerabilities
         run: bin/bundler-audit
@@ -42,6 +42,9 @@ jobs:
     name: Brakeman
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      BUNDLE_GEMFILE: test/dummy/Gemfile
+      BUNDLE_GITHUB__COM: x-access-token:${{ secrets.BOWERBIRD_ORG_CI_TOKEN }}
 
     steps:
       - name: Checkout code
@@ -52,9 +55,6 @@ jobs:
         with:
           ruby-version: .ruby-version
           bundler-cache: true
-        env:
-          BUNDLE_GEMFILE: test/dummy/Gemfile
-          BUNDLE_GITHUB__COM: x-access-token:${{ secrets.BOWERBIRD_ORG_CI_TOKEN }}
 
       - name: Scan Rails code for security vulnerabilities
         run: bin/brakeman --quiet --no-pager --exit-on-warn --exit-on-error
@@ -64,6 +64,9 @@ jobs:
     name: Importmap Audit
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    env:
+      BUNDLE_GEMFILE: test/dummy/Gemfile
+      BUNDLE_GITHUB__COM: x-access-token:${{ secrets.BOWERBIRD_ORG_CI_TOKEN }}
 
     steps:
       - name: Checkout code
@@ -74,9 +77,6 @@ jobs:
         with:
           ruby-version: .ruby-version
           bundler-cache: true
-        env:
-          BUNDLE_GEMFILE: test/dummy/Gemfile
-          BUNDLE_GITHUB__COM: x-access-token:${{ secrets.BOWERBIRD_ORG_CI_TOKEN }}
 
       - name: Scan importmap dependencies for known vulnerabilities
         run: bin/importmap audit

@@ -1,0 +1,4 @@
+Vendored from bowerbird-app/RecordingStudio_search
+Upstream ref: ce6265e10a732cd40bd83a8dd9c5cfe710ca22f7
+Version: 0.3.0
+Reason: private repo; CI token cannot clone it. Restore github: pin once Search is public.

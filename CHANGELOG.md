@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Help article (`SupportPage`) search uses Recording Studio Search trigram (`pg_trgm`), not `ILIKE`. Sections stay on `ILIKE`. No AI / pgvector.
 
 ### Added
-- Dependency on `recording_studio_search` (`~> 0.3`), pinned in Gemfiles to commit `ce6265e10a732cd40bd83a8dd9c5cfe710ca22f7` (no release tags yet)
+- Dependency on `recording_studio_search` (`~> 0.3`); this repo vendors `vendor/recording_studio_search` at upstream `ce6265e10a732cd40bd83a8dd9c5cfe710ca22f7` while that repo is private to CI
 - `SupportPage` is searchable with `backend: :pg_trgm`, `against: { title: "A", body: "D" }`
 - Migration adds generated `search_vector` plus trigram indexes on `recording_studio_support_pages`
 - Dummy installs Search (`default_backend = :pg_trgm`) and the query-cache migration

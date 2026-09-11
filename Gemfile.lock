@@ -95,17 +95,6 @@ GIT
       tailwind_merge (~> 0.13)
       view_component (~> 4.12.0)
 
-GIT
-  remote: https://github.com/bowerbird-app/RecordingStudio_search.git
-  revision: ce6265e10a732cd40bd83a8dd9c5cfe710ca22f7
-  ref: ce6265e10a732cd40bd83a8dd9c5cfe710ca22f7
-  specs:
-    recording_studio_search (0.3.0)
-      json (>= 2.21, < 3)
-      pgvector (>= 0.3)
-      rails (~> 8.1.0)
-      recording_studio (~> 4.2)
-
 PATH
   remote: .
   specs:
@@ -120,6 +109,15 @@ PATH
       recording_studio_publishable (~> 0.2)
       recording_studio_search (~> 0.3)
       recording_studio_trashable (~> 0.4)
+
+PATH
+  remote: vendor/recording_studio_search
+  specs:
+    recording_studio_search (0.3.0)
+      json (>= 2.21, < 3)
+      pgvector (>= 0.3)
+      rails (~> 8.1.0)
+      recording_studio (~> 4.2)
 
 GEM
   remote: https://rubygems.org/

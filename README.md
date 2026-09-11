@@ -19,6 +19,8 @@ gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderab
 gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.2.1"
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"
 gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.0.1"
+# Prefer GitHub once RecordingStudio_search is public (sibling gems already are).
+# This repo vendors that commit under vendor/recording_studio_search for CI.
 gem "recording_studio_search", "~> 0.3",
     github: "bowerbird-app/RecordingStudio_search",
     ref: "ce6265e10a732cd40bd83a8dd9c5cfe710ca22f7" # no tags yet; pin PR #1 / main tip

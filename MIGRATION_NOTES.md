@@ -8,13 +8,17 @@ Article search moves from `ILIKE` to Recording Studio Search trigram (`pg_trgm`)
 
 ### Host app
 
-1. Add the Search gem (no release tags yet — pin the commit from RecordingStudio_search PR #1 / main tip):
+1. Add the Search gem (no release tags yet). Prefer the GitHub pin once
+   `RecordingStudio_search` is public like the other Recording Studio gems:
 
 ```ruby
 gem "recording_studio_search", "~> 0.3",
     github: "bowerbird-app/RecordingStudio_search",
     ref: "ce6265e10a732cd40bd83a8dd9c5cfe710ca22f7"
 ```
+
+   Until then, hosts that cannot clone the private repo can mirror Support’s
+   temporary `path:` vendor of that same commit.
 
 2. `bundle install`
 3. `bin/rails generate recording_studio_search:install` then `bin/rails db:migrate` (query-cache table only; does not enable `vector`)
