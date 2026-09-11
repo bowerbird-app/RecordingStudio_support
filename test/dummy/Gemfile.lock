@@ -127,8 +127,10 @@ GIT
       tailwind_merge (~> 0.13)
       view_component (~> 4.12.0)
 
-PATH
-  remote: ../../vendor/recording_studio_search
+GIT
+  remote: https://github.com/bowerbird-app/RecordingStudio_search.git
+  revision: ce6265e10a732cd40bd83a8dd9c5cfe710ca22f7
+  ref: ce6265e10a732cd40bd83a8dd9c5cfe710ca22f7
   specs:
     recording_studio_search (0.3.0)
       json (>= 2.21, < 3)

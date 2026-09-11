@@ -15,14 +15,10 @@ gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag
 gem "recording_studio_moveable", "~> 3.0", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.0.1"
 gem "recording_studio_orderable", "~> 0.2", github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.2.2"
 gem "recording_studio_publishable", "~> 0.2", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.2.1"
-# No release tags yet — pin merged main tip (PR #1). Local path used when vendor/ is present (CI uses GitHub + org token).
-if Dir.exist?(File.expand_path("vendor/recording_studio_search", __dir__)) && ENV["CI"].to_s.empty?
-  gem "recording_studio_search", "~> 0.3", path: "vendor/recording_studio_search"
-else
-  gem "recording_studio_search", "~> 0.3",
-      github: "bowerbird-app/RecordingStudio_search",
-      ref: "ce6265e10a732cd40bd83a8dd9c5cfe710ca22f7"
-end
+# No release tags yet — pin merged main tip (PR #1).
+gem "recording_studio_search", "~> 0.3",
+    github: "bowerbird-app/RecordingStudio_search",
+    ref: "ce6265e10a732cd40bd83a8dd9c5cfe710ca22f7"
 gem "recording_studio_trashable", "~> 0.4", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.4.1"
 
 gem "devise"
