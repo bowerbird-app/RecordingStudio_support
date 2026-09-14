@@ -1,0 +1,5 @@
+<%= tag.turbo_frame id: RecordingStudioSupport::InstantPages::FRAME_ID do %>
+  <%= render "recording_studio_support/shared/section_pages",
+        page_recordings: @page_recordings,
+        query: @query %>
+<% end %>

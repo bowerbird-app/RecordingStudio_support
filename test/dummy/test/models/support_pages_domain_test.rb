@@ -189,6 +189,49 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
     refute draft.recordable.indexable?
   end
 
+  test "instant pages hits use allowlisted trigram and stay in the section" do
+    token = SecureRandom.hex(4)
+    other = record_support_section(@root_recording, title: "Elsewhere #{token}")
+    live = RecordingStudioSupport::Pages.create!(
+      parent_recording: @section_recording,
+      title: "Instant live #{token}",
+      body: "Find this live token #{token}.",
+      actor: @user
+    )
+    draft = RecordingStudioSupport::Pages.create!(
+      parent_recording: @section_recording,
+      title: "Instant draft #{token}",
+      body: "Hidden instant draft #{token}.",
+      actor: @user
+    )
+    stray = RecordingStudioSupport::Pages.create!(
+      parent_recording: other,
+      title: "Instant stray #{token}",
+      body: "Other section live #{token}.",
+      actor: @user
+    )
+    publish!(live, slug: "instant-live-#{token}", status: "published")
+    publish!(draft, slug: "instant-draft-#{token}", status: "draft")
+    publish!(stray, slug: "instant-stray-#{token}", status: "published")
+
+    public_ids = RecordingStudioSupport::InstantPages.hits(
+      query: token,
+      section_recording: @section_recording,
+      audience: :public
+    ).map(&:id)
+    staff_ids = RecordingStudioSupport::InstantPages.hits(
+      query: token,
+      section_recording: @section_recording,
+      audience: :staff
+    ).map(&:id)
+
+    assert_equal [live.recordable.id], public_ids
+    assert_includes staff_ids, live.recordable.id
+    assert_includes staff_ids, draft.recordable.id
+    refute_includes staff_ids, stray.recordable.id
+    assert_empty RecordingStudioSupport::InstantPages.live_only(draft.recordable.class.where(id: draft.recordable_id))
+  end
+
   private
 
   def publish!(page_recording, slug:, status:)

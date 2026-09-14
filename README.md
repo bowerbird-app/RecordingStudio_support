@@ -21,9 +21,9 @@ gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag
 gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.0.1"
 # Prefer GitHub once RecordingStudio_search is public (sibling gems already are).
 # This repo vendors that commit under vendor/recording_studio_search for CI.
-gem "recording_studio_search", "~> 0.3",
+gem "recording_studio_search", "~> 0.4",
     github: "bowerbird-app/RecordingStudio_search",
-    ref: "ce6265e10a732cd40bd83a8dd9c5cfe710ca22f7" # no tags yet; pin PR #1 / main tip
+    ref: "d9cc54dd33ec625dd618f5520de56b9b49a29e01" # Instant UI; Search PR #2
 gem "recording_studio_support", github: "bowerbird-app/RecordingStudio_support"
 # Host-owned auth (not a Support gemspec dependency):
 gem "recording_studio_user", github: "bowerbird-app/RecordingStudio_users", tag: "v0.11.0"
@@ -39,7 +39,7 @@ gem "recording_studio_attachable", "~> 0.4"
 gem "recording_studio_trashable", "~> 0.4"
 gem "recording_studio_orderable", "~> 0.2"
 gem "recording_studio_publishable", "~> 0.2"
-gem "recording_studio_search", "~> 0.3"
+gem "recording_studio_search", "~> 0.4"
 gem "recording_studio_moveable", "~> 3.0"
 ```
 
@@ -58,7 +58,7 @@ bin/rails generate recording_studio_moveable:install
 bin/rails db:migrate
 ```
 
-Keep Search `default_backend = :pg_trgm`. Do not run `searchable_pgvector` for Support in this phase. `SupportPage` is already declared searchable (title weight A, body weight D).
+Keep Search `default_backend = :pg_trgm`. Do not run `searchable_pgvector` for Support in this phase. `SupportPage` is already declared searchable (title weight A, body weight D). Allowlist only that model for Instant UI (`config.instant_search_models = ["RecordingStudioSupport::SupportPage"]`). Mount `RecordingStudioSearch::Engine` at `/recording_studio_search`, pin `controllers/recording_studio_search`, and `eagerLoadControllersFrom` it. Public section Instant hits `/help/sections/:slug/instant_search` (same trigram, live pages in that section). Staff section Instant hits `/admin/support/sections/:id/instant_search`. `/help?q=` stays a GET form on section titles.
 
 Install Active Storage if the host does not already have it. Pictures upload through the Flatpack body editor and sit in the page HTML.
 
@@ -151,6 +151,10 @@ recording_studio_admin_for :admin, at: "/admin", root_section: :support
 mount RecordingStudioMoveable::Engine, at: "/recording_studio_moveable"
 get "/help", to: RecordingStudioSupport::PublicPagesController.action(:index), as: :public_help
 get "/help/sections/:slug", to: RecordingStudioSupport::PublicSectionsController.action(:show), as: :public_help_section
+get "/help/sections/:slug/instant_search",
+    to: RecordingStudioSupport::PublicInstantSearchesController.action(:show),
+    as: :public_help_section_instant_search
+mount RecordingStudioSearch::Engine, at: "/recording_studio_search"
 mount RecordingStudioPublishable::Engine, at: "/"
 get "/support", to: redirect("/admin")
 get "/support/*legacy_support_path", to: redirect("/admin")
@@ -164,7 +168,7 @@ Page reads are logs (`recording_studio_support_page_views`), not extra pages in 
 
 Logged-out people can read sections and live pages. Drafts 404.
 
-Public `/help` lists sections. A section show lists `SupportPage.indexable` pages in that section. Do not copy that logic. Public `/help?q=` searches section names (`ILIKE`). Page search lives on a public section show and filters pages **in that section** via Recording Studio Search trigram on title/body (`?q=`). Staff section show and Admin support pages use the same page search. Sections are not Searchable yet.
+Public `/help` lists sections. A section show lists `SupportPage.indexable` pages in that section. Do not copy that logic. Public `/help?q=` searches section names (`ILIKE`) with a GET form. Page search lives on a public section show and filters pages **in that section** via Recording Studio Search trigram on title/body. Typing uses Search Instant UI (`instant_search_field` + Turbo Frame) against the section Instant path; Enter / no-JS still GET `?q=` on the section. Staff section show uses the same Instant field against the staff Instant path. The Search engine Instant endpoint is mounted for hosts; it only returns **live** `SupportPage` rows so drafts do not leak. Admin support pages table search is unchanged. Sections are not Searchable yet.
 
 Public `/help` and public section show use Flatpack Search at full width (`max_width: :none`, placeholder “Search support”). Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Public `/help` and public section show pass `size: :lg` (Flatpack `0.1.175+` / pin `v0.1.177`); staff search on remaining engine screens keeps the default `:md`.
 
@@ -176,7 +180,7 @@ Public **section** show (`/help/sections/:slug`) is its own card stack — not t
 
 1. Default layout page nav — history Back, plus a PageNav **secondary** Home (home icon → `/help`, tooltip/aria `"Home"`). No Close
 2. Flatpack PageTitle — section title, subtitle, `variant: :h1`
-3. Flatpack Search — `size: :lg`, placeholder `Search in {section}…`, white input tokens as above
+3. Search Instant field (`instant_search_field`) — `size: :lg`, placeholder `Search in {section}…`, white input tokens as above; results update in Turbo Frame `support_page_search_results`
 4. Flatpack Grid (`cols: 1`, `gap: :lg`) of full-width interactive Cards (`href`, `clickable: true`, `hover: :strong`, `style: :interactive`, white `theme: { background: "var(--color-white)" }`) — Body padding `:lg`, title, muted plain-text snippet (~120 chars from the body; omitted when blank), Flatpack Timestamp from publish time (`publish_at`, then recording `updated_at`, then page `created_at`)
 5. Optional host contact Card + secondary Button — only when `public_contact_href` is set
 6. Flatpack EmptyState when the query matches nothing or the section has no live pages

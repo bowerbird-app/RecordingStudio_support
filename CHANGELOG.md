@@ -9,10 +9,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.5] - 2026-09-11
 
-Help article (`SupportPage`) search uses Recording Studio Search trigram (`pg_trgm`), not `ILIKE`. Sections stay on `ILIKE`. No AI / pgvector.
+Help article (`SupportPage`) search uses Recording Studio Search trigram (`pg_trgm`), not `ILIKE`. Sections stay on `ILIKE`. No AI / pgvector. Public and staff section page search type into Search Instant UI (Turbo Frame); the query is still trigram.
 
 ### Added
-- Dependency on `recording_studio_search` (`~> 0.3`); this repo vendors `vendor/recording_studio_search` at upstream `ce6265e10a732cd40bd83a8dd9c5cfe710ca22f7` while that repo is private to CI
+- Dependency on `recording_studio_search` (`~> 0.4`); this repo vendors `vendor/recording_studio_search` at upstream `d9cc54dd33ec625dd618f5520de56b9b49a29e01` (Search PR #2 Instant UI) while that repo is private to CI
+- Instant search on public `/help/sections/:slug` and staff section show (`instant_search_field` + frame `support_page_search_results`)
+- Host Instant routes: `/help/sections/:slug/instant_search` and `/admin/support/sections/:id/instant_search`
+- Dummy allowlists only `RecordingStudioSupport::SupportPage` and mounts `RecordingStudioSearch::Engine`
 - `SupportPage` is searchable with `backend: :pg_trgm`, `against: { title: "A", body: "D" }`
 - Migration adds generated `search_vector` plus trigram indexes on `recording_studio_support_pages`
 - Dummy installs Search (`default_backend = :pg_trgm`) and the query-cache migration
@@ -20,12 +23,15 @@ Help article (`SupportPage`) search uses Recording Studio Search trigram (`pg_tr
 ### Changed
 - `Pages::Lookups` page filters call `SupportPage.search` / relation search instead of title/body `ILIKE`
 - Section search (`Sections` and `/help?q=`) is unchanged (`ILIKE` on section titles)
+- Search Instant engine hits for `SupportPage` are limited to live (`indexable`) pages
 
 ### Upgrade notes
-- Add `recording_studio_search` to the host Gemfile (GitHub pin until a tag exists; see README)
+- Add `recording_studio_search` `~> 0.4` to the host Gemfile (GitHub pin until a tag exists; see README)
 - Run `bin/rails generate recording_studio_search:install` and migrate (query-cache table; no vector extension)
 - Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` for `search_vector` on support pages
-- Set `config.default_backend = :pg_trgm` in the Search initializer; do not run `searchable_pgvector` for Support
+- Set `config.default_backend = :pg_trgm` and `config.instant_search_models = ["RecordingStudioSupport::SupportPage"]` only
+- Mount `RecordingStudioSearch::Engine`, pin Instant Stimulus, add `/help/sections/:slug/instant_search`
+- Do not run `searchable_pgvector` for Support
 
 ## [0.9.4] - 2026-09-11
 

@@ -1,0 +1,35 @@
+<% size = local_assigns.fetch(:size, :md) %>
+<% placeholder = local_assigns.fetch(:placeholder, "Search support") %>
+<% query = local_assigns[:query] %>
+<% results_url = local_assigns.fetch(:url) %>
+<% instant_url = local_assigns.fetch(:instant_url) %>
+<% search = support_search_routes %>
+<%= form_with url: results_url, method: :get, html: {
+      role: "search",
+      class: "w-full",
+      data: { turbo_frame: RecordingStudioSupport::InstantPages::FRAME_ID },
+      style: [
+        "--search-input-background-color: var(--color-white)",
+        "--search-input-border-color: var(--surface-border-color)"
+      ].join("; ")
+    } do %>
+  <% if search %>
+    <%= search.instant_search_field(
+          models: [RecordingStudioSupport::InstantPages::MODEL_NAME],
+          frame_id: RecordingStudioSupport::InstantPages::FRAME_ID,
+          url: instant_url,
+          value: query,
+          placeholder: placeholder,
+          max_width: :none,
+          size: size
+        ) %>
+  <% else %>
+    <%= render FlatPack::Search::Component.new(
+      name: "q",
+      value: query,
+      placeholder: placeholder,
+      max_width: :none,
+      size: size
+    ) %>
+  <% end %>
+<% end %>

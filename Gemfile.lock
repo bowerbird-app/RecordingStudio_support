@@ -107,13 +107,13 @@ PATH
       recording_studio_moveable (~> 3.0)
       recording_studio_orderable (~> 0.2)
       recording_studio_publishable (~> 0.2)
-      recording_studio_search (~> 0.3)
+      recording_studio_search (~> 0.4)
       recording_studio_trashable (~> 0.4)
 
 PATH
   remote: vendor/recording_studio_search
   specs:
-    recording_studio_search (0.3.0)
+    recording_studio_search (0.4.0)
       json (>= 2.21, < 3)
       pgvector (>= 0.3)
       rails (~> 8.1.0)
@@ -421,7 +421,7 @@ DEPENDENCIES
   recording_studio_moveable (~> 3.0)!
   recording_studio_orderable (~> 0.2)!
   recording_studio_publishable (~> 0.2)!
-  recording_studio_search (~> 0.3)!
+  recording_studio_search (~> 0.4)!
   recording_studio_support!
   recording_studio_trashable (~> 0.4)!
   rubocop
@@ -514,7 +514,7 @@ CHECKSUMS
   recording_studio_moveable (3.0.1)
   recording_studio_orderable (0.2.2)
   recording_studio_publishable (0.2.1)
-  recording_studio_search (0.3.0)
+  recording_studio_search (0.4.0)
   recording_studio_support (0.9.5)
   recording_studio_trashable (0.4.1)
   regexp_parser (2.11.3) sha256=ca13f381a173b7a93450e53459075c9b76a10433caadcb2f1180f2c741fc55a4

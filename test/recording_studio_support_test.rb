@@ -29,7 +29,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemspec, 'spec.add_dependency "recording_studio_trashable", "~> 0.4"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_orderable", "~> 0.2"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_publishable", "~> 0.2"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_search", "~> 0.3"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_search", "~> 0.4"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_moveable", "~> 3.0"'
     refute_includes gemspec, 'spec.add_dependency "recording_studio_api"'
   end
@@ -46,7 +46,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.2.2"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.2.1"'
     assert_includes gemfile, 'path: "../../vendor/recording_studio_search"'
-    assert_includes gemfile, "ce6265e10a732cd40bd83a8dd9c5cfe710ca22f7"
+    assert_includes gemfile, "d9cc54dd33ec625dd618f5520de56b9b49a29e01"
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.0.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.1"'
@@ -203,6 +203,8 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes controllers_js, 'application.register("flat-pack--tiptap", TiptapController)'
     assert_includes importmap, "controllers/recording_studio_support"
     assert_includes controllers_js, 'eagerLoadControllersFrom("controllers/recording_studio_support"'
+    assert_includes importmap, "controllers/recording_studio_search"
+    assert_includes controllers_js, 'eagerLoadControllersFrom("controllers/recording_studio_search"'
   end
 
   def test_dummy_default_layout_head_loads_flatpack_and_root_switch_chrome
@@ -264,6 +266,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme_source, "/recording_studio"
     assert_includes readme_source, "/support"
     assert_includes readme_source, "/help"
+    assert_includes readme_source, "instant_search"
     assert_includes readme_source, "/admin"
     assert_includes readme_source, "redirects to `/`"
     assert_includes readme_source, "flat-pack--tiptap"
@@ -300,6 +303,9 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "tag: \"v0.5.1\""
     assert_includes readme, "tag: \"v0.2.2\""
     assert_includes readme, "/help"
+    assert_includes readme, "instant_search_field"
+    assert_includes readme, "RecordingStudioSearch::Engine"
+    assert_includes readme, "d9cc54dd33ec625dd618f5520de56b9b49a29e01"
     assert_includes readme, 'public_layout: "recording_studio/default_layout"'
     assert_includes readme, '<html data-theme="rounded">'
     assert_includes readme, "config.help_title"
@@ -391,6 +397,8 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes routes, "RecordingStudioSupport::PublicPagesController.action(:index)"
     assert_includes routes, 'get "/help"'
     assert_includes routes, "PublicSectionsController"
+    assert_includes routes, "PublicInstantSearchesController"
+    assert_includes routes, 'mount RecordingStudioSearch::Engine, at: "/recording_studio_search"'
     assert_includes routes, 'mount RecordingStudioMoveable::Engine, at: "/recording_studio_moveable"'
     assert_includes routes, "recording_studio_user_auth_for :users"
     assert_includes routes, "mount RecordingStudioUser::Engine"

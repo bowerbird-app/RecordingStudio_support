@@ -26,6 +26,10 @@ module RecordingStudioSupport
         route "get \"/help/sections/:slug\", " \
               "to: RecordingStudioSupport::PublicSectionsController.action(:show), " \
               "as: :public_help_section"
+        route "get \"/help/sections/:slug/instant_search\", " \
+              "to: RecordingStudioSupport::PublicInstantSearchesController.action(:show), " \
+              "as: :public_help_section_instant_search"
+        route %(mount RecordingStudioSearch::Engine, at: "/recording_studio_search")
       end
 
       def copy_initializer

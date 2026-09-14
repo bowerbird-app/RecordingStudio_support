@@ -135,6 +135,17 @@ module RecordingStudioSupport
         FlatPack::PageNav::Component.prepend(PageNavCompat)
       end
     end
+
+    initializer "recording_studio_support.search_instant_live_pages" do
+      config.to_prepare do
+        next unless defined?(RecordingStudioSearch::InstantSearchesController)
+
+        controller = RecordingStudioSearch::InstantSearchesController
+        next if controller.ancestors.include?(SearchInstantLivePages)
+
+        controller.prepend(SearchInstantLivePages)
+      end
+    end
   end
 end
 

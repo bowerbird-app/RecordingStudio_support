@@ -1,0 +1,15 @@
+<% list_items = support_page_search_items(local_assigns[:page_recordings]) %>
+<% query = local_assigns[:query] %>
+<% if list_items.any? %>
+  <%= render "recording_studio_support/shared/link_list", items: list_items %>
+<% elsif query.present? %>
+  <%= render FlatPack::EmptyState::Component.new(
+    title: "Nothing matches that",
+    description: "Try another word."
+  ) %>
+<% else %>
+  <%= render FlatPack::EmptyState::Component.new(
+    title: "Nothing here yet",
+    description: "Add a page to get going."
+  ) %>
+<% end %>

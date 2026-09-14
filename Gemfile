@@ -16,8 +16,8 @@ gem "recording_studio_moveable", "~> 3.0", github: "bowerbird-app/RecordingStudi
 gem "recording_studio_orderable", "~> 0.2", github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.2.2"
 gem "recording_studio_publishable", "~> 0.2", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.2.1"
 # Vendored while RecordingStudio_search is private (CI token cannot clone it).
-# Upstream: ce6265e10a732cd40bd83a8dd9c5cfe710ca22f7 — switch back to github: once public.
-gem "recording_studio_search", "~> 0.3", path: "vendor/recording_studio_search"
+# Upstream: d9cc54dd33ec625dd618f5520de56b9b49a29e01 — Search PR #2 Instant UI 0.4.0.
+gem "recording_studio_search", "~> 0.4", path: "vendor/recording_studio_search"
 gem "recording_studio_trashable", "~> 0.4", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.4.1"
 
 gem "devise"

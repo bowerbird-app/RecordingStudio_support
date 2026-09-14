@@ -1,4 +1,5 @@
 Vendored from bowerbird-app/RecordingStudio_search
-Upstream ref: ce6265e10a732cd40bd83a8dd9c5cfe710ca22f7
-Version: 0.3.0
-Reason: private repo; CI token cannot clone it. Restore github: pin once Search is public.
+Upstream ref: d9cc54dd33ec625dd618f5520de56b9b49a29e01 (PR #2 Instant UI 0.4.0)
+Version: 0.4.0
+Note: InstantSearchHelper lives in lib/ (not app/helpers) so Rails does not
+try to include a Class as an ActionView helper.
