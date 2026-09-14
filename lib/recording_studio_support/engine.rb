@@ -126,17 +126,8 @@ module RecordingStudioSupport
         RecordingStudioSupport::Admin.register!
       end
     end
-
-    initializer "recording_studio_support.page_nav_compat" do
-      config.to_prepare do
-        page_nav = FlatPack::PageNav::Component if defined?(FlatPack::PageNav::Component)
-        page_nav.prepend(PageNavCompat) if page_nav && page_nav.ancestors.exclude?(PageNavCompat)
-        search = defined?(RecordingStudioSearch::InstantSearchesController) &&
-                 RecordingStudioSearch::InstantSearchesController
-        search.prepend(SearchInstantLivePages) if search && search.ancestors.exclude?(SearchInstantLivePages)
-      end
-    end
   end
 end
 
 require_relative "engine/javascript"
+require_relative "engine/runtime_prepares"
