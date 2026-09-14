@@ -18,14 +18,14 @@ module RecordingStudioSupport
       end
 
       def public_indexable(query: nil)
-        apply_page_query(SupportPage.indexable, query).distinct.order(:title)
+        apply_page_query(SupportPage.indexable, query).distinct.reorder(:title)
       end
 
       def public_for_section(section_recording, query: nil)
         return SupportPage.none unless section_recording
 
         page_ids = kept_pages_for_section(section_recording).pluck(:recordable_id)
-        apply_page_query(SupportPage.indexable.where(id: page_ids), query).distinct.order(:title)
+        apply_page_query(SupportPage.indexable.where(id: page_ids), query).distinct.reorder(:title)
       end
 
       def related_public_for(page, section_recording: nil)
@@ -91,34 +91,15 @@ module RecordingStudioSupport
         term = query.to_s.strip
         return relation if term.blank?
 
-        pattern = page_query_pattern(term)
-        relation.joins(support_page_join_sql).where(
-          "recording_studio_support_pages.title ILIKE :q OR recording_studio_support_pages.body ILIKE :q",
-          q: pattern
-        )
+        matched_ids = SupportPage.search(term).unscope(:order).reselect(:id)
+        relation.where(recordable_id: matched_ids)
       end
 
       def apply_page_query(relation, query)
         term = query.to_s.strip
         return relation if term.blank?
 
-        table = SupportPage.table_name
-        relation.where(
-          "#{table}.title ILIKE :q OR #{table}.body ILIKE :q",
-          q: page_query_pattern(term)
-        )
-      end
-
-      def page_query_pattern(term)
-        "%#{ActiveRecord::Base.sanitize_sql_like(term)}%"
-      end
-
-      def support_page_join_sql
-        table = RecordingStudio::Recording.table_name
-        type = ActiveRecord::Base.connection.quote(SUPPORT_PAGE_TYPE)
-        "INNER JOIN recording_studio_support_pages " \
-          "ON recording_studio_support_pages.id = #{table}.recordable_id " \
-          "AND #{table}.recordable_type = #{type}"
+        relation.search(term)
       end
     end
   end

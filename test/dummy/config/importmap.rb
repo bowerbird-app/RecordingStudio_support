@@ -41,3 +41,9 @@ if defined?(RecordingStudioSupport::Engine)
                under: "controllers/recording_studio_support",
                to: "recording_studio_support/controllers"
 end
+
+if defined?(RecordingStudioSearch::Engine)
+  pin_all_from RecordingStudioSearch::Engine.root.join("app/javascript/controllers/recording_studio_search"),
+               under: "controllers/recording_studio_search",
+               to: "controllers/recording_studio_search"
+end

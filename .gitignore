@@ -56,3 +56,5 @@ pkg/
 
 # Rename script state
 .rename_state.yml
+# recording_studio_search is vendored under vendor/recording_studio_search while
+# that repo is private to CI. Do not ignore it.

@@ -2,6 +2,39 @@
 
 ## Unreleased
 
+## 0.9.5
+
+Article search moves from `ILIKE` to Recording Studio Search trigram (`pg_trgm`) on `SupportPage` only. Sections stay as they are. No AI / pgvector. Section page search types into Instant UI (same trigram).
+
+### Host app
+
+1. Add the Search gem (no release tags yet). Prefer the GitHub pin once
+   `RecordingStudio_search` is public like the other Recording Studio gems:
+
+```ruby
+gem "recording_studio_search", "~> 0.4",
+    github: "bowerbird-app/RecordingStudio_search",
+    ref: "d9cc54dd33ec625dd618f5520de56b9b49a29e01"
+```
+
+   Until then, hosts that cannot clone the private repo can mirror Support’s
+   temporary `path:` vendor of that same commit (Instant UI 0.4.0).
+
+2. `bundle install`
+3. `bin/rails generate recording_studio_search:install` then `bin/rails db:migrate` (query-cache table only; does not enable `vector`)
+4. Confirm the Search initializer keeps `config.default_backend = :pg_trgm` and allowlists only `RecordingStudioSupport::SupportPage` for Instant
+5. Mount `RecordingStudioSearch::Engine` at `/recording_studio_search`, pin Instant Stimulus, and add `/help/sections/:slug/instant_search`
+6. `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` (adds `search_vector` + trigram indexes on `recording_studio_support_pages`)
+7. Do **not** run `recording_studio_search:searchable_pgvector` for Support pages in this phase
+
+### Verify
+
+```bash
+bundle exec rake test:all
+```
+
+Public section article search (`/help/sections/:slug?q=`), staff section page search, and Admin support pages `search=` should still find pages by title/body. `/help?q=` still filters **sections** by title.
+
 ## 0.9.4
 
 Kit GitHub tags only. Product Support behavior is unchanged. Gemspec `~>` ranges stay the same.

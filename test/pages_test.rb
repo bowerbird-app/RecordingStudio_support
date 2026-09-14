@@ -62,6 +62,15 @@ class PagesTest < Minitest::Test
     list = File.read(
       File.expand_path("../app/views/recording_studio_support/shared/_link_list.html.erb", __dir__)
     )
+    section_pages = File.read(
+      File.expand_path("../app/views/recording_studio_support/shared/_section_pages.html.erb", __dir__)
+    )
+    helper = File.read(
+      File.expand_path("../app/helpers/recording_studio_support/application_helper.rb", __dir__)
+    )
+    article_cards = File.read(
+      File.expand_path("../app/views/recording_studio_support/shared/_article_cards.html.erb", __dir__)
+    )
 
     assert_includes staff_index, "support_page_count_badge"
     refute_includes public_index, "support_page_count_badge"
@@ -74,12 +83,24 @@ class PagesTest < Minitest::Test
     end
     refute_includes public_show, "support_published_badge"
     refute_includes staff_show, "support_published_badge"
-    assert_includes staff_show, "support_page_status_badge"
+    assert_includes helper, "support_page_status_badge"
+    assert_includes section_pages, "support_page_search_items"
     assert_includes staff_show, "can_edit_support_pages?"
     refute_includes staff_show, "current_support_actor.present?"
 
+    assert_includes staff_show, 'render "recording_studio_support/shared/page_search"'
+    assert_includes staff_show, "instant_search_section_path"
+    assert_includes staff_show, "InstantPages::FRAME_ID"
+    assert_includes public_show, 'render "recording_studio_support/shared/page_search"'
+    assert_includes public_show, "support_public_section_instant_search_path"
+    assert_includes public_show, "InstantPages::FRAME_ID"
+    assert_includes public_show, "article_cards"
+
+    assert_includes staff_index, 'render "recording_studio_support/shared/link_list"'
+    assert_includes staff_show, 'render "recording_studio_support/shared/section_pages"'
+    assert_includes section_pages, 'render "recording_studio_support/shared/link_list"'
+
     [staff_index, staff_show].each do |view|
-      assert_includes view, 'render "recording_studio_support/shared/link_list"'
       refute_includes view, "FlatPack::Card::Component"
       refute_includes view, 'text: "Read"'
       refute_includes view, 'text: "Open"'
@@ -104,19 +125,19 @@ class PagesTest < Minitest::Test
 
     refute_includes public_show, "FlatPack::Breadcrumb::Component"
     assert_includes public_show, "support_public_section_page_nav"
-    assert_includes public_show, "FlatPack::Grid::Component"
     assert_includes public_show, "FlatPack::Card::Component"
-    assert_includes public_show, "FlatPack::Timestamp::Component"
     assert_includes public_show, "support_public_contact_href"
     assert_includes public_show, "size: :lg"
-    assert_includes public_show, "hover: :strong"
-    assert_includes public_show, "style: :interactive"
-    assert_includes public_show, 'theme: { background: "var(--color-white)" }'
-    assert_includes public_show, "gap: :lg"
-    assert_includes public_show, "card.body(padding: :lg)"
-    refute_includes public_show, "hover: :subtle"
-    refute_includes public_show, "style: :elevated"
-    refute_includes public_show, "gap: :sm"
+    assert_includes article_cards, "FlatPack::Grid::Component"
+    assert_includes article_cards, "FlatPack::Timestamp::Component"
+    assert_includes article_cards, "hover: :strong"
+    assert_includes article_cards, "style: :interactive"
+    assert_includes article_cards, 'theme: { background: "var(--color-white)" }'
+    assert_includes article_cards, "gap: :lg"
+    assert_includes article_cards, "card.body(padding: :lg)"
+    refute_includes article_cards, "hover: :subtle"
+    refute_includes article_cards, "style: :elevated"
+    refute_includes article_cards, "gap: :sm"
     refute_includes public_show, 'render "recording_studio_support/shared/link_list"'
     refute_includes public_show, 'text: "Read"'
     refute_includes public_show, 'text: "Open"'
@@ -128,6 +149,7 @@ class PagesTest < Minitest::Test
     assert_includes list, "FlatPack::List::Component"
     assert_includes list, "FlatPack::List::Item"
     assert_includes list, "support_list_chevron"
+    assert_includes list, 'turbo_frame: "_top"'
     assert_includes list, "square_rows"
     assert_includes list, "[&>*]:rounded-none"
     refute_includes list, "card.header"
@@ -163,7 +185,10 @@ class PagesTest < Minitest::Test
     assert_includes pages, "def public_indexable(query: nil)"
     assert_includes pages, "def public_for_section"
     assert_includes pages, "def related_public_for"
-    assert_includes pages, ".distinct.order(:title)"
+    assert_includes pages, ".distinct.reorder(:title)"
+    assert_includes pages, "SupportPage.search(term)"
+    assert_includes pages, "relation.search(term)"
+    refute_includes pages, "ILIKE"
     refute_includes pages, "meta_robots"
     refute_includes pages, "noindex"
     assert_includes public_index, 'render "recording_studio_support/shared/search"'

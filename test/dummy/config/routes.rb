@@ -19,6 +19,10 @@ Rails.application.routes.draw do
   get "/help", to: RecordingStudioSupport::PublicPagesController.action(:index), as: :public_help
   get "/help/sections/:slug", to: RecordingStudioSupport::PublicSectionsController.action(:show),
                               as: :public_help_section
+  get "/help/sections/:slug/instant_search",
+      to: RecordingStudioSupport::PublicInstantSearchesController.action(:show),
+      as: :public_help_section_instant_search
+  mount RecordingStudioSearch::Engine, at: "/recording_studio_search"
   mount RecordingStudioPublishable::Engine, at: "/"
   mount RecordingStudioAccessible::Engine, at: "/admin/access"
   mount RecordingStudioSupport::Engine, at: "/admin/support"

@@ -329,6 +329,15 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "How do I sign in?"
   end
 
+  test "public section search finds pages by title via trigram" do
+    section = seeded_section("Getting started")
+
+    get "/help/sections/#{section.recordable.slug}", params: { q: "sign in" }
+
+    assert_response :success
+    assert_includes response.body, "How do I sign in?"
+  end
+
   test "public section uuid bookmarks redirect to the slug url" do
     section = seeded_section("Getting started")
 

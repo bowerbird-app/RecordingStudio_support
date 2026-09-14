@@ -10,7 +10,8 @@
         <%= render FlatPack::List::Item.new(
           href: item.fetch(:href),
           hover: true,
-          trailing: support_list_chevron
+          trailing: support_list_chevron,
+          link_arguments: { data: { turbo_frame: "_top" } }
         ) do %>
           <% if item[:meta] %>
             <div class="flex flex-wrap items-center gap-2">

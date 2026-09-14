@@ -73,6 +73,37 @@ module RecordingStudioSupport
       recording.recordable&.title
     end
 
+    def support_search_routes
+      if respond_to?(:main_app) && main_app.respond_to?(:recording_studio_search)
+        return main_app.recording_studio_search
+      end
+
+      recording_studio_search if respond_to?(:recording_studio_search)
+    end
+
+    def support_public_section_instant_search_path(recording)
+      slug = support_public_section_slug(recording)
+
+      if respond_to?(:main_app) && main_app.respond_to?(:public_help_section_instant_search_path)
+        return main_app.public_help_section_instant_search_path(slug)
+      end
+
+      "#{support_public_help_path}/sections/#{slug}/instant_search"
+    end
+
+    def support_page_search_items(page_recordings)
+      Array(page_recordings).filter_map do |recording|
+        page = recording.recordable
+        next if page.blank?
+
+        {
+          title: page.title,
+          href: page_path(recording),
+          meta: support_page_status_badge(recording)
+        }
+      end
+    end
+
     private
 
     def publishable_engine_routes

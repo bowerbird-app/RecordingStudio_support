@@ -19,6 +19,7 @@ jobs:
     timeout-minutes: 10
     env:
       RUBOCOP_CACHE_ROOT: tmp/rubocop
+      BUNDLE_GITHUB__COM: x-access-token:${{ secrets.BOWERBIRD_ORG_CI_TOKEN }}
 
     steps:
       - name: Checkout code
@@ -46,6 +47,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      BUNDLE_GITHUB__COM: x-access-token:${{ secrets.BOWERBIRD_ORG_CI_TOKEN }}
 
     services:
       postgres:
@@ -61,7 +64,7 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    
+
     strategy:
       fail-fast: false
       matrix:
@@ -81,8 +84,6 @@ jobs:
       - name: Install dummy app dependencies
         run: bundle install
         working-directory: test/dummy
-        env:
-          BUNDLE_GITHUB__COM: x-access-token:${{ secrets.BOWERBIRD_ORG_CI_TOKEN }}
 
       - name: Build dummy app Tailwind assets
         run: bundle exec rails tailwindcss:build

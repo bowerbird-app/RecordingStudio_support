@@ -17,6 +17,9 @@ module RecordingStudioSupport
       path: "/help/:uuid/:slug"
     )
     include Concerns::HasHeroicon
+    include RecordingStudioSearch::Searchable
+
+    searchable backend: :pg_trgm, against: { title: "A", body: "D" }
 
     validates :title, presence: true
   end

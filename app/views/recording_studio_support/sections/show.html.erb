@@ -22,30 +22,14 @@
     <% end %>
   <% end %>
 
-  <%= render "recording_studio_support/shared/search", url: section_path(@section_recording), query: @query %>
+  <%= render "recording_studio_support/shared/page_search",
+        url: section_path(@section_recording),
+        instant_url: instant_search_section_path(@section_recording),
+        query: @query %>
 
-  <% list_items = Array(@page_recordings).filter_map { |recording|
-      page = recording.recordable
-      next if page.blank?
-
-      {
-        title: page.title,
-        href: page_path(recording),
-        meta: support_page_status_badge(recording)
-      }
-    } %>
-
-  <% if list_items.any? %>
-    <%= render "recording_studio_support/shared/link_list", items: list_items %>
-  <% elsif @query.present? %>
-    <%= render FlatPack::EmptyState::Component.new(
-      title: "Nothing matches that",
-      description: "Try another word."
-    ) %>
-  <% else %>
-    <%= render FlatPack::EmptyState::Component.new(
-      title: "Nothing here yet",
-      description: "Add a page to get going."
-    ) %>
+  <%= tag.turbo_frame id: RecordingStudioSupport::InstantPages::FRAME_ID do %>
+    <%= render "recording_studio_support/shared/section_pages",
+          page_recordings: @page_recordings,
+          query: @query %>
   <% end %>
 </div>

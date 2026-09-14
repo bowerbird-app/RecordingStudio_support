@@ -3,6 +3,7 @@
 RecordingStudioSupport::Engine.routes.draw do
   resources :sections, only: %i[index show new create edit update] do
     member do
+      get :instant_search, to: "instant_searches#show"
       post :trash
     end
   end
