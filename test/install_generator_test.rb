@@ -41,6 +41,8 @@ class InstallGeneratorTest < Minitest::Test
     assert_includes routes, 'mount RecordingStudioMoveable::Engine, at: "/recording_studio_moveable"'
     assert_includes routes, public_help_route
     assert_includes routes, public_help_section_route
+    assert_includes routes, public_help_section_instant_search_route
+    assert_includes routes, 'mount RecordingStudioSearch::Engine, at: "/recording_studio_search"'
   end
 
   def test_mount_engine_defaults_to_support
@@ -58,6 +60,8 @@ class InstallGeneratorTest < Minitest::Test
     assert_includes routes, 'mount RecordingStudioMoveable::Engine, at: "/recording_studio_moveable"'
     assert_includes routes, public_help_route
     assert_includes routes, public_help_section_route
+    assert_includes routes, public_help_section_instant_search_route
+    assert_includes routes, 'mount RecordingStudioSearch::Engine, at: "/recording_studio_search"'
   end
 
   def test_enable_admin_support_section_injects_section_on_admin_root
@@ -196,6 +200,8 @@ class InstallGeneratorTest < Minitest::Test
     assert_includes install_guide, "recording_studio_publishable:install"
     assert_includes install_guide, "PublicPagesController"
     assert_includes install_guide, "PublicSectionsController"
+    assert_includes install_guide, "RecordingStudioSearch::Engine"
+    assert_includes install_guide, "instant_search"
     assert_includes install_guide, "SupportSection"
     refute_includes install_guide, "RecordingStudio v3"
   end
@@ -222,6 +228,11 @@ class InstallGeneratorTest < Minitest::Test
     'get "/help/sections/:slug", ' \
       "to: RecordingStudioSupport::PublicSectionsController.action(:show), " \
       "as: :public_help_section"
+  end
+
+  def public_help_section_instant_search_route
+    instant = "RecordingStudioSupport::PublicInstantSearchesController.action(:show)"
+    "get \"/help/sections/:slug/instant_search\", to: #{instant}, as: :public_help_section_instant_search"
   end
 
   def tailwind_source_lines
