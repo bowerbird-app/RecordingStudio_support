@@ -29,7 +29,8 @@ module RecordingStudioSupport
     end
 
     def staff_recordings(section_recording, query:)
-      page_ids = hits(query: query, section_recording: section_recording, audience: :staff).unscope(:order).reselect(:id)
+      matched = hits(query: query, section_recording: section_recording, audience: :staff)
+      page_ids = matched.unscope(:order).reselect(:id)
       Pages.kept_pages_for_section(section_recording)
            .where(recordable_id: page_ids)
            .reorder(:recording_studio_orderable_position, :created_at, :id)

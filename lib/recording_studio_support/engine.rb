@@ -129,21 +129,11 @@ module RecordingStudioSupport
 
     initializer "recording_studio_support.page_nav_compat" do
       config.to_prepare do
-        next unless defined?(FlatPack::PageNav::Component)
-        next if FlatPack::PageNav::Component.ancestors.include?(PageNavCompat)
-
-        FlatPack::PageNav::Component.prepend(PageNavCompat)
-      end
-    end
-
-    initializer "recording_studio_support.search_instant_live_pages" do
-      config.to_prepare do
-        next unless defined?(RecordingStudioSearch::InstantSearchesController)
-
-        controller = RecordingStudioSearch::InstantSearchesController
-        next if controller.ancestors.include?(SearchInstantLivePages)
-
-        controller.prepend(SearchInstantLivePages)
+        page_nav = FlatPack::PageNav::Component if defined?(FlatPack::PageNav::Component)
+        page_nav.prepend(PageNavCompat) if page_nav && page_nav.ancestors.exclude?(PageNavCompat)
+        search = defined?(RecordingStudioSearch::InstantSearchesController) &&
+                 RecordingStudioSearch::InstantSearchesController
+        search.prepend(SearchInstantLivePages) if search && search.ancestors.exclude?(SearchInstantLivePages)
       end
     end
   end

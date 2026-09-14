@@ -7,8 +7,6 @@ module RecordingStudioSupport
     class InstallGenerator < Rails::Generators::Base
       source_root File.expand_path("templates", __dir__)
 
-      desc "Installs RecordingStudioSupport engine into your application"
-
       class_option(
         :mount_path,
         type: :string,
@@ -26,9 +24,8 @@ module RecordingStudioSupport
         route "get \"/help/sections/:slug\", " \
               "to: RecordingStudioSupport::PublicSectionsController.action(:show), " \
               "as: :public_help_section"
-        route "get \"/help/sections/:slug/instant_search\", " \
-              "to: RecordingStudioSupport::PublicInstantSearchesController.action(:show), " \
-              "as: :public_help_section_instant_search"
+        instant = "RecordingStudioSupport::PublicInstantSearchesController.action(:show)"
+        route "get \"/help/sections/:slug/instant_search\", to: #{instant}, as: :public_help_section_instant_search"
         route %(mount RecordingStudioSearch::Engine, at: "/recording_studio_search")
       end
 

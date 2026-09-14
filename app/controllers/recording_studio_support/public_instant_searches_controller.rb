@@ -22,9 +22,7 @@ module RecordingStudioSupport
     private
 
     def resolve_public_section!(key)
-      if Sections.public_key_uuid?(key)
-        return Sections.find_kept!(id: key)
-      end
+      return Sections.find_kept!(id: key) if Sections.public_key_uuid?(key)
 
       Sections.find_kept_by_slug!(slug: key)
     end
