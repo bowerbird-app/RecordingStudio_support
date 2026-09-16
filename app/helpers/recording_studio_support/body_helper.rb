@@ -6,6 +6,8 @@ module RecordingStudioSupport
     # display surface (heading scale, paragraph rhythm, image rules). Public
     # and staff article bodies reuse that class; they do not mount the editor.
     ARTICLE_BODY_CLASS = "flat-pack-content-editor-content max-w-none"
+    ARTICLE_IMAGE_STYLE = "width: 100%; height: auto; display: block; border-radius: var(--radius-md, 1rem);"
+    ARTICLE_FIGURE_STYLE = "margin: 1.5rem 0;"
 
     # Flatpack List::Item always applies interactive py-3 px-4 after system
     # classes, so TailwindMerge keeps that padding. Article body rows use the
@@ -28,8 +30,25 @@ module RecordingStudioSupport
       return ERB::Util.html_escape(node.content) if node.text?
       return support_body_list(node, ordered: node.name == "ol") if %w[ol ul].include?(node.name)
       return support_body_blockquote(node) if node.name == "blockquote"
+      return support_body_image(node) if node.name == "img"
+      return support_body_paragraph(node) if node.name == "p"
 
       node.to_html.html_safe
+    end
+
+    def support_body_paragraph(node)
+      children = node.children.reject { |child| child.text? && child.content.blank? }
+      if children.one? && children.first.name == "img"
+        return support_body_image(children.first)
+      end
+
+      node.to_html.html_safe
+    end
+
+    def support_body_image(node)
+      content_tag(:figure, style: ARTICLE_FIGURE_STYLE) do
+        tag.img(src: node["src"], alt: node["alt"], style: ARTICLE_IMAGE_STYLE)
+      end
     end
 
     # TipTap tips stay in blockquote so nested lists still go through Flatpack

@@ -39,14 +39,14 @@ class RootSwitchDropdownTest < ActionDispatch::IntegrationTest
     get root_path
 
     assert_response :success
-    assert_includes response.body, workspace.name
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_flatpack_rounded_theme
     assert_includes response.body, "flat_pack/application"
     assert_includes response.body, "@hotwired/turbo-rails"
     assert_includes response.body, "flat-pack-page-nav"
-    assert_includes response.body, "Sign out"
-    assert_includes response.body, 'href="/users/sign_out"'
+    refute_includes response.body, "Sign out"
+    refute_includes response.body, 'href="/users/sign_out"'
+    refute_includes response.body, workspace.name
   end
 
   test "root switch page renders with the host default layout" do

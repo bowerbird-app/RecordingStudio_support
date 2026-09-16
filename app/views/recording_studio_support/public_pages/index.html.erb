@@ -1,18 +1,21 @@
 <% recording_studio_page_nav(title: support_public_help_title) %>
 
-<div class="flex w-full flex-col gap-6">
+<div class="flex w-full flex-col gap-8">
   <%= render FlatPack::PageTitle::Component.new(
     title: support_public_help_title,
-    variant: :h1
+    variant: :h1,
+    class: "text-center",
+    style: "--page-title-h1-size: var(--text-5xl);"
   ) %>
 
   <%= render "recording_studio_support/shared/search",
         url: support_public_help_path,
         query: @query,
-        size: :lg %>
+        size: :lg,
+        prominent: true %>
 
   <% if @section_recordings.any? %>
-    <%= render FlatPack::Grid::Component.new(cols: 1, gap: :lg) do %>
+    <%= render FlatPack::Grid::Component.new(cols: 3, gap: :lg) do %>
       <% @section_recordings.each do |recording| %>
         <%= render FlatPack::Card::Component.new(
           style: :interactive,

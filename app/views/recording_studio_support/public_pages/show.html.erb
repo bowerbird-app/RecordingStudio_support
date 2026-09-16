@@ -24,21 +24,13 @@
     <% end %>
 
     <%# -mb-6 cancels PageTitle's stock mb-6 so gap-1.5 owns header rhythm %>
-    <div class="-mb-6">
+    <div class="-mb-6" style="--page-title-h1-size: var(--text-5xl);">
       <%= render FlatPack::PageTitle::Component.new(
         title: @page.title,
-        subtitle: @page.description.presence,
+        subtitle: support_page_updated_on(@updated_at),
         variant: :h1
       ) %>
     </div>
-
-    <% if @updated_at.present? %>
-      <%# Timestamp always prefers relative labels; pass nil so fallback shows the calendar day. %>
-      <%= render FlatPack::Timestamp::Component.new(
-        timestamp: nil,
-        fallback_text: support_page_updated_on(@updated_at)
-      ) %>
-    <% end %>
   </div>
 
   <% if @page.body.present? %>

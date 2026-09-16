@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Dummy PageNav no longer shows Sign out or the Root Switchable workspace control
+- Public `/help` home centers a larger title, uses a taller Search field, and lays section cards in a 3-column Grid
+- Public article show uses a larger title, shows the calendar day as the PageTitle subtitle (not `description`), and renders body images full-width in a `<figure>`
+
+### Upgrade notes
+- If you overrode public `/help` index or article show, adopt the centered title, prominent Search, 3-column section cards, larger article title, date subtitle, and figure-wrapped images (or keep your override intentionally)
+
 ## [0.9.5] - 2026-09-11
 
 Help article (`SupportPage`) search uses Recording Studio Search trigram (`pg_trgm`), not `ILIKE`. Sections stay on `ILIKE`. No AI / pgvector. Public and staff section page search type into Search Instant UI (Turbo Frame); the query is still trigram.

@@ -16,7 +16,7 @@ Staff UI:
 3. Publish a page from the page's Publish screen
 4. Enable `section :support` on your admin root
    Change Help words with help_title / public_help_title / admin_help_title
-5. Keep Sign out and Root Switchable off Support and Admin Support screens
+5. Keep Sign out and Root Switchable off Support, Admin Support, and dummy host PageNav
 6. For the body editor, pin Flatpack TipTap packages and register
    controllers/flat_pack/tiptap_controller as flat-pack--tiptap
    (lazy load is not enough on first paint). Pictures go in the body

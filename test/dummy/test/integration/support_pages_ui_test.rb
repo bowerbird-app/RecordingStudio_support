@@ -78,6 +78,7 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Open the sign-in page"
     assert_includes response.body, "Your email"
     assert_select "img[src='/how-to-sign-in.jpg'][alt='Sign-in form']"
+    assert_select "figure img[src='/how-to-sign-in.jpg']"
     refute_includes response.body, "Pictures"
     close = css_select("a[aria-label='Close']").first
     assert close
@@ -111,7 +112,7 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_select "p", text: "Turn it off."
     assert_select "h2", text: "Then on"
     refute_includes response.body, "&lt;p&gt;"
-    assert_select "img[alt='nope']"
+    assert_select "figure img[alt='nope']"
   end
 
   test "new page defaults icon from the selected section" do

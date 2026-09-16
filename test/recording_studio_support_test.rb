@@ -207,21 +207,16 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes controllers_js, 'eagerLoadControllersFrom("controllers/recording_studio_search"'
   end
 
-  def test_dummy_default_layout_head_loads_flatpack_and_root_switch_chrome
+  def test_dummy_default_layout_head_does_not_inject_host_chrome
     head_path = File.expand_path("dummy/app/views/recording_studio/_default_layout_head.html.erb", __dir__)
     default_layout_head = File.read(head_path)
 
     refute_includes default_layout_head, 'stylesheet_link_tag "flat_pack/application"'
-    assert_includes default_layout_head, "start_with?"
-    assert_includes default_layout_head, "recording_studio_root_switch_dropdown"
-    assert_includes default_layout_head, "recording_studio_page_nav_right"
-    assert_includes default_layout_head, "user_signed_in?"
-    assert_includes default_layout_head, "RecordingStudioSupport::"
-    assert_includes default_layout_head, "RecordingStudioAdmin::"
-    assert_includes default_layout_head, "RecordingStudioMoveable::"
-    assert_includes default_layout_head, "Sign out"
-    assert_includes default_layout_head, "destroy_user_session_path"
-    assert_includes default_layout_head, "turbo_method: :delete"
+    refute_includes default_layout_head, "recording_studio_root_switch_dropdown"
+    refute_includes default_layout_head, "recording_studio_page_nav_right"
+    refute_includes default_layout_head, "user_signed_in?"
+    refute_includes default_layout_head, "Sign out"
+    refute_includes default_layout_head, "destroy_user_session_path"
     refute_includes default_layout_head, "dummy_page_nav"
   end
 
