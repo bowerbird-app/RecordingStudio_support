@@ -13,6 +13,11 @@ module RecordingStudioSupport
     # classes, so TailwindMerge keeps that padding. Article body rows use the
     # same marker structure without Item’s hit-target padding.
     ARTICLE_LIST_ITEM_CLASS = "flex items-start text-[var(--surface-content-color)]"
+    BODY_ELEMENT_HANDLERS = {
+      "blockquote" => :support_body_blockquote,
+      "img" => :support_body_image,
+      "p" => :support_body_paragraph
+    }.freeze
 
     def support_page_body_html(body)
       fragment = Body.loofah_fragment(Body.sanitize(body))
@@ -26,21 +31,28 @@ module RecordingStudioSupport
     private
 
     def support_body_node(node)
-      return if node.text? && node.content.blank?
-      return ERB::Util.html_escape(node.content) if node.text?
-      return support_body_list(node, ordered: node.name == "ol") if %w[ol ul].include?(node.name)
-      return support_body_blockquote(node) if node.name == "blockquote"
-      return support_body_image(node) if node.name == "img"
-      return support_body_paragraph(node) if node.name == "p"
+      return support_body_text(node) if node.text?
 
-      node.to_html.html_safe
+      support_body_element(node)
+    end
+
+    def support_body_text(node)
+      return if node.content.blank?
+
+      ERB::Util.html_escape(node.content)
+    end
+
+    def support_body_element(node)
+      name = node.name
+      return support_body_list(node, ordered: node.name == "ol") if %w[ol ul].include?(name)
+
+      handler = BODY_ELEMENT_HANDLERS[name]
+      handler ? send(handler, node) : node.to_html.html_safe
     end
 
     def support_body_paragraph(node)
       children = node.children.reject { |child| child.text? && child.content.blank? }
-      if children.one? && children.first.name == "img"
-        return support_body_image(children.first)
-      end
+      return support_body_image(children.first) if children.one? && children.first.name == "img"
 
       node.to_html.html_safe
     end
