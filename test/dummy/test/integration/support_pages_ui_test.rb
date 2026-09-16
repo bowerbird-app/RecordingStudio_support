@@ -432,7 +432,8 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h1", text: "How do I update payment details?"
-    assert_includes response.body, "flat-pack-content-editor-content"
+    assert_includes response.body, "fp-content"
+    refute_includes response.body, "flat-pack-content-editor-content"
     assert_includes response.body, "mt-8"
     assert_includes response.body, "mb-8"
     assert_includes response.body, "pb-8"

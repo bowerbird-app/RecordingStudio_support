@@ -5,15 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [0.9.6] - 2026-09-16
 
 ### Changed
 - Dummy PageNav no longer shows Sign out or the Root Switchable workspace control
 - Public `/help` home centers a larger title, uses a taller Search field, and lays section cards in a 3-column Grid
 - Public article show uses a larger, centered title, shows the calendar day as the PageTitle subtitle (not `description`), and renders body images full-width in a `<figure>`
+- Public article body wraps in `FlatPack::Content::Component` (18px reading type). Pin Flatpack to `adc3c6ed9ea6` (PR #215). No `v0.1.185` tag yet
 
 ### Upgrade notes
-- If you overrode public `/help` index or article show, adopt the centered title, prominent Search, 3-column section cards, larger article title, date subtitle, and figure-wrapped images (or keep your override intentionally)
+- Pin `flat_pack` to `adc3c6ed9ea6` (or a later tag that includes Content)
+- If you overrode public `/help` index or article show, adopt the centered title, prominent Search, 3-column section cards, larger article title, date subtitle, figure-wrapped images, and `FlatPack::Content::Component` around the body (or keep your override intentionally)
 
 ## [0.9.5] - 2026-09-11
 

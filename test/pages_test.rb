@@ -229,9 +229,11 @@ class PagesTest < Minitest::Test
     refute_includes show, "FlatPack::Timestamp::Component"
     refute_includes show, "timestamp: nil"
     refute_includes show, "subtitle: @page.description"
-    assert_includes show, "support_page_body_class"
+    assert_includes show, "FlatPack::Content::Component"
     assert_includes show, '"mt-8 mb-8 pb-8"'
     assert_includes show, "support_page_body_html"
+    refute_includes show, "support_page_body_class"
+    refute_includes show, "flat-pack-content-editor-content"
     assert_includes show, "recording_studio_seo_description"
     assert_includes show, "support_page_meta_description"
     assert_includes show, "page_nav_secondary_anchor"

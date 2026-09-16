@@ -169,7 +169,8 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "meta[name='description'][content=?]", "Open billing and save the card you want us to use."
     assert_select "h1 + p", text: /\bUpdated [A-Z][a-z]+ \d{1,2}, \d{4}\b/
     refute_select "h1 + p", text: /Open billing and save the card you want us to use/
-    assert_includes response.body, "flat-pack-content-editor-content"
+    assert_includes response.body, "fp-content"
+    refute_includes response.body, "flat-pack-content-editor-content"
     assert_includes response.body, "mt-8"
     assert_includes response.body, "mb-8"
     assert_includes response.body, "pb-8"
