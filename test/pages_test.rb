@@ -222,6 +222,8 @@ class PagesTest < Minitest::Test
     assert_includes show, 'class="w-fit"'
     assert_includes show, "FlatPack::PageTitle::Component"
     assert_includes show, "-mb-6"
+    assert_includes show, "class: \"text-center\""
+    assert_includes show, "items-center"
     assert_includes show, "--page-title-h1-size: var(--text-5xl)"
     assert_includes show, "subtitle: support_page_updated_on(@updated_at)"
     refute_includes show, "FlatPack::Timestamp::Component"

@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Dummy PageNav no longer shows Sign out or the Root Switchable workspace control
 - Public `/help` home centers a larger title, uses a taller Search field, and lays section cards in a 3-column Grid
-- Public article show uses a larger title, shows the calendar day as the PageTitle subtitle (not `description`), and renders body images full-width in a `<figure>`
+- Public article show uses a larger, centered title, shows the calendar day as the PageTitle subtitle (not `description`), and renders body images full-width in a `<figure>`
 
 ### Upgrade notes
 - If you overrode public `/help` index or article show, adopt the centered title, prominent Search, 3-column section cards, larger article title, date subtitle, and figure-wrapped images (or keep your override intentionally)

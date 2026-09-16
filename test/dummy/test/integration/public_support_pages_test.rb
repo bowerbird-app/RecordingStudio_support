@@ -92,6 +92,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "figure img[src='/how-to-sign-in.jpg']"
     assert_includes response.body, "width: 100%; height: auto"
     assert_includes response.body, "--page-title-h1-size: var(--text-5xl)"
+    assert_includes response.body, "text-center"
     assert_select "h1 + p", text: /\bUpdated [A-Z][a-z]+ \d{1,2}, \d{4}\b/
     refute_includes response.body, "flat-pack-timestamp"
     refute_select "time.flat-pack-timestamp"

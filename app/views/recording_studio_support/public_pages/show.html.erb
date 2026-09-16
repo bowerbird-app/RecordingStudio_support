@@ -11,7 +11,7 @@
    ) %>
 
 <div class="flex w-full flex-col">
-  <div class="flex flex-col gap-1.5">
+  <div class="flex flex-col items-center gap-1.5 text-center">
     <% section_title = support_recording_title(@section_recording) %>
     <% if section_title.present? %>
       <div class="w-fit">
@@ -24,11 +24,12 @@
     <% end %>
 
     <%# -mb-6 cancels PageTitle's stock mb-6 so gap-1.5 owns header rhythm %>
-    <div class="-mb-6" style="--page-title-h1-size: var(--text-5xl);">
+    <div class="-mb-6 w-full" style="--page-title-h1-size: var(--text-5xl);">
       <%= render FlatPack::PageTitle::Component.new(
         title: @page.title,
         subtitle: support_page_updated_on(@updated_at),
-        variant: :h1
+        variant: :h1,
+        class: "text-center"
       ) %>
     </div>
   </div>
