@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.8] - 2026-09-17
+
+Staff preview uses Publishable QuickActions. Publishable pin is `v0.3.1`.
+
+### Changed
+- Depend on `recording_studio_publishable` `~> 0.3` (dummy GitHub tag `v0.3.1`)
+- Staff article preview replaces the Publish button and Live/Draft display with `RecordingStudioPublishable::QuickActions::Component` (Draft / scheduled date / Published, Publish now, Schedule, Unpublish, Preview or View, SEO, Social)
+- Public article show renders `publishable_preview_badge` on Publishable Preview
+
+### Upgrade notes
+- Pin `recording_studio_publishable` to `v0.3.1` (`~> 0.3`)
+- If you overrode staff `pages/show`, render QuickActions instead of a Publish link plus a Live/Draft button
+- Preview is `/recordings/:id/publishable/preview`, not a query on the public URL
+
 ## [0.9.7] - 2026-09-17
 
 ### Added
@@ -579,7 +593,11 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.4...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.8...HEAD
+[0.9.8]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.7...v0.9.8
+[0.9.7]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.6...v0.9.7
+[0.9.6]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.5...v0.9.6
+[0.9.5]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.4...v0.9.5
 [0.9.4]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.3...v0.9.4
 [0.9.3]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.2...v0.9.3
 [0.9.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.1...v0.9.2

@@ -3,11 +3,12 @@
 require "test_helper"
 
 class SupportSectionSlugTest < Minitest::Test
-  def test_staff_show_status_button_sits_between_publish_and_trash
+  def test_staff_show_uses_publishable_quick_actions
     show = File.read(File.expand_path("../app/views/recording_studio_support/pages/show.html.erb", __dir__))
 
-    assert_includes show, 'text: live ? "Live" : "Draft"'
-    assert_includes show, "style: live ? :success : :secondary"
+    assert_includes show, "RecordingStudioPublishable::QuickActions::Component"
+    refute_includes show, 'text: live ? "Live" : "Draft"'
+    refute_includes show, "support_publish_path"
     refute_includes show, "This page is live."
     refute_includes show, "Not live yet"
     refute_includes show, "View now"

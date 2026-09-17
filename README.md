@@ -6,7 +6,7 @@ Help pages sit in a section under your workspace. Each page has a title and a fo
 
 ## Install
 
-Add the gem next to Recording Studio 4.2, Accessible, Admin 2.0, Publishable 0.2, and the mixin gems Support pages use. GitHub hosting is not a reason to skip the gemspec pins.
+Add the gem next to Recording Studio 4.2, Accessible, Admin 2.0, Publishable 0.3, and the mixin gems Support pages use. GitHub hosting is not a reason to skip the gemspec pins.
 
 ```ruby
 # Gemfile
@@ -16,7 +16,7 @@ gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.5.1"
 gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.4.1"
 gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.2.2"
-gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.2.1"
+gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.3.1"
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"
 gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.0.1"
 # Prefer GitHub once RecordingStudio_search is public (sibling gems already are).
@@ -38,7 +38,7 @@ gem "recording_studio_admin", "~> 2.0"
 gem "recording_studio_attachable", "~> 0.4"
 gem "recording_studio_trashable", "~> 0.4"
 gem "recording_studio_orderable", "~> 0.2"
-gem "recording_studio_publishable", "~> 0.2"
+gem "recording_studio_publishable", "~> 0.3"
 gem "recording_studio_search", "~> 0.4"
 gem "recording_studio_moveable", "~> 3.0"
 ```
@@ -218,7 +218,7 @@ When `public_section_subtitle` is blank or the callable returns blank, the secti
 
 Public show is Publishable's published route (`/help/:uuid/:slug`). Header order is Flatpack Badge (section title, stock `size: :lg`, wrapped in `w-fit` so it stays an inline chip) → larger centered `PageTitle` (`--page-title-h1-size: var(--text-5xl)`, `class: "text-center"`; wrapped to cancel stock `mb-6`) whose subtitle is the calendar day via `support_page_updated_on` (not the page `description`, and not relative “N ago”). Long-form body renders through `FlatPack::Content::Component` (`class: "mt-8 mb-8 pb-8"`) so article type uses the kit 18px reading scale. `support_page_body_html` still sanitizes and remaps images, lists, and tips inside that wrapper. Inline pictures are lifted out of wrapping `<p>` tags into full-width `<figure>` / `<img>`. Body `ol`/`ul` render through Flatpack `List` with dense spacing and prose-tight list rows (Flatpack `List::Item` padding is skipped so steps are not spaced like interactive nav); wrap tip copy in `blockquote` so nested lists still go through Flatpack (tip text uses the same surface content color as the article). The document `<title>` is the page title. Meta description prefers the page `description` when set; otherwise plain text from the body (HTML stripped, entities decoded, max 160 characters). There is no Related list. PageNav backs to the section (or `/help`) and offers Home to `/help` (no Close). No live banner, no sign-in alert, no Edit, trash, or Access. Do not wrap the title stack or body in an extra card.
 
-Staff preview unpublished pages on the authenticated show at `/admin/support/:id`. That is the same staff screen, not a second preview app. Staff show keeps Publish, a Live/Draft status button, and an icon-only trash control in the PageTitle row. It does not show a Pictures gallery.
+Staff preview unpublished pages on the authenticated show at `/admin/support/:id`. That is the same staff screen, not a second preview app. Staff show keeps Publishable QuickActions (Draft, a scheduled date, or Published) and an icon-only trash control in the PageTitle row. Publish now, Schedule, Unpublish, Preview or View, SEO, and Social live in that menu. It does not show a Pictures gallery.
 
 The body editor is Flatpack `TextArea` with `rich_text: true`, `preset: :content`, and `uploads: { url: uploads_path }`. That upload endpoint is the same contract as ContentEditor (`upload_url` posts a file and returns `{ "url": "..." }`). `Body.sanitize` keeps `img` (`src`, `alt`). Staff forms also take an optional plain **Description** summary above Body.
 
@@ -248,7 +248,7 @@ RecordingStudioAccessible.bootstrap_owner_access!(
 )
 ```
 
-The section is a hub with two tables: **Support pages** and **Support sections**. It shows a page-count number, not See every page or Latest pages. The pages table lists every page, draft or live, with search, Published/Draft, section, **Edit** and **Move** on each row, and **New page** at the top. The sections table has search, a **Count** column (`1` / `2` for every kept page in that section), **Edit**, and **New section**. That count is a Family Admin `column`, not a custom cell. Public Help lists still show published counts only. Edit and New open the existing Support forms (`/admin/support/new`, `/admin/support/:id/edit`, `/admin/support/sections/new`, `/admin/support/sections/:id/edit`). Those forms use Save and Cancel as two Flatpack Buttons in one row. Move opens Moveable. The tables skip the default “Table data” heading and row count. Owner page preview stays read-only aside from Publish and trash. Do not put Edit on the owner preview.
+The section is a hub with two tables: **Support pages** and **Support sections**. It shows a page-count number, not See every page or Latest pages. The pages table lists every page, draft or live, with search, Published/Draft, section, **Edit** and **Move** on each row, and **New page** at the top. The sections table has search, a **Count** column (`1` / `2` for every kept page in that section), **Edit**, and **New section**. That count is a Family Admin `column`, not a custom cell. Public Help lists still show published counts only. Edit and New open the existing Support forms (`/admin/support/new`, `/admin/support/:id/edit`, `/admin/support/sections/new`, `/admin/support/sections/:id/edit`). Those forms use Save and Cancel as two Flatpack Buttons in one row. Move opens Moveable. The tables skip the default “Table data” heading and row count. Owner page preview stays read-only aside from the publish dropdown and trash. Do not put Edit on the owner preview.
 
 Who can create, revise, publish, and trash is spelled out in [docs/process-flows.md](docs/process-flows.md). Access stays Accessible on the **admin root**, not per page and not via workspace-only `:edit`. Logged-out people and workspace editors without an AdminRoot grant cannot use `/admin/support`.
 
@@ -313,7 +313,7 @@ Dummy kit pins:
 | Users | `v0.11.0` |
 | Trashable | `v0.4.1` |
 | Orderable | `v0.2.2` |
-| Publishable | `v0.2.1` |
+| Publishable | `v0.3.1` |
 | Icons | `v0.1.1` |
 | Moveable | `v3.0.1` |
 | Root Switchable | `v0.5.1` |

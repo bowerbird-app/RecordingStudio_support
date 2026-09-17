@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.9.7", ::RecordingStudioSupport::VERSION
+    assert_equal "0.9.8", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -28,7 +28,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemspec, 'spec.add_dependency "recording_studio_attachable", "~> 0.4"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_trashable", "~> 0.4"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_orderable", "~> 0.2"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_publishable", "~> 0.2"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_publishable", "~> 0.3"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_search", "~> 0.4"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_moveable", "~> 3.0"'
     refute_includes gemspec, 'spec.add_dependency "recording_studio_api"'
@@ -72,7 +72,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_users", tag: "v0.11.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.4.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.2.2"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.2.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.3.1"'
     assert_includes gemfile, 'path: "../../vendor/recording_studio_search"'
     assert_includes gemfile, "d9cc54dd33ec625dd618f5520de56b9b49a29e01"
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.0.1"'
@@ -331,7 +331,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "/users/sign_in/password"
     refute_includes readme, "RecordingStudio::Capabilities::Attachable.to"
     assert_includes readme, "RecordingStudio::Capabilities::Publishable.to"
-    assert_includes readme, "tag: \"v0.2.1\""
+    assert_includes readme, "tag: \"v0.3.1\""
     assert_includes readme, "tag: \"v0.5.1\""
     assert_includes readme, "tag: \"v0.2.2\""
     assert_includes readme, "/help"

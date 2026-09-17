@@ -2,6 +2,22 @@
 
 ## Unreleased
 
+Staff preview uses Publishable QuickActions. Hosts pin Publishable `v0.3.1`.
+
+### Host app
+
+1. Bump `recording_studio_publishable` to `v0.3.1` (`~> 0.3` in the gemspec). `bundle install`. No Support schema changes.
+2. If you overrode staff `pages/show`, render `RecordingStudioPublishable::QuickActions::Component` (or `render_publishable_quick_actions`) instead of a Publish link and a Live/Draft button.
+3. Public Preview is `/recordings/:id/publishable/preview`. Public article show already renders `publishable_preview_badge`.
+
+### Verify
+
+```bash
+bundle exec rake test:all
+```
+
+## 0.9.7
+
 Admin Support hub title defaults to Support. Optional JSON API for sections and pages.
 
 ### Host app

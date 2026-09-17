@@ -19,11 +19,16 @@ class ApplicationHelperTest < Minitest::Test
     assert_nil helper.support_page_meta_description("")
   end
 
-  def test_support_publish_path_is_blank_without_routes
-    helper = Object.new.extend(load_helper)
+  def test_recording_studio_publishable_helper_proxies_mounted_engine
+    source = File.read(
+      File.expand_path("../app/helpers/recording_studio_support/application_helper.rb", __dir__)
+    )
 
-    assert_nil helper.support_publish_path(nil)
-    assert_nil helper.support_publish_path(Object.new)
+    assert_includes source, "def recording_studio_publishable"
+    assert_includes source, "main_app.recording_studio_publishable"
+    assert_includes source, "RecordingStudioPublishable::Engine.routes.url_helpers"
+    refute_includes source, "def support_publish_path"
+    refute_includes source, "edit_recording_publishable_path"
   end
 
   def test_public_pages_controller_uses_default_layout
@@ -35,7 +40,9 @@ class ApplicationHelperTest < Minitest::Test
     )
 
     assert_includes application, "include RecordingStudio::UsesDefaultLayout"
+    assert_includes application, "helper RecordingStudioPublishable::ApplicationHelper"
     assert_includes source, "skip_before_action :authenticate_user!"
+    assert_includes source, "helper RecordingStudioPublishable::ApplicationHelper"
     refute_includes source, "recording_studio_publishable/application"
     refute_match(/^\s*layout\s/, source)
     assert_includes source, "Sections.public_index"
