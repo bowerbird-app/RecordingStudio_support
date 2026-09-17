@@ -38,9 +38,13 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "input[name='q'][placeholder='Search support']"
     assert_includes response.body, "max-w-none"
     assert_includes response.body, "search-padding-y-lg"
+    assert_includes response.body, "--search-padding-y-lg: 1.125rem"
     assert_includes response.body, "fp-card-hover-strong"
     refute_includes response.body, "shadow-md"
     assert_includes response.body, "grid-cols-1"
+    assert_includes response.body, "lg:grid-cols-3"
+    assert_includes response.body, "text-center"
+    assert_includes response.body, "--page-title-h1-size: var(--text-5xl)"
     assert_includes response.body, "gap-6"
     assert_includes response.body, "card-padding-lg"
     assert_select "ul[role='list']", count: 0
@@ -85,8 +89,12 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "h2", text: "Enter your details"
     assert_select "ul li", text: "Your email"
     assert_select "img[src='/how-to-sign-in.jpg'][alt='Sign-in form']"
-    assert_includes response.body, "flat-pack-timestamp"
-    assert_select "span.flat-pack-timestamp", text: /\bUpdated [A-Z][a-z]+ \d{1,2}, \d{4}\b/
+    assert_select "figure img[src='/how-to-sign-in.jpg']"
+    assert_includes response.body, "width: 100%; height: auto"
+    assert_includes response.body, "--page-title-h1-size: var(--text-5xl)"
+    assert_includes response.body, "text-center"
+    assert_select "h1 + p", text: /\bUpdated [A-Z][a-z]+ \d{1,2}, \d{4}\b/
+    refute_includes response.body, "flat-pack-timestamp"
     refute_select "time.flat-pack-timestamp"
     refute_includes response.body, "How do I change my password?"
     refute_includes response.body, "This page is live"
@@ -158,8 +166,11 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "h1", text: "How do I update payment details?"
     assert_select "[class*='badge-default-background-color']", text: "Billing"
     assert_includes response.body, 'class="w-fit"'
-    assert_includes response.body, "Open billing and save the card you want us to use."
-    assert_includes response.body, "flat-pack-content-editor-content"
+    assert_select "meta[name='description'][content=?]", "Open billing and save the card you want us to use."
+    assert_select "h1 + p", text: /\bUpdated [A-Z][a-z]+ \d{1,2}, \d{4}\b/
+    refute_select "h1 + p", text: /Open billing and save the card you want us to use/
+    assert_includes response.body, "fp-content"
+    refute_includes response.body, "flat-pack-content-editor-content"
     assert_includes response.body, "mt-8"
     assert_includes response.body, "mb-8"
     assert_includes response.body, "pb-8"
@@ -167,6 +178,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "h2", text: "Add or replace a card"
     assert_select "h2", text: "Save and confirm"
     assert_select "img[src='/how-to-update-payment.jpg'][alt*='Billing']"
+    assert_select "figure img[src='/how-to-update-payment.jpg']"
     assert_select "ol.flat-pack-list", count: 1
     assert_select "ol.flat-pack-list.space-y-1", count: 1
     assert_select "ol.flat-pack-list li", text: /Name on the card/
@@ -345,6 +357,23 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
 
     assert_response :moved_permanently
     assert_redirected_to "/help/sections/getting-started"
+  end
+
+  test "signed in visitors do not see Sign out or workspace chrome on help" do
+    sign_in @user
+
+    get "/help"
+
+    assert_response :success
+    refute_includes response.body, "Sign out"
+    refute_includes response.body, "Studio Workspace"
+
+    path = seeded_page("How do I sign in?").recordable.published_url
+    get path
+
+    assert_response :success
+    refute_includes response.body, "Sign out"
+    refute_includes response.body, "Studio Workspace"
   end
 
   test "logged out visitors cannot preview staff pages" do

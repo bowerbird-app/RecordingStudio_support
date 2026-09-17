@@ -6,11 +6,18 @@ module RecordingStudioSupport
     # display surface (heading scale, paragraph rhythm, image rules). Public
     # and staff article bodies reuse that class; they do not mount the editor.
     ARTICLE_BODY_CLASS = "flat-pack-content-editor-content max-w-none"
+    ARTICLE_IMAGE_STYLE = "width: 100%; height: auto; display: block; border-radius: var(--radius-md, 1rem);"
+    ARTICLE_FIGURE_STYLE = "margin: 1.5rem 0;"
 
     # Flatpack List::Item always applies interactive py-3 px-4 after system
     # classes, so TailwindMerge keeps that padding. Article body rows use the
     # same marker structure without Item’s hit-target padding.
     ARTICLE_LIST_ITEM_CLASS = "flex items-start text-[var(--surface-content-color)]"
+    BODY_ELEMENT_HANDLERS = {
+      "blockquote" => :support_body_blockquote,
+      "img" => :support_body_image,
+      "p" => :support_body_paragraph
+    }.freeze
 
     def support_page_body_html(body)
       fragment = Body.loofah_fragment(Body.sanitize(body))
@@ -24,12 +31,36 @@ module RecordingStudioSupport
     private
 
     def support_body_node(node)
-      return if node.text? && node.content.blank?
-      return ERB::Util.html_escape(node.content) if node.text?
-      return support_body_list(node, ordered: node.name == "ol") if %w[ol ul].include?(node.name)
-      return support_body_blockquote(node) if node.name == "blockquote"
+      return support_body_text(node) if node.text?
+
+      support_body_element(node)
+    end
+
+    def support_body_text(node)
+      return if node.content.blank?
+
+      ERB::Util.html_escape(node.content)
+    end
+
+    def support_body_element(node)
+      name = node.name
+      return support_body_list(node, ordered: node.name == "ol") if %w[ol ul].include?(name)
+
+      handler = BODY_ELEMENT_HANDLERS[name]
+      handler ? send(handler, node) : node.to_html.html_safe
+    end
+
+    def support_body_paragraph(node)
+      children = node.children.reject { |child| child.text? && child.content.blank? }
+      return support_body_image(children.first) if children.one? && children.first.name == "img"
 
       node.to_html.html_safe
+    end
+
+    def support_body_image(node)
+      content_tag(:figure, style: ARTICLE_FIGURE_STYLE) do
+        tag.img(src: node["src"], alt: node["alt"], style: ARTICLE_IMAGE_STYLE)
+      end
     end
 
     # TipTap tips stay in blockquote so nested lists still go through Flatpack

@@ -40,8 +40,8 @@ class DefaultLayoutAssetsTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "/assets/tailwind"
     assert_includes response.body, "@hotwired/turbo-rails"
     refute_includes response.body, "dummy_page_nav"
-    assert_includes response.body, "Sign out"
-    assert_includes response.body, "/users/sign_out"
+    refute_includes response.body, "Sign out"
+    refute_includes response.body, "/users/sign_out"
   end
 
   test "tailwind build includes Flatpack alert and page-nav utilities" do

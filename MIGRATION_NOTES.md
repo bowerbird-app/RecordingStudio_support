@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+Public help index and article show layout polish. Dummy PageNav no longer injects Sign out or Root Switchable. Public article body uses `FlatPack::Content::Component` (18px reading type).
+
+### Host app
+
+1. No migrations or route changes.
+2. Pin Flatpack to `adc3c6ed9ea6` (Content + 18px; Flatpack #215). No `v0.1.185` tag yet.
+3. If you overrode `public_pages/index` or `public_pages/show`, adopt the centered larger title, prominent Search, 3-column section cards, date subtitle, figure-wrapped images, and `FlatPack::Content::Component` around the long-form body (or keep your override intentionally).
+4. Dummy hosts that copied Sign out / Root Switchable into `recording_studio/_default_layout_head.html.erb` can drop that chrome.
+
+### Verify
+
+```bash
+bundle exec rake test:all
+```
+
 ## 0.9.5
 
 Article search moves from `ILIKE` to Recording Studio Search trigram (`pg_trgm`) on `SupportPage` only. Sections stay as they are. No AI / pgvector. Section page search types into Instant UI (same trigram).

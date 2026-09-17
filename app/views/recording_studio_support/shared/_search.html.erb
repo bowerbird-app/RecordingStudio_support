@@ -1,11 +1,16 @@
 <% size = local_assigns.fetch(:size, :md) %>
+<% search_tokens = [
+     "--search-input-background-color: var(--color-white)",
+     "--search-input-border-color: var(--surface-border-color)"
+   ] %>
+<% if local_assigns[:prominent] %>
+  <% search_tokens << "--search-padding-y-lg: 1.125rem" %>
+  <% search_tokens << "--search-padding-inline-lg: 3.25rem" %>
+<% end %>
 <%= form_with url: url, method: :get, html: {
       role: "search",
       class: "w-full",
-      style: [
-        "--search-input-background-color: var(--color-white)",
-        "--search-input-border-color: var(--surface-border-color)"
-      ].join("; ")
+      style: search_tokens.join("; ")
     } do %>
   <%= render FlatPack::Search::Component.new(
     name: "q",
