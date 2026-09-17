@@ -9,16 +9,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Optional Recording Studio API slice for `support_sections` and `support_pages` (host adds `recording_studio_api`; dummy mounts it)
+- Installer/agent endpoint list in `docs/api.md` (auth, routes, fields, search, examples)
 - Article search on `GET support_pages?q=` (and nested section `pages?q=`) through `SupportPage.search`. Default 30 searches per API client per minute (`429` when exceeded)
 - Admin Support hub PageTitle (`admin_help_title`) already defaulted to **Support** instead of Help
 
 ### Changed
-- Documented the Recording Studio API slice for sections and pages (`docs/api-plan.md`)
+- Documented the Recording Studio API slice for sections and pages (`docs/api.md` endpoint list; `docs/api-plan.md` design)
 
 ### Upgrade notes
 - New installs and hosts that omit `admin_help_title` get **Support** on `/admin`
 - Hosts that still set `config.admin_help_title = "Help"` keep Help until they change the initializer
-- JSON API is optional. Add `recording_studio_api` `v0.5.5`, install/migrate, mount, and enable `:api_access_point` on roots that hold keys. Writes still need AdminRoot `:edit`. `GET support_pages?q=` uses Recording Studio Search (not Instant). Tune `api_search_rate_limit_*` if 30/minute is wrong. See `docs/api-plan.md`
+- JSON API is optional. Add `recording_studio_api` `v0.5.5`, install/migrate, mount, and enable `:api_access_point` on roots that hold keys. Writes still need AdminRoot `:edit`. `GET support_pages?q=` uses Recording Studio Search (not Instant). Tune `api_search_rate_limit_*` if 30/minute is wrong. Endpoint list: `docs/api.md`
 
 ## [0.9.6] - 2026-09-16
 

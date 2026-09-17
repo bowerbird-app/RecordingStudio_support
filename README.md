@@ -2,7 +2,7 @@
 
 Staff write help pages. People help themselves. No tickets, no inbox, no chat.
 
-Help pages sit in a section under your workspace. Each page has a title and a formatted body. Pictures go in that body. A page can go to trash. Staff pick a section by moving the page. Staff land in **Admin Support** (`/admin`). Write, preview, Publish, and uploads live under `/admin/support`. Access is Admin plus Accessible on the admin root — not a workspace `:edit` grant. Logged-out visitors read at `/help` (slug URLs) and live pages under a section. Drafts stay hidden. This gem does not ship tickets, email, or messaging. JSON for sections and pages is optional: add Recording Studio API in the **host** (dummy does). Gates stay Accessible. See [docs/api-plan.md](docs/api-plan.md).
+Help pages sit in a section under your workspace. Each page has a title and a formatted body. Pictures go in that body. A page can go to trash. Staff pick a section by moving the page. Staff land in **Admin Support** (`/admin`). Write, preview, Publish, and uploads live under `/admin/support`. Access is Admin plus Accessible on the admin root — not a workspace `:edit` grant. Logged-out visitors read at `/help` (slug URLs) and live pages under a section. Drafts stay hidden. This gem does not ship tickets, email, or messaging. JSON for sections and pages is optional: add Recording Studio API in the **host** (dummy does). Gates stay Accessible. Endpoints: [docs/api.md](docs/api.md).
 
 ## Install
 
@@ -256,7 +256,20 @@ Who can create, revise, publish, and trash is spelled out in [docs/process-flows
 
 Support does not gemspec-depend on `recording_studio_api`. If the host adds that gem, Support registers `support_sections` and `support_pages` on boot.
 
+Full contract for hosts and AI agents: **[docs/api.md](docs/api.md)** (auth, fields, search, examples). Design notes: [docs/api-plan.md](docs/api-plan.md).
+
 Writes (`create` / `update` / trash / move) need Accessible `:edit` on the **admin root** — the same bar as `authorize_support!(:edit)`. Workspace `:edit` without that grant is `403`. Reads use `:view` on the workspace that owns the page, or on the admin root. Admin-root readers see drafts. Workspace-only readers see live/`indexable` pages, matching `/help`.
+
+Bearer token: `POST /recording_studio_api/oauth/token` (`client_credentials`), then `Authorization: Bearer …`.
+
+| Method | Path |
+| --- | --- |
+| `GET` `POST` | `/recording_studio_api/api/v1/support_sections` |
+| `GET` `PATCH` `DELETE` | `/recording_studio_api/api/v1/support_sections/:id` |
+| `GET` `POST` | `/recording_studio_api/api/v1/support_sections/:id/pages` |
+| `GET` `POST` | `/recording_studio_api/api/v1/support_pages` |
+| `GET` `PATCH` `DELETE` | `/recording_studio_api/api/v1/support_pages/:id` |
+| `POST` | `/recording_studio_api/api/v1/support_pages/:id/actions/move` |
 
 `GET support_pages?q=` (and nested `support_sections/:id/pages?q=`) runs the same `Pages` / `SupportPage.search` lookup as staff and public lists. Instant UI is not used. Searches are rate limited per API client (default 30 per minute, `429` with `Retry-After`). Tune `api_search_rate_limit_enabled`, `api_search_rate_limit_requests`, and `api_search_rate_limit_period_seconds`. Keep Recording Studio API read rate limits on in production as well.
 
@@ -276,7 +289,7 @@ bin/rails db:migrate
 
 Enable `:api_access_point` (with `:accessible`) on roots that hold API keys. Dummy does this on `Workspace` and `AdminRoot`. Mount the engine. Provision two clients if you want the same split dummy uses: admin-root `:edit` for staff writes, workspace `:view` for read-only help.
 
-Details: [docs/api-plan.md](docs/api-plan.md).
+Details: [docs/api.md](docs/api.md).
 
 ## Dummy host
 

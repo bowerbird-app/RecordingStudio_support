@@ -34,9 +34,27 @@ class RecordingStudioSupportTest < Minitest::Test
     refute_includes gemspec, 'spec.add_dependency "recording_studio_api"'
   end
 
+  def test_api_reference_lists_endpoints_for_installers
+    reference = File.read(File.expand_path("../docs/api.md", __dir__))
+
+    %w[
+      /recording_studio_api/oauth/token
+      /recording_studio_api/api/v1/support_sections
+      /recording_studio_api/api/v1/support_sections/:id/pages
+      /recording_studio_api/api/v1/support_pages
+      /recording_studio_api/api/v1/support_pages/:id/actions/move
+    ].each { |path| assert_includes reference, path }
+
+    assert_includes reference, "client_credentials"
+    assert_includes reference, "SupportPage.search"
+    assert_includes reference, "rate_limit_exceeded"
+    assert_includes reference, "parent_id"
+  end
+
   def test_api_plan_authorizes_writes_on_admin_root
     plan = File.read(File.expand_path("../docs/api-plan.md", __dir__))
 
+    assert_includes plan, "docs/api.md"
     assert_includes plan, "RecordingStudioAccessible"
     assert_includes plan, "authorize_support!(:edit)"
     assert_includes plan, "AdminRoot"
@@ -302,8 +320,10 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "Moveable"
     assert_includes readme, "tag: \"v2.0.2\""
     assert_includes readme, "/admin/support"
+    assert_includes readme, "docs/api.md"
     assert_includes readme, "docs/api-plan.md"
     assert_includes readme, "recording_studio_api"
+    assert_includes readme, "/recording_studio_api/api/v1/support_pages"
     assert_includes readme, "help_title"
     assert_includes readme, "flat-pack--tiptap"
     assert_includes readme, "section :support"

@@ -1,6 +1,8 @@
 # Support API plan
 
-How Recording Studio Support exposes sections and pages on **Recording Studio API**. Access is **Accessible**. Admin is the staff UI, not a second ACL.
+Installer and agent contract (endpoints, auth, fields, search): **[docs/api.md](api.md)**.
+
+This page is the design for how Recording Studio Support exposes sections and pages on **Recording Studio API**. Access is **Accessible**. Admin is the staff UI, not a second ACL.
 
 Public anonymous browse stays `/help`. The JSON API is authenticated (bearer client). Do not add a Support `ApiController`, `user.admin?`, or a Support permission table.
 
