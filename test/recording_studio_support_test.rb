@@ -34,6 +34,16 @@ class RecordingStudioSupportTest < Minitest::Test
     refute_includes gemspec, 'spec.add_dependency "recording_studio_api"'
   end
 
+  def test_api_plan_authorizes_writes_on_admin_root
+    plan = File.read(File.expand_path("../docs/api-plan.md", __dir__))
+
+    assert_includes plan, "RecordingStudioAccessible"
+    assert_includes plan, "authorize_support!(:edit)"
+    assert_includes plan, "AdminRoot"
+    assert_includes plan, "Pages.create!"
+    assert_includes plan, "Do not add a Support `ApiController`"
+  end
+
   def test_dummy_gemfile_pins_verified_4x_github_tags
     gemfile = File.read(File.expand_path("dummy/Gemfile", __dir__))
 
@@ -287,6 +297,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "Moveable"
     assert_includes readme, "tag: \"v2.0.2\""
     assert_includes readme, "/admin/support"
+    assert_includes readme, "docs/api-plan.md"
     assert_includes readme, "help_title"
     assert_includes readme, "flat-pack--tiptap"
     assert_includes readme, "section :support"

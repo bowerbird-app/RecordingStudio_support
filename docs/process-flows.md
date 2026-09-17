@@ -109,6 +109,14 @@ Engine root `/admin/support` redirects to `/admin`. Admin tables replace the old
 
 ---
 
+## 5. JSON API (planned)
+
+Not shipped. Plan: [docs/api-plan.md](api-plan.md).
+
+Accessible is the only access check. Admin is the staff UI. API writes use AdminRoot `:edit` (same as `authorize_support!(:edit)`). API reads use `:view` on the workspace that owns the page **or** on the admin root. Workspace `:edit` without AdminRoot does not create, revise, trash, or move. Anonymous JSON is out; `/help` stays the public browse.
+
+---
+
 ## Related code
 
 - Models: `app/models/recording_studio_support/support_{page,section}.rb`

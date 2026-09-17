@@ -2,7 +2,7 @@
 
 Staff write help pages. People help themselves. No tickets, no inbox, no chat.
 
-Help pages sit in a section under your workspace. Each page has a title and a formatted body. Pictures go in that body. A page can go to trash. Staff pick a section by moving the page. Staff land in **Admin Support** (`/admin`). Write, preview, Publish, and uploads live under `/admin/support`. Access is Admin plus Accessible on the admin root — not a workspace `:edit` grant. Logged-out visitors read at `/help` (slug URLs) and live pages under a section. Drafts stay hidden. This gem does not ship tickets, email, messaging, or an API.
+Help pages sit in a section under your workspace. Each page has a title and a formatted body. Pictures go in that body. A page can go to trash. Staff pick a section by moving the page. Staff land in **Admin Support** (`/admin`). Write, preview, Publish, and uploads live under `/admin/support`. Access is Admin plus Accessible on the admin root — not a workspace `:edit` grant. Logged-out visitors read at `/help` (slug URLs) and live pages under a section. Drafts stay hidden. This gem does not ship tickets, email, messaging, or an API. The planned JSON slice (Accessible gates, no Support ACL) is in [docs/api-plan.md](docs/api-plan.md).
 
 ## Install
 

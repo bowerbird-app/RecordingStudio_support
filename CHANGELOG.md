@@ -9,10 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Admin Support hub PageTitle (`admin_help_title`) defaults to **Support** instead of Help
+- Documented the planned Recording Studio API slice for sections and pages (`docs/api-plan.md`)
 
 ### Upgrade notes
 - New installs and hosts that omit `admin_help_title` get **Support** on `/admin`
 - Hosts that still set `config.admin_help_title = "Help"` keep Help until they change the initializer
+- No API routes yet; see `docs/api-plan.md`
 
 ## [0.9.6] - 2026-09-16
 

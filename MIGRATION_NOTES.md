@@ -8,6 +8,7 @@ Admin Support hub title defaults to Support.
 
 1. No migrations or route changes.
 2. Default `admin_help_title` is **Support**. Change your initializer if you still set `"Help"` and want the new words.
+3. JSON API for sections/pages is not shipped. The plan is `docs/api-plan.md`.
 
 ### Verify
 
