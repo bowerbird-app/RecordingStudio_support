@@ -100,7 +100,13 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert_equal 3, Workspace.count
     assert_equal 1, AdminRoot.count
     assert_operator RecordingStudioSupport::SupportPage.count, :>=, 2
+    payment_page = seeded_page("How do I update payment details?").recordable
+    payment_image = Rails.root.join("public/how-to-update-payment.jpg")
     assert_includes sign_in_page.body, "<img src=\"/how-to-sign-in.jpg\" alt=\"Sign-in form\">"
+    assert_includes payment_page.body, "<img src=\"/how-to-update-payment.jpg\""
+    refute_includes payment_page.body, "http"
+    assert payment_image.file?
+    assert_equal [ 0xFF, 0xD8, 0xFF ], payment_image.binread(3).bytes
     refute RecordingStudio.capability_enabled?(:attachable, for: "RecordingStudioSupport::SupportPage")
     assert sign_in_page.indexable?
     refute password_page.indexable?

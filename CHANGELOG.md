@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Public `/help` home centers a larger title, uses a taller Search field, and lays section cards in a 3-column Grid
 - Public article show uses a larger, centered title, shows the calendar day as the PageTitle subtitle (not `description`), and renders body images full-width in a `<figure>`
 - Public article body wraps in `FlatPack::Content::Component` (18px reading type). Pin Flatpack to `adc3c6ed9ea6` (PR #215). No `v0.1.185` tag yet
+- Dummy payment article uses a parked `public/how-to-update-payment.jpg` credit-card form (no web fetch at seed time)
 
 ### Upgrade notes
 - Pin `flat_pack` to `adc3c6ed9ea6` (or a later tag that includes Content)
