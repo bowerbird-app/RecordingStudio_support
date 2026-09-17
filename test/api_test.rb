@@ -60,6 +60,17 @@ class ApiTest < Minitest::Test
     assert_includes handlers, "module Create"
     assert_includes intercept, "ResourcesLookup"
     assert_includes intercept, "MemberActionsLookup"
+    assert_includes intercept, "NestedPageSearch"
+  end
+
+  def test_page_index_uses_pages_search_and_a_rate_limit
+    index = File.read(File.expand_path("../lib/recording_studio_support/api/index.rb", __dir__))
+    limit = File.read(File.expand_path("../lib/recording_studio_support/api/search_limit.rb", __dir__))
+
+    assert_includes index, "Pages.apply_query"
+    assert_includes index, "SearchLimit.blocked_response"
+    assert_includes limit, "Too many article searches"
+    refute_includes index, "InstantSearch"
   end
 
   def test_gemspec_still_omits_api_dependency

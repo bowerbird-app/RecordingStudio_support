@@ -15,7 +15,10 @@ module RecordingStudioSupport
       admin_help_subtitle: "Pages people use when they get stuck.",
       public_section_subtitle: nil,
       public_contact_href: nil,
-      public_contact_label: "Contact support"
+      public_contact_label: "Contact support",
+      api_search_rate_limit_enabled: true,
+      api_search_rate_limit_requests: 30,
+      api_search_rate_limit_period_seconds: 60
     }.freeze
 
     attr_accessor :api_key, *DEFAULTS.keys

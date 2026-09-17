@@ -8,7 +8,7 @@ Admin Support hub title defaults to Support. Optional JSON API for sections and 
 
 1. No Support migrations. JSON API needs the host to add `recording_studio_api` `v0.5.5`, run its install/migrations, and mount `/recording_studio_api`.
 2. Default `admin_help_title` is **Support**. Change your initializer if you still set `"Help"` and want the new words.
-3. Enable `:api_access_point` on roots that hold API keys (`Workspace` and `AdminRoot` in dummy). Writes need AdminRoot `:edit`. Details: `docs/api-plan.md`.
+3. Enable `:api_access_point` on roots that hold API keys (`Workspace` and `AdminRoot` in dummy). Writes need AdminRoot `:edit`. `GET /recording_studio_api/api/v1/support_pages?q=` searches articles via `SupportPage.search`. Default search rate limit is 30 per client per minute. Details: `docs/api-plan.md`.
 
 ### Verify
 

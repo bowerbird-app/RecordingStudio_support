@@ -117,6 +117,8 @@ Stock Index/Show can stay if they honor `:view` on workspace **or** admin root. 
 - AdminRoot `:edit` (or `:view` if we mirror staff preview) — include drafts
 - Workspace `:view` without admin write — live/`indexable` pages only, matching public `/help`
 
+`GET support_pages?q=` and nested `GET support_sections/:id/pages?q=` use `Pages.apply_query` → `SupportPage.search` (trigram). Not Instant Search. Rate limit searches per API client (default 30/minute). Empty `q` is a normal index and does not count against that bucket.
+
 Replace Create / Update / Destroy with Support handlers:
 
 1. Resolve admin root the same way staff UI does (`RecordingStudioAdmin` access recording resolver). Fail closed if missing.
@@ -148,6 +150,7 @@ Dummy suite:
 - Workspace-only client: `GET` index/show `200`; `POST`/`PATCH`/`DELETE` `403`
 - Missing token: `401`
 - Draft pages absent from workspace-only index; present for admin-root read if we include drafts for staff
+- `q` on page index uses Search; workspace-only clients still hide drafts; over-limit search is `429`
 
 ## Out of scope
 

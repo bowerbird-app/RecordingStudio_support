@@ -13,12 +13,15 @@ module RecordingStudioSupport
 
       def call
         authorize_index!
+        blocked = search_block
+        return blocked if blocked
+
         payload = paginated_recordings
         {
           json: Serialize.collection(
             payload.fetch(:rows),
             context: context,
-            meta: payload.fetch(:meta)
+            meta: collection_meta(payload.fetch(:meta))
           )
         }
       end
@@ -34,6 +37,19 @@ module RecordingStudioSupport
         return if Access.can_view_workspace?(context, workspace)
 
         Access.deny!
+      end
+
+      def search_block
+        return unless context.recordable_type == Api::PAGE_TYPE
+
+        SearchLimit.blocked_response(client_id: context.api_client&.id, query: search_term)
+      end
+
+      def collection_meta(meta)
+        term = search_term
+        return meta if term.blank?
+
+        meta.merge(q: term)
       end
 
       def paginated_recordings
@@ -65,7 +81,8 @@ module RecordingStudioSupport
 
       def filtered_recordings
         relation = apply_workspace_scope(kept_recordings)
-        apply_live_only(relation)
+        relation = apply_live_only(relation)
+        apply_search(relation)
       end
 
       def kept_recordings
@@ -87,6 +104,19 @@ module RecordingStudioSupport
         return relation unless context.recordable_type == Api::PAGE_TYPE
 
         relation.where(recordable_id: SupportPage.indexable.select(:id))
+      end
+
+      def apply_search(relation)
+        return relation unless context.recordable_type == Api::PAGE_TYPE
+
+        Pages.apply_query(relation, search_term)
+      end
+
+      def search_term
+        params = context.params
+        return "" unless params.respond_to?(:[])
+
+        (params[:q].presence || params["q"].presence).to_s
       end
     end
   end

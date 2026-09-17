@@ -14,6 +14,13 @@ module RecordingStudioSupport
 
         recording
       end
+
+      def render_dispatched_resource_action!(operation_name, recording: nil)
+        operation = resolve_resource_action!(operation_name)
+        result = operation.handler.call(resource_operation_context(recording: recording))
+        result.fetch(:headers, {}).each { |name, value| response.set_header(name, value) }
+        render json: result.fetch(:json), status: result.fetch(:status, :ok)
+      end
     end
 
     module MemberActionsLookup

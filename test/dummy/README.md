@@ -71,7 +71,7 @@ OTP is off (`otp_enabled = false`). OmniAuth Continue-with buttons appear only w
 - `/admin/support/:id` - staff preview, Publish, and trash
 - `/admin/support/:id/edit` - Edit page form
 - `/recording_studio_api/api/v1/support_sections` - JSON sections (bearer client)
-- `/recording_studio_api/api/v1/support_pages` - JSON pages (bearer client)
+- `/recording_studio_api/api/v1/support_pages` - JSON pages (bearer client). `?q=` searches articles; extra searches in a minute return `429`
 - `/recording_studio` - redirects to `/` while the mounted Recording Studio engine stays available under that prefix for non-root routes
 - `/users/sign_in` - Users gem email-first sign-in
 - `/users/sign_in/password` - Users gem password step

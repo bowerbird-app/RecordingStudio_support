@@ -29,7 +29,8 @@ module RecordingStudioSupport
         [
           ["RecordingStudioApi::Api::V1::ResourcesController", ResourcesLookup],
           ["RecordingStudioApi::Api::V1::MemberActionsController", MemberActionsLookup],
-          ["RecordingStudioApi::Api::V1::RelationshipResourcesController", RelationshipLookup]
+          ["RecordingStudioApi::Api::V1::RelationshipResourcesController", RelationshipLookup],
+          ["RecordingStudioApi::Api::V1::RelationshipResourcesController", NestedPageSearch]
         ].map { |name, mod| [name.safe_constantize, mod] }
       end
     end

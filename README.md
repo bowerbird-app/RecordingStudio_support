@@ -258,6 +258,8 @@ Support does not gemspec-depend on `recording_studio_api`. If the host adds that
 
 Writes (`create` / `update` / trash / move) need Accessible `:edit` on the **admin root** — the same bar as `authorize_support!(:edit)`. Workspace `:edit` without that grant is `403`. Reads use `:view` on the workspace that owns the page, or on the admin root. Admin-root readers see drafts. Workspace-only readers see live/`indexable` pages, matching `/help`.
 
+`GET support_pages?q=` (and nested `support_sections/:id/pages?q=`) runs the same `Pages` / `SupportPage.search` lookup as staff and public lists. Instant UI is not used. Searches are rate limited per API client (default 30 per minute, `429` with `Retry-After`). Tune `api_search_rate_limit_enabled`, `api_search_rate_limit_requests`, and `api_search_rate_limit_period_seconds`. Keep Recording Studio API read rate limits on in production as well.
+
 Do not add a Support `ApiController`. Domain writes stay `Pages` / `Sections`. Public anonymous browse stays `/help`.
 
 Host sketch:

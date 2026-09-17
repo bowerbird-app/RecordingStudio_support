@@ -64,6 +64,9 @@ class ConfigurationTest < Minitest::Test
     assert_equal "Find an answer.", configuration.public_help_subtitle
     assert_equal "Support", configuration.admin_help_title
     assert_equal "Pages people use when they get stuck.", configuration.admin_help_subtitle
+    assert_equal true, configuration.api_search_rate_limit_enabled
+    assert_equal 30, configuration.api_search_rate_limit_requests
+    assert_equal 60, configuration.api_search_rate_limit_period_seconds
     assert_nil configuration.public_section_subtitle
     assert_nil configuration.public_contact_href
     assert_equal "Contact support", configuration.public_contact_label

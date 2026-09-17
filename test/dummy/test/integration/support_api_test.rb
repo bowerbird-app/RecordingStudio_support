@@ -14,6 +14,7 @@ class SupportApiTest < ActionDispatch::IntegrationTest
       password: "Password",
       password_confirmation: "Password"
     )
+    RecordingStudioSupport::Api::SearchLimit.reset!
     Current.actor = @staff
     @workspace = Workspace.create!(name: "API #{SecureRandom.hex(4)}")
     @root = RecordingStudio.root_recording_for(@workspace)
@@ -45,6 +46,7 @@ class SupportApiTest < ActionDispatch::IntegrationTest
 
   teardown do
     Current.actor = nil
+    RecordingStudioSupport::Api::SearchLimit.reset!
   end
 
   test "missing token is unauthorized" do
@@ -153,6 +155,80 @@ class SupportApiTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_equal destination.id, @live.reload.parent_recording_id
+  end
+
+  test "q searches articles through SupportPage search" do
+    token = "Zephyr#{SecureRandom.hex(4)}"
+    live_hit = record_support_page(@root, @section, title: "#{token} live receipt", body: "Body")
+    draft_hit = record_support_page(@root, @section, title: "#{token} draft receipt", body: "Body")
+    miss = record_support_page(@root, @section, title: "Unrelated #{SecureRandom.hex(4)}", body: "Body")
+    publish!(live_hit, slug: "live-#{token}", status: "published")
+    publish!(draft_hit, slug: "draft-#{token}", status: "draft")
+    publish!(miss, slug: "miss-#{token}", status: "published")
+
+    get "/recording_studio_api/api/v1/support_pages",
+        headers: auth(@staff_token),
+        params: { q: token },
+        as: :json
+
+    assert_response :success
+    titles = response.parsed_body.fetch("records").map { |record| record.fetch("title") }
+    assert_includes titles, live_hit.recordable.title
+    assert_includes titles, draft_hit.recordable.title
+    refute_includes titles, miss.recordable.title
+    assert_equal token, response.parsed_body.fetch("meta").fetch("q")
+
+    get "/recording_studio_api/api/v1/support_pages",
+        headers: auth(@workspace_token),
+        params: { q: token },
+        as: :json
+
+    assert_response :success
+    workspace_titles = response.parsed_body.fetch("records").map { |record| record.fetch("title") }
+    assert_includes workspace_titles, live_hit.recordable.title
+    refute_includes workspace_titles, draft_hit.recordable.title
+
+    get "/recording_studio_api/api/v1/support_sections/#{@section.id}/pages",
+        headers: auth(@staff_token),
+        params: { q: token },
+        as: :json
+
+    assert_response :success
+    nested_titles = response.parsed_body.fetch("records").map { |record| record.fetch("title") }
+    assert_includes nested_titles, live_hit.recordable.title
+    refute_includes nested_titles, miss.recordable.title
+  end
+
+  test "article search is rate limited per client" do
+    original_limit = RecordingStudioSupport.configuration.api_search_rate_limit_requests
+    RecordingStudioSupport.configuration.api_search_rate_limit_requests = 1
+    RecordingStudioSupport::Api::SearchLimit.reset!
+
+    get "/recording_studio_api/api/v1/support_pages",
+        headers: auth(@workspace_token),
+        params: { q: "invoice" },
+        as: :json
+
+    assert_response :success
+
+    get "/recording_studio_api/api/v1/support_pages",
+        headers: auth(@workspace_token),
+        params: { q: "invoice" },
+        as: :json
+
+    assert_response :too_many_requests
+    assert_equal "rate_limit_exceeded", response.parsed_body.dig("error", "code")
+    assert response.headers["Retry-After"].present?
+
+    get "/recording_studio_api/api/v1/support_pages",
+        headers: auth(@staff_token),
+        params: { q: "invoice" },
+        as: :json
+
+    assert_response :success
+  ensure
+    RecordingStudioSupport.configuration.api_search_rate_limit_requests = original_limit
+    RecordingStudioSupport::Api::SearchLimit.reset!
   end
 
   private
