@@ -16,14 +16,7 @@ module RecordingStudioSupport
         blocked = search_block
         return blocked if blocked
 
-        payload = paginated_recordings
-        {
-          json: Serialize.collection(
-            payload.fetch(:rows),
-            context: context,
-            meta: collection_meta(payload.fetch(:meta))
-          )
-        }
+        collection_response(paginated_recordings)
       end
 
       private
@@ -43,6 +36,16 @@ module RecordingStudioSupport
         return unless context.recordable_type == Api::PAGE_TYPE
 
         SearchLimit.blocked_response(client_id: context.api_client&.id, query: search_term)
+      end
+
+      def collection_response(payload)
+        {
+          json: Serialize.collection(
+            payload.fetch(:rows),
+            context: context,
+            meta: collection_meta(payload.fetch(:meta))
+          )
+        }
       end
 
       def collection_meta(meta)

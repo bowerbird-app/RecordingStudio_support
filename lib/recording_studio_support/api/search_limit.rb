@@ -41,27 +41,28 @@ module RecordingStudioSupport
 
       def blocked_response
         return if @query.blank? || !enabled? || @client_id.blank?
+        return unless increment > limit
 
-        count = increment
-        return unless count > limit
-
-        {
-          json: {
-            error: {
-              code: "rate_limit_exceeded",
-              message: "Too many article searches"
-            }
-          },
-          status: :too_many_requests,
-          headers: {
-            HEADERS[:retry_after] => period.to_s,
-            HEADERS[:limit] => limit.to_s,
-            HEADERS[:remaining] => "0"
-          }
-        }
+        too_many_requests
       end
 
       private
+
+      def too_many_requests
+        {
+          json: { error: { code: "rate_limit_exceeded", message: "Too many article searches" } },
+          status: :too_many_requests,
+          headers: rate_limit_headers
+        }
+      end
+
+      def rate_limit_headers
+        {
+          HEADERS[:retry_after] => period.to_s,
+          HEADERS[:limit] => limit.to_s,
+          HEADERS[:remaining] => "0"
+        }
+      end
 
       def enabled?
         RecordingStudioSupport.configuration.api_search_rate_limit_enabled
