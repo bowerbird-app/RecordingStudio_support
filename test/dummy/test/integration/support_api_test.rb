@@ -18,7 +18,7 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     @workspace = Workspace.create!(name: "API #{SecureRandom.hex(4)}")
     @root = RecordingStudio.root_recording_for(@workspace)
     @admin_root = RecordingStudio.root_recording_for(AdminRoot.find_or_create_by!(name: "Admin"))
-    bootstrap_owner!(@admin_root, @staff)
+    grant!(@admin_root, @staff, :edit)
     bootstrap_owner!(@root, @staff)
     grant!(@root, @workspace_user, :edit)
 
@@ -192,13 +192,15 @@ class SupportApiTest < ActionDispatch::IntegrationTest
   end
 
   def grant!(recording, actor, role)
+    return if RecordingStudioAccessible.authorized?(actor: actor, recording: recording, role: role)
+
     original = RecordingStudioAccessible.configuration.access_management_authorizer
     RecordingStudioAccessible.configuration.access_management_authorizer = ->(**) { true }
     result = RecordingStudioAccessible.grant_access(
       recording: recording,
       actor: actor,
       role: role,
-      manager_actor: actor
+      manager_actor: @staff
     )
     raise result.error if result.failure?
   ensure
