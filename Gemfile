@@ -15,7 +15,7 @@ gem "recording_studio_attachable", "~> 0.4", github: "bowerbird-app/RecordingStu
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"
 gem "recording_studio_moveable", "~> 3.0", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.0.1"
 gem "recording_studio_orderable", "~> 0.2", github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.2.2"
-gem "recording_studio_publishable", "~> 0.2", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.2.1"
+gem "recording_studio_publishable", "~> 0.3", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.3.1"
 # Vendored while RecordingStudio_search is private (CI token cannot clone it).
 # Upstream: d9cc54dd33ec625dd618f5520de56b9b49a29e01 — Search PR #2 Instant UI 0.4.0.
 gem "recording_studio_search", "~> 0.4", path: "vendor/recording_studio_search"

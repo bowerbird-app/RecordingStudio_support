@@ -224,10 +224,13 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, ">Draft<"
     refute_includes response.body, "This page is live."
     refute_includes response.body, "Not live yet"
-    assert_includes response.body, "Publish"
+    assert_includes response.body, "publishable_quick_actions_#{recording.id}"
+    assert_includes response.body, "Publish now"
     refute_includes response.body, "Sign out"
     refute_includes response.body, "Studio Workspace"
-    assert_includes response.body, "/recordings/#{recording.id}/publishable/edit"
+    assert_includes response.body, "/recordings/#{recording.id}/publishable/preview"
+    assert_includes response.body, "/recordings/#{recording.id}/publishable/search"
+    refute_includes response.body, "/recordings/#{recording.id}/publishable/edit"
     refute_includes response.body, "recordable"
   end
 

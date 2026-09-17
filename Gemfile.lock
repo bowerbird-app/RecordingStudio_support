@@ -66,10 +66,10 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_publishable.git
-  revision: 4725693151c275e4551bbac3a5c83857c025182a
-  tag: v0.2.1
+  revision: c657fb6f947a491519945a1358b12f4505fb8358
+  tag: v0.3.1
   specs:
-    recording_studio_publishable (0.2.1)
+    recording_studio_publishable (0.3.1)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
       view_component (>= 3.0, < 5.0)
@@ -98,7 +98,7 @@ GIT
 PATH
   remote: .
   specs:
-    recording_studio_support (0.9.7)
+    recording_studio_support (0.9.8)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
       recording_studio_accessible (~> 0.6)
@@ -106,7 +106,7 @@ PATH
       recording_studio_attachable (~> 0.4)
       recording_studio_moveable (~> 3.0)
       recording_studio_orderable (~> 0.2)
-      recording_studio_publishable (~> 0.2)
+      recording_studio_publishable (~> 0.3)
       recording_studio_search (~> 0.4)
       recording_studio_trashable (~> 0.4)
 
@@ -420,7 +420,7 @@ DEPENDENCIES
   recording_studio_icons!
   recording_studio_moveable (~> 3.0)!
   recording_studio_orderable (~> 0.2)!
-  recording_studio_publishable (~> 0.2)!
+  recording_studio_publishable (~> 0.3)!
   recording_studio_search (~> 0.4)!
   recording_studio_support!
   recording_studio_trashable (~> 0.4)!
@@ -513,9 +513,9 @@ CHECKSUMS
   recording_studio_icons (0.1.1)
   recording_studio_moveable (3.0.1)
   recording_studio_orderable (0.2.2)
-  recording_studio_publishable (0.2.1)
+  recording_studio_publishable (0.3.1)
   recording_studio_search (0.4.0)
-  recording_studio_support (0.9.7)
+  recording_studio_support (0.9.8)
   recording_studio_trashable (0.4.1)
   regexp_parser (2.11.3) sha256=ca13f381a173b7a93450e53459075c9b76a10433caadcb2f1180f2c741fc55a4
   reline (0.6.3) sha256=1198b04973565b36ec0f11542ab3f5cfeeec34823f4e54cebde90968092b1835

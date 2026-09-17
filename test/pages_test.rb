@@ -171,13 +171,14 @@ class PagesTest < Minitest::Test
 
     refute_includes show, "edit_page_path"
     refute_includes show, 'text: "Edit"'
-    assert_includes show, "Publish"
+    assert_includes show, "RecordingStudioPublishable::QuickActions::Component"
     assert_includes show, 'icon: "trash"'
     assert_includes show, "icon_only: true"
     refute_includes show, "View now"
     refute_includes show, "This page is live."
     refute_includes show, "FlatPack::Alert::Component"
-    assert_includes show, 'text: live ? "Live" : "Draft"'
+    refute_includes show, 'text: live ? "Live" : "Draft"'
+    refute_includes show, "support_publish_path"
   end
 
   def test_public_index_uses_indexable_pages_not_copied_logic
@@ -234,7 +235,7 @@ class PagesTest < Minitest::Test
     assert_includes show, "support_page_body_html"
     refute_includes show, "support_page_body_class"
     refute_includes show, "flat-pack-content-editor-content"
-    assert_includes show, "recording_studio_seo_description"
+    assert_includes show, "publishable_preview_badge"
     assert_includes show, "support_page_meta_description"
     assert_includes show, "page_nav_secondary_anchor"
     assert_includes show, '"home"'

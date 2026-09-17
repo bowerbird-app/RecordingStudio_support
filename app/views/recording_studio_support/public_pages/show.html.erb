@@ -34,6 +34,8 @@
     </div>
   </div>
 
+  <%= publishable_preview_badge %>
+
   <% if @page.body.present? %>
     <%= render FlatPack::Content::Component.new(class: "mt-8 mb-8 pb-8") do |content| %>
       <%= support_page_body_html(@page.body) %>

@@ -7,28 +7,13 @@
    ) %>
 
 <div class="flex w-full flex-col gap-6">
-  <% live = @page_recording.respond_to?(:currently_published?) && @page_recording.currently_published? %>
   <%= render FlatPack::PageTitle::Component.new(
     title: @page.title,
     variant: :h1
   ) do |page_title| %>
     <% if can_edit_support_pages? %>
       <% page_title.slot do %>
-        <% publish_href = support_publish_path(@page_recording) %>
-        <% if publish_href.present? %>
-          <%= render FlatPack::Button::Component.new(
-            text: "Publish",
-            style: :secondary,
-            size: :md,
-            href: publish_href
-          ) %>
-        <% end %>
-        <%= render FlatPack::Button::Component.new(
-          text: live ? "Live" : "Draft",
-          style: live ? :success : :secondary,
-          size: :md,
-          type: "button"
-        ) %>
+        <%= render RecordingStudioPublishable::QuickActions::Component.new(recording: @page_recording) %>
         <%= form_with url: trash_page_path(@page_recording), method: :post, class: "inline-flex" do %>
           <%= render FlatPack::Button::Component.new(
             icon: "trash",

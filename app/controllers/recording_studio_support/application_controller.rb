@@ -4,6 +4,8 @@ module RecordingStudioSupport
   class ApplicationController < (defined?(::ApplicationController) ? ::ApplicationController : ActionController::Base)
     include RecordingStudio::UsesDefaultLayout
 
+    helper RecordingStudioPublishable::ApplicationHelper if defined?(RecordingStudioPublishable::ApplicationHelper)
+
     helper_method :current_support_actor, :can_edit_support_pages?
 
     ResolverContext = Struct.new(:controller)

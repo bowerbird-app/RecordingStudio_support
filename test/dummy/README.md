@@ -68,7 +68,7 @@ OTP is off (`otp_enabled = false`). OmniAuth Continue-with buttons appear only w
 - `/admin/screens/support_pages` - table of every help page with search, Published/Draft, and section; Edit, Move, and New page open from here
 - `/admin/screens/support_sections` - table of every help section with a numeric page count; Edit and New section open from here
 - `/admin/support/new` - New page form (Admin Accessible)
-- `/admin/support/:id` - staff preview, Publish, and trash
+- `/admin/support/:id` - staff preview, publish dropdown, and trash
 - `/admin/support/:id/edit` - Edit page form
 - `/recording_studio_api/oauth/token` - OAuth `client_credentials` for a bearer token
 - `/recording_studio_api/api/v1/support_sections` - JSON sections (`GET` list, `POST` create). Item: `GET`/`PATCH`/`DELETE …/:id`

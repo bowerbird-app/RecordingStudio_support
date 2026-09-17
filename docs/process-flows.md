@@ -36,7 +36,7 @@ Do not invent a second permission system. If a host needs section- or page-scope
 | Logged out | Public `/help` only. `/admin/support` asks for sign-in. Old `/support` bookmarks redirect to `/admin`. |
 | Workspace `:view` / `:edit` without AdminRoot | **No** staff Support. `/help` still public. |
 | Accessible `:view` on AdminRoot | Admin hub + staff preview. |
-| Accessible `:edit` (or `:admin`) on AdminRoot | Create / revise / trash / Publish link / drafts on staff section show. |
+| Accessible `:edit` (or `:admin`) on AdminRoot | Create / revise / trash / publish dropdown / drafts on staff section show. |
 
 ### Surface × action × role
 
@@ -51,7 +51,7 @@ Legend: **UI** = button/link on that surface · **URL** = form/route works if yo
 | Edit / revise | UI (Edit → gem form) | **No Edit CTA** | URL | Admin `:edit` |
 | Trash | — | UI (icon) | — | Admin `:edit` |
 | Move section | UI (Moveable) | — | — | Admin + Moveable |
-| Publish / unpublish | — | Publish → Pub; no Unpublish CTA | — | Publishable + Admin `:edit` |
+| Publish / unpublish | — | UI (QuickActions) | — | Publishable + Admin `:edit` |
 
 #### Sections
 
@@ -80,9 +80,9 @@ Engine root `/admin/support` redirects to `/admin`. Admin tables replace the old
 
 | Path | Behavior |
 | --- | --- |
-| Staff preview **Publish** | Links to Publishable edit (`/recordings/:id/publishable/edit`). Not an in-place toggle. |
-| Staff **Live** / **Draft** button | Display-only (`type="button"`, no href/form). Shows `currently_published?`. |
-| Unpublish / Live → Draft | **No Support CTA.** Possible only on the Publishable management screen. |
+| Staff preview **QuickActions** | Publishable dropdown on the page. Closed button is Draft, a scheduled date, or Published. Menu: Publish now, Schedule / Change schedule, Unpublish, Preview or View, SEO, Social. Inline publish/unpublish stay on this screen. |
+| Staff **Preview** / **View** | Preview is `/recordings/:id/publishable/preview` (signed-in people who can see the page). View is the public URL. Logged-out visitors get 404 on Preview. |
+| Unpublish | **Unpublish** in QuickActions (inline). Schedule and SEO/Social open Publishable job screens. |
 | Public `/help` | Hide drafts (`indexable` / `public_for_section`). |
 | Staff section show | Kept drafts + status badge; open staff preview. |
 | Admin status column | Badge via `currently_published?`. |
