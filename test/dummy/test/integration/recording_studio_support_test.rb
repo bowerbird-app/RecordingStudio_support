@@ -145,6 +145,8 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     refute_includes workspace_source, "Capabilities::Example"
     assert RecordingStudio.capability_enabled?(:accessible, for: Workspace)
     assert RecordingStudio.capability_enabled?(:accessible, for: AdminRoot)
+    assert RecordingStudio.capability_enabled?(:api_access_point, for: Workspace)
+    assert RecordingStudio.capability_enabled?(:api_access_point, for: AdminRoot)
     refute RecordingStudio.capability_enabled?(:accessible, for: Folder)
     refute RecordingStudio.capability_enabled?(:accessible, for: Page)
     refute RecordingStudio.capability_enabled?(:accessible, for: RecordingStudioSupport::SupportPage)

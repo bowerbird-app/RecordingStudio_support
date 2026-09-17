@@ -2,13 +2,13 @@
 
 ## Unreleased
 
-Admin Support hub title defaults to Support.
+Admin Support hub title defaults to Support. Optional JSON API for sections and pages.
 
 ### Host app
 
-1. No migrations or route changes.
+1. No Support migrations. JSON API needs the host to add `recording_studio_api` `v0.5.5`, run its install/migrations, and mount `/recording_studio_api`.
 2. Default `admin_help_title` is **Support**. Change your initializer if you still set `"Help"` and want the new words.
-3. JSON API for sections/pages is not shipped. The plan is `docs/api-plan.md`.
+3. Enable `:api_access_point` on roots that hold API keys (`Workspace` and `AdminRoot` in dummy). Writes need AdminRoot `:edit`. Details: `docs/api-plan.md`.
 
 ### Verify
 

@@ -25,6 +25,7 @@ Rails.application.routes.draw do
   mount RecordingStudioSearch::Engine, at: "/recording_studio_search"
   mount RecordingStudioPublishable::Engine, at: "/"
   mount RecordingStudioAccessible::Engine, at: "/admin/access"
+  mount RecordingStudioApi::Engine, at: "/recording_studio_api"
   mount RecordingStudioSupport::Engine, at: "/admin/support"
   recording_studio_admin_for :admin, at: "/admin", root_section: :support
   get "/support", to: redirect("/admin")

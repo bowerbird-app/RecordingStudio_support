@@ -20,3 +20,4 @@ end
 
 Mount Admin with `recording_studio_admin_for :admin, at: "/admin"` and grant access on the admin root (`bootstrap_owner_access!` for the first owner). Staff land in Admin Support tables. New, Edit, Move, preview, Publish, and uploads open under `/admin/support`.
 10. Register `"RecordingStudioSupport::SupportSection"` and `"RecordingStudioSupport::SupportPage"` next to your workspace type, plus `"RecordingStudioPublishable::Publishable"`. Keep `recording_studio_recordable(...)` on every configured type before running `RecordingStudio.validate_recordable_declarations!`.
+11. Optional JSON API: add `recording_studio_api` to the **host** Gemfile (not the Support gemspec), install and mount it, and enable `:api_access_point` on roots that hold keys. Support registers `support_sections` and `support_pages`. Writes need AdminRoot `:edit`. Public `/help` stays anonymous browse. See `docs/api-plan.md`.

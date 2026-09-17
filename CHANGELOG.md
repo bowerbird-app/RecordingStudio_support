@@ -7,14 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.9.7] - 2026-09-17
 
+### Added
+- Optional Recording Studio API slice for `support_sections` and `support_pages` (host adds `recording_studio_api`; dummy mounts it)
+- Admin Support hub PageTitle (`admin_help_title`) already defaulted to **Support** instead of Help
+
 ### Changed
-- Admin Support hub PageTitle (`admin_help_title`) defaults to **Support** instead of Help
-- Documented the planned Recording Studio API slice for sections and pages (`docs/api-plan.md`)
+- Documented the Recording Studio API slice for sections and pages (`docs/api-plan.md`)
 
 ### Upgrade notes
 - New installs and hosts that omit `admin_help_title` get **Support** on `/admin`
 - Hosts that still set `config.admin_help_title = "Help"` keep Help until they change the initializer
-- No API routes yet; see `docs/api-plan.md`
+- JSON API is optional. Add `recording_studio_api` `v0.5.5`, install/migrate, mount, and enable `:api_access_point` on roots that hold keys. Writes still need AdminRoot `:edit`. See `docs/api-plan.md`
 
 ## [0.9.6] - 2026-09-16
 

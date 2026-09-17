@@ -60,6 +60,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.0.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.5.5"'
     assert_includes gemfile, 'github: "bowerbird-app/flatpack", ref: "adc3c6ed9ea6"'
     refute_includes gemfile, "recording_studio/v3.0.0"
     refute_includes gemfile, 'tag: "v0.6.1"'
@@ -257,6 +258,8 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes initializer_source, '"RecordingStudioUser::Profile"'
     assert_includes initializer_source, '"RecordingStudioAttachable::Attachment"'
     assert_includes initializer_source, '"RecordingStudioPublishable::Publishable"'
+    assert_includes initializer_source, '"RecordingStudio::Access"'
+    assert_includes initializer_source, '"RecordingStudioApi::ApiClient"'
     assert_includes initializer_source, '"AdminRoot"'
     refute_includes initializer_source, "config.include_children"
     refute_includes initializer_source, "config.features."
@@ -273,6 +276,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme_source, "/help"
     assert_includes readme_source, "instant_search"
     assert_includes readme_source, "/admin"
+    assert_includes readme_source, "/recording_studio_api"
     assert_includes readme_source, "redirects to `/`"
     assert_includes readme_source, "flat-pack--tiptap"
     assert_includes readme_source, '<html data-theme="rounded">'
@@ -298,6 +302,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "tag: \"v2.0.2\""
     assert_includes readme, "/admin/support"
     assert_includes readme, "docs/api-plan.md"
+    assert_includes readme, "recording_studio_api"
     assert_includes readme, "help_title"
     assert_includes readme, "flat-pack--tiptap"
     assert_includes readme, "section :support"
@@ -399,6 +404,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes routes, 'get "/support", to: redirect("/admin")'
     assert_includes routes, "recording_studio_admin_for :admin, at: \"/admin\", root_section: :support"
     assert_includes routes, 'mount RecordingStudioAccessible::Engine, at: "/admin/access"'
+    assert_includes routes, 'mount RecordingStudioApi::Engine, at: "/recording_studio_api"'
     assert_includes routes, 'mount RecordingStudioPublishable::Engine, at: "/"'
     assert_includes routes, "RecordingStudioSupport::PublicPagesController.action(:index)"
     assert_includes routes, 'get "/help"'

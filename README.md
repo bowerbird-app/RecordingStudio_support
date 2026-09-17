@@ -2,7 +2,7 @@
 
 Staff write help pages. People help themselves. No tickets, no inbox, no chat.
 
-Help pages sit in a section under your workspace. Each page has a title and a formatted body. Pictures go in that body. A page can go to trash. Staff pick a section by moving the page. Staff land in **Admin Support** (`/admin`). Write, preview, Publish, and uploads live under `/admin/support`. Access is Admin plus Accessible on the admin root — not a workspace `:edit` grant. Logged-out visitors read at `/help` (slug URLs) and live pages under a section. Drafts stay hidden. This gem does not ship tickets, email, messaging, or an API. The planned JSON slice (Accessible gates, no Support ACL) is in [docs/api-plan.md](docs/api-plan.md).
+Help pages sit in a section under your workspace. Each page has a title and a formatted body. Pictures go in that body. A page can go to trash. Staff pick a section by moving the page. Staff land in **Admin Support** (`/admin`). Write, preview, Publish, and uploads live under `/admin/support`. Access is Admin plus Accessible on the admin root — not a workspace `:edit` grant. Logged-out visitors read at `/help` (slug URLs) and live pages under a section. Drafts stay hidden. This gem does not ship tickets, email, or messaging. JSON for sections and pages is optional: add Recording Studio API in the **host** (dummy does). Gates stay Accessible. See [docs/api-plan.md](docs/api-plan.md).
 
 ## Install
 
@@ -252,6 +252,30 @@ The section is a hub with two tables: **Support pages** and **Support sections**
 
 Who can create, revise, publish, and trash is spelled out in [docs/process-flows.md](docs/process-flows.md). Access stays Accessible on the **admin root**, not per page and not via workspace-only `:edit`. Logged-out people and workspace editors without an AdminRoot grant cannot use `/admin/support`.
 
+## JSON API
+
+Support does not gemspec-depend on `recording_studio_api`. If the host adds that gem, Support registers `support_sections` and `support_pages` on boot.
+
+Writes (`create` / `update` / trash / move) need Accessible `:edit` on the **admin root** — the same bar as `authorize_support!(:edit)`. Workspace `:edit` without that grant is `403`. Reads use `:view` on the workspace that owns the page, or on the admin root. Admin-root readers see drafts. Workspace-only readers see live/`indexable` pages, matching `/help`.
+
+Do not add a Support `ApiController`. Domain writes stay `Pages` / `Sections`. Public anonymous browse stays `/help`.
+
+Host sketch:
+
+```ruby
+gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.5.5"
+```
+
+```bash
+bin/rails generate recording_studio_api:install
+bin/rails generate recording_studio_api:migrations
+bin/rails db:migrate
+```
+
+Enable `:api_access_point` (with `:accessible`) on roots that hold API keys. Dummy does this on `Workspace` and `AdminRoot`. Mount the engine. Provision two clients if you want the same split dummy uses: admin-root `:edit` for staff writes, workspace `:view` for read-only help.
+
+Details: [docs/api-plan.md](docs/api-plan.md).
+
 ## Dummy host
 
 `test/dummy/` is a host that proves the gem. It is not the product.
@@ -278,6 +302,7 @@ Dummy kit pins:
 | Icons | `v0.1.1` |
 | Moveable | `v3.0.1` |
 | Root Switchable | `v0.5.1` |
+| API | `v0.5.5` (dummy only; not a Support gemspec dependency) |
 | FlatPack | `adc3c6ed9ea6` (Content + 18px; no `v0.1.185` tag yet) |
 
 ```bash

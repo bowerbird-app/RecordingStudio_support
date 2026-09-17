@@ -1,6 +1,6 @@
 # Support API plan
 
-How Recording Studio Support will expose sections and pages on **Recording Studio API**. Access is **Accessible**. Admin is the staff UI, not a second ACL. This slice is not shipped yet.
+How Recording Studio Support exposes sections and pages on **Recording Studio API**. Access is **Accessible**. Admin is the staff UI, not a second ACL.
 
 Public anonymous browse stays `/help`. The JSON API is authenticated (bearer client). Do not add a Support `ApiController`, `user.admin?`, or a Support permission table.
 
@@ -29,7 +29,7 @@ Stock API resource create/update authorize `:edit` on the **parent recording** (
 
 Support does **not** gemspec-depend on `recording_studio_api` (same pattern as Moveable). If the constant is missing, Support boots with no JSON routes.
 
-The **host** adds the API gem, runs its install/migrations, mounts the engine, enables `:accessible` and `:api_access_point` on roots that hold API keys, and provisions clients. Dummy wires this when we implement.
+The **host** adds the API gem, runs its install/migrations, mounts the engine, enables `:accessible` and `:api_access_point` on roots that hold API keys, and provisions clients. Dummy wires this.
 
 ## Registration
 
@@ -44,13 +44,22 @@ RecordingStudioApi.register_recordable_type_api(
   output_keys: %i[title slug icon],
   writable_attributes: %i[title icon],
   operations: %i[index show create update destroy],
-  capability_actions: %i[move],
   relationships: {
     pages: {
       source: :children,
       child_type: "RecordingStudioSupport::SupportPage",
       many: true,
       include: :request,
+      serializer: ->(page, **) {
+        {
+          title: page.title,
+          description: page.description,
+          icon: page.icon,
+          body: page.body
+        }
+      },
+      output_keys: %i[title description icon body],
+      limit: 50,
       endpoints: %i[index show create update destroy]
     }
   }
@@ -120,7 +129,7 @@ Move stays Moveable’s registered `:move` action. After authorize, Support stil
 
 ## Dummy
 
-When implementing: add `recording_studio_api` to the **dummy** Gemfile only, install, mount, enable `api_access_point` on `Workspace` and `AdminRoot`. Seed:
+Dummy adds `recording_studio_api` (host Gemfile only), installs, mounts, and enables `api_access_point` on `Workspace` and `AdminRoot`. Seed:
 
 1. Admin-root API client (actor can write)
 2. Workspace-only API client (index/show only)
