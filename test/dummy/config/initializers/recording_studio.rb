@@ -15,7 +15,8 @@ RecordingStudio.configure do |config|
     "RecordingStudio::Access",
     "RecordingStudioApi::ApiClient",
     "RecordingStudioApi::ApiCredential",
-    "RecordingStudioApi::ApiAccessToken"
+    "RecordingStudioApi::ApiAccessToken",
+    "RecordingStudioApi::AdminApi"
   ]
 
   config.require_recordable_declarations = true

@@ -29,11 +29,11 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     publish!(@draft, slug: "draft-api-#{SecureRandom.hex(4)}", status: "draft")
 
     @staff_token = provision_token(
-      access_point: @admin_root,
+      access_point: @root,
       actor: @staff,
       role: :edit,
       name: "Staff #{SecureRandom.hex(4)}",
-      workspace_recording: @root
+      admin_root_recording: @admin_root
     )
     @workspace_token = provision_token(
       access_point: @root,
@@ -161,7 +161,7 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     { "Authorization" => "Bearer #{token}", "Accept" => "application/json" }
   end
 
-  def provision_token(access_point:, actor:, role:, name:, workspace_recording: nil)
+  def provision_token(access_point:, actor:, role:, name:, admin_root_recording: nil)
     result = RecordingStudioApi::Services::ProvisionApiClient.call(
       access_point_recording: access_point,
       manager_actor: actor,
@@ -171,7 +171,7 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     raise result.error unless result.success?
 
     payload = result.value
-    grant!(workspace_recording, payload.fetch(:api_client), :edit) if workspace_recording
+    grant!(admin_root_recording, payload.fetch(:api_client), :edit) if admin_root_recording
 
     token_result = RecordingStudioApi::Services::IssueOauthAccessToken.call(
       grant_type: "client_credentials",

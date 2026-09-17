@@ -12,16 +12,11 @@ module RecordingStudioSupport
       end
 
       def call
-        if (cached = cached_idempotent_response)
-          return cached
-        end
+        cached = cached_idempotent_response
+        return cached if cached
 
         Access.authorize_edit!(context)
-        created = create_recording!
-        result = {
-          json: Serialize.recording(created, context: context),
-          status: :created
-        }
+        result = { json: Serialize.recording(create_recording!, context: context), status: :created }
         store_idempotent_response(result)
         result
       end
@@ -33,48 +28,54 @@ module RecordingStudioSupport
       def create_recording!
         actor = Access.actor_for(context)
         attrs = Payload.attributes(context)
+        return create_section!(actor, attrs) if context.recordable_type == Api::SECTION_TYPE
 
-        if context.recordable_type == Api::SECTION_TYPE
-          Sections.create!(
-            root_recording: parent_recording!,
-            title: attrs[:title],
-            icon: attrs[:icon],
-            actor: actor
-          )
-        else
-          Pages.create!(
-            parent_recording: parent_recording!,
-            title: attrs[:title],
-            body: attrs[:body],
-            description: attrs[:description],
-            icon: attrs[:icon],
-            actor: actor
-          )
-        end
+        create_page!(actor, attrs)
+      end
+
+      def create_section!(actor, attrs)
+        Sections.create!(
+          root_recording: parent_recording!,
+          title: attrs[:title],
+          icon: attrs[:icon],
+          actor: actor
+        )
+      end
+
+      def create_page!(actor, attrs)
+        Pages.create!(
+          parent_recording: parent_recording!,
+          title: attrs[:title],
+          body: attrs[:body],
+          description: attrs[:description],
+          icon: attrs[:icon],
+          actor: actor
+        )
       end
 
       def parent_recording!
         return context.parent_recording if context.parent_recording
 
         parent_id = Payload.parent_id(context)
-        if parent_id.blank?
-          raise RecordingStudioApi::InvalidActionInputError.new(
-            "parent_id is required for #{context.recordable_type}",
-            details: [
-              {
-                attribute: :parent_id,
-                message: "is required",
-                full_message: "Parent is required",
-                type: :blank
-              }
-            ]
-          )
-        end
+        raise_missing_parent! if parent_id.blank?
 
         parent = RecordingStudio::Recording.find_by(id: parent_id, trashed_at: nil)
         raise RecordingStudioApi::NotFoundError, "Parent resource was not found" if parent.nil?
 
         parent
+      end
+
+      def raise_missing_parent!
+        details = [{
+          attribute: :parent_id,
+          message: "is required",
+          full_message: "Parent is required",
+          type: :blank
+        }]
+        raise RecordingStudioApi::InvalidActionInputError.new(
+          "parent_id is required for #{context.recordable_type}",
+          details: details
+        )
       end
 
       def cached_idempotent_response
@@ -88,10 +89,7 @@ module RecordingStudioSupport
         )
         return if payload.blank?
 
-        {
-          json: payload.fetch("json"),
-          status: payload.fetch("status", "created").to_sym
-        }
+        { json: payload.fetch("json"), status: payload.fetch("status", "created").to_sym }
       end
 
       def store_idempotent_response(result)

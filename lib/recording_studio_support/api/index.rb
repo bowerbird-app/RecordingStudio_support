@@ -13,20 +13,7 @@ module RecordingStudioSupport
 
       def call
         authorize_index!
-        pagination = RecordingStudioApi::Services::PaginateResourceCollection.call(
-          relation: filtered_recordings,
-          resource: context.resource_name,
-          recordable_type: context.recordable_type,
-          limit: context.params[:limit],
-          pagination_token: context.params[:pagination_token],
-          sort: context.params[:sort],
-          order: context.params[:order],
-          api: context.api_key,
-          scope_key: "client:#{context.api_client.id}"
-        )
-        raise RecordingStudioApi::InvalidPaginationTokenError, pagination.error if pagination.failure?
-
-        payload = pagination.value
+        payload = paginated_recordings
         {
           json: Serialize.collection(
             payload.fetch(:rows),
@@ -49,9 +36,35 @@ module RecordingStudioSupport
         Access.deny!
       end
 
+      def paginated_recordings
+        pagination = RecordingStudioApi::Services::PaginateResourceCollection.call(**pagination_args)
+        raise RecordingStudioApi::InvalidPaginationTokenError, pagination.error if pagination.failure?
+
+        pagination.value
+      end
+
+      def pagination_args
+        {
+          relation: filtered_recordings,
+          resource: context.resource_name,
+          recordable_type: context.recordable_type,
+          api: context.api_key,
+          scope_key: "client:#{context.api_client.id}"
+        }.merge(query_params)
+      end
+
+      def query_params
+        params = context.params
+        {
+          limit: params[:limit],
+          pagination_token: params[:pagination_token],
+          sort: params[:sort],
+          order: params[:order]
+        }
+      end
+
       def filtered_recordings
-        relation = kept_recordings
-        relation = apply_workspace_scope(relation)
+        relation = apply_workspace_scope(kept_recordings)
         apply_live_only(relation)
       end
 

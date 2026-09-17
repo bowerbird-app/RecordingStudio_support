@@ -7,23 +7,9 @@ module RecordingStudioSupport
 
       def attributes(context)
         raw = request_hash(context)
-        if raw.key?("attributes") || raw.key?(:attributes)
-          raise RecordingStudioApi::InvalidActionInputError.new(
-            "The attributes envelope is no longer supported; send writable fields at the request body root",
-            details: [
-              {
-                attribute: :attributes,
-                message: "is not supported",
-                full_message: "Attributes is not supported",
-                type: :unsupported
-              }
-            ]
-          )
-        end
-
+        reject_attributes_envelope!(raw)
         symbolized = raw.respond_to?(:deep_symbolize_keys) ? raw.deep_symbolize_keys : {}
-        allowed = writable_keys(context)
-        symbolized.slice(*allowed)
+        symbolized.slice(*writable_keys(context))
       end
 
       def parent_id(context)
@@ -43,6 +29,20 @@ module RecordingStudioSupport
           api: context.api_key
         )
         Array(registration&.writable_attributes).map(&:to_sym)
+      end
+
+      def reject_attributes_envelope!(raw)
+        return unless raw.key?("attributes") || raw.key?(:attributes)
+
+        raise RecordingStudioApi::InvalidActionInputError.new(
+          "The attributes envelope is no longer supported; send writable fields at the request body root",
+          details: [{
+            attribute: :attributes,
+            message: "is not supported",
+            full_message: "Attributes is not supported",
+            type: :unsupported
+          }]
+        )
       end
     end
   end

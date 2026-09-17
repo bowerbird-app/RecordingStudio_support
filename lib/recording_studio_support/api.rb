@@ -3,6 +3,7 @@
 require_relative "api/access"
 require_relative "api/payload"
 require_relative "api/serialize"
+require_relative "api/registration"
 require_relative "api/create"
 require_relative "api/update"
 require_relative "api/destroy"
@@ -22,7 +23,7 @@ module RecordingStudioSupport
       def register!
         return unless recording_studio_api_available?
 
-        register_types!
+        Registration.register!
         wrap_operations!
         wrap_controllers!
         true
@@ -39,95 +40,17 @@ module RecordingStudioSupport
 
       private
 
-      def register_types!
-        RecordingStudioApi.register_recordable_type_api(
-          SECTION_TYPE,
-          serializer: ->(section, **) {
-            { title: section.title, slug: section.slug, icon: section.icon }
-          },
-          output_keys: %i[title slug icon],
-          writable_attributes: %i[title icon],
-          sortable_attributes: %i[title],
-          operations: %i[index show create update destroy],
-          relationships: {
-            pages: {
-              source: :children,
-              child_type: PAGE_TYPE,
-              many: true,
-              include: :request,
-              serializer: ->(page, **) {
-                {
-                  title: page.title,
-                  description: page.description,
-                  icon: page.icon,
-                  body: page.body
-                }
-              },
-              output_keys: %i[title description icon body],
-              limit: 50,
-              endpoints: %i[index show create update destroy]
-            }
-          }
-        )
-
-        RecordingStudioApi.register_recordable_type_api(
-          PAGE_TYPE,
-          serializer: ->(page, **) {
-            {
-              title: page.title,
-              description: page.description,
-              icon: page.icon,
-              body: page.body
-            }
-          },
-          output_keys: %i[title description icon body],
-          writable_attributes: %i[title description icon body],
-          sortable_attributes: %i[title],
-          operations: %i[index show create update destroy],
-          capability_actions: %i[move]
-        )
-      end
-
       def wrap_operations!
-        wrap(
-          RecordingStudioApi::Services::ResourceOperations::Create,
-          Intercept::Create
-        )
-        wrap(
-          RecordingStudioApi::Services::ResourceOperations::Update,
-          Intercept::Update
-        )
-        wrap(
-          RecordingStudioApi::Services::ResourceOperations::Destroy,
-          Intercept::Destroy
-        )
-        wrap(
-          RecordingStudioApi::Services::ResourceOperations::Index,
-          Intercept::Index
-        )
-        wrap(
-          RecordingStudioApi::Services::ResourceOperations::Show,
-          Intercept::Show
-        )
+        Intercept.operation_pairs.each { |klass, mod| wrap(klass, mod) }
         wrap_move_handlers!
       end
 
       def wrap_move_handlers!
-        if defined?(RecordingStudioApi::Services::MoveRecording)
-          wrap(RecordingStudioApi::Services::MoveRecording, Intercept::Move)
-        end
-        return unless defined?(RecordingStudio::Moveable::Api::MoveRecording)
-
-        wrap(RecordingStudio::Moveable::Api::MoveRecording, Intercept::Move)
+        Intercept.move_classes.each { |klass| wrap(klass, Intercept::Move) }
       end
 
       def wrap_controllers!
-        wrap("RecordingStudioApi::Api::V1::ResourcesController".safe_constantize, ResourcesLookup)
-        wrap("RecordingStudioApi::Api::V1::MemberActionsController".safe_constantize, MemberActionsLookup)
-        wrap(
-          "RecordingStudioApi::Api::V1::RelationshipResourcesController".safe_constantize,
-          RelationshipLookup
-        )
+        Intercept.controller_pairs.each { |klass, mod| wrap(klass, mod) }
       end
 
       def wrap(klass, mod)

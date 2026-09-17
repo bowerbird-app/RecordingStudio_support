@@ -346,13 +346,13 @@ if defined?(RecordingStudioApi)
     raise "Failed to provision #{name}: #{result.error}" if result.failure?
 
     payload = result.value
-    grant_workspace_access.call(root_recording, payload.fetch(:api_client)) if name == "Support staff API"
+    grant_workspace_access.call(admin_root_recording, payload.fetch(:api_client)) if name == "Support staff API"
     payload
   end
 
   provision_support_api_client.call(
     name: "Support staff API",
-    access_point: admin_root_recording,
+    access_point: root_recording,
     role: :edit
   )
   provision_support_api_client.call(

@@ -50,14 +50,16 @@ class ApiTest < Minitest::Test
 
   def test_engine_registers_api_when_present
     engine = File.read(File.expand_path("../lib/recording_studio_support/engine.rb", __dir__))
-    api = File.read(File.expand_path("../lib/recording_studio_support/api.rb", __dir__))
+    registration = File.read(File.expand_path("../lib/recording_studio_support/api/registration.rb", __dir__))
+    intercept = File.read(File.expand_path("../lib/recording_studio_support/api/intercept.rb", __dir__))
+    handlers = File.read(File.expand_path("../lib/recording_studio_support/api/intercept/handlers.rb", __dir__))
 
     assert_includes engine, 'initializer "recording_studio_support.api"'
     assert_includes engine, "RecordingStudioSupport::Api.register!"
-    assert_includes api, "RecordingStudioApi.register_recordable_type_api"
-    assert_includes api, "Intercept::Create"
-    assert_includes api, "ResourcesLookup"
-    assert_includes api, "MemberActionsLookup"
+    assert_includes registration, "RecordingStudioApi.register_recordable_type_api"
+    assert_includes handlers, "module Create"
+    assert_includes intercept, "ResourcesLookup"
+    assert_includes intercept, "MemberActionsLookup"
   end
 
   def test_gemspec_still_omits_api_dependency

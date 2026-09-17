@@ -260,6 +260,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes initializer_source, '"RecordingStudioPublishable::Publishable"'
     assert_includes initializer_source, '"RecordingStudio::Access"'
     assert_includes initializer_source, '"RecordingStudioApi::ApiClient"'
+    assert_includes initializer_source, '"RecordingStudioApi::AdminApi"'
     assert_includes initializer_source, '"AdminRoot"'
     refute_includes initializer_source, "config.include_children"
     refute_includes initializer_source, "config.features."

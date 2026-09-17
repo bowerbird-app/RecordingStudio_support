@@ -1,87 +1,36 @@
 # frozen_string_literal: true
 
+require_relative "intercept/handlers"
+
 module RecordingStudioSupport
   module Api
     module Intercept
-      module Create
-        def call
-          return RecordingStudioSupport::Api::Create.call(context) if support_type?
+      module_function
 
-          super
-        end
-
-        private
-
-        def support_type?
-          RecordingStudioSupport::Api.support_type?(context.recordable_type)
-        end
+      def operation_pairs
+        ops = RecordingStudioApi::Services::ResourceOperations
+        [
+          [ops::Create, Create],
+          [ops::Update, Update],
+          [ops::Destroy, Destroy],
+          [ops::Index, Index],
+          [ops::Show, Show]
+        ]
       end
 
-      module Update
-        def call
-          return RecordingStudioSupport::Api::Update.call(context) if support_type?
-
-          super
-        end
-
-        private
-
-        def support_type?
-          RecordingStudioSupport::Api.support_type?(context.recordable_type)
-        end
+      def move_classes
+        [
+          "RecordingStudioApi::Services::MoveRecording".safe_constantize,
+          "RecordingStudio::Moveable::Api::MoveRecording".safe_constantize
+        ].compact
       end
 
-      module Destroy
-        def call
-          return RecordingStudioSupport::Api::Destroy.call(context) if support_type?
-
-          super
-        end
-
-        private
-
-        def support_type?
-          RecordingStudioSupport::Api.support_type?(context.recordable_type)
-        end
-      end
-
-      module Index
-        def call
-          return RecordingStudioSupport::Api::Index.call(context) if support_type?
-
-          super
-        end
-
-        private
-
-        def support_type?
-          RecordingStudioSupport::Api.support_type?(context.recordable_type)
-        end
-      end
-
-      module Show
-        def call
-          return RecordingStudioSupport::Api::Show.call(context) if support_type?
-
-          super
-        end
-
-        private
-
-        def support_type?
-          RecordingStudioSupport::Api.support_type?(context.recordable_type)
-        end
-      end
-
-      module Move
-        def call
-          recording = context.recording
-          if recording&.recordable_type == RecordingStudioSupport::Api::PAGE_TYPE
-            return RecordingStudioSupport::Api::Move.call(context)
-          end
-
-          super
-        end
+      def controller_pairs
+        [
+          ["RecordingStudioApi::Api::V1::ResourcesController", ResourcesLookup],
+          ["RecordingStudioApi::Api::V1::MemberActionsController", MemberActionsLookup],
+          ["RecordingStudioApi::Api::V1::RelationshipResourcesController", RelationshipLookup]
+        ].map { |name, mod| [name.safe_constantize, mod] }
       end
     end
   end
