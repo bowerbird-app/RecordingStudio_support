@@ -2,7 +2,7 @@
 
 Staff write help pages. People help themselves. No tickets, no inbox, no chat.
 
-Help pages sit in a section under your workspace. Each page has a title and a formatted body. Pictures go in that body. A page can go to trash. Staff pick a section by moving the page. Staff land in **Admin Support** (`/admin`). Write, preview, Publish, and uploads live under `/admin/support`. Access is Admin plus Accessible on the admin root — not a workspace `:edit` grant. Logged-out visitors read at `/help` (slug URLs) and live pages under a section. Drafts stay hidden. This gem does not ship tickets, email, messaging, or an API.
+Help pages sit in a section under your workspace. Each page has a title and a formatted body. Pictures go in that body. A page can go to trash. Staff pick a section by moving the page. Staff land in **Admin Support** (`/admin`). Write, preview, Publish, and uploads live under `/admin/support`. Access is Admin plus Accessible on the admin root — not a workspace `:edit` grant. Logged-out visitors read at `/help` (slug URLs) and live pages under a section. Drafts stay hidden. This gem does not ship tickets, email, or messaging. JSON for sections and pages is optional: add Recording Studio API in the **host** (dummy does). Gates stay Accessible. Endpoints: [docs/api.md](docs/api.md).
 
 ## Install
 
@@ -191,7 +191,7 @@ Interactive + `hover: :strong` needs a host Tailwind utilities-layer override fo
 
 No Published badge on public section cards (implied by indexable). Drafts stay off public `/help` lists. No Read / Open buttons. Public help uses Recording Studio's default layout (`UsesDefaultLayout` / `recording_studio/default_layout`). Point Publishable `public_layout` at that layout. Do not use `recording_studio_publishable/application`. Put Flatpack's built-in rounded theme on `<html data-theme="rounded">` — core's body attribute is not enough. Dummy's default-layout override shows the host-side fix. Before Flatpack CSS, declare `@layer theme, base, components, utilities` so TipTap borders survive Tailwind preflight when `flat_pack/rich_text` loads before Tailwind.
 
-Help titles come from `RecordingStudioSupport.configure`. Staff defaults stay “Help” / “Find an answer.” Public default title is **Hi, how can we help?** (`public_help_subtitle` remains configurable but the shipped `/help` home does not render it). Admin section default subtitle is “Pages people use when they get stuck.” Section blurbs and the optional contact slot are host-configurable:
+Help titles come from `RecordingStudioSupport.configure`. Staff engine defaults stay “Help” / “Find an answer.” The Admin Support hub title (`admin_help_title`) defaults to **Support**. Public default title is **Hi, how can we help?** (`public_help_subtitle` remains configurable but the shipped `/help` home does not render it). Admin section default subtitle is “Pages people use when they get stuck.” Section blurbs and the optional contact slot are host-configurable:
 
 ```ruby
 RecordingStudioSupport.configure do |config|
@@ -201,7 +201,7 @@ RecordingStudioSupport.configure do |config|
   config.help_subtitle = "Find an answer."
   config.public_help_title = "Hi, how can we help?"
   config.public_help_subtitle = "Find an answer."
-  config.admin_help_title = "Help"
+  config.admin_help_title = "Support"
   config.admin_help_subtitle = "Pages people use when they get stuck."
   config.public_section_subtitle = ->(section) {
     case section.slug
@@ -252,6 +252,45 @@ The section is a hub with two tables: **Support pages** and **Support sections**
 
 Who can create, revise, publish, and trash is spelled out in [docs/process-flows.md](docs/process-flows.md). Access stays Accessible on the **admin root**, not per page and not via workspace-only `:edit`. Logged-out people and workspace editors without an AdminRoot grant cannot use `/admin/support`.
 
+## JSON API
+
+Support does not gemspec-depend on `recording_studio_api`. If the host adds that gem, Support registers `support_sections` and `support_pages` on boot.
+
+Full contract for hosts and AI agents: **[docs/api.md](docs/api.md)** (auth, fields, search, examples). Design notes: [docs/api-plan.md](docs/api-plan.md).
+
+Writes (`create` / `update` / trash / move) need Accessible `:edit` on the **admin root** — the same bar as `authorize_support!(:edit)`. Workspace `:edit` without that grant is `403`. Reads use `:view` on the workspace that owns the page, or on the admin root. Admin-root readers see drafts. Workspace-only readers see live/`indexable` pages, matching `/help`.
+
+Bearer token: `POST /recording_studio_api/oauth/token` (`client_credentials`), then `Authorization: Bearer …`.
+
+| Method | Path |
+| --- | --- |
+| `GET` `POST` | `/recording_studio_api/api/v1/support_sections` |
+| `GET` `PATCH` `DELETE` | `/recording_studio_api/api/v1/support_sections/:id` |
+| `GET` `POST` | `/recording_studio_api/api/v1/support_sections/:id/pages` |
+| `GET` `POST` | `/recording_studio_api/api/v1/support_pages` |
+| `GET` `PATCH` `DELETE` | `/recording_studio_api/api/v1/support_pages/:id` |
+| `POST` | `/recording_studio_api/api/v1/support_pages/:id/actions/move` |
+
+`GET support_pages?q=` (and nested `support_sections/:id/pages?q=`) runs the same `Pages` / `SupportPage.search` lookup as staff and public lists. Instant UI is not used. Searches are rate limited per API client (default 30 per minute, `429` with `Retry-After`). Tune `api_search_rate_limit_enabled`, `api_search_rate_limit_requests`, and `api_search_rate_limit_period_seconds`. Keep Recording Studio API read rate limits on in production as well.
+
+Do not add a Support `ApiController`. Domain writes stay `Pages` / `Sections`. Public anonymous browse stays `/help`.
+
+Host sketch:
+
+```ruby
+gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.5.5"
+```
+
+```bash
+bin/rails generate recording_studio_api:install
+bin/rails generate recording_studio_api:migrations
+bin/rails db:migrate
+```
+
+Enable `:api_access_point` (with `:accessible`) on roots that hold API keys. Dummy does this on `Workspace` and `AdminRoot`. Mount the engine. Provision two clients if you want the same split dummy uses: admin-root `:edit` for staff writes, workspace `:view` for read-only help.
+
+Details: [docs/api.md](docs/api.md).
+
 ## Dummy host
 
 `test/dummy/` is a host that proves the gem. It is not the product.
@@ -278,6 +317,7 @@ Dummy kit pins:
 | Icons | `v0.1.1` |
 | Moveable | `v3.0.1` |
 | Root Switchable | `v0.5.1` |
+| API | `v0.5.5` (dummy only; not a Support gemspec dependency) |
 | FlatPack | `adc3c6ed9ea6` (Content + 18px; no `v0.1.185` tag yet) |
 
 ```bash

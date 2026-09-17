@@ -7,6 +7,10 @@ RecordingStudioSupport.configure do |config|
   config.help_subtitle = "Find an answer."
   config.public_help_title = "Hi, how can we help?"
   config.public_help_subtitle = "Find an answer."
-  config.admin_help_title = "Help"
+  config.admin_help_title = "Support"
   config.admin_help_subtitle = "Pages people use when they get stuck."
+  # JSON article search (`GET support_pages?q=`). 30 searches per API client per minute.
+  # config.api_search_rate_limit_enabled = true
+  # config.api_search_rate_limit_requests = 30
+  # config.api_search_rate_limit_period_seconds = 60
 end

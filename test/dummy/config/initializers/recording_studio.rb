@@ -11,7 +11,12 @@ RecordingStudio.configure do |config|
     "RecordingStudioSupport::SupportSection",
     "RecordingStudioSupport::SupportPage",
     "RecordingStudioAttachable::Attachment",
-    "RecordingStudioPublishable::Publishable"
+    "RecordingStudioPublishable::Publishable",
+    "RecordingStudio::Access",
+    "RecordingStudioApi::ApiClient",
+    "RecordingStudioApi::ApiCredential",
+    "RecordingStudioApi::ApiAccessToken",
+    "RecordingStudioApi::AdminApi"
   ]
 
   config.require_recordable_declarations = true

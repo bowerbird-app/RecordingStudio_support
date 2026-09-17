@@ -10,6 +10,7 @@ This Rails app exists to prove Recording Studio Support in a real host. It is no
 - Support screens mounted at `/admin/support` (Admin-gated forms and preview). Old `/support` redirects to `/admin`
 - Public help at `/help` for logged-out visitors (default-layout chrome, interactive Flatpack Cards with optional Heroicons icon + **N article(s)** line, then published pages)
 - Admin Support section mounted at `/admin` on an admin root (switch to **Admin** in the top control first — Admin 2.0 gates staff screens on that root)
+- Recording Studio API mounted at `/recording_studio_api` with `api_access_point` on `Workspace` and `AdminRoot`. Seeds a staff client (admin-root `:edit`) and a workspace-only client (`:view`)
 - Support pages opt into Trashable, Moveable, and Publishable. Dummy Folder and Page do not.
 - Recording Studio default layout (`UsesDefaultLayout`) with dummy's `<html data-theme="rounded">` override so Flatpack's built-in rounded theme actually applies; back/close chrome on Support and Admin Support screens; no Sign out or workspace switcher in PageNav; Flatpack CSS/JS, Turbo, and Tailwind source scanning. Users auth also puts `rounded` on `<html>`.
 - Root Switchable stays installed for workspace switching via its own routes, not PageNav chrome
@@ -69,6 +70,11 @@ OTP is off (`otp_enabled = false`). OmniAuth Continue-with buttons appear only w
 - `/admin/support/new` - New page form (Admin Accessible)
 - `/admin/support/:id` - staff preview, Publish, and trash
 - `/admin/support/:id/edit` - Edit page form
+- `/recording_studio_api/oauth/token` - OAuth `client_credentials` for a bearer token
+- `/recording_studio_api/api/v1/support_sections` - JSON sections (`GET` list, `POST` create). Item: `GET`/`PATCH`/`DELETE …/:id`
+- `/recording_studio_api/api/v1/support_sections/:id/pages` - nested pages (`GET` list, `POST` create). `?q=` searches articles
+- `/recording_studio_api/api/v1/support_pages` - JSON pages (`GET` list, `POST` create). Item: `GET`/`PATCH`/`DELETE …/:id`. `?q=` searches; extra searches in a minute return `429`
+- `/recording_studio_api/api/v1/support_pages/:id/actions/move` - move a page (`POST`, staff token)
 - `/recording_studio` - redirects to `/` while the mounted Recording Studio engine stays available under that prefix for non-root routes
 - `/users/sign_in` - Users gem email-first sign-in
 - `/users/sign_in/password` - Users gem password step
@@ -77,7 +83,7 @@ OTP is off (`otp_enabled = false`). OmniAuth Continue-with buttons appear only w
 
 ## Why This App Exists
 
-Use this app to click through public help, Admin Support, and staff forms under `/admin/support`. If a layout, route, asset source, or Recording Studio initializer change breaks here, the gem likely needs adjustment before reuse.
+Use this app to click through public help, Admin Support, and staff forms under `/admin/support`. Bearer clients can hit `/recording_studio_api/api/v1/support_pages` with the same Accessible rules as staff. If a layout, route, asset source, or Recording Studio initializer change breaks here, the gem likely needs adjustment before reuse.
 
 Seeds three sections under Studio Workspace: **Billing**, **Developers**, and **Getting started**. Live pages carry a short `description` summary. **How do I sign in?** is a live article with headings, a list, and an inline photograph (`public/how-to-sign-in.jpg`, Wikimedia Commons CC0 laptop keyboard). **How do I update payment details?** is a longer Billing article with ordered card-field steps, tip blockquote (same text color as the article), and a parked credit-card form JPEG at `public/how-to-update-payment.jpg` (seed serves that file; it does not fetch the web). **How do I change my password?** stays a draft under Getting started. Billing also has **Where is my invoice?**; Developers has one live page. Admin sections table Count is `2` on Getting started and Billing, and `1` on Developers. Public Help lists show published counts/pages only; staff section show under `/admin/support/sections/:id` lists drafts too. A few page reads are logged as support events.
 

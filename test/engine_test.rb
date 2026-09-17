@@ -162,6 +162,26 @@ class EngineTest < Minitest::Test
     assert registered
   end
 
+  def test_api_initializer_registers_support_api
+    to_prepare_blocks = []
+    config_stub = Object.new
+    config_stub.define_singleton_method(:to_prepare) do |&block|
+      to_prepare_blocks << block
+    end
+
+    RecordingStudioSupport::Engine.stub(:config, config_stub) do
+      find_initializer("recording_studio_support.api").block.call
+    end
+
+    registered = false
+    RecordingStudioSupport::Api.stub(:register!, -> { registered = true }) do
+      to_prepare_blocks.first.call
+    end
+
+    assert_equal 1, to_prepare_blocks.size
+    assert registered
+  end
+
   def test_model_extension_initializer_skips_abstract_models
     to_prepare_blocks = []
     config_stub = Object.new

@@ -5,7 +5,7 @@ require "test_helper"
 class AdminTest < Minitest::Test
   def test_support_section_is_help_not_jargon
     assert_equal "support", RecordingStudioSupport::Admin::Section.key
-    assert_equal "Help", resolve_admin_copy(RecordingStudioSupport::Admin::Section.title)
+    assert_equal "Support", resolve_admin_copy(RecordingStudioSupport::Admin::Section.title)
     assert_equal "Pages people use when they get stuck.",
                  resolve_admin_copy(RecordingStudioSupport::Admin::Section.subtitle)
     refute_includes resolve_admin_copy(RecordingStudioSupport::Admin::Section.title), "recordable"

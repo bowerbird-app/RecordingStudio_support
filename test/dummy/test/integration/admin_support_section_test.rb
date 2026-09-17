@@ -19,7 +19,8 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_flatpack_rounded_theme
-    assert_includes response.body, "Help"
+    assert_select "h1", text: "Support"
+    refute_match(/>\s*Help\s*</, response.body)
     assert_includes response.body, "Support pages"
     assert_includes response.body, "Support sections"
     assert_includes response.body, "/admin/screens/support_pages"

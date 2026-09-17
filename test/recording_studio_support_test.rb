@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.9.6", ::RecordingStudioSupport::VERSION
+    assert_equal "0.9.7", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -34,6 +34,34 @@ class RecordingStudioSupportTest < Minitest::Test
     refute_includes gemspec, 'spec.add_dependency "recording_studio_api"'
   end
 
+  def test_api_reference_lists_endpoints_for_installers
+    reference = File.read(File.expand_path("../docs/api.md", __dir__))
+
+    %w[
+      /recording_studio_api/oauth/token
+      /recording_studio_api/api/v1/support_sections
+      /recording_studio_api/api/v1/support_sections/:id/pages
+      /recording_studio_api/api/v1/support_pages
+      /recording_studio_api/api/v1/support_pages/:id/actions/move
+    ].each { |path| assert_includes reference, path }
+
+    assert_includes reference, "client_credentials"
+    assert_includes reference, "SupportPage.search"
+    assert_includes reference, "rate_limit_exceeded"
+    assert_includes reference, "parent_id"
+  end
+
+  def test_api_plan_authorizes_writes_on_admin_root
+    plan = File.read(File.expand_path("../docs/api-plan.md", __dir__))
+
+    assert_includes plan, "docs/api.md"
+    assert_includes plan, "RecordingStudioAccessible"
+    assert_includes plan, "authorize_support!(:edit)"
+    assert_includes plan, "AdminRoot"
+    assert_includes plan, "Pages.create!"
+    assert_includes plan, "Do not add a Support `ApiController`"
+  end
+
   def test_dummy_gemfile_pins_verified_4x_github_tags
     gemfile = File.read(File.expand_path("dummy/Gemfile", __dir__))
 
@@ -50,6 +78,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.0.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.5.5"'
     assert_includes gemfile, 'github: "bowerbird-app/flatpack", ref: "adc3c6ed9ea6"'
     refute_includes gemfile, "recording_studio/v3.0.0"
     refute_includes gemfile, 'tag: "v0.6.1"'
@@ -247,6 +276,9 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes initializer_source, '"RecordingStudioUser::Profile"'
     assert_includes initializer_source, '"RecordingStudioAttachable::Attachment"'
     assert_includes initializer_source, '"RecordingStudioPublishable::Publishable"'
+    assert_includes initializer_source, '"RecordingStudio::Access"'
+    assert_includes initializer_source, '"RecordingStudioApi::ApiClient"'
+    assert_includes initializer_source, '"RecordingStudioApi::AdminApi"'
     assert_includes initializer_source, '"AdminRoot"'
     refute_includes initializer_source, "config.include_children"
     refute_includes initializer_source, "config.features."
@@ -263,6 +295,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme_source, "/help"
     assert_includes readme_source, "instant_search"
     assert_includes readme_source, "/admin"
+    assert_includes readme_source, "/recording_studio_api"
     assert_includes readme_source, "redirects to `/`"
     assert_includes readme_source, "flat-pack--tiptap"
     assert_includes readme_source, '<html data-theme="rounded">'
@@ -287,6 +320,10 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "Moveable"
     assert_includes readme, "tag: \"v2.0.2\""
     assert_includes readme, "/admin/support"
+    assert_includes readme, "docs/api.md"
+    assert_includes readme, "docs/api-plan.md"
+    assert_includes readme, "recording_studio_api"
+    assert_includes readme, "/recording_studio_api/api/v1/support_pages"
     assert_includes readme, "help_title"
     assert_includes readme, "flat-pack--tiptap"
     assert_includes readme, "section :support"
@@ -388,6 +425,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes routes, 'get "/support", to: redirect("/admin")'
     assert_includes routes, "recording_studio_admin_for :admin, at: \"/admin\", root_section: :support"
     assert_includes routes, 'mount RecordingStudioAccessible::Engine, at: "/admin/access"'
+    assert_includes routes, 'mount RecordingStudioApi::Engine, at: "/recording_studio_api"'
     assert_includes routes, 'mount RecordingStudioPublishable::Engine, at: "/"'
     assert_includes routes, "RecordingStudioSupport::PublicPagesController.action(:index)"
     assert_includes routes, 'get "/help"'

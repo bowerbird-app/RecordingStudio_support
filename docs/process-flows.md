@@ -109,6 +109,16 @@ Engine root `/admin/support` redirects to `/admin`. Admin tables replace the old
 
 ---
 
+## 5. JSON API
+
+Endpoints: [docs/api.md](api.md). Design: [docs/api-plan.md](api-plan.md). Dummy mounts Recording Studio API and registers `support_sections` / `support_pages`.
+
+Accessible is the only access check. Admin is the staff UI. API writes use AdminRoot `:edit` (same as `authorize_support!(:edit)`). API reads use `:view` on the workspace that owns the page **or** on the admin root. Workspace `:edit` without AdminRoot does not create, revise, trash, or move. Anonymous JSON is out; `/help` stays the public browse.
+
+Article search is `GET …/support_pages?q=` through `SupportPage.search`, with a per-client search rate limit. Instant stays HTML-only.
+
+---
+
 ## Related code
 
 - Models: `app/models/recording_studio_support/support_{page,section}.rb`
@@ -116,3 +126,4 @@ Engine root `/admin/support` redirects to `/admin`. Admin tables replace the old
 - Auth: `app/controllers/recording_studio_support/application_controller.rb`
 - Admin: `lib/recording_studio_support/admin/{pages_screen,sections_screen,queries}.rb`
 - Domain: `lib/recording_studio_support/{pages,sections}.rb`
+- JSON API: `lib/recording_studio_support/api.rb` (no-op without `RecordingStudioApi`)
