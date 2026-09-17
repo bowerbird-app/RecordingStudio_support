@@ -2,6 +2,21 @@
 
 ## Unreleased
 
+Admin Support hub title defaults to Support.
+
+### Host app
+
+1. No migrations or route changes.
+2. Default `admin_help_title` is **Support**. Change your initializer if you still set `"Help"` and want the new words.
+
+### Verify
+
+```bash
+bundle exec rake test:all
+```
+
+## 0.9.6
+
 Public help index and article show layout polish. Dummy PageNav no longer injects Sign out or Root Switchable. Public article body uses `FlatPack::Content::Component` (18px reading type).
 
 ### Host app

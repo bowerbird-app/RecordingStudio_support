@@ -11,7 +11,7 @@ module RecordingStudioSupport
       help_subtitle: "Find an answer.",
       public_help_title: "Hi, how can we help?",
       public_help_subtitle: "Find an answer.",
-      admin_help_title: "Help",
+      admin_help_title: "Support",
       admin_help_subtitle: "Pages people use when they get stuck.",
       public_section_subtitle: nil,
       public_contact_href: nil,

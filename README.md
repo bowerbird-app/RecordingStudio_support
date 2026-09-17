@@ -191,7 +191,7 @@ Interactive + `hover: :strong` needs a host Tailwind utilities-layer override fo
 
 No Published badge on public section cards (implied by indexable). Drafts stay off public `/help` lists. No Read / Open buttons. Public help uses Recording Studio's default layout (`UsesDefaultLayout` / `recording_studio/default_layout`). Point Publishable `public_layout` at that layout. Do not use `recording_studio_publishable/application`. Put Flatpack's built-in rounded theme on `<html data-theme="rounded">` — core's body attribute is not enough. Dummy's default-layout override shows the host-side fix. Before Flatpack CSS, declare `@layer theme, base, components, utilities` so TipTap borders survive Tailwind preflight when `flat_pack/rich_text` loads before Tailwind.
 
-Help titles come from `RecordingStudioSupport.configure`. Staff defaults stay “Help” / “Find an answer.” Public default title is **Hi, how can we help?** (`public_help_subtitle` remains configurable but the shipped `/help` home does not render it). Admin section default subtitle is “Pages people use when they get stuck.” Section blurbs and the optional contact slot are host-configurable:
+Help titles come from `RecordingStudioSupport.configure`. Staff engine defaults stay “Help” / “Find an answer.” The Admin Support hub title (`admin_help_title`) defaults to **Support**. Public default title is **Hi, how can we help?** (`public_help_subtitle` remains configurable but the shipped `/help` home does not render it). Admin section default subtitle is “Pages people use when they get stuck.” Section blurbs and the optional contact slot are host-configurable:
 
 ```ruby
 RecordingStudioSupport.configure do |config|
@@ -201,7 +201,7 @@ RecordingStudioSupport.configure do |config|
   config.help_subtitle = "Find an answer."
   config.public_help_title = "Hi, how can we help?"
   config.public_help_subtitle = "Find an answer."
-  config.admin_help_title = "Help"
+  config.admin_help_title = "Support"
   config.admin_help_subtitle = "Pages people use when they get stuck."
   config.public_section_subtitle = ->(section) {
     case section.slug
