@@ -55,6 +55,8 @@ class SupportMessagesDeskTest < ActionDispatch::IntegrationTest
     end
 
     assert_response :success
+    assert_select "h1", text: "Messages"
+    assert_includes response.body, "Write to support when Help"
     assert_includes response.body, "Write a message"
     assert_flatpack_rounded_theme
 
