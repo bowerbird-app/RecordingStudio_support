@@ -31,7 +31,17 @@
   <%= render FlatPack::EmptyState::Component.new(
     title: "Nothing matches that",
     description: "Try another word."
-  ) %>
+  ) do |empty| %>
+    <% if (contact_href = support_public_contact_href).present? %>
+      <% empty.slot do %>
+        <%= render FlatPack::Button::Component.new(
+          text: support_public_contact_label,
+          style: :secondary,
+          href: contact_href
+        ) %>
+      <% end %>
+    <% end %>
+  <% end %>
 <% else %>
   <%= render FlatPack::EmptyState::Component.new(
     title: "Nothing live yet",

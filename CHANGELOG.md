@@ -16,6 +16,7 @@ Signed-in Support ↔ Messages desk. One conversation per user under the Workspa
 - Staff set via `messages_admin_email` (or `messages_admin_finder` / `User.where(admin: true)` when blank)
 - `:message_received` notifications on in-app + email
 - Default `public_contact_href` of `/help/messages`
+- Contact Support Card/Button on public article show and Contact Button in search no-results EmptyState slots (same helpers / config as section show)
 
 ### Changed
 - Gemspec Accessible pin `~> 0.9.1`, Attachable pin `~> 0.5.1`

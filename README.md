@@ -212,7 +212,9 @@ Public **section** show (`/help/sections/:slug`) is its own card stack — not t
 3. Search Instant field (`instant_search_field`) — `size: :lg`, placeholder `Search in {section}…`, white input tokens as above; results update in Turbo Frame `support_page_search_results`
 4. Flatpack Grid (`cols: 1`, `gap: :lg`) of full-width interactive Cards (`href`, `clickable: true`, `hover: :strong`, `style: :interactive`, white `theme: { background: "var(--color-white)" }`) — Body padding `:lg`, title, muted plain-text snippet (~120 chars from the body; omitted when blank), Flatpack Timestamp from publish time (`publish_at`, then recording `updated_at`, then page `created_at`)
 5. Optional host contact Card + secondary Button — only when `public_contact_href` is set
-6. Flatpack EmptyState when the query matches nothing or the section has no live pages
+6. Flatpack EmptyState when the query matches nothing or the section has no live pages — search no-results EmptyState includes a secondary Contact Button in the `slot` when `public_contact_href` is set
+
+Public **article** show (`/help/:uuid/:slug`) ends with the same optional contact Card + secondary Button when `public_contact_href` is set (prompt via `support_public_contact_prompt` for the parent section). Public `/help?q=` with no section hits uses the same EmptyState Contact Button in its `slot`.
 
 Hosts that override `recording_studio/default_layout` (as the dummy does) should pass Flatpack `secondary_anchor_href` / `secondary_anchor_icon` / `secondary_anchor_tooltip` from `content_for` keys `page_nav_secondary_anchor_url`, `page_nav_secondary_anchor_icon`, and `page_nav_secondary_anchor_tooltip`. Map `page_nav_anchor_url` to Flatpack’s `anchor_href` (not the old `anchor_url`). Core `recording_studio_page_nav` does not yet forward secondary slots — Support’s public section show sets those `content_for` keys via `support_public_section_page_nav`.
 

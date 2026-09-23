@@ -255,7 +255,10 @@ class PagesTest < Minitest::Test
     refute_includes show, 'text: "Edit"'
     refute_includes show, "Move to trash"
     refute_includes show, "support_visible_images"
-    refute_includes show, "FlatPack::Card::Component"
+    assert_includes show, "FlatPack::Card::Component"
+    assert_includes show, "support_public_contact_href"
+    assert_includes show, "support_public_contact_label"
+    assert_includes show, "support_public_contact_prompt"
 
     assert_includes body_helper, "ARTICLE_BODY_CLASS"
     assert_includes body_helper, "ARTICLE_IMAGE_STYLE"

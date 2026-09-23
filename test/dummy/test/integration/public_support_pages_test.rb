@@ -249,6 +249,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Nothing matches that"
     refute_includes response.body, "Getting started"
+    assert_select "a[href='/help/messages']", text: "Contact support"
   end
 
   test "logged out visitors see published pages on a section and drafts stay hidden" do
@@ -356,6 +357,49 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Nothing matches that"
     assert_includes response.body, "Try another word."
     refute_includes response.body, "How do I sign in?"
+    assert_select "a[href='/help/messages']", text: "Contact support"
+  end
+
+  test "published article shows contact card when public_contact_href is set" do
+    page = seeded_page("How do I sign in?").recordable
+    path = page.published_url
+
+    assert path.present?
+
+    get path
+
+    assert_response :success
+    assert_includes response.body, "Need something else in Getting started?"
+    assert_select "a[href='/help/messages']", text: "Contact support"
+  end
+
+  test "published article hides contact when public_contact_href is blank" do
+    page = seeded_page("How do I sign in?").recordable
+    path = page.published_url
+    previous_href = RecordingStudioSupport.configuration.public_contact_href
+    RecordingStudioSupport.configuration.public_contact_href = nil
+
+    get path
+
+    assert_response :success
+    refute_includes response.body, "Need something else"
+    refute_includes response.body, "Contact support"
+  ensure
+    RecordingStudioSupport.configuration.public_contact_href = previous_href
+  end
+
+  test "section search empty state hides contact when public_contact_href is blank" do
+    section = seeded_section("Getting started")
+    previous_href = RecordingStudioSupport.configuration.public_contact_href
+    RecordingStudioSupport.configuration.public_contact_href = nil
+
+    get "/help/sections/#{section.recordable.slug}", params: { q: "no-such-help-page" }
+
+    assert_response :success
+    assert_includes response.body, "Nothing matches that"
+    refute_includes response.body, "Contact support"
+  ensure
+    RecordingStudioSupport.configuration.public_contact_href = previous_href
   end
 
   test "public section search finds pages by title via trigram" do
