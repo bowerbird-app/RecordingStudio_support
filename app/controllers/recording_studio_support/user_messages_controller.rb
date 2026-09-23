@@ -13,15 +13,8 @@ module RecordingStudioSupport
     helper_method :staff_desk_return_to
 
     def show
-      @group_recording = RecordingStudioSupport::Messages.find_or_create_user_group(
-        actor: current_support_actor
-      )
+      @group_recording = bootstrap_user_group!
       return head :not_found if @group_recording.blank?
-
-      RecordingStudioSupport::Messages.sync_staff_grants!(
-        group_recording: @group_recording,
-        manager_actor: current_support_actor
-      )
 
       @mount_recording = @group_recording.parent_recording
       @group_recordings = [@group_recording]
@@ -29,6 +22,19 @@ module RecordingStudioSupport
     end
 
     private
+
+    def bootstrap_user_group!
+      group = RecordingStudioSupport::Messages.find_or_create_user_group(
+        actor: current_support_actor
+      )
+      return if group.blank?
+
+      RecordingStudioSupport::Messages.sync_staff_grants!(
+        group_recording: group,
+        manager_actor: current_support_actor
+      )
+      group
+    end
 
     def staff_desk_return_to
       path = RecordingStudioSupport.configuration.pages_path.to_s.chomp("/")
