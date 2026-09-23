@@ -18,7 +18,7 @@ Signed-in Support ↔ Messages desk. One conversation per user under the Workspa
 - Default `public_contact_href` of `/help/messages`
 - Contact Support Card on article + section browse; search no-results keeps Contact **only** in EmptyState `slot` (no bottom Card)
 - Thread-local open-access gate for first-open MessageGroup grants (no process-global Accessible authorizer hole)
-- Staff desk PageTitle cue; sidebar sender names prefer `display_name`
+- User and staff desk Flatpack PageTitle cues; sidebar sender names prefer `display_name`
 
 ### Changed
 - Gemspec Accessible pin `~> 0.9.1`, Attachable pin `~> 0.5.1`
