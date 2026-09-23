@@ -57,7 +57,8 @@ class SupportInstantSearchTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Nothing matches that"
     refute_includes response.body, "How do I sign in?"
-    assert_select "a[href='/help/messages']", text: "Contact support"
+    assert_select "a[href='/help/messages']", text: "Contact support", count: 1
+    refute_includes response.body, "Need something else"
   end
 
   test "search engine instant hides drafts and unknown models" do

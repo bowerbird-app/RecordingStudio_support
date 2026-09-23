@@ -42,20 +42,6 @@
     <% end %>
   <% end %>
 
-  <% if (contact_href = support_public_contact_href).present? %>
-    <%= render FlatPack::Card::Component.new(style: :default) do |card| %>
-      <% card.body do %>
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <% if (section = @section_recording&.recordable).present? %>
-            <p class="text-[var(--surface-content-color)]"><%= support_public_contact_prompt(section) %></p>
-          <% end %>
-          <%= render FlatPack::Button::Component.new(
-            text: support_public_contact_label,
-            style: :secondary,
-            href: contact_href
-          ) %>
-        </div>
-      <% end %>
-    <% end %>
-  <% end %>
+  <%= render "recording_studio_support/shared/public_contact_card",
+        section: @section_recording&.recordable %>
 </div>

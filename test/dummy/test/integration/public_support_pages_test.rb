@@ -357,7 +357,8 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Nothing matches that"
     assert_includes response.body, "Try another word."
     refute_includes response.body, "How do I sign in?"
-    assert_select "a[href='/help/messages']", text: "Contact support"
+    assert_select "a[href='/help/messages']", text: "Contact support", count: 1
+    refute_includes response.body, "Need something else in Getting started?"
   end
 
   test "published article shows contact card when public_contact_href is set" do

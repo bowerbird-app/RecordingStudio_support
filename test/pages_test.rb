@@ -131,9 +131,10 @@ class PagesTest < Minitest::Test
 
     refute_includes public_show, "FlatPack::Breadcrumb::Component"
     assert_includes public_show, "support_public_section_page_nav"
-    assert_includes public_show, "FlatPack::Card::Component"
-    assert_includes public_show, "support_public_contact_href"
+    assert_includes public_show, "article_cards"
     assert_includes public_show, "size: :lg"
+    refute_includes public_show, "support_public_contact_href"
+    refute_includes public_show, "FlatPack::Card::Component"
     assert_includes article_cards, "FlatPack::Grid::Component"
     assert_includes article_cards, "FlatPack::Timestamp::Component"
     assert_includes article_cards, "hover: :strong"
@@ -141,6 +142,8 @@ class PagesTest < Minitest::Test
     assert_includes article_cards, 'theme: { background: "var(--color-white)" }'
     assert_includes article_cards, "gap: :lg"
     assert_includes article_cards, "card.body(padding: :lg)"
+    assert_includes article_cards, "public_contact_card"
+    assert_includes article_cards, "empty.slot"
     refute_includes article_cards, "hover: :subtle"
     refute_includes article_cards, "style: :elevated"
     refute_includes article_cards, "gap: :sm"
@@ -255,10 +258,11 @@ class PagesTest < Minitest::Test
     refute_includes show, 'text: "Edit"'
     refute_includes show, "Move to trash"
     refute_includes show, "support_visible_images"
-    assert_includes show, "FlatPack::Card::Component"
-    assert_includes show, "support_public_contact_href"
-    assert_includes show, "support_public_contact_label"
-    assert_includes show, "support_public_contact_prompt"
+    assert_includes show, "public_contact_card"
+    refute_includes show, "FlatPack::Card::Component"
+    refute_includes show, "support_public_contact_href"
+    refute_includes show, "support_public_contact_label"
+    refute_includes show, "support_public_contact_prompt"
 
     assert_includes body_helper, "ARTICLE_BODY_CLASS"
     assert_includes body_helper, "ARTICLE_IMAGE_STYLE"
