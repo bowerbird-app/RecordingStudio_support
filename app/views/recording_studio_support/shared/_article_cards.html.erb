@@ -33,7 +33,8 @@
 <% elsif query.present? %>
   <%= render FlatPack::EmptyState::Component.new(
     title: "Nothing matches that",
-    description: "Try another word."
+    description: "Try another word.",
+    class: "py-6"
   ) do |empty| %>
     <% if (contact_href = support_public_contact_href).present? %>
       <% empty.slot do %>
@@ -48,7 +49,8 @@
 <% else %>
   <%= render FlatPack::EmptyState::Component.new(
     title: "Nothing live yet",
-    description: "Check back soon."
+    description: "Check back soon.",
+    class: "py-6"
   ) %>
 
   <%= render "recording_studio_support/shared/public_contact_card", section: section %>

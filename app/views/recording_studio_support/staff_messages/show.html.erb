@@ -1,9 +1,18 @@
 <% recording_studio_page_nav(title: "Support messages") %>
 
-<%= render "recording_studio_messages/message_groups/desk",
-           group_recordings: @group_recordings,
-           group_recording: @group_recording,
-           message_recordings: @message_recordings,
-           current_actor: current_support_actor,
-           form_url: support_messages_form_url(@group_recording),
-           return_to: user_desk_return_to %>
+<div class="flex w-full flex-col gap-4">
+  <%= render FlatPack::PageTitle::Component.new(
+    title: "Support messages",
+    subtitle: "Inbox for people who wrote from Help.",
+    variant: :h1
+  ) %>
+
+  <%= render "recording_studio_messages/message_groups/desk",
+             group_recordings: @group_recordings,
+             group_recording: @group_recording,
+             message_recordings: @message_recordings,
+             current_actor: current_support_actor,
+             form_url: support_messages_form_url(@group_recording),
+             return_to: user_desk_return_to,
+             desk_height_class: "h-[calc(100dvh-12rem)]" %>
+</div>

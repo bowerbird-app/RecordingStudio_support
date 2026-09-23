@@ -26,7 +26,7 @@ module RecordingStudioSupport
 
       staff_actors.each do |staff|
         next if same_actor?(staff, manager_actor)
-        next if already_granted?(group_recording, staff)
+        next if staff_has_edit?(group_recording, staff)
 
         grant_staff_edit!(group_recording, staff, manager_actor)
       end
@@ -35,18 +35,27 @@ module RecordingStudioSupport
     def group_owner?(group_recording, actor)
       return false unless defined?(RecordingStudioAccessible)
 
-      RecordingStudioAccessible.authorized?(
-        actor: actor,
-        recording: group_recording,
-        role: :admin
-      )
-    end
-
-    def already_granted?(group_recording, actor)
+      # Direct :admin grant only — inherited Workspace :admin must not mark
+      # staff as the conversation owner.
       RecordingStudioAccessible.access_recordings_for_actor(
         recording: group_recording,
         actor: actor
-      ).any?
+      ).any? { |access_recording| access_recording.recordable&.role.to_s == "admin" }
+    end
+
+    def staff_has_edit?(group_recording, actor)
+      # Direct grant only. Inherited Workspace :edit/:admin must not skip the
+      # conversation :edit grant — notifications and desk lists use direct access.
+      RecordingStudioAccessible.access_recordings_for_actor(
+        recording: group_recording,
+        actor: actor
+      ).any? do |access_recording|
+        %w[edit admin].include?(access_recording.recordable&.role.to_s)
+      end
+    end
+
+    def already_granted?(group_recording, actor)
+      staff_has_edit?(group_recording, actor)
     end
 
     def grant_staff_edit!(group_recording, staff, manager_actor)

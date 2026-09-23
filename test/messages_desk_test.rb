@@ -44,4 +44,20 @@ class MessagesDeskTest < Minitest::Test
     assert_includes type.default_channels, :email
     assert_includes type.available_channels, :email
   end
+
+  def test_already_granted_requires_edit_not_any_access
+    source = File.read(File.expand_path("../lib/recording_studio_support/messages/staff.rb", __dir__))
+
+    assert_includes source, "def staff_has_edit?"
+    assert_includes source, "%w[edit admin]"
+    assert_includes source, "next if staff_has_edit?"
+    assert_includes source, "access_recordings_for_actor"
+  end
+
+  def test_create_user_group_uses_thread_local_open_access_gate
+    source = File.read(File.expand_path("../lib/recording_studio_support/messages.rb", __dir__))
+
+    assert_includes source, "OpenAccessManagement.with"
+    refute_includes source, "configuration.access_management_authorizer = ->(**) { true }"
+  end
 end

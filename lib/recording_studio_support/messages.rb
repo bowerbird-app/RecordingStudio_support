@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "messages/staff"
+require_relative "messages/open_access_management"
 
 module RecordingStudioSupport
   # Support ↔ Messages desk helpers. Mount parent is Workspace, key `:support`.
@@ -42,10 +43,11 @@ module RecordingStudioSupport
     end
 
     def create_user_group!(mount, actor:)
-      # First-open must work without Workspace :admin. Accessible's default
-      # access-management authorizer requires :admin on the conversation
-      # already, so open the gate only for this create/grant path.
-      with_open_access_management do
+      # First-open must work without Workspace :admin. MessageGroup under a
+      # non-shared Workspace cannot use Accessible bootstrap_owner_access!, and
+      # Messages create_group still uses grant_access. Open the access-management
+      # gate on this thread only (see OpenAccessManagement).
+      OpenAccessManagement.with do
         group = RecordingStudioMessages.create_group(
           mount,
           title: group_title_for(actor),
@@ -56,22 +58,23 @@ module RecordingStudioSupport
       end
     end
 
-    def with_open_access_management
-      return yield unless defined?(RecordingStudioAccessible)
-
-      configuration = RecordingStudioAccessible.configuration
-      original = configuration.access_management_authorizer
-      configuration.access_management_authorizer = ->(**) { true }
-      yield
-    ensure
-      configuration.access_management_authorizer = original if configuration
-    end
-
     def group_title_for(actor)
-      return actor.name.to_s.strip if actor.respond_to?(:name) && actor.name.present?
-      return actor.email.to_s.strip if actor.respond_to?(:email) && actor.email.present?
+      named = actor_label(actor)
+      return named if named.present?
 
       "Support chat"
+    end
+
+    def actor_label(actor)
+      return present_string(actor.name) if actor.respond_to?(:name)
+      return present_string(actor.display_name) if actor.respond_to?(:display_name)
+      return present_string(actor.email) if actor.respond_to?(:email)
+
+      nil
+    end
+
+    def present_string(value)
+      value.to_s.strip.presence
     end
   end
 end
