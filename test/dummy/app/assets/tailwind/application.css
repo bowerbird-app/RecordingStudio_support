@@ -40,6 +40,8 @@
 @source "../../../vendor/recording_studio_support/app/views/**/*.erb";
 @source "../../../vendor/recording_studio_publishable/app/views/**/*.erb";
 @source "../../../vendor/recording_studio_user/app/views/**/*.erb";
+@source "../../../vendor/recording_studio_messages/app/views/**/*.erb";
+@source "../../../vendor/recording_studio_notifications/app/views/**/*.erb";
 
 /* Dummy bundle, CI, mise, and rbenv installs */
 @source "../../../vendor/bundle/**/bundler/gems/flatpack-*/app/components/**/*.rb";
@@ -50,6 +52,8 @@
 @source "../../../vendor/bundle/**/bundler/gems/RecordingStudio_support*/app/views/**/*.erb";
 @source "../../../vendor/bundle/**/bundler/gems/RecordingStudio_publishable*/app/views/**/*.erb";
 @source "../../../vendor/bundle/**/bundler/gems/RecordingStudio_users*/app/views/**/*.erb";
+@source "../../../vendor/bundle/**/bundler/gems/RecordingStudio_messages*/app/views/**/*.erb";
+@source "../../../vendor/bundle/**/bundler/gems/RecordingStudio_notifications*/app/views/**/*.erb";
 @source "../../../vendor/bundle/**/recording_studio_user/app/views/**/*.erb";
 @source "../../../../../../usr/local/bundle/**/bundler/gems/flatpack-*/app/components/**/*.rb";
 @source "../../../../../../usr/local/bundle/**/bundler/gems/flatpack-*/app/components/**/*.erb";
@@ -57,7 +61,9 @@
 @source "../../../../../../usr/local/bundle/**/bundler/gems/RecordingStudio_admin*/app/views/**/*.erb";
 @source "../../../../../../usr/local/bundle/**/bundler/gems/RecordingStudio_publishable*/app/views/**/*.erb";
 @source "../../../../../../usr/local/bundle/**/bundler/gems/RecordingStudio_users*/app/views/**/*.erb";
+@source "../../../../../../usr/local/bundle/**/bundler/gems/RecordingStudio_messages*/app/views/**/*.erb";
 @source "../../../../../../usr/local/bundle/ruby/**/bundler/gems/recording_studio_user-*/app/views/**/*.erb";
+@source "../../../../../../usr/local/bundle/ruby/**/bundler/gems/recording_studio_messages-*/app/views/**/*.erb";
 @source "../../../../../../home/*/.local/share/mise/installs/ruby/*/lib/ruby/gems/*/bundler/gems/flatpack-*/app/components/**/*.rb";
 @source "../../../../../../home/*/.local/share/mise/installs/ruby/*/lib/ruby/gems/*/bundler/gems/flatpack-*/app/components/**/*.erb";
 @source "../../../../../../home/*/.local/share/mise/installs/ruby/*/lib/ruby/gems/*/bundler/gems/RecordingStudio-*/app/views/**/*.erb";

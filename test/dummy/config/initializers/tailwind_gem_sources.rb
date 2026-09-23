@@ -18,6 +18,8 @@ end
   recording_studio_support
   recording_studio_publishable
   recording_studio_user
+  recording_studio_messages
+  recording_studio_notifications
 ].each do |gem_name|
   destination = Rails.root.join("vendor", gem_name)
   next if File.symlink?(destination) && File.exist?(destination)

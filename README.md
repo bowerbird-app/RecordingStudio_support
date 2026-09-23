@@ -1,8 +1,8 @@
 # Recording Studio Support
 
-Staff write help pages. People help themselves. No tickets, no inbox, no chat.
+Staff write help pages. People help themselves at `/help`. Signed-in users and staff talk on a Messages desk under the support mount.
 
-Help pages sit in a section under your workspace. Each page has a title and a formatted body. Pictures go in that body. A page can go to trash. Staff pick a section by moving the page. Staff land in **Admin Support** (`/admin`). Write, preview, Publish, and uploads live under `/admin/support`. Access is Admin plus Accessible on the admin root — not a workspace `:edit` grant. Logged-out visitors read at `/help` (slug URLs) and live pages under a section. Drafts stay hidden. This gem does not ship tickets, email, or messaging. JSON for sections and pages is optional: add Recording Studio API in the **host** (dummy does). Gates stay Accessible. Endpoints: [docs/api.md](docs/api.md).
+Help pages sit in a section under your workspace. Each page has a title and a formatted body. Pictures go in that body. A page can go to trash. Staff pick a section by moving the page. Staff land in **Admin Support** (`/admin`). Write, preview, Publish, and uploads live under `/admin/support`. Access is Admin plus Accessible on the admin root — not a workspace `:edit` grant. Logged-out visitors read at `/help` (slug URLs) and live pages under a section. Drafts stay hidden. Signed-in people open `/help/messages`; staff open `/admin/support/messages`. Both desks render the Messages gem chat partial — do not fork Chat::Layout or Chat::Panel. JSON for sections and pages is optional: add Recording Studio API in the **host** (dummy does). Gates stay Accessible. Endpoints: [docs/api.md](docs/api.md).
 
 ## Install
 
@@ -19,6 +19,10 @@ gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderab
 gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.3.1"
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"
 gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.0.1"
+gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.3.0"
+gem "recording_studio_notifications", github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.3.1"
+gem "recording_studio_notifications_email",
+    github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.1"
 # Prefer GitHub once RecordingStudio_search is public (sibling gems already are).
 # This repo vendors that commit under vendor/recording_studio_search for CI.
 gem "recording_studio_search", "~> 0.4",
@@ -33,14 +37,17 @@ gem "flat_pack", github: "bowerbird-app/flatpack", ref: "adc3c6ed9ea6" # Content
 ```ruby
 # gemspec / host Gemfile constraints
 gem "recording_studio", "~> 4.2"
-gem "recording_studio_accessible", "~> 0.6"
+gem "recording_studio_accessible", "~> 0.9.1"
 gem "recording_studio_admin", "~> 2.0"
-gem "recording_studio_attachable", "~> 0.4"
+gem "recording_studio_attachable", "~> 0.5.1"
 gem "recording_studio_trashable", "~> 0.4"
 gem "recording_studio_orderable", "~> 0.2"
 gem "recording_studio_publishable", "~> 0.3"
 gem "recording_studio_search", "~> 0.4"
 gem "recording_studio_moveable", "~> 3.0"
+gem "recording_studio_messages", "~> 0.3.0"
+gem "recording_studio_notifications", "~> 0.3.1"
+gem "recording_studio_notifications_email", "~> 0.3.1"
 ```
 
 Then:
@@ -48,13 +55,19 @@ Then:
 ```bash
 bundle install
 bin/rails generate recording_studio_search:install
+bin/rails generate recording_studio_messages:install
+bin/rails generate recording_studio_notifications:install
+bin/rails generate recording_studio_notifications_email:install
 bin/rails generate recording_studio_support:install
 bin/rails generate recording_studio_support:migrations
+bin/rails generate recording_studio_messages:migrations
+bin/rails generate recording_studio_notifications:migrations
 bin/rails generate recording_studio_attachable:migrations
 bin/rails generate recording_studio_trashable:migrations
 bin/rails generate recording_studio_orderable:migrations
 bin/rails generate recording_studio_publishable:install
 bin/rails generate recording_studio_moveable:install
+bin/rails generate recording_studio_accessible:migrations
 bin/rails db:migrate
 ```
 
@@ -77,10 +90,23 @@ RecordingStudio.configure do |config|
     "RecordingStudioUser::Profile",
     "RecordingStudioSupport::SupportSection",
     "RecordingStudioSupport::SupportPage",
+    "RecordingStudioMessages::MessageMount",
+    "RecordingStudioMessages::MessageGroup",
+    "RecordingStudioMessages::Message",
     "RecordingStudioAttachable::Attachment",
     "RecordingStudioPublishable::Publishable"
   ]
   config.require_recordable_declarations = true
+end
+```
+
+Enable Messages on the workspace (mount parent, key `:support` — not AdminRoot):
+
+```ruby
+class Workspace < ApplicationRecord
+  recording_studio_recordable label: "Workspace", root: true
+  RecordingStudio.enable_capability(:accessible, on: self)
+  include RecordingStudio::Capabilities::Messages.to(keys: [:support])
 end
 ```
 
@@ -146,10 +172,13 @@ Mount the screens. Public help and staff forms both use Recording Studio's defau
 
 ```ruby
 mount RecordingStudioAccessible::Engine, at: "/admin/access"
+mount RecordingStudioMessages::Engine, at: "/recording_studio_messages"
+mount RecordingStudioNotifications::Engine, at: "/recording_studio_notifications"
 mount RecordingStudioSupport::Engine, at: "/admin/support"
 recording_studio_admin_for :admin, at: "/admin", root_section: :support
 mount RecordingStudioMoveable::Engine, at: "/recording_studio_moveable"
 get "/help", to: RecordingStudioSupport::PublicPagesController.action(:index), as: :public_help
+get "/help/messages", to: RecordingStudioSupport::UserMessagesController.action(:show), as: :help_messages
 get "/help/sections/:slug", to: RecordingStudioSupport::PublicSectionsController.action(:show), as: :public_help_section
 get "/help/sections/:slug/instant_search",
     to: RecordingStudioSupport::PublicInstantSearchesController.action(:show),
@@ -208,11 +237,33 @@ RecordingStudioSupport.configure do |config|
     when "billing" then "Payments, invoices, and plan changes."
     end
   }
-  # Optional. Blank href keeps the gem chat-free (footer hidden).
-  config.public_contact_href = nil
+  # Default contact button points at the signed-in desk.
+  config.public_contact_href = "/help/messages"
   config.public_contact_label = "Contact support"
+  # Staff set for the messages desk (grants, staff desk, notices).
+  # When set, only this email is staff. When blank, `messages_admin_finder`
+  # runs (default: User.where(admin: true)).
+  # config.messages_admin_email = "support@example.com"
+  # config.messages_admin_finder = -> { User.where(admin: true) }
 end
 ```
+
+## Messages desk
+
+One MessageGroup per signed-in user under the Workspace `:support` mount (global — not per AdminRoot). Public `/help` stays anonymous with no composer.
+
+| Desk | Path | Who |
+|---|---|---|
+| User | `GET /help/messages` | Signed-in user (auth required) |
+| Staff | `GET /admin/support/messages` | Signed-in staff |
+
+**Staff set** (`messages_admin_email`): when set to an email, only that user is staff. When blank, `messages_admin_finder` runs — default `User.where(admin: true)` (or your host finder). Same set for `:edit` grants on each conversation, staff desk access, and staff notifications.
+
+First open of the user desk creates/bootstraps their conversation so they can send without Workspace `:admin`. Opening a thread grants staff `:edit` (skips existing grants) and syncs again when the thread is opened. Sends go through Messages `send_message` with `url:` pointing at the other party's desk. Notifications use `:message_received` on **in-app + email**.
+
+Both desks render `recording_studio_messages/message_groups/desk` only — do not fork Chat::Layout or Chat::Panel. Keep `data-theme="rounded"` on `<html>` and add Tailwind `@source` lines for Messages views.
+
+`public_contact_href` defaults to `/help/messages`. Logged-out visitors who click Contact hit sign-in.
 
 When `public_section_subtitle` is blank or the callable returns blank, the section show uses `Find answers in {title}.`
 
@@ -310,6 +361,9 @@ Dummy kit pins:
 | Accessible | `v0.9.1` |
 | Admin | `v2.0.2` |
 | Attachable | `v0.5.1` |
+| Messages | `v0.3.0` |
+| Notifications | `v0.3.1` |
+| Notifications Email | `v0.3.1` |
 | Users | `v0.11.0` |
 | Trashable | `v0.4.1` |
 | Orderable | `v0.2.2` |

@@ -25,13 +25,32 @@ module RecordingStudioSupport
         route %(get "/support/*legacy_support_path", to: redirect("/admin"))
         route %(mount RecordingStudioPublishable::Engine, at: "/")
         route %(mount RecordingStudioMoveable::Engine, at: "/recording_studio_moveable")
+        route %(mount RecordingStudioMessages::Engine, at: "/recording_studio_messages")
+        route %(mount RecordingStudioNotifications::Engine, at: "/recording_studio_notifications")
         route %(get "/help", to: RecordingStudioSupport::PublicPagesController.action(:index), as: :public_help)
+        route "get \"/help/messages\", " \
+              "to: RecordingStudioSupport::UserMessagesController.action(:show), " \
+              "as: :help_messages"
         route "get \"/help/sections/:slug\", " \
               "to: RecordingStudioSupport::PublicSectionsController.action(:show), " \
               "as: :public_help_section"
         instant = "RecordingStudioSupport::PublicInstantSearchesController.action(:show)"
         route "get \"/help/sections/:slug/instant_search\", to: #{instant}, as: :public_help_section_instant_search"
         route %(mount RecordingStudioSearch::Engine, at: "/recording_studio_search")
+      end
+
+      def enable_workspace_messages
+        workspace_path = File.join(destination_root, "app/models/workspace.rb")
+        return unless File.exist?(workspace_path)
+
+        contents = File.read(workspace_path)
+        return if contents.include?("Messages.to")
+
+        inject_into_file "app/models/workspace.rb",
+                         after: /recording_studio_recordable[^\n]*\n/ do
+          "  include RecordingStudio::Capabilities::Messages.to(keys: [:support]) " \
+            "if defined?(RecordingStudioMessages)\n"
+        end
       end
 
       def copy_initializer

@@ -47,12 +47,20 @@ module RecordingStudioSupport
         end
 
         def formatted_tailwind_source_block(missing_lines)
+          support = missing_lines.select { |line| line.include?("recording_studio_support") }
+          messages = missing_lines.select { |line| line.include?("recording_studio_messages") }
+          flatpack = missing_lines.select { |line| line.include?("flatpack") }
+          other = missing_lines - support - messages - flatpack
+
           [
-            "\n/* Include RecordingStudioSupport engine views for Tailwind CSS */",
-            missing_lines.first(2),
-            "\n/* Include FlatPack component sources for Tailwind CSS */",
-            missing_lines.drop(2)
-          ].flatten.reject(&:empty?).join("\n")
+            ("\n/* Include RecordingStudioSupport engine views for Tailwind CSS */" if support.any?),
+            support,
+            ("\n/* Include RecordingStudioMessages views for the Support desk */" if messages.any?),
+            messages,
+            ("\n/* Include FlatPack component sources for Tailwind CSS */" if flatpack.any?),
+            flatpack,
+            other
+          ].flatten.compact.reject(&:empty?).join("\n")
         end
 
         def show_manual_tailwind_notice(missing_lines)
@@ -68,6 +76,9 @@ module RecordingStudioSupport
             '@source "../../vendor/bundle/**/recording_studio_support/app/views/**/*.erb";',
             '@source "../../../../../../usr/local/bundle/ruby/**/bundler/gems/' \
             'recording_studio_support-*/app/views/**/*.erb";',
+            '@source "../../vendor/bundle/**/recording_studio_messages/app/views/**/*.erb";',
+            '@source "../../../../../../usr/local/bundle/ruby/**/bundler/gems/' \
+            'recording_studio_messages-*/app/views/**/*.erb";',
             '@source "../../vendor/bundle/**/flatpack/app/components/**/*.{rb,erb}";',
             '@source "../../../../../../usr/local/bundle/ruby/**/bundler/gems/flatpack-*/app/components/**/*.{rb,erb}";'
           ]

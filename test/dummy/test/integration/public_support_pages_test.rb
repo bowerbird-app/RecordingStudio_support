@@ -290,12 +290,26 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "Sign out"
     refute_includes response.body, 'href="/users/sign_in"'
     refute_includes response.body, "recordable"
-    refute_includes response.body, "Need something else"
-    refute_includes response.body, "Contact support"
+    assert_includes response.body, "Need something else in Getting started?"
+    assert_select "a[href='/help/messages']", text: "Contact support"
     assert_select "ul[role='list']", count: 0
     refute_includes response.body, "chevron-right"
     refute_includes response.body, "<span>Read</span>"
     refute_includes response.body, "<span>Open</span>"
+  end
+
+  test "section hides contact when public_contact_href is blank" do
+    section = seeded_section("Getting started")
+    previous_href = RecordingStudioSupport.configuration.public_contact_href
+    RecordingStudioSupport.configuration.public_contact_href = nil
+
+    get "/help/sections/#{section.recordable.slug}"
+
+    assert_response :success
+    refute_includes response.body, "Need something else"
+    refute_includes response.body, "Contact support"
+  ensure
+    RecordingStudioSupport.configuration.public_contact_href = previous_href
   end
 
   test "billing section shows configured subtitle snippet cards and contact when set" do

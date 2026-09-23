@@ -68,8 +68,10 @@ class ConfigurationTest < Minitest::Test
     assert_equal 30, configuration.api_search_rate_limit_requests
     assert_equal 60, configuration.api_search_rate_limit_period_seconds
     assert_nil configuration.public_section_subtitle
-    assert_nil configuration.public_contact_href
+    assert_equal "/help/messages", configuration.public_contact_href
     assert_equal "Contact support", configuration.public_contact_label
+    assert_nil configuration.messages_admin_email
+    assert_nil configuration.messages_admin_finder
     assert_instance_of RecordingStudio::Hooks, configuration.hooks
   ensure
     ENV["RECORDING_STUDIO_SUPPORT_API_KEY"] = previous_value
