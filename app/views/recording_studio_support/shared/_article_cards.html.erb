@@ -37,7 +37,8 @@
        if (contact_href = support_public_contact_href).present?
          render(FlatPack::Link::Component.new(
            href: contact_href,
-           class: "underline text-[var(--surface-content-color)]"
+           class: "underline text-[var(--surface-content-color)]",
+           data: { turbo_frame: "_top" }
          )) do
            support_public_contact_label.downcase
          end

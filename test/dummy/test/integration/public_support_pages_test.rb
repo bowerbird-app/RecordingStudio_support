@@ -293,7 +293,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, 'href="/users/sign_in"'
     refute_includes response.body, "recordable"
     assert_includes response.body, "Need something else in Getting started?"
-    assert_select "a[href='/help/messages']", text: "Contact support"
+    assert_select "a[href='/help/messages'][data-turbo-frame='_top']", text: "Contact support"
     assert_select "ul[role='list']", count: 0
     refute_includes response.body, "chevron-right"
     refute_includes response.body, "<span>Read</span>"
@@ -335,7 +335,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "From your workspace, open Billing"
     assert_includes response.body, "Open Billing, then Invoices"
     assert_includes response.body, "Need something else in Billing?"
-    assert_select "a[href=?]", "mailto:help@example.com", text: "Contact support"
+    assert_select "a[href=?][data-turbo-frame='_top']", "mailto:help@example.com", text: "Contact support"
     assert_select "a[href='/help'][aria-label='Home']"
     refute_includes response.body, "flat-pack-breadcrumb"
     assert_includes response.body, "fp-card-hover-strong"
@@ -359,7 +359,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Try another keyword or"
     refute_includes response.body, "Try another word."
     refute_includes response.body, "How do I sign in?"
-    assert_select "a.flat-pack-link.underline[href='/help/messages']", text: "contact support", count: 1
+    assert_select "a.flat-pack-link.underline[href='/help/messages'][data-turbo-frame='_top']", text: "contact support", count: 1
     assert_select "a.fp-button", text: "Contact support", count: 0
     refute_includes response.body, "Need something else in Getting started?"
   end
@@ -374,7 +374,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Need something else in Getting started?"
-    assert_select "a[href='/help/messages']", text: "Contact support"
+    assert_select "a[href='/help/messages'][data-turbo-frame='_top']", text: "Contact support"
   end
 
   test "published article hides contact when public_contact_href is blank" do

@@ -143,6 +143,7 @@ class PagesTest < Minitest::Test
     assert_includes article_cards, "gap: :lg"
     assert_includes article_cards, "card.body(padding: :lg)"
     assert_includes article_cards, "public_contact_card"
+    assert_includes article_cards, 'turbo_frame: "_top"'
     assert_includes article_cards, "mt-10"
     assert_includes article_cards, "support_public_search_empty_description"
     assert_includes article_cards, "FlatPack::Link::Component"

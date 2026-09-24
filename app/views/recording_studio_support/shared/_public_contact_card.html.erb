@@ -8,7 +8,8 @@
         <%= render FlatPack::Button::Component.new(
           text: support_public_contact_label,
           style: :secondary,
-          href: contact_href
+          href: contact_href,
+          data: { turbo_frame: "_top" }
         ) %>
       </div>
     <% end %>

@@ -17,6 +17,7 @@ Signed-in Support ↔ Messages desk. One conversation per user under the Workspa
 - `:message_received` notifications on in-app + email
 - Default `public_contact_href` of `/help/messages`
 - Contact Support Card on article + section browse (`mt-10` under the article Grid); section search no-results uses inline Flatpack Link copy (`Try another keyword or {contact}.`) instead of an EmptyState Button slot
+- Contact links inside the section Instant frame target Turbo frame `_top` so `/help/messages` loads as a full page
 - Thread-local open-access gate for first-open MessageGroup grants (no process-global Accessible authorizer hole)
 - User and staff desk Flatpack PageTitle cues; sidebar sender names prefer `display_name`
 
