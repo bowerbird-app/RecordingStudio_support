@@ -41,6 +41,14 @@ module RecordingStudioSupport
       "Need something else in #{section.title}?"
     end
 
+    # Section search EmptyState copy. Pass a Flatpack Link (or nil) so Contact
+    # stays an inline link instead of a Button slot.
+    def support_public_search_empty_description(contact_link: nil)
+      return "Try another keyword." if contact_link.blank?
+
+      safe_join(["Try another keyword or ", contact_link, "."])
+    end
+
     def support_public_section_article(page)
       PublicSection.article_for(page)
     end

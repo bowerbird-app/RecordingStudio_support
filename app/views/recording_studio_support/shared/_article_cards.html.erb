@@ -2,50 +2,48 @@
 <% query = local_assigns[:query] %>
 <% section = local_assigns[:section] || @section %>
 <% if articles.any? %>
-  <%= render FlatPack::Grid::Component.new(cols: 1, gap: :lg) do %>
-    <% articles.each do |article| %>
-      <%= render FlatPack::Card::Component.new(
-        href: article.fetch(:href),
-        clickable: true,
-        hover: :strong,
-        style: :interactive,
-        theme: { background: "var(--color-white)" },
-        data: { turbo_frame: "_top" }
-      ) do |card| %>
-        <% card.body(padding: :lg) do %>
-          <h3 class="text-base font-semibold text-[var(--surface-content-color)]"><%= article.fetch(:title) %></h3>
-          <% if article[:snippet].present? %>
-            <p class="mt-2 text-sm text-[var(--surface-muted-content-color)]"><%= article.fetch(:snippet) %></p>
-          <% end %>
-          <% if article[:updated_at].present? %>
-            <%= render FlatPack::Timestamp::Component.new(
-              timestamp: article.fetch(:updated_at),
-              class: "mt-2 text-sm text-[var(--surface-muted-content-color)]",
-              fallback_text: support_page_updated_on(article.fetch(:updated_at))
-            ) %>
+  <div class="flex w-full flex-col gap-10">
+    <%= render FlatPack::Grid::Component.new(cols: 1, gap: :lg) do %>
+      <% articles.each do |article| %>
+        <%= render FlatPack::Card::Component.new(
+          href: article.fetch(:href),
+          clickable: true,
+          hover: :strong,
+          style: :interactive,
+          theme: { background: "var(--color-white)" },
+          data: { turbo_frame: "_top" }
+        ) do |card| %>
+          <% card.body(padding: :lg) do %>
+            <h3 class="text-base font-semibold text-[var(--surface-content-color)]"><%= article.fetch(:title) %></h3>
+            <% if article[:snippet].present? %>
+              <p class="mt-2 text-sm text-[var(--surface-muted-content-color)]"><%= article.fetch(:snippet) %></p>
+            <% end %>
+            <% if article[:updated_at].present? %>
+              <%= render FlatPack::Timestamp::Component.new(
+                timestamp: article.fetch(:updated_at),
+                class: "mt-2 text-sm text-[var(--surface-muted-content-color)]",
+                fallback_text: support_page_updated_on(article.fetch(:updated_at))
+              ) %>
+            <% end %>
           <% end %>
         <% end %>
       <% end %>
     <% end %>
-  <% end %>
 
-  <%= render "recording_studio_support/shared/public_contact_card", section: section %>
+    <%= render "recording_studio_support/shared/public_contact_card", section: section %>
+  </div>
 <% elsif query.present? %>
+  <% contact_link =
+       if (contact_href = support_public_contact_href).present?
+         render(FlatPack::Link::Component.new(href: contact_href)) do
+           support_public_contact_label.downcase
+         end
+       end %>
   <%= render FlatPack::EmptyState::Component.new(
     title: "Nothing matches that",
-    description: "Try another word.",
+    description: support_public_search_empty_description(contact_link: contact_link),
     class: "py-6"
-  ) do |empty| %>
-    <% if (contact_href = support_public_contact_href).present? %>
-      <% empty.slot do %>
-        <%= render FlatPack::Button::Component.new(
-          text: support_public_contact_label,
-          style: :secondary,
-          href: contact_href
-        ) %>
-      <% end %>
-    <% end %>
-  <% end %>
+  ) %>
 <% else %>
   <%= render FlatPack::EmptyState::Component.new(
     title: "Nothing live yet",

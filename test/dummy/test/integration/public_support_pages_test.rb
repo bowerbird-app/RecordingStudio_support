@@ -283,6 +283,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "flat-pack-timestamp"
     assert_includes response.body, "fp-card-hover-strong"
     assert_includes response.body, "gap-6"
+    assert_includes response.body, "gap-10"
     assert_includes response.body, "card-padding-lg"
     assert_includes response.body, "--card-background-color: var(--color-white)"
     refute_includes response.body, "shadow-md dark:shadow-lg"
@@ -355,9 +356,11 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Nothing matches that"
-    assert_includes response.body, "Try another word."
+    assert_includes response.body, "Try another keyword or"
+    refute_includes response.body, "Try another word."
     refute_includes response.body, "How do I sign in?"
-    assert_select "a[href='/help/messages']", text: "Contact support", count: 1
+    assert_select "a.flat-pack-link[href='/help/messages']", text: "contact support", count: 1
+    assert_select "a.fp-button", text: "Contact support", count: 0
     refute_includes response.body, "Need something else in Getting started?"
   end
 
@@ -398,6 +401,8 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Nothing matches that"
+    assert_includes response.body, "Try another keyword."
+    refute_includes response.body, "contact support"
     refute_includes response.body, "Contact support"
   ensure
     RecordingStudioSupport.configuration.public_contact_href = previous_href

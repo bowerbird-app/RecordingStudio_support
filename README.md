@@ -211,8 +211,8 @@ Public **section** show (`/help/sections/:slug`) is its own card stack — not t
 2. Flatpack PageTitle — section title, subtitle, `variant: :h1`
 3. Search Instant field (`instant_search_field`) — `size: :lg`, placeholder `Search in {section}…`, white input tokens as above; results update in Turbo Frame `support_page_search_results`
 4. Flatpack Grid (`cols: 1`, `gap: :lg`) of full-width interactive Cards (`href`, `clickable: true`, `hover: :strong`, `style: :interactive`, white `theme: { background: "var(--color-white)" }`) — Body padding `:lg`, title, muted plain-text snippet (~120 chars from the body; omitted when blank), Flatpack Timestamp from publish time (`publish_at`, then recording `updated_at`, then page `created_at`)
-5. Optional host contact Card + secondary Button — only when `public_contact_href` is set (inside the Instant results frame so Instant updates keep it in sync)
-6. Flatpack EmptyState when the query matches nothing or the section has no live pages — search no-results EmptyState keeps Contact **only** in the `slot` (no bottom Card duplicate)
+5. Optional host contact Card + secondary Button — only when `public_contact_href` is set (inside the Instant results frame so Instant updates keep it in sync), spaced below the article Grid (`gap-10`)
+6. Flatpack EmptyState when the query matches nothing or the section has no live pages — search no-results copy is `Try another keyword or {contact link}.` (Flatpack Link inline; no Button slot, no bottom Card)
 
 Public **article** show (`/help/:uuid/:slug`) ends with the same optional contact Card + secondary Button when `public_contact_href` is set (prompt via `support_public_contact_prompt` for the parent section). Public `/help?q=` with no section hits uses the same EmptyState Contact Button in its `slot`.
 

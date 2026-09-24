@@ -56,8 +56,10 @@ class SupportInstantSearchTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Nothing matches that"
+    assert_includes response.body, "Try another keyword or"
     refute_includes response.body, "How do I sign in?"
-    assert_select "a[href='/help/messages']", text: "Contact support", count: 1
+    assert_select "a.flat-pack-link[href='/help/messages']", text: "contact support", count: 1
+    assert_select "a.fp-button", text: "Contact support", count: 0
     refute_includes response.body, "Need something else"
   end
 
