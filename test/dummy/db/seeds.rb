@@ -188,7 +188,7 @@ elsif RecordingStudioUser.profile_for(user).nil?
     actor: user
   )
 end
-
+user.update!(admin: true) if user.respond_to?(:admin=) && !user.admin?
 # Create the workspace recordables
 workspace = Workspace.find_or_create_by!(name: "Studio Workspace")
 accessible_workspace = Workspace.find_or_create_by!(name: "Client Workspace")

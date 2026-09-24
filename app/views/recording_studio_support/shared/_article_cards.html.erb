@@ -1,5 +1,6 @@
 <% articles = Array(local_assigns[:articles]) %>
 <% query = local_assigns[:query] %>
+<% section = local_assigns[:section] || @section %>
 <% if articles.any? %>
   <%= render FlatPack::Grid::Component.new(cols: 1, gap: :lg) do %>
     <% articles.each do |article| %>
@@ -27,14 +28,32 @@
       <% end %>
     <% end %>
   <% end %>
+
+  <div class="mt-10">
+    <%= render "recording_studio_support/shared/public_contact_card", section: section %>
+  </div>
 <% elsif query.present? %>
+  <% contact_link =
+       if (contact_href = support_public_contact_href).present?
+         render(FlatPack::Link::Component.new(
+           href: contact_href,
+           class: "underline text-[var(--surface-content-color)]",
+           data: { turbo_frame: "_top" }
+         )) do
+           support_public_contact_label.downcase
+         end
+       end %>
   <%= render FlatPack::EmptyState::Component.new(
     title: "Nothing matches that",
-    description: "Try another word."
+    description: support_public_search_empty_description(contact_link: contact_link),
+    class: "py-6"
   ) %>
 <% else %>
   <%= render FlatPack::EmptyState::Component.new(
     title: "Nothing live yet",
-    description: "Check back soon."
+    description: "Check back soon.",
+    class: "py-6"
   ) %>
+
+  <%= render "recording_studio_support/shared/public_contact_card", section: section %>
 <% end %>

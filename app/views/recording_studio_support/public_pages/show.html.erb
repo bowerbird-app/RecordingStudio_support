@@ -41,4 +41,7 @@
       <%= support_page_body_html(@page.body) %>
     <% end %>
   <% end %>
+
+  <%= render "recording_studio_support/shared/public_contact_card",
+        section: @section_recording&.recordable %>
 </div>

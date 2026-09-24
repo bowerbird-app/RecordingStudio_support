@@ -15,21 +15,9 @@
         size: :lg %>
 
   <%= tag.turbo_frame id: RecordingStudioSupport::InstantPages::FRAME_ID do %>
-    <%= render "recording_studio_support/shared/article_cards", articles: @articles, query: @query %>
-  <% end %>
-
-  <% if (contact_href = support_public_contact_href).present? %>
-    <%= render FlatPack::Card::Component.new(style: :default) do |card| %>
-      <% card.body do %>
-        <div class="flex flex-wrap items-center justify-between gap-3">
-          <p class="text-[var(--surface-content-color)]"><%= support_public_contact_prompt(@section) %></p>
-          <%= render FlatPack::Button::Component.new(
-            text: support_public_contact_label,
-            style: :secondary,
-            href: contact_href
-          ) %>
-        </div>
-      <% end %>
-    <% end %>
+    <%= render "recording_studio_support/shared/article_cards",
+          articles: @articles,
+          query: @query,
+          section: @section %>
   <% end %>
 </div>

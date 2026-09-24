@@ -5,6 +5,35 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.0] - 2026-09-23
+
+Signed-in Support ↔ Messages desk. One conversation per user under the Workspace `:support` mount.
+
+### Added
+- Dependency on `recording_studio_messages` `~> 0.3.0`, `recording_studio_notifications` `~> 0.3.1`, and `recording_studio_notifications_email` `~> 0.3.1`
+- User desk at `GET /help/messages` (auth required) and staff desk at `GET /admin/support/messages` (auth + staff)
+- First-open create/bootstrap of one MessageGroup per signed-in user; staff `:edit` grants sync on open
+- Staff set via `messages_admin_email` (or `messages_admin_finder` / `User.where(admin: true)` when blank)
+- `:message_received` notifications on in-app + email
+- Default `public_contact_href` of `/help/messages`
+- Contact Support Card on article + section browse (`mt-10` under the article Grid); section search no-results uses inline Flatpack Link copy (`Try another keyword or {contact}.`) instead of an EmptyState Button slot
+- Contact links inside the section Instant frame target Turbo frame `_top` so `/help/messages` loads as a full page
+- Desk "+ Access" targets Turbo frame `_top` so the access page is not loaded into the chat panel frame
+- Thread-local open-access gate for first-open MessageGroup grants (no process-global Accessible authorizer hole)
+- User and staff desk Flatpack PageTitle cues; sidebar sender names prefer `display_name`
+
+### Changed
+- Gemspec Accessible pin `~> 0.9.1`, Attachable pin `~> 0.5.1`
+- README no longer claims “no inbox / no chat”
+
+### Upgrade notes
+- Pin Messages `v0.3.0`, Notifications `v0.3.1`, Notifications Email `v0.3.1`, Accessible `v0.9.1`, Attachable `v0.5.1`
+- Enable `Messages.to(keys: [:support])` on Workspace; register MessageMount / MessageGroup / Message
+- Mount Messages + Notifications engines; add `/help/messages`; run Messages, Notifications, and Accessible `depends_on_recording_id` migrations
+- Add Tailwind `@source` lines for Messages views; set Notifications Email `config.from`
+- Optional: set `config.messages_admin_email = "support@example.com"` to limit staff to one inbox person
+- Contact footer now shows by default (`public_contact_href = "/help/messages"`). Set it to `nil` to hide
+
 ## [0.9.8] - 2026-09-17
 
 Staff preview uses Publishable QuickActions. Publishable pin is `v0.3.1`.

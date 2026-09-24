@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.9.8", ::RecordingStudioSupport::VERSION
+    assert_equal "0.10.0", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -23,15 +23,19 @@ class RecordingStudioSupportTest < Minitest::Test
     gemspec = File.read(File.expand_path("../recording_studio_support.gemspec", __dir__))
 
     assert_includes gemspec, 'spec.add_dependency "recording_studio", "~> 4.2"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_accessible", "~> 0.6"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_accessible", "~> 0.9.1"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_admin", "~> 2.0"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_attachable", "~> 0.4"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_attachable", "~> 0.5.1"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_messages", "~> 0.3.0"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_notifications", "~> 0.3.1"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_notifications_email", "~> 0.3.1"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_trashable", "~> 0.4"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_orderable", "~> 0.2"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_publishable", "~> 0.3"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_search", "~> 0.4"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_moveable", "~> 3.0"'
     refute_includes gemspec, 'spec.add_dependency "recording_studio_api"'
+    refute_includes gemspec, 'spec.add_dependency "recording_studio_user"'
   end
 
   def test_api_reference_lists_endpoints_for_installers
@@ -78,6 +82,9 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.0.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_messages", tag: "v0.3.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.3.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.5.5"'
     assert_includes gemfile, 'github: "bowerbird-app/flatpack", ref: "adc3c6ed9ea6"'
     refute_includes gemfile, "recording_studio/v3.0.0"

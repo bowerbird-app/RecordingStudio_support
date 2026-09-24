@@ -1,0 +1,17 @@
+<% if (contact_href = support_public_contact_href).present? %>
+  <%= render FlatPack::Card::Component.new(style: :default) do |card| %>
+    <% card.body do %>
+      <div class="flex flex-wrap items-center justify-between gap-3">
+        <% if (section = local_assigns[:section]).present? %>
+          <p class="text-[var(--surface-content-color)]"><%= support_public_contact_prompt(section) %></p>
+        <% end %>
+        <%= render FlatPack::Button::Component.new(
+          text: support_public_contact_label,
+          style: :secondary,
+          href: contact_href,
+          data: { turbo_frame: "_top" }
+        ) %>
+      </div>
+    <% end %>
+  <% end %>
+<% end %>

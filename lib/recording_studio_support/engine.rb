@@ -130,6 +130,7 @@ module RecordingStudioSupport
     initializer "recording_studio_support.api" do
       config.to_prepare do
         RecordingStudioSupport::Api.register!
+        RecordingStudioSupport::Messages::DeskAccessNavigation.install!
       end
     end
   end

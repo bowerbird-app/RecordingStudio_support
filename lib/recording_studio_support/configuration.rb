@@ -14,8 +14,13 @@ module RecordingStudioSupport
       admin_help_title: "Support",
       admin_help_subtitle: "Pages people use when they get stuck.",
       public_section_subtitle: nil,
-      public_contact_href: nil,
+      public_contact_href: "/help/messages",
       public_contact_label: "Contact support",
+      # Staff set for the support messages desk. When set to an email string,
+      # only that user is staff. When blank, `messages_admin_finder` runs
+      # (default: all User rows with admin: true).
+      messages_admin_email: nil,
+      messages_admin_finder: nil,
       api_search_rate_limit_enabled: true,
       api_search_rate_limit_requests: 30,
       api_search_rate_limit_period_seconds: 60

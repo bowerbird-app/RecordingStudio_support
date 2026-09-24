@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_17_040022) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_23_070006) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -66,9 +66,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_040022) do
     t.uuid "actor_id", null: false
     t.string "actor_type", null: false
     t.datetime "created_at", null: false
+    t.uuid "depends_on_recording_id"
     t.integer "role", default: 0, null: false
     t.index ["actor_type", "actor_id", "role"], name: "index_recording_studio_accesses_on_actor_and_role"
     t.index ["actor_type", "actor_id"], name: "index_recording_studio_accesses_on_actor"
+    t.index ["depends_on_recording_id"], name: "index_recording_studio_accesses_on_depends_on_recording_id"
   end
 
   create_table "recording_studio_api_admin_apis", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -230,6 +232,78 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_040022) do
     t.index ["recording_id"], name: "index_recording_studio_events_on_recording_id"
   end
 
+  create_table "recording_studio_message_groups", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "title", null: false
+  end
+
+  create_table "recording_studio_message_mounts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "key", null: false
+    t.index ["key"], name: "index_recording_studio_message_mounts_on_key"
+  end
+
+  create_table "recording_studio_messages", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.text "body"
+    t.datetime "created_at", null: false
+  end
+
+  create_table "recording_studio_notifications_deliveries", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "channel", null: false
+    t.datetime "created_at", null: false
+    t.datetime "delivered_at"
+    t.text "error_message"
+    t.jsonb "metadata", default: {}, null: false
+    t.uuid "notification_id", null: false
+    t.datetime "rollup_reserved_at"
+    t.string "status", default: "pending", null: false
+    t.datetime "updated_at", null: false
+    t.index ["channel", "status"], name: "idx_rsn_deliveries_channel_status"
+    t.index ["notification_id", "channel"], name: "idx_rsn_deliveries_notification_channel", unique: true
+    t.index ["status", "rollup_reserved_at"], name: "idx_rsn_deliveries_rollup_reservation"
+  end
+
+  create_table "recording_studio_notifications_notifications", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "actor_id"
+    t.string "actor_type"
+    t.datetime "archived_at"
+    t.text "body"
+    t.datetime "cleared_at"
+    t.datetime "created_at", null: false
+    t.string "idempotency_key"
+    t.jsonb "metadata", default: {}, null: false
+    t.uuid "notifiable_id"
+    t.string "notifiable_type"
+    t.string "notification_type", null: false
+    t.datetime "read_at"
+    t.uuid "recipient_id", null: false
+    t.string "recipient_type", null: false
+    t.uuid "recording_id"
+    t.uuid "root_recording_id"
+    t.string "title", null: false
+    t.datetime "updated_at", null: false
+    t.string "url"
+    t.index ["recipient_type", "recipient_id", "idempotency_key"], name: "idx_rsn_notifications_idempotency", unique: true, where: "(idempotency_key IS NOT NULL)"
+    t.index ["recipient_type", "recipient_id", "notification_type"], name: "idx_rsn_notifications_recipient_type"
+    t.index ["recording_id"], name: "idx_rsn_notifications_recording"
+    t.index ["root_recording_id", "created_at"], name: "idx_rsn_notifications_root_created"
+  end
+
+  create_table "recording_studio_notifications_preferences", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "cadence"
+    t.string "channel"
+    t.datetime "created_at", null: false
+    t.boolean "enabled"
+    t.string "notification_type", null: false
+    t.uuid "recipient_id", null: false
+    t.string "recipient_type", null: false
+    t.datetime "updated_at", null: false
+    t.index ["notification_type", "channel"], name: "idx_rsn_preferences_type_channel"
+    t.index ["recipient_type", "recipient_id", "notification_type", "channel"], name: "idx_rsn_preferences_channel", unique: true, where: "(channel IS NOT NULL)"
+    t.index ["recipient_type", "recipient_id", "notification_type"], name: "idx_rsn_preferences_cadence", unique: true, where: "(channel IS NULL)"
+    t.check_constraint "channel IS NOT NULL AND enabled IS NOT NULL AND cadence IS NULL OR channel IS NULL AND enabled IS NULL AND cadence IS NOT NULL", name: "chk_rsn_preferences_shape"
+  end
+
   create_table "recording_studio_publishable_publishables", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "canonical_url"
     t.datetime "created_at", null: false
@@ -389,6 +463,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_040022) do
   end
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.boolean "admin", default: false, null: false
     t.datetime "confirmation_sent_at"
     t.string "confirmation_token"
     t.datetime "confirmed_at"
@@ -418,6 +493,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_17_040022) do
   add_foreign_key "recording_studio_api_api_access_tokens", "recording_studio_api_api_credentials", column: "api_credential_id"
   add_foreign_key "recording_studio_api_api_credentials", "recording_studio_api_api_clients", column: "api_client_id"
   add_foreign_key "recording_studio_events", "recording_studio_recordings", column: "recording_id"
+  add_foreign_key "recording_studio_notifications_deliveries", "recording_studio_notifications_notifications", column: "notification_id"
   add_foreign_key "recording_studio_publishable_publishables", "recording_studio_recordings", column: "social_image_attachment_recording_id", name: "fk_rs_publishables_social_image_attachment_recording"
   add_foreign_key "recording_studio_recordings", "recording_studio_recordings", column: "parent_recording_id"
   add_foreign_key "recording_studio_recordings", "recording_studio_recordings", column: "root_recording_id"

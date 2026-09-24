@@ -249,6 +249,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Nothing matches that"
     refute_includes response.body, "Getting started"
+    assert_select "a[href='/help/messages']", text: "Contact support"
   end
 
   test "logged out visitors see published pages on a section and drafts stay hidden" do
@@ -282,6 +283,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "flat-pack-timestamp"
     assert_includes response.body, "fp-card-hover-strong"
     assert_includes response.body, "gap-6"
+    assert_includes response.body, "mt-10"
     assert_includes response.body, "card-padding-lg"
     assert_includes response.body, "--card-background-color: var(--color-white)"
     refute_includes response.body, "shadow-md dark:shadow-lg"
@@ -290,12 +292,26 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "Sign out"
     refute_includes response.body, 'href="/users/sign_in"'
     refute_includes response.body, "recordable"
-    refute_includes response.body, "Need something else"
-    refute_includes response.body, "Contact support"
+    assert_includes response.body, "Need something else in Getting started?"
+    assert_select "a[href='/help/messages'][data-turbo-frame='_top']", text: "Contact support"
     assert_select "ul[role='list']", count: 0
     refute_includes response.body, "chevron-right"
     refute_includes response.body, "<span>Read</span>"
     refute_includes response.body, "<span>Open</span>"
+  end
+
+  test "section hides contact when public_contact_href is blank" do
+    section = seeded_section("Getting started")
+    previous_href = RecordingStudioSupport.configuration.public_contact_href
+    RecordingStudioSupport.configuration.public_contact_href = nil
+
+    get "/help/sections/#{section.recordable.slug}"
+
+    assert_response :success
+    refute_includes response.body, "Need something else"
+    refute_includes response.body, "Contact support"
+  ensure
+    RecordingStudioSupport.configuration.public_contact_href = previous_href
   end
 
   test "billing section shows configured subtitle snippet cards and contact when set" do
@@ -319,7 +335,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "From your workspace, open Billing"
     assert_includes response.body, "Open Billing, then Invoices"
     assert_includes response.body, "Need something else in Billing?"
-    assert_select "a[href=?]", "mailto:help@example.com", text: "Contact support"
+    assert_select "a[href=?][data-turbo-frame='_top']", "mailto:help@example.com", text: "Contact support"
     assert_select "a[href='/help'][aria-label='Home']"
     refute_includes response.body, "flat-pack-breadcrumb"
     assert_includes response.body, "fp-card-hover-strong"
@@ -340,8 +356,56 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Nothing matches that"
-    assert_includes response.body, "Try another word."
+    assert_includes response.body, "Try another keyword or"
+    refute_includes response.body, "Try another word."
     refute_includes response.body, "How do I sign in?"
+    assert_select "a.flat-pack-link.underline[href='/help/messages'][data-turbo-frame='_top']", text: "contact support", count: 1
+    assert_select "a.fp-button", text: "Contact support", count: 0
+    refute_includes response.body, "Need something else in Getting started?"
+  end
+
+  test "published article shows contact card when public_contact_href is set" do
+    page = seeded_page("How do I sign in?").recordable
+    path = page.published_url
+
+    assert path.present?
+
+    get path
+
+    assert_response :success
+    assert_includes response.body, "Need something else in Getting started?"
+    assert_select "a[href='/help/messages'][data-turbo-frame='_top']", text: "Contact support"
+  end
+
+  test "published article hides contact when public_contact_href is blank" do
+    page = seeded_page("How do I sign in?").recordable
+    path = page.published_url
+    previous_href = RecordingStudioSupport.configuration.public_contact_href
+    RecordingStudioSupport.configuration.public_contact_href = nil
+
+    get path
+
+    assert_response :success
+    refute_includes response.body, "Need something else"
+    refute_includes response.body, "Contact support"
+  ensure
+    RecordingStudioSupport.configuration.public_contact_href = previous_href
+  end
+
+  test "section search empty state hides contact when public_contact_href is blank" do
+    section = seeded_section("Getting started")
+    previous_href = RecordingStudioSupport.configuration.public_contact_href
+    RecordingStudioSupport.configuration.public_contact_href = nil
+
+    get "/help/sections/#{section.recordable.slug}", params: { q: "no-such-help-page" }
+
+    assert_response :success
+    assert_includes response.body, "Nothing matches that"
+    assert_includes response.body, "Try another keyword."
+    refute_includes response.body, "contact support"
+    refute_includes response.body, "Contact support"
+  ensure
+    RecordingStudioSupport.configuration.public_contact_href = previous_href
   end
 
   test "public section search finds pages by title via trigram" do

@@ -15,4 +15,6 @@ RecordingStudioSupport.configure do |config|
       "Payments, invoices, and plan changes."
     end
   end
+  # Default public_contact_href is /help/messages (signed-in desk).
+  # Staff set: leave messages_admin_email blank so all User.where(admin: true) are staff.
 end

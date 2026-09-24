@@ -209,6 +209,10 @@ class ApplicationHelperTest < Minitest::Test
     assert_nil helper.support_public_contact_href
     assert_equal "Contact support", helper.support_public_contact_label
     assert_equal "Need something else in Billing?", helper.support_public_contact_prompt(section)
+    assert_equal "Try another keyword.", helper.support_public_search_empty_description
+
+    linked = helper.support_public_search_empty_description(contact_link: "email us")
+    assert_equal "Try another keyword or email us.", linked.to_s
 
     RecordingStudioSupport.configuration.public_section_subtitle = lambda do |item|
       "Payments, invoices, and plan changes." if item.slug == "billing"
@@ -240,6 +244,9 @@ class ApplicationHelperTest < Minitest::Test
     require File.join(dir, "list_helper.rb")
     require File.join(dir, "body_helper.rb")
     require File.join(dir, "application_helper.rb")
-    RecordingStudioSupport::ApplicationHelper
+    Module.new do
+      include ActionView::Helpers::OutputSafetyHelper
+      include RecordingStudioSupport::ApplicationHelper
+    end
   end
 end

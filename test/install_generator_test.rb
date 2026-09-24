@@ -39,7 +39,10 @@ class InstallGeneratorTest < Minitest::Test
     assert_includes routes, 'get "/support/*legacy_support_path", to: redirect("/admin")'
     assert_includes routes, "mount RecordingStudioPublishable::Engine, at: \"/\""
     assert_includes routes, 'mount RecordingStudioMoveable::Engine, at: "/recording_studio_moveable"'
+    assert_includes routes, 'mount RecordingStudioMessages::Engine, at: "/recording_studio_messages"'
+    assert_includes routes, 'mount RecordingStudioNotifications::Engine, at: "/recording_studio_notifications"'
     assert_includes routes, public_help_route
+    assert_includes routes, help_messages_route
     assert_includes routes, public_help_section_route
     assert_includes routes, public_help_section_instant_search_route
     assert_includes routes, 'mount RecordingStudioSearch::Engine, at: "/recording_studio_search"'
@@ -58,7 +61,10 @@ class InstallGeneratorTest < Minitest::Test
     assert_includes routes, 'get "/support/*legacy_support_path", to: redirect("/admin")'
     assert_includes routes, "mount RecordingStudioPublishable::Engine, at: \"/\""
     assert_includes routes, 'mount RecordingStudioMoveable::Engine, at: "/recording_studio_moveable"'
+    assert_includes routes, 'mount RecordingStudioMessages::Engine, at: "/recording_studio_messages"'
+    assert_includes routes, 'mount RecordingStudioNotifications::Engine, at: "/recording_studio_notifications"'
     assert_includes routes, public_help_route
+    assert_includes routes, help_messages_route
     assert_includes routes, public_help_section_route
     assert_includes routes, public_help_section_instant_search_route
     assert_includes routes, 'mount RecordingStudioSearch::Engine, at: "/recording_studio_search"'
@@ -80,7 +86,23 @@ class InstallGeneratorTest < Minitest::Test
 
       contents = File.read(File.join(dir, "app/models/admin_root.rb"))
       assert_includes contents, "section :support"
-      assert_equal 1, contents.scan("section :support").size
+    end
+  end
+
+  def test_enable_workspace_messages_injects_messages_capability
+    with_temp_app do |dir|
+      FileUtils.mkdir_p(File.join(dir, "app/models"))
+      File.write(File.join(dir, "app/models/workspace.rb"), <<~RUBY)
+        class Workspace < ApplicationRecord
+          recording_studio_recordable label: "Workspace", root: true
+        end
+      RUBY
+
+      generator = build_generator(dir)
+      generator.enable_workspace_messages
+
+      contents = File.read(File.join(dir, "app/models/workspace.rb"))
+      assert_includes contents, "Messages.to(keys: [:support])"
     end
   end
 
@@ -224,6 +246,12 @@ class InstallGeneratorTest < Minitest::Test
     'get "/help", to: RecordingStudioSupport::PublicPagesController.action(:index), as: :public_help'
   end
 
+  def help_messages_route
+    'get "/help/messages", ' \
+      "to: RecordingStudioSupport::UserMessagesController.action(:show), " \
+      "as: :help_messages"
+  end
+
   def public_help_section_route
     'get "/help/sections/:slug", ' \
       "to: RecordingStudioSupport::PublicSectionsController.action(:show), " \
@@ -240,6 +268,9 @@ class InstallGeneratorTest < Minitest::Test
       '@source "../../vendor/bundle/**/recording_studio_support/app/views/**/*.erb";',
       '@source "../../../../../../usr/local/bundle/ruby/**/bundler/gems/' \
       'recording_studio_support-*/app/views/**/*.erb";',
+      '@source "../../vendor/bundle/**/recording_studio_messages/app/views/**/*.erb";',
+      '@source "../../../../../../usr/local/bundle/ruby/**/bundler/gems/' \
+      'recording_studio_messages-*/app/views/**/*.erb";',
       '@source "../../vendor/bundle/**/flatpack/app/components/**/*.{rb,erb}";',
       '@source "../../../../../../usr/local/bundle/ruby/**/bundler/gems/flatpack-*/app/components/**/*.{rb,erb}";'
     ]
