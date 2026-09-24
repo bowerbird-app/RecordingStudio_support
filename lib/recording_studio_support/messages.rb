@@ -2,6 +2,7 @@
 
 require_relative "messages/staff"
 require_relative "messages/open_access_management"
+require_relative "messages/desk_access_navigation"
 
 module RecordingStudioSupport
   # Support ↔ Messages desk helpers. Mount parent is Workspace, key `:support`.

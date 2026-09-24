@@ -54,6 +54,15 @@ class MessagesDeskTest < Minitest::Test
     assert_includes source, "access_recordings_for_actor"
   end
 
+  def test_desk_access_button_targets_the_top_frame
+    source = File.read(
+      File.expand_path("../lib/recording_studio_support/messages/desk_access_navigation.rb", __dir__)
+    )
+
+    assert_includes source, "turbo_frame: \"_top\""
+    assert_includes source, "def recording_studio_accessible_button"
+  end
+
   def test_create_user_group_uses_thread_local_open_access_gate
     source = File.read(File.expand_path("../lib/recording_studio_support/messages.rb", __dir__))
 

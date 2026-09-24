@@ -132,6 +132,16 @@ module RecordingStudioSupport
         RecordingStudioSupport::Api.register!
       end
     end
+
+    initializer "recording_studio_support.desk_access_navigation" do
+      config.to_prepare do
+        helper = RecordingStudioAccessible::AvatarsHelper if defined?(RecordingStudioAccessible::AvatarsHelper)
+        next unless helper
+        next if helper.ancestors.include?(RecordingStudioSupport::Messages::DeskAccessNavigation)
+
+        helper.prepend(RecordingStudioSupport::Messages::DeskAccessNavigation)
+      end
+    end
   end
 end
 

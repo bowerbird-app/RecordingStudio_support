@@ -263,7 +263,7 @@ One MessageGroup per signed-in user under the Workspace `:support` mount (global
 
 First open of the user desk creates/bootstraps their conversation so they can send without Workspace `:admin`. Opening a thread grants staff `:edit` (skips existing grants) and syncs again when the thread is opened. Sends go through Messages `send_message` with `url:` pointing at the other party's desk. Notifications use `:message_received` on **in-app + email**.
 
-Both desks render `recording_studio_messages/message_groups/desk` only — do not fork Chat::Layout or Chat::Panel. Each desk opens with a Flatpack PageTitle (`Messages` for the user desk, `Support messages` for staff). Keep `data-theme="rounded"` on `<html>` and add Tailwind `@source` lines for Messages views.
+Both desks render `recording_studio_messages/message_groups/desk` only — do not fork Chat::Layout or Chat::Panel. The panel is a Turbo frame; Support prepends Accessible's access button so "+ Access" uses `data-turbo-frame="_top"` and the access page loads in full. Each desk opens with a Flatpack PageTitle (`Messages` for the user desk, `Support messages` for staff). Keep `data-theme="rounded"` on `<html>` and add Tailwind `@source` lines for Messages views.
 
 `public_contact_href` defaults to `/help/messages`. Logged-out visitors who click Contact hit sign-in.
 
