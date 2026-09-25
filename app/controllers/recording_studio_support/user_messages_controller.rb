@@ -10,11 +10,45 @@ module RecordingStudioSupport
     helper RecordingStudioSupport::MessagesDeskHelper
 
     before_action :require_signed_in_actor!
+    before_action :set_ticket, only: :show
     helper_method :staff_desk_return_to
 
+    def index
+      @tickets = RecordingStudioSupport::Tickets.for_actor(current_support_actor)
+    end
+
+    def new
+      @ticket = SupportTicket.new(priority: :normal)
+      @body = ""
+    end
+
+    def create
+      @ticket = RecordingStudioSupport::Tickets.open!(
+        actor: current_support_actor,
+        subject: ticket_params[:subject],
+        body: ticket_params[:body],
+        priority: ticket_params[:priority].presence || :normal
+      )
+      redirect_to help_message_path_for(@ticket), notice: "Sent. We’ll take a look."
+    rescue ArgumentError, ActiveRecord::RecordInvalid, RecordingStudioMessages::Error => e
+      @ticket = SupportTicket.new(
+        subject: ticket_params[:subject],
+        priority: ticket_params[:priority].presence || :normal
+      )
+      @ticket.errors.add(:base, e.message)
+      @body = ticket_params[:body]
+      render :new, status: :unprocessable_entity
+    end
+
     def show
-      @group_recording = bootstrap_user_group!
+      @group_recording = @ticket.message_group_recording
       return head :not_found if @group_recording.blank?
+      return deny_support_access! unless ticket_visible_to_actor?
+
+      RecordingStudioSupport::Messages.sync_staff_grants!(
+        group_recording: @group_recording,
+        manager_actor: current_support_actor
+      )
 
       @mount_recording = @group_recording.parent_recording
       @group_recordings = [@group_recording]
@@ -23,17 +57,24 @@ module RecordingStudioSupport
 
     private
 
-    def bootstrap_user_group!
-      group = RecordingStudioSupport::Messages.find_or_create_user_group(
-        actor: current_support_actor
-      )
-      return if group.blank?
+    def set_ticket
+      @ticket = RecordingStudioSupport::Tickets.find!(params[:id])
+    rescue ActiveRecord::RecordNotFound
+      head :not_found
+    end
 
-      RecordingStudioSupport::Messages.sync_staff_grants!(
-        group_recording: group,
-        manager_actor: current_support_actor
-      )
-      group
+    def ticket_visible_to_actor?
+      RecordingStudioSupport::Messages.group_owner?(@group_recording, current_support_actor) ||
+        RecordingStudioSupport::Messages.staff_actor?(current_support_actor)
+    end
+
+    def ticket_params
+      params.fetch(:ticket, {}).permit(:subject, :body, :priority)
+    end
+
+    def help_message_path_for(ticket)
+      public_path = RecordingStudioSupport.configuration.public_pages_path.to_s.chomp("/")
+      "#{public_path}/messages/#{ticket.id}"
     end
 
     def staff_desk_return_to

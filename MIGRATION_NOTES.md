@@ -1,5 +1,23 @@
 # Upgrade notes
 
+## 0.14.0
+
+Support tickets. Each ticket owns a MessageGroup under `:support`.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.14.0`. `bundle install`.
+2. Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` for `recording_studio_support_tickets`.
+3. Point `/help/messages` at user desk `index` / `new` / `create` / `show` (see installer routes). Contact still defaults to `/help/messages`.
+4. Existing per-user MessageGroups are not migrated. New conversations open as tickets via `Tickets.open!`.
+5. Mount key stays `:support`. Messages stays on `~> 0.5`.
+
+### Verify
+
+```bash
+bundle exec rake test:all
+```
+
 ## 0.13.0
 
 Customer-facing Support copy lives under `recording_studio.support.*`. Kit pins: Messages `v0.5.2`, Notifications `v0.4.0`, Flatpack `v0.1.206`, Internationalization `v0.1.2` (host/dummy only), Users `v0.15.0` (host). Recording Studio stays `v4.2.2`. API is `v0.6.4`. Allows Notifications 0.4 (`>= 0.3.1`, `< 1`).

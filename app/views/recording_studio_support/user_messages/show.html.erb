@@ -1,9 +1,14 @@
-<% recording_studio_page_nav(title: support_t("messages.title")) %>
+<% recording_studio_page_nav(
+     title: @ticket.subject,
+     page_nav_back_url: help_messages_path_for_desk,
+     page_nav_anchor_url: help_messages_path_for_desk,
+     page_nav_anchor_label: "Close"
+   ) %>
 
 <div class="flex w-full flex-col gap-4">
   <%= render FlatPack::PageTitle::Component.new(
-    title: support_t("messages.title"),
-    subtitle: support_t("messages.subtitle"),
+    title: @ticket.subject,
+    subtitle: support_ticket_status_label(@ticket),
     variant: :h1
   ) %>
 
