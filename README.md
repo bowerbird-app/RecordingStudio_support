@@ -19,7 +19,7 @@ gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderab
 gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.3.1"
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"
 gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.0.1"
-gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.3.0"
+gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.3.1"
 gem "recording_studio_notifications", github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.3.1"
 gem "recording_studio_notifications_email",
     github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.1"
@@ -45,7 +45,7 @@ gem "recording_studio_orderable", "~> 0.2"
 gem "recording_studio_publishable", "~> 0.3"
 gem "recording_studio_search", "~> 0.4"
 gem "recording_studio_moveable", "~> 3.0"
-gem "recording_studio_messages", "~> 0.3.0"
+gem "recording_studio_messages", "~> 0.3.1"
 gem "recording_studio_notifications", "~> 0.3.1"
 gem "recording_studio_notifications_email", "~> 0.3.1"
 ```
@@ -100,13 +100,16 @@ RecordingStudio.configure do |config|
 end
 ```
 
-Enable Messages on the workspace (mount parent, key `:support` — not AdminRoot):
+Enable Messages on the workspace (mount parent, key `:support` — not AdminRoot). Lock membership so ticket conversations cannot invite people from the chat UI:
 
 ```ruby
 class Workspace < ApplicationRecord
   recording_studio_recordable label: "Workspace", root: true
   RecordingStudio.enable_capability(:accessible, on: self)
-  include RecordingStudio::Capabilities::Messages.to(keys: [:support])
+  include RecordingStudio::Capabilities::Messages.to(
+    keys: [:support],
+    membership_locked: [:support]
+  )
 end
 ```
 
@@ -252,16 +255,21 @@ end
 
 ## Messages desk
 
-One MessageGroup per signed-in user under the Workspace `:support` mount (global — not per AdminRoot). Public `/help` stays anonymous with no composer.
+Tickets own the conversation lifecycle. Each ticket creates a MessageGroup under the Workspace `:support` mount (global — not per AdminRoot). Public `/help` stays anonymous with no composer. Existing per-user MessageGroups are not migrated.
 
 | Desk | Path | Who |
 |---|---|---|
-| User | `GET /help/messages` | Signed-in user (auth required) |
+| User list | `GET /help/messages` | Signed-in user (auth required) |
+| User new | `GET /help/messages/new` + `POST /help/messages` | Signed-in user |
+| User show | `GET /help/messages/:id` | Ticket owner (or staff) |
 | Staff | `GET /admin/support/messages` | Signed-in staff |
+| Staff ticket | `PATCH /admin/support/tickets/:id` | Signed-in staff (status / assignee) |
 
 **Staff set** (`messages_admin_email`): when set to an email, only that user is staff. When blank, `messages_admin_finder` runs — default `User.where(admin: true)` (or your host finder). Same set for `:edit` grants on each conversation, staff desk access, and staff notifications.
 
-First open of the user desk creates/bootstraps their conversation so they can send without Workspace `:admin`. Opening a thread grants staff `:edit` (skips existing grants) and syncs again when the thread is opened. Sends go through Messages `send_message` with `url:` pointing at the other party's desk. Notifications use `:message_received` on **in-app + email**.
+Opening a ticket runs `Tickets.open!`: MessageGroup under `:support`, ticket row (`subject`, `priority`, status `open`), staff `:edit` grants (via `allow_membership_change`), and the first message. Users list their tickets instead of a singleton group. Staff join ticket metadata onto the selected group and edit status / assignee on the ticket only (not on MessageGroup). Status values: `open`, `waiting_on_customer`, `waiting_on_support`, `resolved`. Priority: `low`, `normal`, `high`. Assignee is optional.
+
+The Workspace `:support` mount is **membership locked** (`membership_locked: [:support]`). Ticket panels hide **+ Access** / avatars; Accessible manage/grant/update/revoke on those conversations is denied unless wrapped in `RecordingStudioMessages.allow_membership_change` (Support’s staff sync already does this).
 
 Both desks render `recording_studio_messages/message_groups/desk` only — do not fork Chat::Layout or Chat::Panel. The panel is a Turbo frame; Support prepends Accessible's access button so "+ Access" uses `data-turbo-frame="_top"` and the access page loads in full. Each desk opens with a Flatpack PageTitle (`Messages` for the user desk, `Support messages` for staff). Keep `data-theme="rounded"` on `<html>` and add Tailwind `@source` lines for Messages views.
 
@@ -363,7 +371,7 @@ Dummy kit pins:
 | Accessible | `v0.9.1` |
 | Admin | `v2.0.2` |
 | Attachable | `v0.5.1` |
-| Messages | `v0.3.0` |
+| Messages | `v0.3.1` |
 | Notifications | `v0.3.1` |
 | Notifications Email | `v0.3.1` |
 | Users | `v0.11.0` |

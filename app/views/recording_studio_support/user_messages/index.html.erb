@@ -1,0 +1,42 @@
+<% recording_studio_page_nav(title: "Messages") %>
+
+<div class="flex w-full flex-col gap-6">
+  <%= render FlatPack::PageTitle::Component.new(
+    title: "Messages",
+    subtitle: "Your notes to support, all in one place.",
+    variant: :h1
+  ) do |page_title| %>
+    <% page_title.slot do %>
+      <%= render FlatPack::Button::Component.new(
+        text: "New ticket",
+        style: :primary,
+        size: :md,
+        href: new_help_message_path_for_desk
+      ) %>
+    <% end %>
+  <% end %>
+
+  <% if @tickets.any? %>
+    <%= render "recording_studio_support/shared/link_list", items: @tickets.map { |ticket|
+      {
+        title: ticket.subject,
+        href: help_message_path_for_desk(ticket),
+        meta: support_ticket_status_badge(ticket)
+      }
+    } %>
+  <% else %>
+    <%= render FlatPack::EmptyState::Component.new(
+      title: "No tickets yet",
+      description: "Start one when Help isn’t enough."
+    ) do |empty| %>
+      <% empty.slot do %>
+        <%= render FlatPack::Button::Component.new(
+          text: "New ticket",
+          style: :primary,
+          size: :md,
+          href: new_help_message_path_for_desk
+        ) %>
+      <% end %>
+    <% end %>
+  <% end %>
+</div>

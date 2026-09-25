@@ -14,24 +14,33 @@ module RecordingStudioSupport
     helper_method :user_desk_return_to
 
     def show
-      @mount_recording = RecordingStudioSupport::Messages.ensure_message_mount(
-        actor: current_support_actor
-      )
+      @mount_recording = load_mount_recording
       return head :not_found if @mount_recording.blank?
 
-      @group_recordings = RecordingStudioMessages.viewable_group_recordings(
-        actor: current_support_actor,
-        mount_recording: @mount_recording
-      )
+      @group_recordings = load_group_recordings
+      load_tickets_for_groups
       load_selected_conversation
       sync_selected_group_grants
     end
 
     private
 
+    def load_mount_recording
+      RecordingStudioSupport::Messages.ensure_message_mount(actor: current_support_actor)
+    end
+
+    def load_group_recordings
+      RecordingStudioMessages.viewable_group_recordings(
+        actor: current_support_actor,
+        mount_recording: @mount_recording
+      )
+    end
+
     def user_desk_return_to
       public_path = RecordingStudioSupport.configuration.public_pages_path.to_s.chomp("/")
-      "#{public_path}/messages"
+      return "#{public_path}/messages" if @ticket.blank?
+
+      "#{public_path}/messages/#{@ticket.id}"
     end
 
     def require_signed_in_actor!
@@ -49,8 +58,15 @@ module RecordingStudioSupport
       deny_support_access!
     end
 
+    def load_tickets_for_groups
+      ids = @group_recordings.map(&:id)
+      tickets = RecordingStudioSupport::Tickets.for_message_group_ids(ids)
+      @tickets_by_group_id = tickets.index_by(&:message_group_id)
+    end
+
     def load_selected_conversation
       @group_recording = selected_group_from_params || first_ready_group
+      @ticket = @tickets_by_group_id[@group_recording&.id]
       return if @group_recording.blank?
 
       @message_recordings = RecordingStudioMessages.message_recordings(@group_recording)

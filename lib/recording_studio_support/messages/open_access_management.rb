@@ -5,6 +5,10 @@ module RecordingStudioSupport
     # Thread-local open gate for first-open MessageGroup grants.
     # Accessible's process-global `access_management_authorizer` must not flip for
     # every Puma thread — only the creating thread may pass while nesting.
+    #
+    # Composes under Messages::MembershipLock when that wrap is already installed:
+    # MembershipLock → OpenAccess → host. Never wrap MembershipLock as @original
+    # (that recurses when MembershipLock re-installs on to_prepare).
     module OpenAccessManagement
       THREAD_KEY = :recording_studio_support_open_access_management
 
@@ -25,13 +29,14 @@ module RecordingStudioSupport
         end
 
         def install!
-          return if @installed
           return unless defined?(RecordingStudioAccessible)
 
           configuration = RecordingStudioAccessible.configuration
-          @original = configuration.access_management_authorizer
-          configuration.access_management_authorizer = method(:authorize)
-          @installed = true
+          place_in_authorizer_chain!(
+            configuration,
+            configuration.access_management_authorizer,
+            authorizer_callable
+          )
         end
 
         def authorize(recording:, actor: nil, controller: nil, **)
@@ -41,6 +46,53 @@ module RecordingStudioSupport
         end
 
         private
+
+        def place_in_authorizer_chain!(configuration, current, callable)
+          if current.equal?(callable)
+            heal_if_wrapping_membership_lock!(configuration)
+          elsif membership_lock_outer?(current)
+            insert_under_membership_lock!
+          else
+            @original = current
+            configuration.access_management_authorizer = callable
+          end
+        end
+
+        def authorizer_callable
+          @authorizer_callable ||= method(:authorize)
+        end
+
+        def membership_lock_outer?(current)
+          return false unless defined?(RecordingStudioMessages::MembershipLock)
+
+          current.equal?(
+            RecordingStudioMessages::MembershipLock.instance_variable_get(:@membership_lock_authorizer)
+          )
+        end
+
+        def insert_under_membership_lock!
+          lock = RecordingStudioMessages::MembershipLock
+          inner = lock.instance_variable_get(:@membership_lock_inner)
+          return if inner.equal?(authorizer_callable)
+
+          @original = inner
+          lock.instance_variable_set(:@membership_lock_inner, authorizer_callable)
+        end
+
+        # Recover when we became outermost over MembershipLock (lazy install before
+        # this composition fix, or a host that swapped the authorizer).
+        def heal_if_wrapping_membership_lock!(configuration)
+          return unless defined?(RecordingStudioMessages::MembershipLock)
+
+          lock = RecordingStudioMessages::MembershipLock
+          membership_lock = lock.instance_variable_get(:@membership_lock_authorizer)
+          return unless @original.equal?(membership_lock)
+
+          host = lock.instance_variable_get(:@membership_lock_inner)
+          @original = host.equal?(authorizer_callable) ? nil : host
+          lock.instance_variable_set(:@membership_lock_inner, authorizer_callable)
+          configuration.access_management_authorizer = membership_lock
+        end
 
         def call_original(recording:, actor:, controller:)
           original = @original
