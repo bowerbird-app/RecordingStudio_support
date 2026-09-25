@@ -16,15 +16,18 @@ Support tickets. Each ticket owns a MessageGroup under the Workspace `:support` 
 - `RecordingStudioSupport::Tickets.open!` — creates ticket + MessageGroup + staff grants + initial message in one transaction
 - User desk ticket list / new / show at `/help/messages` (no more one-group-per-user bootstrap)
 - Staff desk ticket status and assignee edits on the ticket only (`PATCH /admin/support/tickets/:id`)
+- Workspace `:support` mount uses Messages `membership_locked: [:support]`; staff grants go through `RecordingStudioMessages.allow_membership_change`
 
 ### Changed
 - Support no longer uses Messages 1:1 helpers (`find_or_create_user_group`, `user_group_on_mount`, `create_user_group!`)
+- Workspace Messages enablement uses `membership_locked: [:support]` (Messages `~> 0.5`)
 
 ### Upgrade notes
 - Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` for `recording_studio_support_tickets`
 - Point host routes at user desk `index` / `new` / `create` / `show` (installer does this for new installs)
 - Existing per-user MessageGroups are not migrated; new conversations open as tickets
-- Messages stays on `~> 0.5` (dummy/development pin `v0.5.2`)
+- Messages stays on `~> 0.5` (dummy/development pin `v0.5.2`; membership lock ships in Messages 0.3.1+)
+- Enable Messages with `membership_locked: [:support]` on Workspace so ticket conversations hide **+ Access** and refuse manage/grant without `allow_membership_change`
 
 ## [0.13.0] - 2026-10-08
 

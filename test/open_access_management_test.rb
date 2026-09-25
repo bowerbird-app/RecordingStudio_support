@@ -13,16 +13,14 @@ class OpenAccessManagementTest < Minitest::Test
       @calls << :original
       false
     end
-    RecordingStudioSupport::Messages::OpenAccessManagement.instance_variable_set(:@installed, false)
-    RecordingStudioSupport::Messages::OpenAccessManagement.instance_variable_set(:@original, nil)
+    reset_open_access!
   end
 
   def teardown
     return unless @configuration
 
     @configuration.access_management_authorizer = @previous
-    RecordingStudioSupport::Messages::OpenAccessManagement.instance_variable_set(:@installed, false)
-    RecordingStudioSupport::Messages::OpenAccessManagement.instance_variable_set(:@original, nil)
+    reset_open_access!
     Thread.current[RecordingStudioSupport::Messages::OpenAccessManagement::THREAD_KEY] = nil
   end
 
@@ -61,5 +59,36 @@ class OpenAccessManagementTest < Minitest::Test
     end
 
     refute RecordingStudioSupport::Messages::OpenAccessManagement.open?
+  end
+
+  def test_install_composes_under_membership_lock_without_recursion
+    skip "Messages MembershipLock not loaded" unless defined?(RecordingStudioMessages::MembershipLock)
+
+    RecordingStudioMessages::MembershipLock.install_authorizer_wrap!
+    RecordingStudioSupport::Messages::OpenAccessManagement.install!
+    RecordingStudioMessages::MembershipLock.install_authorizer_wrap!
+
+    authorizer = @configuration.access_management_authorizer
+    lock = RecordingStudioMessages::MembershipLock
+    assert authorizer.equal?(lock.instance_variable_get(:@membership_lock_authorizer))
+    assert_equal(
+      RecordingStudioSupport::Messages::OpenAccessManagement.send(:authorizer_callable),
+      lock.instance_variable_get(:@membership_lock_inner)
+    )
+
+    recording = Object.new
+    def recording.recordable_type
+      "Other"
+    end
+
+    refute authorizer.call(recording: recording, actor: :actor)
+    assert_includes @calls, :original
+  end
+
+  private
+
+  def reset_open_access!
+    RecordingStudioSupport::Messages::OpenAccessManagement.instance_variable_set(:@authorizer_callable, nil)
+    RecordingStudioSupport::Messages::OpenAccessManagement.instance_variable_set(:@original, nil)
   end
 end

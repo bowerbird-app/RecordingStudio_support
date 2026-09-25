@@ -55,6 +55,13 @@ class MessagesDeskTest < Minitest::Test
     assert_includes source, "access_recordings_for_actor"
   end
 
+  def test_sync_staff_grants_uses_membership_change_bypass
+    source = File.read(File.expand_path("../lib/recording_studio_support/messages/staff.rb", __dir__))
+
+    assert_includes source, "RecordingStudioMessages.allow_membership_change"
+    assert_includes source, "def sync_staff_grants!"
+  end
+
   def test_desk_access_button_targets_the_top_frame
     source = File.read(
       File.expand_path("../lib/recording_studio_support/messages/desk_access_navigation.rb", __dir__)

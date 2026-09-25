@@ -2,15 +2,24 @@
 
 ## 0.14.0
 
-Support tickets. Each ticket owns a MessageGroup under `:support`.
+Support tickets. Each ticket owns a MessageGroup under `:support`. Membership on that mount is locked.
 
 ### Host app
 
-1. Bump `recording_studio_support` to `0.14.0`. `bundle install`.
+1. Bump `recording_studio_support` to `0.14.0`. Messages stays on `~> 0.5` (dummy/development pin `v0.5.2`). `bundle install`.
 2. Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` for `recording_studio_support_tickets`.
 3. Point `/help/messages` at user desk `index` / `new` / `create` / `show` (see installer routes). Contact still defaults to `/help/messages`.
 4. Existing per-user MessageGroups are not migrated. New conversations open as tickets via `Tickets.open!`.
-5. Mount key stays `:support`. Messages stays on `~> 0.5`.
+5. Enable Messages on Workspace with membership lock:
+
+```ruby
+include RecordingStudio::Capabilities::Messages.to(
+  keys: [:support],
+  membership_locked: [:support]
+)
+```
+
+Trusted staff grants use `RecordingStudioMessages.allow_membership_change` (Support’s `sync_staff_grants!` already wraps this). Mount key stays `:support`.
 
 ### Verify
 

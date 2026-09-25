@@ -108,7 +108,8 @@ class InstallGeneratorTest < Minitest::Test
       generator.enable_workspace_messages
 
       contents = File.read(File.join(dir, "app/models/workspace.rb"))
-      assert_includes contents, "Messages.to(keys: [:support])"
+      assert_includes contents, "keys: [:support]"
+      assert_includes contents, "membership_locked: [:support]"
     end
   end
 

@@ -102,13 +102,16 @@ RecordingStudio.configure do |config|
 end
 ```
 
-Enable Messages on the workspace (mount parent, key `:support` — not AdminRoot):
+Enable Messages on the workspace (mount parent, key `:support` — not AdminRoot). Lock membership so ticket conversations cannot invite people from the chat UI:
 
 ```ruby
 class Workspace < ApplicationRecord
   recording_studio_recordable label: "Workspace", root: true
   RecordingStudio.enable_capability(:accessible, on: self)
-  include RecordingStudio::Capabilities::Messages.to(keys: [:support])
+  include RecordingStudio::Capabilities::Messages.to(
+    keys: [:support],
+    membership_locked: [:support]
+  )
 end
 ```
 
@@ -266,7 +269,9 @@ Tickets own the conversation lifecycle. Each ticket creates a MessageGroup under
 
 **Staff set** (`messages_admin_email`): when set to an email, only that user is staff. When blank, `messages_admin_finder` runs — default `User.where(admin: true)` (or your host finder). Same set for `:edit` grants on each conversation, staff desk access, and staff notifications.
 
-Opening a ticket runs `Tickets.open!`: MessageGroup under `:support`, ticket row (`subject`, `priority`, status `open`), staff `:edit` grants, and the first message. Users list their tickets instead of a singleton group. Staff join ticket metadata onto the selected group and edit status / assignee on the ticket only (not on MessageGroup). Status values: `open`, `waiting_on_customer`, `waiting_on_support`, `resolved`. Priority: `low`, `normal`, `high`. Assignee is optional.
+Opening a ticket runs `Tickets.open!`: MessageGroup under `:support`, ticket row (`subject`, `priority`, status `open`), staff `:edit` grants (via `allow_membership_change`), and the first message. Users list their tickets instead of a singleton group. Staff join ticket metadata onto the selected group and edit status / assignee on the ticket only (not on MessageGroup). Status values: `open`, `waiting_on_customer`, `waiting_on_support`, `resolved`. Priority: `low`, `normal`, `high`. Assignee is optional.
+
+The Workspace `:support` mount is **membership locked** (`membership_locked: [:support]`). Ticket panels hide **+ Access** / avatars; Accessible manage/grant/update/revoke on those conversations is denied unless wrapped in `RecordingStudioMessages.allow_membership_change` (Support’s staff sync already does this).
 
 Both desks render `recording_studio_messages/message_groups/desk` only — do not fork Chat::Layout or Chat::Panel. The panel is a Turbo frame; Support prepends Accessible's access button so "+ Access" uses `data-turbo-frame="_top"` and the access page loads in full. Each desk opens with a Flatpack PageTitle (`Messages` for the user desk, `Support messages` for staff). Keep `data-theme="rounded"` on `<html>` and add Tailwind `@source` lines for Messages views.
 
