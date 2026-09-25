@@ -24,11 +24,13 @@ module RecordingStudioSupport
       return if group_recording.blank? || manager_actor.blank?
       return unless defined?(RecordingStudioAccessible)
 
-      staff_actors.each do |staff|
-        next if same_actor?(staff, manager_actor)
-        next if staff_has_edit?(group_recording, staff)
+      RecordingStudioMessages.allow_membership_change do
+        staff_actors.each do |staff|
+          next if same_actor?(staff, manager_actor)
+          next if staff_has_edit?(group_recording, staff)
 
-        grant_staff_edit!(group_recording, staff, manager_actor)
+          grant_staff_edit!(group_recording, staff, manager_actor)
+        end
       end
     end
 

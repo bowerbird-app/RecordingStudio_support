@@ -56,8 +56,10 @@ module RecordingStudioSupport
 
         inject_into_file "app/models/workspace.rb",
                          after: /recording_studio_recordable[^\n]*\n/ do
-          "  include RecordingStudio::Capabilities::Messages.to(keys: [:support]) " \
-            "if defined?(RecordingStudioMessages)\n"
+          "  include RecordingStudio::Capabilities::Messages.to(\n" \
+            "    keys: [:support],\n" \
+            "    membership_locked: [:support]\n" \
+            "  ) if defined?(RecordingStudioMessages)\n"
         end
       end
 

@@ -86,7 +86,7 @@ class SupportMessagesDeskTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Quieter crop stuck"
     assert_includes response.body, "The quieter crop is stuck."
-    assert_select "a[data-turbo-frame='_top']", text: "+ Access"
+    refute_includes response.body, "+ Access"
     assert_includes response.body, "Write a message"
 
     group = ticket.message_group_recording
