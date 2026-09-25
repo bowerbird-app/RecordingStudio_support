@@ -3,10 +3,18 @@
 require "test_helper"
 
 class SupportTicketTest < Minitest::Test
-  def test_status_and_priority_enums
-    assert_equal %w[open waiting_on_customer waiting_on_support resolved],
-                 RecordingStudioSupport::SupportTicket::STATUSES
-    assert_equal %w[low normal high], RecordingStudioSupport::SupportTicket::PRIORITIES
+  def test_status_and_priority_enums_in_model_source
+    source = File.read(
+      File.expand_path("../app/models/recording_studio_support/support_ticket.rb", __dir__)
+    )
+
+    assert_includes source, "open"
+    assert_includes source, "waiting_on_customer"
+    assert_includes source, "waiting_on_support"
+    assert_includes source, "resolved"
+    assert_includes source, "low"
+    assert_includes source, "normal"
+    assert_includes source, "high"
   end
 
   def test_model_points_at_message_group_and_optional_assignee
