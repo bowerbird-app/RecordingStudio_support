@@ -23,21 +23,10 @@ module RecordingStudioSupport
     end
 
     def create
-      @ticket = RecordingStudioSupport::Tickets.open!(
-        actor: current_support_actor,
-        subject: ticket_params[:subject],
-        body: ticket_params[:body],
-        priority: ticket_params[:priority].presence || :normal
-      )
+      @ticket = open_ticket!
       redirect_to help_message_path_for(@ticket), notice: "Sent. We’ll take a look."
     rescue ArgumentError, ActiveRecord::RecordInvalid, RecordingStudioMessages::Error => e
-      @ticket = SupportTicket.new(
-        subject: ticket_params[:subject],
-        priority: ticket_params[:priority].presence || :normal
-      )
-      @ticket.errors.add(:base, e.message)
-      @body = ticket_params[:body]
-      render :new, status: :unprocessable_entity
+      render_new_ticket_error(e)
     end
 
     def show
@@ -45,17 +34,43 @@ module RecordingStudioSupport
       return head :not_found if @group_recording.blank?
       return deny_support_access! unless ticket_visible_to_actor?
 
+      sync_ticket_grants!
+      load_ticket_desk!
+    end
+
+    private
+
+    def open_ticket!
+      RecordingStudioSupport::Tickets.open!(
+        actor: current_support_actor,
+        subject: ticket_params[:subject],
+        body: ticket_params[:body],
+        priority: ticket_params[:priority].presence || :normal
+      )
+    end
+
+    def render_new_ticket_error(error)
+      @ticket = SupportTicket.new(
+        subject: ticket_params[:subject],
+        priority: ticket_params[:priority].presence || :normal
+      )
+      @ticket.errors.add(:base, error.message)
+      @body = ticket_params[:body]
+      render :new, status: :unprocessable_entity
+    end
+
+    def sync_ticket_grants!
       RecordingStudioSupport::Messages.sync_staff_grants!(
         group_recording: @group_recording,
         manager_actor: current_support_actor
       )
+    end
 
+    def load_ticket_desk!
       @mount_recording = @group_recording.parent_recording
       @group_recordings = [@group_recording]
       @message_recordings = RecordingStudioMessages.message_recordings(@group_recording)
     end
-
-    private
 
     def set_ticket
       @ticket = RecordingStudioSupport::Tickets.find!(params[:id])

@@ -15,7 +15,7 @@ module RecordingStudioSupport
 
       redirect_to staff_messages_return_to, notice: "Ticket updated."
     rescue ActiveRecord::RecordInvalid
-      redirect_to staff_messages_return_to, alert: @ticket.errors.full_messages.to_sentence.presence || "Could not update."
+      redirect_to staff_messages_return_to, alert: update_error_message
     end
 
     private
@@ -31,25 +31,26 @@ module RecordingStudioSupport
     end
 
     def apply_assignee!
-      raw = params.fetch(:ticket, {})[:assignee]
       return unless params.fetch(:ticket, {}).key?(:assignee)
 
-      if raw.blank?
-        @ticket.assignee = nil
-        return
-      end
+      @ticket.assignee = resolve_assignee(params.fetch(:ticket, {})[:assignee])
+    end
 
-      type, id = raw.to_s.split(":", 2)
-      staff = RecordingStudioSupport::Messages.staff_actors.find do |actor|
-        actor.class.name == type && actor.id.to_s == id.to_s
+    def resolve_assignee(raw)
+      return if raw.blank?
+
+      RecordingStudioSupport::Messages.staff_actors.find do |actor|
+        "#{actor.class.name}:#{actor.id}" == raw.to_s
       end
-      @ticket.assignee = staff
+    end
+
+    def update_error_message
+      @ticket.errors.full_messages.to_sentence.presence || "Could not update."
     end
 
     def staff_messages_return_to
       path = RecordingStudioSupport.configuration.pages_path.to_s.chomp("/")
-      group_id = @ticket.message_group_id
-      "#{path}/messages?group_id=#{group_id}"
+      "#{path}/messages?group_id=#{@ticket.message_group_id}"
     end
 
     def require_signed_in_actor!
