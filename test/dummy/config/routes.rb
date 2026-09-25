@@ -17,7 +17,10 @@ Rails.application.routes.draw do
   mount RecordingStudioAttachable::Engine, at: "/recording_studio_attachable"
   mount RecordingStudioMoveable::Engine, at: "/recording_studio_moveable"
   get "/help", to: RecordingStudioSupport::PublicPagesController.action(:index), as: :public_help
-  get "/help/messages", to: RecordingStudioSupport::UserMessagesController.action(:show), as: :help_messages
+  get "/help/messages", to: RecordingStudioSupport::UserMessagesController.action(:index), as: :help_messages
+  get "/help/messages/new", to: RecordingStudioSupport::UserMessagesController.action(:new), as: :new_help_message
+  post "/help/messages", to: RecordingStudioSupport::UserMessagesController.action(:create)
+  get "/help/messages/:id", to: RecordingStudioSupport::UserMessagesController.action(:show), as: :help_message
   get "/help/sections/:slug", to: RecordingStudioSupport::PublicSectionsController.action(:show),
                               as: :public_help_section
   get "/help/sections/:slug/instant_search",

@@ -43,6 +43,9 @@ class InstallGeneratorTest < Minitest::Test
     assert_includes routes, 'mount RecordingStudioNotifications::Engine, at: "/recording_studio_notifications"'
     assert_includes routes, public_help_route
     assert_includes routes, help_messages_route
+    assert_includes routes, new_help_message_route
+    assert_includes routes, create_help_message_route
+    assert_includes routes, show_help_message_route
     assert_includes routes, public_help_section_route
     assert_includes routes, public_help_section_instant_search_route
     assert_includes routes, 'mount RecordingStudioSearch::Engine, at: "/recording_studio_search"'
@@ -65,6 +68,9 @@ class InstallGeneratorTest < Minitest::Test
     assert_includes routes, 'mount RecordingStudioNotifications::Engine, at: "/recording_studio_notifications"'
     assert_includes routes, public_help_route
     assert_includes routes, help_messages_route
+    assert_includes routes, new_help_message_route
+    assert_includes routes, create_help_message_route
+    assert_includes routes, show_help_message_route
     assert_includes routes, public_help_section_route
     assert_includes routes, public_help_section_instant_search_route
     assert_includes routes, 'mount RecordingStudioSearch::Engine, at: "/recording_studio_search"'
@@ -248,8 +254,25 @@ class InstallGeneratorTest < Minitest::Test
 
   def help_messages_route
     'get "/help/messages", ' \
-      "to: RecordingStudioSupport::UserMessagesController.action(:show), " \
+      "to: RecordingStudioSupport::UserMessagesController.action(:index), " \
       "as: :help_messages"
+  end
+
+  def new_help_message_route
+    'get "/help/messages/new", ' \
+      "to: RecordingStudioSupport::UserMessagesController.action(:new), " \
+      "as: :new_help_message"
+  end
+
+  def create_help_message_route
+    'post "/help/messages", ' \
+      "to: RecordingStudioSupport::UserMessagesController.action(:create)"
+  end
+
+  def show_help_message_route
+    'get "/help/messages/:id", ' \
+      "to: RecordingStudioSupport::UserMessagesController.action(:show), " \
+      "as: :help_message"
   end
 
   def public_help_section_route

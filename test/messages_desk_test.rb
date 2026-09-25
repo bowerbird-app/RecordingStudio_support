@@ -19,8 +19,10 @@ class MessagesDeskTest < Minitest::Test
     assert_equal :support, RecordingStudioSupport::Messages::SUPPORT_MOUNT_KEY
   end
 
-  def test_find_or_create_returns_nil_without_actor
-    assert_nil RecordingStudioSupport::Messages.find_or_create_user_group(actor: nil)
+  def test_one_to_one_user_group_helpers_are_gone
+    refute RecordingStudioSupport::Messages.respond_to?(:find_or_create_user_group)
+    refute RecordingStudioSupport::Messages.respond_to?(:user_group_on_mount)
+    refute RecordingStudioSupport::Messages.respond_to?(:create_user_group!)
   end
 
   def test_messages_admin_email_is_the_staff_config_key
@@ -37,7 +39,6 @@ class MessagesDeskTest < Minitest::Test
   def test_message_received_registers_email_channel
     RecordingStudioMessages.register_integration!
     RecordingStudioSupport::Engine.register_message_received_with_email!
-
     type = RecordingStudioNotifications.notification_types.fetch(:message_received)
 
     assert_includes type.default_channels, :in_app
@@ -63,8 +64,8 @@ class MessagesDeskTest < Minitest::Test
     assert_includes source, "def recording_studio_accessible_button"
   end
 
-  def test_create_user_group_uses_thread_local_open_access_gate
-    source = File.read(File.expand_path("../lib/recording_studio_support/messages.rb", __dir__))
+  def test_open_ticket_uses_thread_local_open_access_gate
+    source = File.read(File.expand_path("../lib/recording_studio_support/tickets/open.rb", __dir__))
 
     assert_includes source, "OpenAccessManagement.with"
     refute_includes source, "configuration.access_management_authorizer = ->(**) { true }"

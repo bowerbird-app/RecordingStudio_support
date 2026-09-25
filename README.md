@@ -252,16 +252,19 @@ end
 
 ## Messages desk
 
-One MessageGroup per signed-in user under the Workspace `:support` mount (global — not per AdminRoot). Public `/help` stays anonymous with no composer.
+Tickets own the conversation lifecycle. Each ticket creates a MessageGroup under the Workspace `:support` mount (global — not per AdminRoot). Public `/help` stays anonymous with no composer. Existing per-user MessageGroups are not migrated.
 
 | Desk | Path | Who |
 |---|---|---|
-| User | `GET /help/messages` | Signed-in user (auth required) |
+| User list | `GET /help/messages` | Signed-in user (auth required) |
+| User new | `GET /help/messages/new` + `POST /help/messages` | Signed-in user |
+| User show | `GET /help/messages/:id` | Ticket owner (or staff) |
 | Staff | `GET /admin/support/messages` | Signed-in staff |
+| Staff ticket | `PATCH /admin/support/tickets/:id` | Signed-in staff (status / assignee) |
 
 **Staff set** (`messages_admin_email`): when set to an email, only that user is staff. When blank, `messages_admin_finder` runs — default `User.where(admin: true)` (or your host finder). Same set for `:edit` grants on each conversation, staff desk access, and staff notifications.
 
-First open of the user desk creates/bootstraps their conversation so they can send without Workspace `:admin`. Opening a thread grants staff `:edit` (skips existing grants) and syncs again when the thread is opened. Sends go through Messages `send_message` with `url:` pointing at the other party's desk. Notifications use `:message_received` on **in-app + email**.
+Opening a ticket runs `Tickets.open!`: MessageGroup under `:support`, ticket row (`subject`, `priority`, status `open`), staff `:edit` grants, and the first message. Users list their tickets instead of a singleton group. Staff join ticket metadata onto the selected group and edit status / assignee on the ticket only (not on MessageGroup). Status values: `open`, `waiting_on_customer`, `waiting_on_support`, `resolved`. Priority: `low`, `normal`, `high`. Assignee is optional.
 
 Both desks render `recording_studio_messages/message_groups/desk` only — do not fork Chat::Layout or Chat::Panel. The panel is a Turbo frame; Support prepends Accessible's access button so "+ Access" uses `data-turbo-frame="_top"` and the access page loads in full. Each desk opens with a Flatpack PageTitle (`Messages` for the user desk, `Support messages` for staff). Keep `data-theme="rounded"` on `<html>` and add Tailwind `@source` lines for Messages views.
 

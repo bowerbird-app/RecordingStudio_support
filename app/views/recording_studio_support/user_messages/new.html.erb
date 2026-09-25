@@ -1,0 +1,52 @@
+<% recording_studio_page_nav(
+     title: "New ticket",
+     page_nav_back_url: help_messages_path_for_desk,
+     page_nav_anchor_url: help_messages_path_for_desk,
+     page_nav_anchor_label: "Close"
+   ) %>
+
+<div class="flex w-full flex-col gap-6">
+  <%= render FlatPack::PageTitle::Component.new(
+    title: "New ticket",
+    subtitle: "Tell us what’s up — we’ll take it from there.",
+    variant: :h1
+  ) %>
+
+  <%= form_with url: help_messages_path_for_desk, method: :post, scope: :ticket do %>
+    <div class="flex flex-col gap-4">
+      <% if @ticket.errors.any? %>
+        <%= render FlatPack::Alert::Component.new(
+          style: :danger,
+          title: @ticket.errors.full_messages.to_sentence
+        ) %>
+      <% end %>
+
+      <%= render FlatPack::TextInput::Component.new(
+        name: "ticket[subject]",
+        label: "Subject",
+        value: @ticket.subject,
+        required: true,
+        error: @ticket.errors[:subject].presence&.to_sentence
+      ) %>
+
+      <%= render FlatPack::Select::Component.new(
+        name: "ticket[priority]",
+        label: "Priority",
+        options: support_ticket_priority_options,
+        value: @ticket.priority
+      ) %>
+
+      <%= render FlatPack::TextArea::Component.new(
+        name: "ticket[body]",
+        label: "Message",
+        value: @body,
+        rows: 6,
+        required: true
+      ) %>
+
+      <%= render "recording_studio_support/shared/form_actions",
+                 cancel_url: help_messages_path_for_desk,
+                 submit_label: "Send" %>
+    </div>
+  <% end %>
+</div>

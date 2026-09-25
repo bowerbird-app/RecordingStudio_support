@@ -23,6 +23,7 @@ module RecordingStudioSupport
         actor: current_support_actor,
         mount_recording: @mount_recording
       )
+      load_tickets_for_groups
       load_selected_conversation
       sync_selected_group_grants
     end
@@ -31,7 +32,9 @@ module RecordingStudioSupport
 
     def user_desk_return_to
       public_path = RecordingStudioSupport.configuration.public_pages_path.to_s.chomp("/")
-      "#{public_path}/messages"
+      return "#{public_path}/messages" if @ticket.blank?
+
+      "#{public_path}/messages/#{@ticket.id}"
     end
 
     def require_signed_in_actor!
@@ -49,8 +52,15 @@ module RecordingStudioSupport
       deny_support_access!
     end
 
+    def load_tickets_for_groups
+      @tickets_by_group_id = RecordingStudioSupport::Tickets
+        .for_message_group_ids(@group_recordings.map(&:id))
+        .index_by(&:message_group_id)
+    end
+
     def load_selected_conversation
       @group_recording = selected_group_from_params || first_ready_group
+      @ticket = @tickets_by_group_id[@group_recording&.id]
       return if @group_recording.blank?
 
       @message_recordings = RecordingStudioMessages.message_recordings(@group_recording)
