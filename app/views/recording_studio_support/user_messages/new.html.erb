@@ -44,9 +44,20 @@
         required: true
       ) %>
 
-      <%= render "recording_studio_support/shared/form_actions",
-                 cancel_url: help_messages_path_for_desk,
-                 submit_label: "Send" %>
+      <div class="flex gap-2">
+        <%= render FlatPack::Button::Component.new(
+          text: "Send",
+          style: :primary,
+          size: :md,
+          type: "submit"
+        ) %>
+        <%= render FlatPack::Button::Component.new(
+          text: "Cancel",
+          style: :secondary,
+          size: :md,
+          href: help_messages_path_for_desk
+        ) %>
+      </div>
     </div>
   <% end %>
 </div>
