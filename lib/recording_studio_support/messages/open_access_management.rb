@@ -32,21 +32,11 @@ module RecordingStudioSupport
           return unless defined?(RecordingStudioAccessible)
 
           configuration = RecordingStudioAccessible.configuration
-          current = configuration.access_management_authorizer
-          callable = authorizer_callable
-
-          if current.equal?(callable)
-            heal_if_wrapping_membership_lock!(configuration)
-            return
-          end
-
-          if membership_lock_outer?(current)
-            insert_under_membership_lock!
-            return
-          end
-
-          @original = current
-          configuration.access_management_authorizer = callable
+          place_in_authorizer_chain!(
+            configuration,
+            configuration.access_management_authorizer,
+            authorizer_callable
+          )
         end
 
         def authorize(recording:, actor: nil, controller: nil, **)
@@ -56,6 +46,17 @@ module RecordingStudioSupport
         end
 
         private
+
+        def place_in_authorizer_chain!(configuration, current, callable)
+          if current.equal?(callable)
+            heal_if_wrapping_membership_lock!(configuration)
+          elsif membership_lock_outer?(current)
+            insert_under_membership_lock!
+          else
+            @original = current
+            configuration.access_management_authorizer = callable
+          end
+        end
 
         def authorizer_callable
           @authorizer_callable ||= method(:authorize)
