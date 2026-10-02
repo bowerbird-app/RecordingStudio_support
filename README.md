@@ -31,7 +31,7 @@ gem "recording_studio_search", "~> 0.4",
 gem "recording_studio_support", github: "bowerbird-app/RecordingStudio_support"
 # Host-owned auth (not a Support gemspec dependency):
 gem "recording_studio_user", github: "bowerbird-app/RecordingStudio_users", tag: "v0.11.0"
-gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.197" # Content + 18px; Flatpack #215
+gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.198" # Content + 18px; Flatpack #215
 ```
 
 ```ruby
@@ -199,7 +199,7 @@ Logged-out people can read sections and live pages. Drafts 404.
 
 Public `/help` lists sections. A section show lists `SupportPage.indexable` pages in that section. Do not copy that logic. Public `/help?q=` searches section names (`ILIKE`) with a GET form. Page search lives on a public section show and filters pages **in that section** via Recording Studio Search trigram on title/body. Typing uses Search Instant UI (`instant_search_field` + Turbo Frame) against the section Instant path; Enter / no-JS still GET `?q=` on the section. Staff section show uses the same Instant field against the staff Instant path. The Search engine Instant endpoint is mounted for hosts; it only returns **live** `SupportPage` rows so drafts do not leak. Admin support pages table search is unchanged. Sections are not Searchable yet.
 
-Public `/help` and public section show use Flatpack Search at full width (`max_width: :none`, placeholder “Search support”). Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Public `/help` and public section show pass `size: :lg` (Flatpack `0.1.175+` / pin `v0.1.197`); public `/help` also raises the `:lg` vertical padding (`prominent: true`). Staff search on remaining engine screens keeps the default `:md`.
+Public `/help` and public section show use Flatpack Search at full width (`max_width: :none`, placeholder “Search support”). Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Public `/help` and public section show pass `size: :lg` (Flatpack `0.1.175+` / pin `v0.1.198`); public `/help` also raises the `:lg` vertical padding (`prominent: true`). Staff search on remaining engine screens keeps the default `:md`.
 
 **Public `/help` home** centers a larger PageTitle (`--page-title-h1-size: var(--text-5xl)`) and stacks interactive clickable Flatpack Cards in a Grid (`cols: 3`, `gap: :lg`, `style: :interactive`, `hover: :strong`, body `padding: :lg`, `theme: { background: "#ffffff" }`). Interactive (not elevated) is what Flatpack uses for a visible strong hover — elevated already ships `shadow-md`, so `hover: :strong` on elevated barely changes. Each card shows an optional Heroicons glyph (section `icon` short name via Flatpack `IconComponent`) to the left of the section title and a muted **N article(s)** line (no Badge). Blank icon skips the glyph. Staff section and page forms preview the glyph live beside the Icon field; new pages default to the parent section’s icon. PageTitle is `public_help_title` only — no subtitle on this page.
 
@@ -374,7 +374,7 @@ Dummy kit pins:
 | Moveable | `v3.0.1` |
 | Root Switchable | `v0.5.1` |
 | API | `v0.5.5` (dummy only; not a Support gemspec dependency) |
-| FlatPack | `v0.1.197` (Content + 18px; Flatpack #215) |
+| FlatPack | `v0.1.198` (Content + 18px; Flatpack #215) |
 
 ```bash
 cd test/dummy
