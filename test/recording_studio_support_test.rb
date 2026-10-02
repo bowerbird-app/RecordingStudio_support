@@ -86,7 +86,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.3.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.5.5"'
-    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.196"'
+    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.197"'
     refute_includes gemfile, "recording_studio/v3.0.0"
     refute_includes gemfile, 'tag: "v0.6.1"'
     refute_includes gemfile, 'tag: "v0.1.171"'
@@ -319,7 +319,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "Recording Studio Support"
     assert_includes readme, "v4.2.1"
     assert_includes readme, "v0.9.1"
-    assert_includes readme, "v0.1.196"
+    assert_includes readme, "v0.1.197"
     assert_includes readme, "v0.11.0"
     assert_includes readme, "Support page"
     assert_includes readme, "SupportSection"
