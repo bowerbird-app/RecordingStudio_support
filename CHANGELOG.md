@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+- Dummy and development pins Accessible `v0.11.1`, Admin `v2.0.4`, Attachable `v0.7.1`, Messages `v0.4.3`, Moveable `v3.0.3`, Notifications `v0.3.4`, Notifications Email `v0.3.4`, Orderable `v0.2.5`, Publishable `v0.4.2`, Trashable `v0.4.4`. Dummy also pins Users `v0.12.5` and Root Switchable `v0.5.3`. Flatpack moves to tag `v0.1.198`. Recording Studio stays on `v4.2.2`. API stays on `v0.5.5`.
+- Gemspec Accessible `~> 0.11`, Attachable `~> 0.7`, Messages `~> 0.4`, Publishable `~> 0.4`
+- Dummy Accessible schema includes access invitations and stores roles as strings (`view`, `edit`, `admin`)
+- Dummy API initializer exposes `RecordingStudio::Access.roles` from Accessible's ranked names so API `v0.5.5` can still authorize member actions
+
+### Upgrade notes
+- Pin the kit tags above. Run Accessible's 0.8–0.11 migrations (invitations table, `depends_on_recording_id` if missing, role integer → string). Attachable `v0.7.1` adds `root_recording_id` plus caption/credit/alt on attachments. Messages `v0.4.3` adds public contact intents. Users `v0.12.5` allows blank profile surname and time zone.
+- Grant access through Accessible services (`bootstrap_owner_access!` / `grant_access`). Do not create `RecordingStudio::Access` rows. Roles are strings, not integers.
+- Hosts still on API `v0.5.5` can shim `Access.roles` in the dummy/host initializer (API gem code is not yet Accessible 0.11-native).
+- Pin Flatpack `v0.1.198` (Content + dense lists as `gap-1`).
+
 ## [0.10.0] - 2026-09-23
 
 Signed-in Support ↔ Messages desk. One conversation per user under the Workspace `:support` mount.
@@ -622,7 +636,7 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.8...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.10.0...HEAD
 [0.9.8]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.7...v0.9.8
 [0.9.7]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.6...v0.9.7
 [0.9.6]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.5...v0.9.6

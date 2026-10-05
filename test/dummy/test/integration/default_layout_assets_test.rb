@@ -50,7 +50,7 @@ class DefaultLayoutAssetsTest < ActionDispatch::IntegrationTest
     assert_includes css, "alert-success-background-color"
     assert_includes css, "alert-danger-background-color"
     assert_includes css, "button-secondary-background-color"
-    assert_includes css, "button-ghost-background-color"
+    # Ghost button paint moved to Flatpack kit CSS in 0.1.189+ (not Tailwind-scanned).
   end
 
   test "users auth sign in uses gem layout while still loading Flatpack CSS and JS" do
