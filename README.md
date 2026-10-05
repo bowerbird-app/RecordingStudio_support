@@ -350,6 +350,8 @@ Details: [docs/api.md](docs/api.md).
 
 `test/dummy/` is a host that proves the gem. It is not the product.
 
+Dummy credentials (`test/dummy/config/credentials.yml.enc`) are encrypted with the shared RecordingStudio_* development master key. Set `RAILS_MASTER_KEY` or put that key in `test/dummy/config/master.key` (gitignored). Keep the encrypted file; do not generate a per-repo dummy key.
+
 Dummy help pages — public and staff — use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Dummy overrides that layout file only so Flatpack's built-in `rounded` theme sits on `<html data-theme="rounded">` (https://flatpack.bowerbird.io/). Core puts `data-theme` on `<body>` alone, which is not enough for component tokens. Support screens and Admin Support screens keep that chrome only. Dummy does not inject Sign out or Root Switchable into PageNav (including dummy host pages, `/admin/support`, `/help`, and `/admin`). Access can stay on Admin. Do not put a login button there. Sign-in uses the Users gem (`recording_studio_user` `v0.12.5`): email at `/users/sign_in`, password at `/users/sign_in/password`, layout `recording_studio_user/auth` with `html data-theme="rounded"`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`, `preset: :content`, image upload); dummy Stimulus registers `flat-pack--tiptap` on first paint.
 
 | Field    | Value           |
@@ -390,7 +392,7 @@ Seeds three sections: **Billing**, **Developers**, and **Getting started**, each
 
 ## Cloud Agent boot
 
-`.cursor/install.sh` runs at Cloud Agent Build. It runs `.cursor/fetch-skills.sh` last. To load a new pack, rebuild with Draft off. See [Cursor skills in Cloud Agents](docs/cursor-skills.md).
+`.cursor/install.sh` runs at Cloud Agent Build. If `RAILS_MASTER_KEY` is set in the environment, it writes gitignored `test/dummy/config/master.key` so dummy credentials decrypt. It runs `.cursor/fetch-skills.sh` last. To load a new pack, rebuild with Draft off. See [Cursor skills in Cloud Agents](docs/cursor-skills.md).
 
 ## Engine internals
 
