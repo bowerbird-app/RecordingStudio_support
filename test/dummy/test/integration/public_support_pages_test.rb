@@ -180,7 +180,8 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "img[src='/how-to-update-payment.jpg'][alt*='Billing']"
     assert_select "figure img[src='/how-to-update-payment.jpg']"
     assert_select "ol.flat-pack-list", count: 1
-    assert_select "ol.flat-pack-list.space-y-1", count: 1
+    # Flatpack 0.1.197+: dense lists use flex gap instead of space-y.
+    assert_select "ol.flat-pack-list.gap-1", count: 1
     assert_select "ol.flat-pack-list li", text: /Name on the card/
     assert_select "ol.flat-pack-list li", text: /Card number/
     assert_select "ol.flat-pack-list li", text: /Expiry and security code/

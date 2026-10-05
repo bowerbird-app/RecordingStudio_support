@@ -8,17 +8,17 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_accessible.git
-  revision: bdff3ee3ace5cf3bfe33ba40476c1522cf1b6d61
-  tag: v0.9.1
+  revision: fe2d86aa2d96b843bc05651dc25023fd4546ab37
+  tag: v0.11.1
   specs:
-    recording_studio_accessible (0.9.1)
+    recording_studio_accessible (0.11.0)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_admin.git
-  revision: 1c524c8e73ce66f7701a810abc989dff39ee93a9
-  tag: v2.0.2
+  revision: 2d94e2f1f17cde64bfde756ac9df5dddefbe64ca
+  tag: v2.0.4
   specs:
     recording_studio_admin (2.0.2)
       flat_pack (~> 0.1.129)
@@ -27,10 +27,10 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_attachable.git
-  revision: 7945b22e0151d901daf6a242c54cfac4703148fb
-  tag: v0.5.1
+  revision: dadc3c53997c700bd80f5281e49fba86a26f8104
+  tag: v0.7.1
   specs:
-    recording_studio_attachable (0.5.1)
+    recording_studio_attachable (0.7.0)
       flat_pack (>= 0.1.135)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
@@ -45,21 +45,21 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_messages.git
-  revision: bb543cf2c7d2f3d958650bb922b43dea351bdcd0
-  tag: v0.3.0
+  revision: 1936b835034ea4aa15c5633cbe74d814fa109d2f
+  tag: v0.4.3
   specs:
-    recording_studio_messages (0.3.0)
+    recording_studio_messages (0.4.1)
       flat_pack (~> 0.1.148)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
-      recording_studio_accessible (~> 0.9.1)
-      recording_studio_attachable (~> 0.5.1)
+      recording_studio_accessible (~> 0.11)
+      recording_studio_attachable (~> 0.7)
       recording_studio_notifications (~> 0.3.1)
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_moveable.git
-  revision: 490123dccdf8c803eb1dcfaf5e4cf9406abd889c
-  tag: v3.0.1
+  revision: 0291e76b00f3c8d8065a0cea06daac206ef44cec
+  tag: v3.0.3
   specs:
     recording_studio_moveable (3.0.1)
       rails (>= 8.1.0, < 9.0)
@@ -69,20 +69,20 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_notifications.git
-  revision: 05d9bd3689e12826b26da934b8e1123e3580494e
-  tag: v0.3.1
+  revision: b4b350f17ec09b1ccfaa96e2e6525dad4f0938a8
+  tag: v0.3.4
   specs:
-    recording_studio_notifications (0.3.1)
+    recording_studio_notifications (0.3.2)
       flat_pack
       rails (~> 8.1.0)
-      recording_studio
+      recording_studio (~> 4.2)
       recording_studio_accessible
       view_component
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_notifications_email.git
-  revision: efc252e6f3833b7989e26f62e2f5848d13595aad
-  tag: v0.3.1
+  revision: 1fb9b8f7ef5ed3c58b75eefc1f811d7e96d0c8c3
+  tag: v0.3.4
   specs:
     recording_studio_notifications_email (0.3.1)
       rails (~> 8.1.0)
@@ -91,40 +91,40 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_orderable.git
-  revision: b45bf0739fba574bcf9b83179e1ae0f1adefdd11
-  tag: v0.2.2
+  revision: 78e7513878a8bacf1c4273333690e9914f828f7a
+  tag: v0.2.5
   specs:
-    recording_studio_orderable (0.2.2)
+    recording_studio_orderable (0.2.3)
       flat_pack (>= 0.1.74)
       rails (~> 8.1.0)
       recording_studio (~> 4.1)
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_publishable.git
-  revision: c657fb6f947a491519945a1358b12f4505fb8358
-  tag: v0.3.1
+  revision: 7cfe3d5a827b5d0cd4e62a6adfaf9ddccae3d254
+  tag: v0.4.2
   specs:
-    recording_studio_publishable (0.3.1)
+    recording_studio_publishable (0.4.0)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
       view_component (>= 3.0, < 5.0)
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_trashable.git
-  revision: a3bcd74100575f60dd1850bacfda8bb0fd5d6672
-  tag: v0.4.1
+  revision: 43759d46d191e1258a9498f6bb03a2d9f55efc5b
+  tag: v0.4.4
   specs:
-    recording_studio_trashable (0.4.1)
+    recording_studio_trashable (0.4.2)
       flat_pack (>= 0.1.74)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
 
 GIT
   remote: https://github.com/bowerbird-app/flatpack.git
-  revision: adc3c6ed9ea6644f3e704649a9088e06af7b9f3a
-  ref: adc3c6ed9ea6
+  revision: 20a17d7dcb76686ea5e5964dd6483a455b2a32d6
+  tag: v0.1.198
   specs:
-    flat_pack (0.1.185)
+    flat_pack (0.1.198)
       pagy (~> 9.0)
       rails (>= 7.1, < 9)
       tailwind_merge (~> 0.13)
@@ -136,15 +136,15 @@ PATH
     recording_studio_support (0.10.0)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
-      recording_studio_accessible (~> 0.9.1)
+      recording_studio_accessible (~> 0.11)
       recording_studio_admin (~> 2.0)
-      recording_studio_attachable (~> 0.5.1)
-      recording_studio_messages (~> 0.3.0)
+      recording_studio_attachable (~> 0.7)
+      recording_studio_messages (~> 0.4)
       recording_studio_moveable (~> 3.0)
       recording_studio_notifications (~> 0.3.1)
       recording_studio_notifications_email (~> 0.3.1)
       recording_studio_orderable (~> 0.2)
-      recording_studio_publishable (~> 0.3)
+      recording_studio_publishable (~> 0.4)
       recording_studio_search (~> 0.4)
       recording_studio_trashable (~> 0.4)
 
@@ -452,16 +452,16 @@ DEPENDENCIES
   flat_pack!
   puma
   recording_studio (~> 4.2)!
-  recording_studio_accessible (~> 0.9.1)!
+  recording_studio_accessible (~> 0.11)!
   recording_studio_admin (~> 2.0)!
-  recording_studio_attachable (~> 0.5.1)!
+  recording_studio_attachable (~> 0.7)!
   recording_studio_icons!
-  recording_studio_messages (~> 0.3.0)!
+  recording_studio_messages (~> 0.4)!
   recording_studio_moveable (~> 3.0)!
   recording_studio_notifications (~> 0.3.1)!
   recording_studio_notifications_email (~> 0.3.1)!
   recording_studio_orderable (~> 0.2)!
-  recording_studio_publishable (~> 0.3)!
+  recording_studio_publishable (~> 0.4)!
   recording_studio_search (~> 0.4)!
   recording_studio_support!
   recording_studio_trashable (~> 0.4)!
@@ -498,7 +498,7 @@ CHECKSUMS
   drb (2.2.3) sha256=0b00d6fdb50995fe4a45dea13663493c841112e4068656854646f418fda13373
   erb (6.0.0) sha256=2730893f9d8c9733f16cab315a4e4b71c1afa9cabc1a1e7ad1403feba8f52579
   erubi (1.13.1) sha256=a082103b0885dbc5ecf1172fede897f9ebdb745a4b97a5e8dc63953db1ee4ad9
-  flat_pack (0.1.185)
+  flat_pack (0.1.198)
   globalid (1.3.0) sha256=05c639ad6eb4594522a0b07983022f04aa7254626ab69445a0e493aa3786ff11
   i18n (1.14.7) sha256=ceba573f8138ff2c0915427f1fc5bdf4aa3ab8ae88c8ce255eb3ecf0a11a5d0f
   io-console (0.8.1) sha256=1e15440a6b2f67b6ea496df7c474ed62c860ad11237f29b3bd187f054b925fcb
@@ -548,19 +548,19 @@ CHECKSUMS
   rake (13.3.1) sha256=8c9e89d09f66a26a01264e7e3480ec0607f0c497a861ef16063604b1b08eb19c
   rdoc (6.16.1) sha256=71357cc208e6da77ba0c4494e01ae870dd18b437c7c7d801dd73ee2f340b9f5c
   recording_studio (4.2.1)
-  recording_studio_accessible (0.9.1)
+  recording_studio_accessible (0.11.0)
   recording_studio_admin (2.0.2)
-  recording_studio_attachable (0.5.1)
+  recording_studio_attachable (0.7.0)
   recording_studio_icons (0.1.1)
-  recording_studio_messages (0.3.0)
+  recording_studio_messages (0.4.1)
   recording_studio_moveable (3.0.1)
-  recording_studio_notifications (0.3.1)
+  recording_studio_notifications (0.3.2)
   recording_studio_notifications_email (0.3.1)
-  recording_studio_orderable (0.2.2)
-  recording_studio_publishable (0.3.1)
+  recording_studio_orderable (0.2.3)
+  recording_studio_publishable (0.4.0)
   recording_studio_search (0.4.0)
   recording_studio_support (0.10.0)
-  recording_studio_trashable (0.4.1)
+  recording_studio_trashable (0.4.2)
   regexp_parser (2.11.3) sha256=ca13f381a173b7a93450e53459075c9b76a10433caadcb2f1180f2c741fc55a4
   reline (0.6.3) sha256=1198b04973565b36ec0f11542ab3f5cfeeec34823f4e54cebde90968092b1835
   responders (3.2.0) sha256=89c2d6ac0ae16f6458a11524cae4a8efdceba1a3baea164d28ee9046bd3df55a
