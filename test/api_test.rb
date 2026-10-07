@@ -61,6 +61,26 @@ class ApiTest < Minitest::Test
     assert_includes intercept, "ResourcesLookup"
     assert_includes intercept, "MemberActionsLookup"
     assert_includes intercept, "NestedPageSearch"
+    assert_includes intercept, "SearchDispatch"
+  end
+
+  def test_general_search_covers_sections_and_pages
+    search = File.read(File.expand_path("../lib/recording_studio_support/api/search.rb", __dir__))
+    registration = File.read(File.expand_path("../lib/recording_studio_support/api/registration.rb", __dir__))
+    dispatch = File.read(File.expand_path("../lib/recording_studio_support/api/search_dispatch.rb", __dir__))
+    sections = File.read(File.expand_path("../lib/recording_studio_support/sections.rb", __dir__))
+
+    assert_equal :support_search, RecordingStudioSupport::Api::SEARCH_ENDPOINT
+    assert_equal "support/search", RecordingStudioSupport::Api::SEARCH_PATH
+    assert_includes search, "Sections.apply_query"
+    assert_includes search, "Pages.apply_query"
+    assert_includes search, "scoped_sections"
+    assert_includes search, "scoped_pages"
+    assert_includes sections, "slug ILIKE"
+    assert_includes registration, "RecordingStudioApi.register_endpoint"
+    assert_includes registration, "path: SEARCH_PATH"
+    assert_includes dispatch, "result.fetch(:status, :ok)"
+    refute_includes search, "InstantSearch"
   end
 
   def test_page_index_uses_pages_search_and_a_rate_limit

@@ -12,6 +12,8 @@ require_relative "api/index"
 require_relative "api/show"
 require_relative "api/move"
 require_relative "api/nested_page_search"
+require_relative "api/search"
+require_relative "api/search_dispatch"
 require_relative "api/intercept"
 require_relative "api/controller_ext"
 
@@ -20,6 +22,8 @@ module RecordingStudioSupport
     SECTION_TYPE = "RecordingStudioSupport::SupportSection"
     PAGE_TYPE = "RecordingStudioSupport::SupportPage"
     TYPES = [SECTION_TYPE, PAGE_TYPE].freeze
+    SEARCH_ENDPOINT = :support_search
+    SEARCH_PATH = "support/search"
 
     class << self
       def register!

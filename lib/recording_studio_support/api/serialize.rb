@@ -35,6 +35,14 @@ module RecordingStudioSupport
         }
       end
 
+      def search_collection(recordings, context:, meta:)
+        {
+          resource: Search::RESOURCE_NAME,
+          records: recordings.map { |entry| serialize_entry(entry, context, recordings) },
+          meta: meta
+        }
+      end
+
       def serialize_entry(entry, context, recordings)
         RecordingStudioApi::Serializers::ResourceRecordingSerializer.call(
           entry,

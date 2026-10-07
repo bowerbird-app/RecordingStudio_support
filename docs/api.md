@@ -20,7 +20,7 @@ bin/rails db:migrate
 
 Mount the engine (dummy uses `/recording_studio_api`). Enable `:accessible` and `:api_access_point` on roots that hold API keys. Dummy does this on `Workspace` and `AdminRoot`.
 
-Support registers `support_sections` and `support_pages` on boot when the API gem is loaded.
+Support registers `support_sections` and `support_pages` on boot when the API gem is loaded. It also registers `GET support/search` (`support_search`) via `RecordingStudioApi.register_endpoint` — not a tree recordable.
 
 Live OpenAPI (Scalar) is optional and owned by the API gem. Generate it in the host if you want an explorer. This file is the Support contract even when Scalar is off.
 
@@ -64,7 +64,8 @@ Mount prefix is the host’s API engine path. Dummy uses `/recording_studio_api`
 | `DELETE` | `/recording_studio_api/api/v1/support_sections/:id` | AdminRoot `:edit` | Trash (`Sections.trash!`), not a hard delete |
 | `GET` | `/recording_studio_api/api/v1/support_sections/:id/pages` | `:view` | Pages in that section. `?q=` searches articles |
 | `POST` | `/recording_studio_api/api/v1/support_sections/:id/pages` | AdminRoot `:edit` | Parent from the URL. `title`, optional `body`, `description`, `icon` |
-| `GET` | `/recording_studio_api/api/v1/support_pages` | `:view` | List pages. `?q=` searches articles |
+| `GET` | `/recording_studio_api/api/v1/support/search` | `:view` | General Support search across sections and pages |
+| `GET` | `/recording_studio_api/api/v1/support_pages` | `:view` | List pages. `?q=` searches articles (unchanged) |
 | `POST` | `/recording_studio_api/api/v1/support_pages` | AdminRoot `:edit` | Body: `title`, optional `body`, `description`, `icon`, `parent_id` (section recording) |
 | `GET` | `/recording_studio_api/api/v1/support_pages/:id` | `:view` | One page |
 | `PATCH` | `/recording_studio_api/api/v1/support_pages/:id` | AdminRoot `:edit` | `title`, `description`, `icon`, `body` |
@@ -87,9 +88,13 @@ Recording Studio API also returns recording ids, type, and relationship metadata
 
 ## Search
 
-`GET …/support_pages?q=` and `GET …/support_sections/:id/pages?q=` use `Pages.apply_query` → `SupportPage.search` (trigram on title/body). Not Instant Search.
+`GET …/support/search?q=` is the general Support search: sections **and** pages the client may see. One `records` array. Each item keeps its `type` (`RecordingStudioSupport::SupportSection` or `RecordingStudioSupport::SupportPage`). Default order is matching sections first, then pages. `sort`/`order` of `title` or `created_at` apply **within** each type group. `limit` and `pagination_token` page the combined list.
 
-Empty `q` is a normal index. Staff/admin-root tokens still see drafts. Workspace-only tokens still hide drafts.
+Sections match title/slug with the existing `Sections.apply_query` `ILIKE` rules (no `search_vector`). Pages reuse `Pages.apply_query` → `SupportPage.search` (trigram on title/body). Same Access and per-client `SearchLimit` bucket as list search. Not Instant Search.
+
+`GET …/support_pages?q=` and `GET …/support_sections/:id/pages?q=` keep the same list/nested `?q=` behavior.
+
+Empty `q` is a scoped live index of sections and pages (does not count against the search bucket). Staff/admin-root tokens still see draft pages. Workspace-only tokens still hide drafts and stay scoped to that client’s workspace root.
 
 Search is rate limited **per API client** (default 30 requests per 60 seconds). Over the window: `429`, error code `rate_limit_exceeded`, header `Retry-After`. Tune `api_search_rate_limit_enabled`, `api_search_rate_limit_requests`, and `api_search_rate_limit_period_seconds` on `RecordingStudioSupport.configure`. Keep Recording Studio API read rate limits on in production as well.
 
@@ -102,7 +107,14 @@ GET /recording_studio_api/api/v1/support_pages
 Authorization: Bearer <workspace_token>
 ```
 
-Search articles:
+Search Support (sections and pages):
+
+```http
+GET /recording_studio_api/api/v1/support/search?q=billing
+Authorization: Bearer <token>
+```
+
+List search (`?q=` on the pages collection) is unchanged:
 
 ```http
 GET /recording_studio_api/api/v1/support_pages?q=invoice

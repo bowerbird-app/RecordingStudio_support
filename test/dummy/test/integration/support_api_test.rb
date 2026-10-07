@@ -157,6 +157,118 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_equal destination.id, @live.reload.parent_recording_id
   end
 
+  test "general support search returns matching sections and pages" do
+    billing = record_support_section(@root, title: "Billing")
+    live_hit = record_support_page(@root, billing, title: "Where is my invoice?", body: "Open Billing for invoices.")
+    draft_hit = record_support_page(@root, billing, title: "Draft billing refund", body: "Refunds live in Billing.")
+    miss = record_support_page(@root, @section, title: "Unrelated #{SecureRandom.hex(4)}", body: "Body")
+    publish!(live_hit, slug: "search-live-billing-#{SecureRandom.hex(4)}", status: "published")
+    publish!(draft_hit, slug: "search-draft-billing-#{SecureRandom.hex(4)}", status: "draft")
+    publish!(miss, slug: "search-miss-billing-#{SecureRandom.hex(4)}", status: "published")
+
+    other_workspace = Workspace.create!(name: "Other #{SecureRandom.hex(4)}")
+    other_root = RecordingStudio.root_recording_for(other_workspace)
+    bootstrap_owner!(other_root, @staff)
+    other_section = record_support_section(other_root, title: "Billing")
+    other_hit = record_support_page(other_root, other_section, title: "Other billing invoice", body: "Body")
+    publish!(other_hit, slug: "search-other-billing-#{SecureRandom.hex(4)}", status: "published")
+
+    get "/recording_studio_api/api/v1/support/search",
+        headers: auth(@staff_token),
+        params: { q: "billing" },
+        as: :json
+
+    assert_response :success
+    payload = response.parsed_body
+    records = payload.fetch("records")
+    titles = records.map { |record| record.fetch("title") }
+    types = records.map { |record| record.fetch("type") }
+    assert_equal "support_search", payload.fetch("resource")
+    assert_includes titles, billing.recordable.title
+    assert_includes titles, live_hit.recordable.title
+    assert_includes titles, draft_hit.recordable.title
+    refute_includes titles, miss.recordable.title
+    assert_includes types, "RecordingStudioSupport::SupportSection"
+    assert_includes types, "RecordingStudioSupport::SupportPage"
+    assert_operator types.index("RecordingStudioSupport::SupportSection"), :<, types.index("RecordingStudioSupport::SupportPage")
+    assert_equal "billing", payload.fetch("meta").fetch("q")
+
+    get "/recording_studio_api/api/v1/support/search",
+        headers: auth(@workspace_token),
+        params: { q: "billing" },
+        as: :json
+
+    assert_response :success
+    workspace_records = response.parsed_body.fetch("records")
+    workspace_ids = workspace_records.map { |record| record.fetch("id") }
+    workspace_titles = workspace_records.map { |record| record.fetch("title") }
+    workspace_types = workspace_records.map { |record| record.fetch("type") }
+    assert_includes workspace_ids, billing.id
+    assert_includes workspace_titles, live_hit.recordable.title
+    refute_includes workspace_titles, draft_hit.recordable.title
+    refute_includes workspace_ids, other_section.id
+    refute_includes workspace_ids, other_hit.id
+    assert_includes workspace_types, "RecordingStudioSupport::SupportSection"
+    assert_includes workspace_types, "RecordingStudioSupport::SupportPage"
+  end
+
+  test "general support search is unauthorized without a token and forbids writes" do
+    get "/recording_studio_api/api/v1/support/search", params: { q: "invoice" }, as: :json
+
+    assert_response :unauthorized
+
+    post "/recording_studio_api/api/v1/support/search",
+         headers: auth(@workspace_token),
+         params: { q: "invoice" },
+         as: :json
+
+    assert_response :unprocessable_entity
+  end
+
+  test "empty q on general support search is a scoped live section and page index" do
+    get "/recording_studio_api/api/v1/support/search",
+        headers: auth(@workspace_token),
+        params: { q: "" },
+        as: :json
+
+    assert_response :success
+    records = response.parsed_body.fetch("records")
+    titles = records.map { |record| record.fetch("title") }
+    types = records.map { |record| record.fetch("type") }
+    assert_includes titles, @section.recordable.title
+    assert_includes titles, @live.recordable.title
+    refute_includes titles, @draft.recordable.title
+    assert_includes types, "RecordingStudioSupport::SupportSection"
+    assert_includes types, "RecordingStudioSupport::SupportPage"
+    assert_operator types.index("RecordingStudioSupport::SupportSection"), :<, types.index("RecordingStudioSupport::SupportPage")
+    refute response.parsed_body.fetch("meta").key?("q")
+  end
+
+  test "general support search shares the article search rate limit" do
+    original_limit = RecordingStudioSupport.configuration.api_search_rate_limit_requests
+    RecordingStudioSupport.configuration.api_search_rate_limit_requests = 1
+    RecordingStudioSupport::Api::SearchLimit.reset!
+
+    get "/recording_studio_api/api/v1/support/search",
+        headers: auth(@workspace_token),
+        params: { q: "invoice" },
+        as: :json
+
+    assert_response :success
+
+    get "/recording_studio_api/api/v1/support_pages",
+        headers: auth(@workspace_token),
+        params: { q: "invoice" },
+        as: :json
+
+    assert_response :too_many_requests
+    assert_equal "rate_limit_exceeded", response.parsed_body.dig("error", "code")
+    assert response.headers["Retry-After"].present?
+  ensure
+    RecordingStudioSupport.configuration.api_search_rate_limit_requests = original_limit
+    RecordingStudioSupport::Api::SearchLimit.reset!
+  end
+
   test "q searches articles through SupportPage search" do
     token = "Zephyr#{SecureRandom.hex(4)}"
     live_hit = record_support_page(@root, @section, title: "#{token} live receipt", body: "Body")
