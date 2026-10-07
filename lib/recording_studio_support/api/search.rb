@@ -1,5 +1,9 @@
 # frozen_string_literal: true
 
+require_relative "search/context"
+require_relative "search/token"
+require_relative "search/paging"
+
 module RecordingStudioSupport
   module Api
     class Search
@@ -36,7 +40,7 @@ module RecordingStudioSupport
       attr_reader :context
 
       def payload
-        @payload ||= paginate(matched_recordings)
+        @payload ||= Paging.new(context: context, sort: group_sort, order: group_order).call(matched_recordings)
       end
 
       def authorize!
@@ -57,8 +61,7 @@ module RecordingStudioSupport
       end
 
       def scoped_pages
-        relation = apply_workspace_scope(kept(PAGE_TYPE))
-        relation = apply_live_only(relation)
+        relation = apply_live_only(apply_workspace_scope(kept(PAGE_TYPE)))
         Pages.apply_query(relation, search_term).preload(:recordable)
       end
 
@@ -87,29 +90,9 @@ module RecordingStudioSupport
       end
 
       def group_sort_key(recording, sort)
-        if sort == "created_at"
-          [recording.created_at, recording.id]
-        else
-          [recording.recordable.title.to_s.downcase, recording.id]
-        end
-      end
+        return [recording.created_at, recording.id] if sort == "created_at"
 
-      def paginate(rows)
-        limit = normalize_limit
-        offset = token_offset
-        page = Array(rows[offset, limit])
-        has_more = rows.length > offset + limit
-
-        {
-          rows: page,
-          meta: {
-            limit: limit,
-            sort: group_sort.presence || "kind",
-            order: group_sort.present? ? group_order.to_s : "asc",
-            has_more: has_more,
-            next_pagination_token: (encode_offset(offset + limit) if has_more)
-          }
-        }
+        [recording.recordable.title.to_s.downcase, recording.id]
       end
 
       def collection_meta(meta)
@@ -119,58 +102,8 @@ module RecordingStudioSupport
         meta.merge(q: term)
       end
 
-      def normalize_limit
-        requested = context.params[:limit].to_i
-        requested = pagination_default_limit if requested <= 0
-        [requested, pagination_max_limit].min
-      end
-
-      def pagination_default_limit
-        configured_limit(:pagination_default_limit, DEFAULT_LIMIT)
-      end
-
-      def pagination_max_limit
-        configured_limit(:pagination_max_limit, MAX_LIMIT)
-      end
-
-      def configured_limit(name, fallback)
-        return fallback unless defined?(RecordingStudioApi)
-
-        value = RecordingStudioApi.configuration.public_send(name).to_i
-        value.positive? ? value : fallback
-      rescue StandardError
-        fallback
-      end
-
-      def token_offset
-        token = context.params[:pagination_token].presence || context.params["pagination_token"].presence
-        return 0 if token.blank?
-
-        payload = token_verifier.verify(token.to_s, purpose: TOKEN_PURPOSE)
-        raise invalid_token unless payload.is_a?(Hash)
-
-        offset = payload.fetch("o")
-        raise invalid_token unless offset.is_a?(Integer) && offset >= 0
-
-        offset
-      rescue ActiveSupport::MessageVerifier::InvalidSignature, KeyError, TypeError
-        raise invalid_token
-      end
-
-      def encode_offset(offset)
-        token_verifier.generate({ "o" => offset }, purpose: TOKEN_PURPOSE)
-      end
-
-      def token_verifier
-        Rails.application.message_verifier(TOKEN_PURPOSE)
-      end
-
-      def invalid_token
-        RecordingStudioApi::InvalidPaginationTokenError.new("Invalid pagination token")
-      end
-
       def group_sort
-        value = (context.params[:sort].presence || context.params["sort"].presence).to_s
+        value = param(:sort).to_s
         return if value.blank? || value == "kind"
         return unless GROUP_SORTS.include?(value)
 
@@ -178,45 +111,18 @@ module RecordingStudioSupport
       end
 
       def group_order
-        value = (context.params[:order].presence || context.params["order"].presence).to_s.downcase
-        value == "desc" ? :desc : :asc
+        param(:order).to_s.downcase == "desc" ? :desc : :asc
       end
 
       def search_term
-        params = context.params
-        return "" unless params.respond_to?(:[])
-
-        (params[:q].presence || params["q"].presence).to_s
+        param(:q).to_s
       end
 
-      class Context
-        def initialize(endpoint_context)
-          @endpoint_context = endpoint_context
-        end
+      def param(key)
+        params = context.params
+        return unless params.respond_to?(:[])
 
-        def resource_name
-          RESOURCE_NAME
-        end
-
-        def api_version
-          "v1"
-        end
-
-        def api_client
-          @endpoint_context.api_client
-        end
-
-        def access_grant
-          @endpoint_context.access_grant
-        end
-
-        def params
-          @endpoint_context.params
-        end
-
-        def api_key
-          @endpoint_context.api_key
-        end
+        params[key].presence || params[key.to_s].presence
       end
     end
   end
