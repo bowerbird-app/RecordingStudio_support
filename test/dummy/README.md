@@ -75,7 +75,7 @@ OTP is off (`otp_enabled = false`). OmniAuth Continue-with buttons appear only w
 - `/recording_studio_api/oauth/token` - OAuth `client_credentials` for a bearer token
 - `/recording_studio_api/api/v1/support_sections` - JSON sections (`GET` list, `POST` create). Item: `GET`/`PATCH`/`DELETE …/:id`
 - `/recording_studio_api/api/v1/support_sections/:id/pages` - nested pages (`GET` list, `POST` create). `?q=` searches articles
-- `/recording_studio_api/api/v1/support/search` - general article search (`GET ?q=`). Same Access and search rate limit as list `?q=`
+- `/recording_studio_api/api/v1/support/search` - general Support search (`GET ?q=`). Sections and pages in one `records` array; same Access and search rate limit as list `?q=`
 - `/recording_studio_api/api/v1/support_pages` - JSON pages (`GET` list, `POST` create). Item: `GET`/`PATCH`/`DELETE …/:id`. `?q=` searches; extra searches in a minute return `429`
 - `/recording_studio_api/api/v1/support_pages/:id/actions/move` - move a page (`POST`, staff token)
 - `/recording_studio` - redirects to `/` while the mounted Recording Studio engine stays available under that prefix for non-root routes

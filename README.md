@@ -327,7 +327,7 @@ Bearer token: `POST /recording_studio_api/oauth/token` (`client_credentials`), t
 | `GET` `PATCH` `DELETE` | `/recording_studio_api/api/v1/support_pages/:id` |
 | `POST` | `/recording_studio_api/api/v1/support_pages/:id/actions/move` |
 
-`GET support/search?q=` is the general page search. `GET support_pages?q=` (and nested `support_sections/:id/pages?q=`) still runs the same `Pages` / `SupportPage.search` lookup as staff and public lists. Instant UI is not used. Searches are rate limited per API client (default 30 per minute, `429` with `Retry-After`). Tune `api_search_rate_limit_enabled`, `api_search_rate_limit_requests`, and `api_search_rate_limit_period_seconds`. Keep Recording Studio API read rate limits on in production as well.
+`GET support/search?q=` is the general Support search (sections then pages in one `records` array). `GET support_pages?q=` (and nested `support_sections/:id/pages?q=`) still runs the same `Pages` / `SupportPage.search` lookup as staff and public lists. Instant UI is not used. Searches are rate limited per API client (default 30 per minute, `429` with `Retry-After`). Tune `api_search_rate_limit_enabled`, `api_search_rate_limit_requests`, and `api_search_rate_limit_period_seconds`. Keep Recording Studio API read rate limits on in production as well.
 
 Do not add a Support `ApiController`. Domain writes stay `Pages` / `Sections`. Public anonymous browse stays `/help`.
 

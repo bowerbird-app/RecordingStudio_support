@@ -115,7 +115,7 @@ Endpoints: [docs/api.md](api.md). Design: [docs/api-plan.md](api-plan.md). Dummy
 
 Accessible is the only access check. Admin is the staff UI. API writes use AdminRoot `:edit` (same as `authorize_support!(:edit)`). API reads use `:view` on the workspace that owns the page **or** on the admin root. Workspace `:edit` without AdminRoot does not create, revise, trash, or move. Anonymous JSON is out; `/help` stays the public browse.
 
-Article search is `GET …/support/search?q=` (and list `GET …/support_pages?q=`) through `SupportPage.search`, with a per-client search rate limit. Instant stays HTML-only.
+Article search is `GET …/support/search?q=` (sections via title/slug `ILIKE`, pages via `SupportPage.search`) plus list `GET …/support_pages?q=`. Per-client search rate limit. Instant stays HTML-only.
 
 ---
 

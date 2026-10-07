@@ -157,44 +157,59 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_equal destination.id, @live.reload.parent_recording_id
   end
 
-  test "general support search returns matches for authorized clients" do
-    token = "Quasar#{SecureRandom.hex(4)}"
-    live_hit = record_support_page(@root, @section, title: "#{token} live receipt", body: "Body")
-    draft_hit = record_support_page(@root, @section, title: "#{token} draft receipt", body: "Body")
+  test "general support search returns matching sections and pages" do
+    billing = record_support_section(@root, title: "Billing")
+    live_hit = record_support_page(@root, billing, title: "Where is my invoice?", body: "Open Billing for invoices.")
+    draft_hit = record_support_page(@root, billing, title: "Draft billing refund", body: "Refunds live in Billing.")
     miss = record_support_page(@root, @section, title: "Unrelated #{SecureRandom.hex(4)}", body: "Body")
-    publish!(live_hit, slug: "search-live-#{token}", status: "published")
-    publish!(draft_hit, slug: "search-draft-#{token}", status: "draft")
-    publish!(miss, slug: "search-miss-#{token}", status: "published")
+    publish!(live_hit, slug: "search-live-billing-#{SecureRandom.hex(4)}", status: "published")
+    publish!(draft_hit, slug: "search-draft-billing-#{SecureRandom.hex(4)}", status: "draft")
+    publish!(miss, slug: "search-miss-billing-#{SecureRandom.hex(4)}", status: "published")
 
     other_workspace = Workspace.create!(name: "Other #{SecureRandom.hex(4)}")
     other_root = RecordingStudio.root_recording_for(other_workspace)
     bootstrap_owner!(other_root, @staff)
-    other_section = record_support_section(other_root, title: "Other section #{SecureRandom.hex(4)}")
-    other_hit = record_support_page(other_root, other_section, title: "#{token} other workspace", body: "Body")
-    publish!(other_hit, slug: "search-other-#{token}", status: "published")
+    other_section = record_support_section(other_root, title: "Billing")
+    other_hit = record_support_page(other_root, other_section, title: "Other billing invoice", body: "Body")
+    publish!(other_hit, slug: "search-other-billing-#{SecureRandom.hex(4)}", status: "published")
 
     get "/recording_studio_api/api/v1/support/search",
         headers: auth(@staff_token),
-        params: { q: token },
+        params: { q: "billing" },
         as: :json
 
     assert_response :success
-    titles = response.parsed_body.fetch("records").map { |record| record.fetch("title") }
+    payload = response.parsed_body
+    records = payload.fetch("records")
+    titles = records.map { |record| record.fetch("title") }
+    types = records.map { |record| record.fetch("type") }
+    assert_equal "support_search", payload.fetch("resource")
+    assert_includes titles, billing.recordable.title
     assert_includes titles, live_hit.recordable.title
     assert_includes titles, draft_hit.recordable.title
     refute_includes titles, miss.recordable.title
-    assert_equal token, response.parsed_body.fetch("meta").fetch("q")
+    assert_includes types, "RecordingStudioSupport::SupportSection"
+    assert_includes types, "RecordingStudioSupport::SupportPage"
+    assert_operator types.index("RecordingStudioSupport::SupportSection"), :<, types.index("RecordingStudioSupport::SupportPage")
+    assert_equal "billing", payload.fetch("meta").fetch("q")
 
     get "/recording_studio_api/api/v1/support/search",
         headers: auth(@workspace_token),
-        params: { q: token },
+        params: { q: "billing" },
         as: :json
 
     assert_response :success
-    workspace_titles = response.parsed_body.fetch("records").map { |record| record.fetch("title") }
+    workspace_records = response.parsed_body.fetch("records")
+    workspace_ids = workspace_records.map { |record| record.fetch("id") }
+    workspace_titles = workspace_records.map { |record| record.fetch("title") }
+    workspace_types = workspace_records.map { |record| record.fetch("type") }
+    assert_includes workspace_ids, billing.id
     assert_includes workspace_titles, live_hit.recordable.title
     refute_includes workspace_titles, draft_hit.recordable.title
-    refute_includes workspace_titles, other_hit.recordable.title
+    refute_includes workspace_ids, other_section.id
+    refute_includes workspace_ids, other_hit.id
+    assert_includes workspace_types, "RecordingStudioSupport::SupportSection"
+    assert_includes workspace_types, "RecordingStudioSupport::SupportPage"
   end
 
   test "general support search is unauthorized without a token and forbids writes" do
@@ -210,16 +225,22 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
-  test "empty q on general support search is an unfiltered scoped index" do
+  test "empty q on general support search is a scoped live section and page index" do
     get "/recording_studio_api/api/v1/support/search",
         headers: auth(@workspace_token),
         params: { q: "" },
         as: :json
 
     assert_response :success
-    titles = response.parsed_body.fetch("records").map { |record| record.fetch("title") }
+    records = response.parsed_body.fetch("records")
+    titles = records.map { |record| record.fetch("title") }
+    types = records.map { |record| record.fetch("type") }
+    assert_includes titles, @section.recordable.title
     assert_includes titles, @live.recordable.title
     refute_includes titles, @draft.recordable.title
+    assert_includes types, "RecordingStudioSupport::SupportSection"
+    assert_includes types, "RecordingStudioSupport::SupportPage"
+    assert_operator types.index("RecordingStudioSupport::SupportSection"), :<, types.index("RecordingStudioSupport::SupportPage")
     refute response.parsed_body.fetch("meta").key?("q")
   end
 

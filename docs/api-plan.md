@@ -35,7 +35,7 @@ The **host** adds the API gem, runs its install/migrations, mounts the engine, e
 
 ## Registration
 
-Register both types when `RecordingStudioApi` is defined (`to_prepare`). Resource names are `support_sections` and `support_pages`. Register general article search with `RecordingStudioApi.register_endpoint` (`support_search`, `GET support/search`) — it is not a tree recordable.
+Register both types when `RecordingStudioApi` is defined (`to_prepare`). Resource names are `support_sections` and `support_pages`. Register general Support search (sections and pages) with `RecordingStudioApi.register_endpoint` (`support_search`, `GET support/search`) — it is not a tree recordable.
 
 ```ruby
 RecordingStudioApi.register_recordable_type_api(
@@ -132,7 +132,7 @@ Stock Index/Show can stay if they honor `:view` on workspace **or** admin root. 
 - AdminRoot `:edit` (or `:view` if we mirror staff preview) — include drafts
 - Workspace `:view` without admin write — live/`indexable` pages only, matching public `/help`
 
-`GET support/search?q=` is the general page search (`register_endpoint` `support_search`). It reuses `Pages.apply_query` → `SupportPage.search` (trigram), Index Access/scoping, and `SearchLimit`. Not Instant Search. Sections are not mixed in (no shared search vector). Rate limit searches per API client (default 30/minute). Empty `q` is a normal index and does not count against that bucket.
+`GET support/search?q=` is the general Support search (`register_endpoint` `support_search`). Sections match title/slug `ILIKE` (`Sections.apply_query`). Pages reuse `Pages.apply_query` → `SupportPage.search` (trigram). One `records` array; default order is sections then pages. Index Access/scoping and `SearchLimit` stay the same. Not Instant Search. No shared `search_vector` on sections. Rate limit searches per API client (default 30/minute). Empty `q` is a scoped live index of sections and pages and does not count against that bucket.
 
 `GET support_pages?q=` and nested `GET support_sections/:id/pages?q=` keep list/nested `?q=` unchanged.
 
@@ -168,7 +168,7 @@ Dummy suite:
 - Missing token: `401`
 - Draft pages absent from workspace-only index; present for admin-root read if we include drafts for staff
 - `q` on page index uses Search; workspace-only clients still hide drafts; over-limit search is `429`
-- `GET support/search?q=` returns the same matches/Access/rate-limit behavior; list `?q=` still works; empty `q` is an unfiltered scoped index; workspace tokens stay on their root
+- `GET support/search?q=` returns matching sections and pages; list `?q=` still works; empty `q` is a scoped live section+page index; workspace tokens stay on their root
 
 ## Out of scope
 

@@ -62,9 +62,10 @@ module RecordingStudioSupport
       term = query.to_s.strip
       return ordered(relation) if term.blank?
 
+      like = "%#{ActiveRecord::Base.sanitize_sql_like(term)}%"
       relation.joins(section_join_sql).where(
-        "recording_studio_support_sections.title ILIKE :q",
-        q: "%#{ActiveRecord::Base.sanitize_sql_like(term)}%"
+        "recording_studio_support_sections.title ILIKE :q OR recording_studio_support_sections.slug ILIKE :q",
+        q: like
       )
     end
 

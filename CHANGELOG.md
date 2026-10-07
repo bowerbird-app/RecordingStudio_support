@@ -7,10 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- General Support search at `GET /recording_studio_api/api/v1/support/search?q=` (`support_search`) returns matching **sections and pages** in one `records` array (sections first, then pages). Sections use title/slug `ILIKE`; pages use `SupportPage.search`. Empty `q` is a scoped live section+page index.
+
 ## [0.11.0] - 2026-10-07
 
 ### Added
-- General Support article search at `GET /recording_studio_api/api/v1/support/search?q=` (`register_endpoint` name `support_search`). Reuses `Pages.apply_query` / `SupportPage.search`, Index Access/scoping, pagination, and the existing per-client `SearchLimit`. List and nested `?q=` on `support_pages` are unchanged. Sections are not mixed in (no shared search vector).
+- General Support search at `GET /recording_studio_api/api/v1/support/search?q=` (`register_endpoint` name `support_search`). One `records` array of matching `SupportSection` and `SupportPage` records (default order: sections, then pages). Sections match title/slug via `Sections.apply_query` (`ILIKE`; no `search_vector`). Pages reuse `Pages.apply_query` / `SupportPage.search`. Same Access/scoping and per-client `SearchLimit` as list `?q=`. Empty `q` is a scoped live index of sections and pages and does not count against the bucket. List and nested `?q=` on `support_pages` are unchanged.
 
 ### Changed
 - Dummy and development pins Accessible `v0.11.1`, Admin `v2.0.4`, Attachable `v0.7.1`, Messages `v0.4.3`, Moveable `v3.0.3`, Notifications `v0.3.4`, Notifications Email `v0.3.4`, Orderable `v0.2.5`, Publishable `v0.4.2`, Trashable `v0.4.4`. Dummy also pins Users `v0.12.5` and Root Switchable `v0.5.3`. Flatpack moves to tag `v0.1.198`. Recording Studio stays on `v4.2.2`. API stays on `v0.5.5`.

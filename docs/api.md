@@ -64,7 +64,7 @@ Mount prefix is the host’s API engine path. Dummy uses `/recording_studio_api`
 | `DELETE` | `/recording_studio_api/api/v1/support_sections/:id` | AdminRoot `:edit` | Trash (`Sections.trash!`), not a hard delete |
 | `GET` | `/recording_studio_api/api/v1/support_sections/:id/pages` | `:view` | Pages in that section. `?q=` searches articles |
 | `POST` | `/recording_studio_api/api/v1/support_sections/:id/pages` | AdminRoot `:edit` | Parent from the URL. `title`, optional `body`, `description`, `icon` |
-| `GET` | `/recording_studio_api/api/v1/support/search` | `:view` | General article search across pages. `?q=` uses `Pages.apply_query` → `SupportPage.search` |
+| `GET` | `/recording_studio_api/api/v1/support/search` | `:view` | General Support search across sections and pages |
 | `GET` | `/recording_studio_api/api/v1/support_pages` | `:view` | List pages. `?q=` searches articles (unchanged) |
 | `POST` | `/recording_studio_api/api/v1/support_pages` | AdminRoot `:edit` | Body: `title`, optional `body`, `description`, `icon`, `parent_id` (section recording) |
 | `GET` | `/recording_studio_api/api/v1/support_pages/:id` | `:view` | One page |
@@ -88,11 +88,13 @@ Recording Studio API also returns recording ids, type, and relationship metadata
 
 ## Search
 
-`GET …/support/search?q=` is the general Support search: all pages the client may see (not nested to one section). It reuses `Pages.apply_query` → `SupportPage.search` (trigram on title/body), Access, pagination, and the same per-client `SearchLimit` bucket as list search. Not Instant Search. Sections stay off this endpoint: they have no `search_vector` (title `ILIKE` only).
+`GET …/support/search?q=` is the general Support search: sections **and** pages the client may see. One `records` array. Each item keeps its `type` (`RecordingStudioSupport::SupportSection` or `RecordingStudioSupport::SupportPage`). Default order is matching sections first, then pages. `sort`/`order` of `title` or `created_at` apply **within** each type group. `limit` and `pagination_token` page the combined list.
+
+Sections match title/slug with the existing `Sections.apply_query` `ILIKE` rules (no `search_vector`). Pages reuse `Pages.apply_query` → `SupportPage.search` (trigram on title/body). Same Access and per-client `SearchLimit` bucket as list search. Not Instant Search.
 
 `GET …/support_pages?q=` and `GET …/support_sections/:id/pages?q=` keep the same list/nested `?q=` behavior.
 
-Empty `q` is a normal page index (does not count against the search bucket). Staff/admin-root tokens still see drafts. Workspace-only tokens still hide drafts and stay scoped to that client’s workspace root.
+Empty `q` is a scoped live index of sections and pages (does not count against the search bucket). Staff/admin-root tokens still see draft pages. Workspace-only tokens still hide drafts and stay scoped to that client’s workspace root.
 
 Search is rate limited **per API client** (default 30 requests per 60 seconds). Over the window: `429`, error code `rate_limit_exceeded`, header `Retry-After`. Tune `api_search_rate_limit_enabled`, `api_search_rate_limit_requests`, and `api_search_rate_limit_period_seconds` on `RecordingStudioSupport.configure`. Keep Recording Studio API read rate limits on in production as well.
 
@@ -105,10 +107,10 @@ GET /recording_studio_api/api/v1/support_pages
 Authorization: Bearer <workspace_token>
 ```
 
-Search articles (general, all pages in scope):
+Search Support (sections and pages):
 
 ```http
-GET /recording_studio_api/api/v1/support/search?q=invoice
+GET /recording_studio_api/api/v1/support/search?q=billing
 Authorization: Bearer <token>
 ```
 

@@ -6,10 +6,11 @@ module RecordingStudioSupport
       module_function
 
       SEARCH_OPENAPI = {
-        summary: "Search Support pages",
-        description: "Search kept Support pages with `q` through Pages.apply_query / SupportPage.search. " \
+        summary: "Search Support sections and pages",
+        description: "Search kept Support sections (title/slug ILIKE) and pages " \
+                     "(Pages.apply_query / SupportPage.search). One records array; sections first, then pages. " \
                      "Same Access and per-client search rate limit as GET support_pages?q=. " \
-                     "Empty q is an unfiltered page list and does not count against that limit. " \
+                     "Empty q is a scoped live index of sections and pages and does not count against that limit. " \
                      "List collection ?q= is unchanged.",
         tags: ["Endpoints"],
         parameters: [
@@ -18,7 +19,8 @@ module RecordingStudioSupport
             in: "query",
             required: false,
             schema: { type: "string" },
-            description: "Article search term (trigram on title/body). Blank returns the scoped page list."
+            description: "Search term. Sections match title/slug ILIKE; pages match title/body trigram. " \
+                         "Blank returns the scoped live section+page index."
           },
           {
             name: "limit",
