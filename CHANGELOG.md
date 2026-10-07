@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.11.0] - 2026-10-07
+
+### Added
+- General Support article search at `GET /recording_studio_api/api/v1/support/search?q=` (`register_endpoint` name `support_search`). Reuses `Pages.apply_query` / `SupportPage.search`, Index Access/scoping, pagination, and the existing per-client `SearchLimit`. List and nested `?q=` on `support_pages` are unchanged. Sections are not mixed in (no shared search vector).
+
 ### Changed
 - Dummy and development pins Accessible `v0.11.1`, Admin `v2.0.4`, Attachable `v0.7.1`, Messages `v0.4.3`, Moveable `v3.0.3`, Notifications `v0.3.4`, Notifications Email `v0.3.4`, Orderable `v0.2.5`, Publishable `v0.4.2`, Trashable `v0.4.4`. Dummy also pins Users `v0.12.5` and Root Switchable `v0.5.3`. Flatpack moves to tag `v0.1.198`. Recording Studio stays on `v4.2.2`. API stays on `v0.5.5`.
 - Gemspec Accessible `~> 0.11`, Attachable `~> 0.7`, Messages `~> 0.4`, Publishable `~> 0.4`
@@ -636,7 +641,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.10.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.11.0...HEAD
+[0.11.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.10.0...v0.11.0
 [0.9.8]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.7...v0.9.8
 [0.9.7]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.6...v0.9.7
 [0.9.6]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.5...v0.9.6

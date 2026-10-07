@@ -309,7 +309,7 @@ Who can create, revise, publish, and trash is spelled out in [docs/process-flows
 
 ## JSON API
 
-Support does not gemspec-depend on `recording_studio_api`. If the host adds that gem, Support registers `support_sections` and `support_pages` on boot.
+Support does not gemspec-depend on `recording_studio_api`. If the host adds that gem, Support registers `support_sections` and `support_pages` on boot, plus `GET support/search`.
 
 Full contract for hosts and AI agents: **[docs/api.md](docs/api.md)** (auth, fields, search, examples). Design notes: [docs/api-plan.md](docs/api-plan.md).
 
@@ -322,11 +322,12 @@ Bearer token: `POST /recording_studio_api/oauth/token` (`client_credentials`), t
 | `GET` `POST` | `/recording_studio_api/api/v1/support_sections` |
 | `GET` `PATCH` `DELETE` | `/recording_studio_api/api/v1/support_sections/:id` |
 | `GET` `POST` | `/recording_studio_api/api/v1/support_sections/:id/pages` |
+| `GET` | `/recording_studio_api/api/v1/support/search` |
 | `GET` `POST` | `/recording_studio_api/api/v1/support_pages` |
 | `GET` `PATCH` `DELETE` | `/recording_studio_api/api/v1/support_pages/:id` |
 | `POST` | `/recording_studio_api/api/v1/support_pages/:id/actions/move` |
 
-`GET support_pages?q=` (and nested `support_sections/:id/pages?q=`) runs the same `Pages` / `SupportPage.search` lookup as staff and public lists. Instant UI is not used. Searches are rate limited per API client (default 30 per minute, `429` with `Retry-After`). Tune `api_search_rate_limit_enabled`, `api_search_rate_limit_requests`, and `api_search_rate_limit_period_seconds`. Keep Recording Studio API read rate limits on in production as well.
+`GET support/search?q=` is the general page search. `GET support_pages?q=` (and nested `support_sections/:id/pages?q=`) still runs the same `Pages` / `SupportPage.search` lookup as staff and public lists. Instant UI is not used. Searches are rate limited per API client (default 30 per minute, `429` with `Retry-After`). Tune `api_search_rate_limit_enabled`, `api_search_rate_limit_requests`, and `api_search_rate_limit_period_seconds`. Keep Recording Studio API read rate limits on in production as well.
 
 Do not add a Support `ApiController`. Domain writes stay `Pages` / `Sections`. Public anonymous browse stays `/help`.
 

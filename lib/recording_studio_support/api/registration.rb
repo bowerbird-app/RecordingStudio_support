@@ -5,9 +5,52 @@ module RecordingStudioSupport
     module Registration
       module_function
 
+      SEARCH_OPENAPI = {
+        summary: "Search Support pages",
+        description: "Search kept Support pages with `q` through Pages.apply_query / SupportPage.search. " \
+                     "Same Access and per-client search rate limit as GET support_pages?q=. " \
+                     "Empty q is an unfiltered page list and does not count against that limit. " \
+                     "List collection ?q= is unchanged.",
+        tags: ["Endpoints"],
+        parameters: [
+          {
+            name: "q",
+            in: "query",
+            required: false,
+            schema: { type: "string" },
+            description: "Article search term (trigram on title/body). Blank returns the scoped page list."
+          },
+          {
+            name: "limit",
+            in: "query",
+            required: false,
+            schema: { type: "integer" }
+          },
+          {
+            name: "pagination_token",
+            in: "query",
+            required: false,
+            schema: { type: "string" }
+          },
+          {
+            name: "sort",
+            in: "query",
+            required: false,
+            schema: { type: "string" }
+          },
+          {
+            name: "order",
+            in: "query",
+            required: false,
+            schema: { type: "string" }
+          }
+        ]
+      }.freeze
+
       def register!
         register_sections!
         register_pages!
+        register_search!
       end
 
       def register_sections!
@@ -31,6 +74,19 @@ module RecordingStudioSupport
           sortable_attributes: %i[title],
           operations: %i[index show create update destroy],
           capability_actions: %i[move]
+        )
+      end
+
+      def register_search!
+        return unless RecordingStudioApi.respond_to?(:register_endpoint)
+        return if RecordingStudioApi.registered_endpoint(SEARCH_ENDPOINT)
+
+        RecordingStudioApi.register_endpoint(
+          SEARCH_ENDPOINT,
+          http_verb: :get,
+          path: SEARCH_PATH,
+          handler: Search,
+          openapi: SEARCH_OPENAPI
         )
       end
 

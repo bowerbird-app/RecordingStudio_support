@@ -35,7 +35,7 @@ The **host** adds the API gem, runs its install/migrations, mounts the engine, e
 
 ## Registration
 
-Register both types when `RecordingStudioApi` is defined (`to_prepare`). Resource names are `support_sections` and `support_pages`.
+Register both types when `RecordingStudioApi` is defined (`to_prepare`). Resource names are `support_sections` and `support_pages`. Register general article search with `RecordingStudioApi.register_endpoint` (`support_search`, `GET support/search`) — it is not a tree recordable.
 
 ```ruby
 RecordingStudioApi.register_recordable_type_api(
@@ -86,6 +86,17 @@ RecordingStudioApi.register_recordable_type_api(
 
 Do not use `register_endpoint` for these. They are tree recordables.
 
+Use `register_endpoint` for general article search (not a collection):
+
+```ruby
+RecordingStudioApi.register_endpoint(
+  :support_search,
+  http_verb: :get,
+  path: "support/search",
+  handler: RecordingStudioSupport::Api::Search
+)
+```
+
 ## Routes (public API v1)
 
 ```text
@@ -97,6 +108,8 @@ DELETE /recording_studio_api/api/v1/support_sections/:id
 
 GET    /recording_studio_api/api/v1/support_sections/:id/pages
 POST   /recording_studio_api/api/v1/support_sections/:id/pages
+
+GET    /recording_studio_api/api/v1/support/search
 
 GET    /recording_studio_api/api/v1/support_pages
 POST   /recording_studio_api/api/v1/support_pages
@@ -119,7 +132,9 @@ Stock Index/Show can stay if they honor `:view` on workspace **or** admin root. 
 - AdminRoot `:edit` (or `:view` if we mirror staff preview) — include drafts
 - Workspace `:view` without admin write — live/`indexable` pages only, matching public `/help`
 
-`GET support_pages?q=` and nested `GET support_sections/:id/pages?q=` use `Pages.apply_query` → `SupportPage.search` (trigram). Not Instant Search. Rate limit searches per API client (default 30/minute). Empty `q` is a normal index and does not count against that bucket.
+`GET support/search?q=` is the general page search (`register_endpoint` `support_search`). It reuses `Pages.apply_query` → `SupportPage.search` (trigram), Index Access/scoping, and `SearchLimit`. Not Instant Search. Sections are not mixed in (no shared search vector). Rate limit searches per API client (default 30/minute). Empty `q` is a normal index and does not count against that bucket.
+
+`GET support_pages?q=` and nested `GET support_sections/:id/pages?q=` keep list/nested `?q=` unchanged.
 
 Replace Create / Update / Destroy with Support handlers:
 
@@ -153,6 +168,7 @@ Dummy suite:
 - Missing token: `401`
 - Draft pages absent from workspace-only index; present for admin-root read if we include drafts for staff
 - `q` on page index uses Search; workspace-only clients still hide drafts; over-limit search is `429`
+- `GET support/search?q=` returns the same matches/Access/rate-limit behavior; list `?q=` still works; empty `q` is an unfiltered scoped index; workspace tokens stay on their root
 
 ## Out of scope
 
