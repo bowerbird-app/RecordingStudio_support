@@ -67,6 +67,20 @@ class ApiTest < Minitest::Test
     refute File.exist?(File.expand_path("../lib/recording_studio_support/api/controller_ext.rb", __dir__))
     refute File.exist?(File.expand_path("../lib/recording_studio_support/api/search_limit.rb", __dir__))
     refute_includes registration, "register_endpoint"
+    assert_includes registration, "ADMIN_NESTED_PAGE_OPERATIONS = READ_OPERATIONS"
+  end
+
+  def test_lib_and_app_do_not_prepend_other_gems
+    hits = Dir.glob(File.expand_path("../{lib,app}/**/*.rb", __dir__)).flat_map do |path|
+      File.readlines(path).each_with_index.filter_map do |line, index|
+        next unless line.match?(/\b(prepend|class_eval|module_eval)\b/)
+        next unless line.match?(/RecordingStudioApi|RecordingStudioMoveable|Moveable/)
+
+        "#{path}:#{index + 1}:#{line.strip}"
+      end
+    end
+
+    assert_empty hits, hits.join("\n")
   end
 
   def test_page_index_uses_pages_search

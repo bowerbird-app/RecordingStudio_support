@@ -22,6 +22,8 @@ Mount the engine (dummy uses `/recording_studio_api`). Enable `:accessible` and 
 
 Name the Admin API `:operations` (`default_access :read_only`). Support registers **page reads** on the public API and **section reads plus writes** on `:operations`. Handlers register with `register_resource_handler` (API `v0.6.7`) and call `Pages` / `Sections`. Pass `operations:` explicitly on the operations registrations so the named-API read-only default does not apply.
 
+Recording Studio API still resolves member and nested-parent ids inside the client’s Accessible tree. Provision operations clients on the **workspace** that owns the help tree (or otherwise grant that tree), and grant the same client AdminRoot `:view` / `:edit`. Support handlers still authorize AdminRoot; they do not skip RS_API lookup.
+
 Live OpenAPI (Scalar) is optional and owned by the API gem. Generate it in the host if you want an explorer. This file is the Support contract even when Scalar is off.
 
 ## Auth
@@ -82,15 +84,12 @@ Public `support_sections` list/show and nested section-pages are not registered 
 | `POST` | `/recording_studio_api/apis/operations/v1/support_sections` | AdminRoot `:edit` | Body: `title`, optional `icon`, `parent_id` (workspace recording) |
 | `PATCH` | `/recording_studio_api/apis/operations/v1/support_sections/:id` | AdminRoot `:edit` | `title`, `icon` |
 | `DELETE` | `/recording_studio_api/apis/operations/v1/support_sections/:id` | AdminRoot `:edit` | Trash (`Sections.trash!`), not a hard delete |
-| `POST` | `/recording_studio_api/apis/operations/v1/support_sections/:id/pages` | AdminRoot `:edit` | Parent from the URL. `title`, optional `body`, `description`, `icon` |
-| `PATCH` | `/recording_studio_api/apis/operations/v1/support_sections/:id/pages/:id` | AdminRoot `:edit` | Nested page revise |
-| `DELETE` | `/recording_studio_api/apis/operations/v1/support_sections/:id/pages/:id` | AdminRoot `:edit` | Nested page trash |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_pages` | AdminRoot `:edit` | Body: `title`, optional `body`, `description`, `icon`, `parent_id` (section recording) |
 | `PATCH` | `/recording_studio_api/apis/operations/v1/support_pages/:id` | AdminRoot `:edit` | `title`, `description`, `icon`, `body` |
 | `DELETE` | `/recording_studio_api/apis/operations/v1/support_pages/:id` | AdminRoot `:edit` | Trash (`Pages.trash!`) |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/move` | AdminRoot `:edit` | Body: `parent_id` (destination section recording) |
 
-Operations has no top-level `GET support_pages`. Collection `POST` on `support_pages` still needs `parent_id`. Nested `…/support_sections/:parent_id/pages` takes the parent from the URL.
+Operations has no top-level `GET support_pages`. Collection `POST` on `support_pages` needs `parent_id`. Nested `…/support_sections/:parent_id/pages` is **read-only** (list/show). Writes go through collection `support_pages` / `support_sections` so Support handlers run.
 
 Send writable fields at the JSON root. Do not wrap them in `attributes`.
 
@@ -106,7 +105,7 @@ Recording Studio API also returns recording ids, type, and relationship metadata
 
 ## Search
 
-There is no `GET support/search`. Public `GET …/support_pages?q=` uses `Pages.for_root` / `SupportPage.search`. Nested operations `GET …/support_sections/:parent_id/pages` lists pages in that section. Public workspace-only tokens hide drafts and stay scoped to that client’s workspace root. Operations AdminRoot `:view` readers see drafts.
+There is no `GET support/search`. Public `GET …/support_pages?q=` uses `Pages.for_root` / `SupportPage.search`. Nested operations `GET …/support_sections/:parent_id/pages` lists children of that section (no `?q=`). Public workspace-only tokens hide drafts and stay scoped to that client’s workspace root. Operations AdminRoot `:view` readers see drafts on collection handlers.
 
 ## Examples
 
@@ -115,13 +114,6 @@ List live articles a workspace token can see:
 ```http
 GET /recording_studio_api/api/v1/support_pages
 Authorization: Bearer <workspace_token>
-```
-
-Nested page search (operations):
-
-```http
-GET /recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages?q=invoice
-Authorization: Bearer <operations_token>
 ```
 
 Create a page (operations editor token):
@@ -134,4 +126,4 @@ Content-Type: application/json
 { "title": "How do I get a receipt?", "body": "<p>Open Billing.</p>", "parent_id": "<section_recording_id>" }
 ```
 
-Design notes (handlers, intercept): [api-plan.md](api-plan.md).
+Design notes (handlers): [api-plan.md](api-plan.md).

@@ -39,18 +39,28 @@ class SupportApiTest < ActionDispatch::IntegrationTest
       admin_root_recording: @admin_root
     )
     @editor_operations_token = provision_token(
-      access_point: @admin_root,
+      access_point: @root,
       actor: @staff,
       role: :edit,
       name: "Staff operations #{SecureRandom.hex(4)}",
       api: :operations,
-      workspace_recording: @root
+      admin_root_recording: @admin_root,
+      admin_root_role: :edit
     )
     @viewer_operations_token = provision_token(
-      access_point: @admin_root,
+      access_point: @root,
       actor: @staff,
       role: :view,
       name: "Viewer operations #{SecureRandom.hex(4)}",
+      api: :operations,
+      admin_root_recording: @admin_root,
+      admin_root_role: :view
+    )
+    @workspace_operations_token = provision_token(
+      access_point: @root,
+      actor: @staff,
+      role: :edit,
+      name: "Workspace operations #{SecureRandom.hex(4)}",
       api: :operations
     )
     @workspace_token = provision_token(
@@ -165,9 +175,9 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_equal "Revised section", response.parsed_body.fetch("title")
     refute_equal section_recordable_id, RecordingStudio::Recording.find(section_id).recordable_id
 
-    post "#{OPERATIONS_ROOT}/support_sections/#{section_id}/pages",
+    post "#{OPERATIONS_ROOT}/support_pages",
          headers: auth(@editor_operations_token),
-         params: { title: "Nested page", body: "<p>Hello</p>" },
+         params: { title: "Nested page", body: "<p>Hello</p>", parent_id: section_id },
          as: :json
 
     assert_response :created
@@ -242,6 +252,22 @@ class SupportApiTest < ActionDispatch::IntegrationTest
          headers: auth(@viewer_operations_token),
          params: { parent_id: @section.id },
          as: :json
+
+    assert_response :forbidden
+  end
+
+  test "operations token without AdminRoot edit cannot write" do
+    post "#{OPERATIONS_ROOT}/support_sections",
+         headers: auth(@workspace_operations_token),
+         params: { title: "Nope", parent_id: @root.id },
+         as: :json
+
+    assert_response :forbidden
+
+    patch "#{OPERATIONS_ROOT}/support_pages/#{@live.id}",
+          headers: auth(@workspace_operations_token),
+          params: { title: "Hijack" },
+          as: :json
 
     assert_response :forbidden
   end
@@ -352,14 +378,13 @@ class SupportApiTest < ActionDispatch::IntegrationTest
 
     get "#{OPERATIONS_ROOT}/support_sections/#{@section.id}/pages",
         headers: auth(@editor_operations_token),
-        params: { q: token },
         as: :json
 
     assert_response :success
     nested_titles = response.parsed_body.fetch("records").map { |record| record.fetch("title") }
     assert_includes nested_titles, live_hit.recordable.title
     assert_includes nested_titles, draft_hit.recordable.title
-    refute_includes nested_titles, miss.recordable.title
+    assert_includes nested_titles, miss.recordable.title
   end
 
   private
@@ -376,7 +401,7 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     { "Authorization" => "Bearer #{token}", "Accept" => "application/json" }
   end
 
-  def provision_token(access_point:, actor:, role:, name:, admin_root_recording: nil, api: :public, workspace_recording: nil)
+  def provision_token(access_point:, actor:, role:, name:, admin_root_recording: nil, admin_root_role: :edit, api: :public)
     result = RecordingStudioApi::Services::ProvisionApiClient.call(
       access_point_recording: access_point,
       manager_actor: actor,
@@ -387,8 +412,7 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     raise result.error unless result.success?
 
     payload = result.value
-    grant!(admin_root_recording, payload.fetch(:api_client), :edit) if admin_root_recording
-    grant!(workspace_recording, payload.fetch(:api_client), :edit) if workspace_recording
+    grant!(admin_root_recording, payload.fetch(:api_client), admin_root_role) if admin_root_recording
 
     token_result = RecordingStudioApi::Services::IssueOauthAccessToken.call(
       grant_type: "client_credentials",

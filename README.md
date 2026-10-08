@@ -336,7 +336,6 @@ Bearer token: public `POST /recording_studio_api/oauth/token`; operations `POST 
 | `GET` | `/recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages` |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages/:relationship_id` |
 | `POST` `PATCH` `DELETE` | `/recording_studio_api/apis/operations/v1/support_sections` |
-| `POST` `PATCH` `DELETE` | `/recording_studio_api/apis/operations/v1/support_sections/:id/pages` |
 | `POST` `PATCH` `DELETE` | `/recording_studio_api/apis/operations/v1/support_pages` |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/move` |
 

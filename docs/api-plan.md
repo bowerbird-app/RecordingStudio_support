@@ -27,7 +27,7 @@ Public anonymous browse stays `/help`. The JSON API is authenticated (bearer cli
 
 The API client’s `AccessGrant.actor` is the actor. Same check for a person, machine client, or agent.
 
-Stock API resource create/update authorize `:edit` on the **parent recording** (workspace/section). That would let a workspace editor write help the UI forbids. Support write handlers must **not** use that default. They authorize the **admin root**, then call Support domain writes. Intercept wrappers apply to the same ResourceOperations / relationship / member-action classes used by the operations API.
+Stock API resource create/update authorize `:edit` on the **parent recording** (workspace/section). That would let a workspace editor write help the UI forbids. Support write handlers must **not** use that default. They authorize the **admin root**, then call Support domain writes. Register those handlers with `register_resource_handler`. Do not prepend into Recording Studio API or Moveable. Nested relationship writes stay unregistered so default ResourceOperations cannot bypass the handlers. Member lookup still uses the client’s Accessible tree — provision the operations client on the workspace, and grant AdminRoot on that same client.
 
 ## Host vs gem
 
