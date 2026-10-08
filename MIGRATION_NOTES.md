@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-Kit pins: Accessible `v0.11.1`, Admin `v2.0.4`, Attachable `v0.7.1`, Messages `v0.4.3`, Moveable `v3.0.3`, Notifications `v0.3.4`, Notifications Email `v0.3.4`, Orderable `v0.2.5`, Publishable `v0.4.2`, Trashable `v0.4.4`, Users `v0.12.5` (host), Root Switchable `v0.5.3` (host), Flatpack `v0.1.198`. Recording Studio stays `v4.2.2`. API is `v0.6.4`.
+Kit pins: Accessible `v0.11.1`, Admin `v2.0.4`, Attachable `v0.7.1`, Messages `v0.4.3`, Moveable `v3.0.3`, Notifications `v0.3.4`, Notifications Email `v0.3.4`, Orderable `v0.2.5`, Publishable `v0.4.2`, Trashable `v0.4.4`, Users `v0.15.0` (host), Root Switchable `v0.5.3` (host), Flatpack `v0.1.198`. Recording Studio stays `v4.2.2`. API is `v0.6.4`.
 
 ### Host app
 
