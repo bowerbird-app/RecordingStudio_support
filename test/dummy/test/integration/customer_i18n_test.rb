@@ -45,7 +45,8 @@ class CustomerI18nTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h1", text: "Messages"
-    assert_includes response.body, "Write to support when Help"
+    assert_includes response.body, "Your notes to support, all in one place."
+    assert_includes response.body, "New ticket"
   end
 
   test "dummy French locale renders help home an article and messages" do
@@ -76,14 +77,15 @@ class CustomerI18nTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "h1", text: "Messages"
-    assert_includes response.body, "Écrivez à l’assistance quand l’aide ne suffit pas."
-    refute_includes response.body, "Write to support when Help"
+    assert_includes response.body, "Vos notes à l’assistance, au même endroit."
+    assert_includes response.body, "Nouveau ticket"
+    refute_includes response.body, "Your notes to support, all in one place."
+    refute_includes response.body, "New ticket"
     visible = css_select("main").text
 
-    assert_includes visible, "Rien ici pour l’instant. Écrivez la première ligne."
-    assert_includes visible, "Envoyer des fichiers ou des images"
+    assert_includes visible, "Pas encore de ticket"
+    refute_match(/\bNo tickets yet\b/, visible)
     refute_match(/\bWrite a message\b/, visible)
-    refute_match(/\bNothing here yet\b/, visible)
   end
 
   test "config and helper text overrides still win" do

@@ -46,8 +46,18 @@ class LocalesTest < Minitest::Test
       assert_equal "Try another keyword or email us.",
                    Copy.t("search.empty_with_contact_html", contact: "email us")
       assert_equal "Messages", Copy.t("messages.title")
-      assert_equal "Write to support when Help isn’t enough.", Copy.t("messages.subtitle")
+      assert_equal "Your notes to support, all in one place.", Copy.t("messages.subtitle")
       assert_equal "Someone", Copy.t("messages.someone")
+    end
+  end
+
+  def test_ticket_desk_english_copy
+    I18n.with_locale(:en) do
+      assert_equal "New ticket", Copy.t("messages.new_ticket")
+      assert_equal "No tickets yet", Copy.t("messages.empty_title")
+      assert_equal "Sent. We’ll take a look.", Copy.t("messages.sent")
+      assert_equal "Open", Copy.t("messages.statuses.open")
+      assert_equal "Normal", Copy.t("messages.priorities.normal")
     end
   end
 

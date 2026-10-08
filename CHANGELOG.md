@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.14.0] - 2026-10-08
+
+Support tickets. Each ticket owns a MessageGroup under the Workspace `:support` mount.
+
+### Added
+- `SupportTicket` model (`subject`, `status`, `priority`, nullable `assignee`, `resolved_at`) with FK `message_group_id` → MessageGroup recording
+- `RecordingStudioSupport::Tickets.open!` — creates ticket + MessageGroup + staff grants + initial message in one transaction
+- User desk ticket list / new / show at `/help/messages` (no more one-group-per-user bootstrap)
+- Staff desk ticket status and assignee edits on the ticket only (`PATCH /admin/support/tickets/:id`)
+- Workspace `:support` mount uses Messages `membership_locked: [:support]`; staff grants go through `RecordingStudioMessages.allow_membership_change`
+- Ticket desk copy under `recording_studio.support.messages.*` (list, new ticket, statuses, priorities)
+
+### Changed
+- Support no longer uses Messages 1:1 helpers (`find_or_create_user_group`, `user_group_on_mount`, `create_user_group!`)
+- Workspace Messages enablement uses `membership_locked: [:support]` (Messages `~> 0.5`)
+- `OpenAccessManagement` composes under Messages `MembershipLock` so authorizer wraps do not recurse
+
+### Upgrade notes
+- Bump to **0.14.0** (minor: tickets). Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` for `recording_studio_support_tickets`
+- Point host routes at user desk `index` / `new` / `create` / `show` (installer does this for new installs)
+- Existing per-user MessageGroups are not migrated; new conversations open as tickets
+- Messages stays on `~> 0.5` (dummy/development pin `v0.5.2`; membership lock ships in Messages 0.3.1+)
+- Enable Messages with `membership_locked: [:support]` on Workspace so ticket conversations hide **+ Access** and refuse manage/grant without `allow_membership_change`
+- Hosts that translate Support should copy the new `recording_studio.support.messages.*` ticket keys from `config/locales/en.yml` (dummy `fr.yml` is updated)
+
 ## [0.13.0] - 2026-10-08
 
 Customer-facing Support copy now lives under `recording_studio.support.*` so hosts can translate public help, search chrome, contact CTAs, the signed-in `/help/messages` desk, and related screens.
@@ -674,7 +699,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.13.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.14.0...HEAD
+[0.14.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.10.0...v0.11.0

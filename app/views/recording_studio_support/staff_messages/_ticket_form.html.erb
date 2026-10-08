@@ -1,0 +1,24 @@
+<%= form_with url: staff_ticket_update_path_for(ticket), method: :patch, scope: :ticket do %>
+  <div class="flex flex-wrap items-end gap-3">
+    <%= render FlatPack::Select::Component.new(
+      name: "ticket[status]",
+      label: "Status",
+      options: support_ticket_status_options,
+      value: ticket.status
+    ) %>
+
+    <%= render FlatPack::Select::Component.new(
+      name: "ticket[assignee]",
+      label: "Assignee",
+      options: support_ticket_assignee_options(selected: ticket.assignee),
+      value: support_ticket_assignee_value(ticket.assignee)
+    ) %>
+
+    <%= render FlatPack::Button::Component.new(
+      text: "Save",
+      style: :secondary,
+      size: :md,
+      type: :submit
+    ) %>
+  </div>
+<% end %>

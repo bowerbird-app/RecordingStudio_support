@@ -68,8 +68,30 @@ fr:
         empty_with_contact_html: "Essayez un autre mot-clé ou %{contact}."
       messages:
         title: Messages
-        subtitle: Écrivez à l’assistance quand l’aide ne suffit pas.
+        subtitle: Vos notes à l’assistance, au même endroit.
         someone: Quelqu’un
+        new_ticket: Nouveau ticket
+        empty_title: Pas encore de ticket
+        empty_description: Ouvrez-en un quand l’aide ne suffit pas.
+        sent: Envoyé. On regarde ça.
+        new:
+          title: Nouveau ticket
+          subtitle: Dites-nous ce qui se passe — on s’en occupe.
+          subject: Objet
+          priority: Priorité
+          body: Message
+          send: Envoyer
+          cancel: Annuler
+          close: Fermer
+        statuses:
+          open: Ouvert
+          waiting_on_customer: En attente de vous
+          waiting_on_support: En attente de nous
+          resolved: Résolu
+        priorities:
+          low: Basse
+          normal: Normale
+          high: Haute
     messages:
       contact:
         title: Contact

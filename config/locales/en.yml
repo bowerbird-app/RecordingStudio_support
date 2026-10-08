@@ -27,5 +27,27 @@ en:
         empty_with_contact_html: "Try another keyword or %{contact}."
       messages:
         title: Messages
-        subtitle: Write to support when Help isn’t enough.
+        subtitle: Your notes to support, all in one place.
         someone: Someone
+        new_ticket: New ticket
+        empty_title: No tickets yet
+        empty_description: Start one when Help isn’t enough.
+        sent: Sent. We’ll take a look.
+        new:
+          title: New ticket
+          subtitle: Tell us what’s up — we’ll take it from there.
+          subject: Subject
+          priority: Priority
+          body: Message
+          send: Send
+          cancel: Cancel
+          close: Close
+        statuses:
+          open: Open
+          waiting_on_customer: Waiting on you
+          waiting_on_support: Waiting on us
+          resolved: Resolved
+        priorities:
+          low: Low
+          normal: Normal
+          high: High

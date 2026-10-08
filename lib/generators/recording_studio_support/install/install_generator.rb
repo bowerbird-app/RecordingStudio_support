@@ -29,8 +29,16 @@ module RecordingStudioSupport
         route %(mount RecordingStudioNotifications::Engine, at: "/recording_studio_notifications")
         route %(get "/help", to: RecordingStudioSupport::PublicPagesController.action(:index), as: :public_help)
         route "get \"/help/messages\", " \
-              "to: RecordingStudioSupport::UserMessagesController.action(:show), " \
+              "to: RecordingStudioSupport::UserMessagesController.action(:index), " \
               "as: :help_messages"
+        route "get \"/help/messages/new\", " \
+              "to: RecordingStudioSupport::UserMessagesController.action(:new), " \
+              "as: :new_help_message"
+        route "post \"/help/messages\", " \
+              "to: RecordingStudioSupport::UserMessagesController.action(:create)"
+        route "get \"/help/messages/:id\", " \
+              "to: RecordingStudioSupport::UserMessagesController.action(:show), " \
+              "as: :help_message"
         route "get \"/help/sections/:slug\", " \
               "to: RecordingStudioSupport::PublicSectionsController.action(:show), " \
               "as: :public_help_section"
@@ -48,8 +56,12 @@ module RecordingStudioSupport
 
         inject_into_file "app/models/workspace.rb",
                          after: /recording_studio_recordable[^\n]*\n/ do
-          "  include RecordingStudio::Capabilities::Messages.to(keys: [:support]) " \
-            "if defined?(RecordingStudioMessages)\n"
+          <<~RUBY
+            include RecordingStudio::Capabilities::Messages.to(
+              keys: [:support],
+              membership_locked: [:support]
+            ) if defined?(RecordingStudioMessages)
+          RUBY
         end
       end
 

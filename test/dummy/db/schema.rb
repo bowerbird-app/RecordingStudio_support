@@ -450,6 +450,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_02_140000) do
     t.index ["slug"], name: "index_rs_support_sections_on_slug"
   end
 
+  create_table "recording_studio_support_tickets", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "assignee_id"
+    t.string "assignee_type"
+    t.datetime "created_at", null: false
+    t.uuid "message_group_id", null: false
+    t.string "priority", default: "normal", null: false
+    t.datetime "resolved_at"
+    t.string "status", default: "open", null: false
+    t.string "subject", null: false
+    t.datetime "updated_at", null: false
+    t.index ["assignee_type", "assignee_id"], name: "index_rs_support_tickets_on_assignee"
+    t.index ["message_group_id"], name: "index_rs_support_tickets_on_message_group_id", unique: true
+    t.index ["status"], name: "index_rs_support_tickets_on_status"
+  end
+
   create_table "recording_studio_trashable_retention_settings", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.integer "purge_after_days"
