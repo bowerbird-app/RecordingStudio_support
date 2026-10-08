@@ -27,8 +27,18 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemspec, 'spec.add_dependency "recording_studio_admin", "~> 2.0"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_attachable", "~> 0.7"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_messages", "~> 0.5"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_notifications", "~> 0.3.1"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_notifications", ">= 0.3.1", "< 1"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_notifications_email", "~> 0.3.1"'
+
+    notifications = Gem::Dependency.new("recording_studio_notifications", ">= 0.3.1", "< 1")
+    messages = Gem::Dependency.new("recording_studio_messages", "~> 0.5")
+
+    assert notifications.requirement.satisfied_by?(Gem::Version.new("0.3.1"))
+    assert notifications.requirement.satisfied_by?(Gem::Version.new("0.4.0"))
+    refute notifications.requirement.satisfied_by?(Gem::Version.new("1.0.0"))
+    assert messages.requirement.satisfied_by?(Gem::Version.new("0.5.0"))
+    assert messages.requirement.satisfied_by?(Gem::Version.new("0.5.1"))
+    refute messages.requirement.satisfied_by?(Gem::Version.new("0.4.6"))
     assert_includes gemspec, 'spec.add_dependency "recording_studio_trashable", "~> 0.4"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_orderable", "~> 0.2"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_publishable", "~> 0.4"'
