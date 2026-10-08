@@ -46,6 +46,8 @@ module RecordingStudioSupport
         register_handler(PAGE_TYPE, :show, api: :public, handler: Show)
         register_handler(SECTION_TYPE, :index, api: OPERATIONS_API, handler: Index)
         register_handler(SECTION_TYPE, :show, api: OPERATIONS_API, handler: Show)
+        register_handler(PAGE_TYPE, :index, api: OPERATIONS_API, handler: Index)
+        register_handler(PAGE_TYPE, :show, api: OPERATIONS_API, handler: Show)
       end
 
       def register_write_handlers!

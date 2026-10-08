@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "api/access"
+require_relative "api/lookup"
 require_relative "api/payload"
 require_relative "api/serialize"
 require_relative "api/registration"

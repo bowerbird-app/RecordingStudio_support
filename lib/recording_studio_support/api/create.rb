@@ -26,7 +26,7 @@ module RecordingStudioSupport
       attr_reader :context
 
       def create_recording!
-        actor = Access.actor_for(context)
+        actor = Access.write_actor(context)
         attrs = Payload.attributes(context)
         return create_section!(actor, attrs) if context.recordable_type == Api::SECTION_TYPE
 
@@ -54,18 +54,16 @@ module RecordingStudioSupport
       end
 
       def parent_recording!
-        return context.parent_recording if context.parent_recording
+        return context.parent_recording if context.respond_to?(:parent_recording) && context.parent_recording
 
         parent_id = Payload.parent_id(context)
         raise_missing_parent! if parent_id.blank?
 
         if context.recordable_type == Api::SECTION_TYPE
-          RecordingStudio::Recording.find(parent_id)
+          Lookup.workspace!(id: parent_id)
         else
-          Sections.find_kept!(id: parent_id)
+          Lookup.section!(id: parent_id)
         end
-      rescue ActiveRecord::RecordNotFound
-        raise RecordingStudioApi::NotFoundError, "Parent resource was not found"
       end
 
       def raise_missing_parent!

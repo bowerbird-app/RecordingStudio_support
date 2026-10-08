@@ -2,14 +2,14 @@
 
 How a host, person, or AI agent talks to Support sections and pages over **Recording Studio API**. Public anonymous browse stays `/help`. This surface is authenticated.
 
-Support does **not** gemspec-depend on `recording_studio_api`. Add that gem in the **host** (`v0.6.8` in dummy). If the constant is missing, Support boots with no JSON routes.
+Support does **not** gemspec-depend on `recording_studio_api`. Add that gem in the **host** (dummy tracks API PR `#30` / `0.6.9` until `v0.6.9` is tagged). If the constant is missing, Support boots with no JSON routes.
 
 Do not add a Support `ApiController`. Writes go through `Pages` / `Sections`. Access is **Accessible** only.
 
 ## Install (host)
 
 ```ruby
-gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.8"
+gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.9" # after release; dummy tracks PR #30 until then
 ```
 
 ```bash
@@ -20,9 +20,9 @@ bin/rails db:migrate
 
 Mount the engine (dummy uses `/recording_studio_api`). Enable `:accessible` and `:api_access_point` on roots that hold API keys. Dummy does this on `Workspace` and `AdminRoot`.
 
-Name the Admin API `:operations` (`default_access :read_only`). Support registers **page reads** on the public API and **section reads plus writes** on `:operations`. Handlers register with `register_resource_handler` (API `v0.6.8`) and call `Pages` / `Sections`. Nested relationship routes use the same handlers (`parent_recording` set). Pass `operations:` explicitly on the operations registrations so the named-API read-only default does not apply.
+Name the Admin API `:operations` (`default_access :read_only`). Support registers **page reads** on the public API and **section reads plus writes** on `:operations`. Handlers register with `register_resource_handler` and call `Pages` / `Sections`. From API `0.6.9`, registered handlers receive raw ids (`id`, `parent_id`, `relationship_id`) and look up kept Support records themselves. Pass `operations:` explicitly on the operations registrations so the named-API read-only default does not apply.
 
-Recording Studio API still resolves member and nested-parent ids inside the client’s Accessible tree. Operations access points are only types registered on `:operations` that enable `:api_access_point` (dummy registers `AdminRoot` and `Workspace`). Provision the operations client on the **workspace** that owns the help tree, and grant the same client AdminRoot `:view` / `:edit`. Support handlers still authorize AdminRoot; they do not skip RS_API lookup.
+Provision operations clients on **AdminRoot** (featured_in). Support handlers find Workspace help by id and authorize AdminRoot `:view` / `:edit`. Move accepts `parent_id`, `destination_id`, or `new_parent_id`. Section create ignores trashed parents.
 
 Live OpenAPI (Scalar) is optional and owned by the API gem. Generate it in the host if you want an explorer. This file is the Support contract even when Scalar is off.
 
@@ -108,7 +108,7 @@ Recording Studio API also returns recording ids, type, and relationship metadata
 
 ## Search
 
-There is no `GET support/search`. Public `GET …/support_pages?q=` uses `Pages.for_root` / `SupportPage.search`. Nested operations `GET …/support_sections/:parent_id/pages` lists children of that section (no `?q=`). Public workspace-only tokens hide drafts and stay scoped to that client’s workspace root. Operations AdminRoot `:view` readers see drafts on collection handlers.
+There is no `GET support/search`. Public `GET …/support_pages?q=` uses `Pages.for_root` / `SupportPage.search`. Nested operations `GET …/support_sections/:parent_id/pages?q=` uses `Pages.for_section`. Public workspace-only tokens hide drafts and stay scoped to that client’s workspace root. Operations AdminRoot `:view` readers see drafts.
 
 ## Examples
 

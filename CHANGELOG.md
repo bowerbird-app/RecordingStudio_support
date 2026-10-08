@@ -11,12 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - **Breaking:** Public JSON keeps only page reads. `GET support_pages` and `GET support_pages/:id` (including list `?q=`) stay on `/recording_studio_api/api/v1`. Section list/show and nested section-page reads live on `:operations`. Writes and page `move` stay on operations.
-- Support registers per-type handlers through `RecordingStudioApi.register_resource_handler` (API `v0.6.8`). The Intercept prepends into Recording Studio API / Moveable classes are gone. Nested relationship writes use the same page handlers.
+- Support registers per-type handlers through `RecordingStudioApi.register_resource_handler`. Dummy pins Recording Studio API PR `#30` (`0.6.9`, switch to tag `v0.6.9` when it ships). Handlers load records themselves so an AdminRoot-bound operations client can reach Workspace help. The Intercept prepends are gone.
+- **Removed:** API-only `SearchLimit` (per-client Support search rate limit). List `?q=` still uses `Pages.for_root` / `Pages.for_section`.
 - Handlers call `Pages` / `Sections` `create!` / `revise!` / `trash!` and `Pages.move!`. Writes authorize AdminRoot `:edit` the same way staff `authorize_support!(:edit)` does.
 - API-only `SearchLimit`, skipped move `authorize_action!`, and global destination `Recording.find_by` are gone. List `?q=` uses `Pages.for_root`.
 
 ### Upgrade notes
-- Pin `recording_studio_api` `v0.6.8`.
+- Pin `recording_studio_api` to PR `#30` commit `da8fa0ba` (`0.6.9`) until `v0.6.9` is tagged, then switch the host pin to that tag.
 - Move `GET support_sections` and nested section-page reads to `/recording_studio_api/apis/operations/v1/…`.
 - Keep `GET support_pages` on the public API. Do not rely on per-client Support search rate limits.
 - Register the workspace as an operations access-point type (dummy does) so member lookup can see help records. Grant the same client AdminRoot `:view` / `:edit`. Support handlers authorize AdminRoot; they do not replace lookup.

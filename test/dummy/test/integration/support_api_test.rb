@@ -39,22 +39,18 @@ class SupportApiTest < ActionDispatch::IntegrationTest
       admin_root_recording: @admin_root
     )
     @editor_operations_token = provision_token(
-      access_point: @root,
+      access_point: @admin_root,
       actor: @staff,
       role: :edit,
       name: "Staff operations #{SecureRandom.hex(4)}",
-      api: :operations,
-      admin_root_recording: @admin_root,
-      admin_root_role: :edit
+      api: :operations
     )
     @viewer_operations_token = provision_token(
-      access_point: @root,
+      access_point: @admin_root,
       actor: @staff,
       role: :view,
       name: "Viewer operations #{SecureRandom.hex(4)}",
-      api: :operations,
-      admin_root_recording: @admin_root,
-      admin_root_role: :view
+      api: :operations
     )
     @workspace_operations_token = provision_token(
       access_point: @root,
@@ -69,6 +65,7 @@ class SupportApiTest < ActionDispatch::IntegrationTest
       role: :view,
       name: "Workspace #{SecureRandom.hex(4)}"
     )
+    Current.actor = nil
   end
 
   teardown do
@@ -212,7 +209,24 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal "Revised collection", response.parsed_body.fetch("title")
 
-    destination = record_support_section(@root, title: "Move dest #{SecureRandom.hex(4)}")
+    destination = record_as_staff { record_support_section(@root, title: "Move dest #{SecureRandom.hex(4)}") }
+    alias_dest = record_as_staff { record_support_section(@root, title: "Alias dest #{SecureRandom.hex(4)}") }
+    post "#{OPERATIONS_ROOT}/support_pages/#{page_id}/actions/move",
+         headers: auth(@editor_operations_token),
+         params: { destination_id: destination.id },
+         as: :json
+
+    assert_response :success
+    assert_equal destination.id, RecordingStudio::Recording.find(page_id).reload.parent_recording_id
+
+    post "#{OPERATIONS_ROOT}/support_pages/#{page_id}/actions/move",
+         headers: auth(@editor_operations_token),
+         params: { new_parent_id: alias_dest.id },
+         as: :json
+
+    assert_response :success
+    assert_equal alias_dest.id, RecordingStudio::Recording.find(page_id).reload.parent_recording_id
+
     post "#{OPERATIONS_ROOT}/support_pages/#{page_id}/actions/move",
          headers: auth(@editor_operations_token),
          params: { parent_id: destination.id },
@@ -271,6 +285,23 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal "trashed", response.parsed_body.fetch("deleted_via")
     assert RecordingStudio::Recording.find(page_id).trashed_at
+  end
+
+  test "section create rejects a trashed workspace parent" do
+    trashed = record_as_staff do
+      workspace = Workspace.create!(name: "Trashed #{SecureRandom.hex(4)}")
+      root = RecordingStudio.root_recording_for(workspace)
+      bootstrap_owner!(root, @staff)
+      root.update!(trashed_at: Time.current)
+      root
+    end
+
+    post "#{OPERATIONS_ROOT}/support_sections",
+         headers: auth(@editor_operations_token),
+         params: { title: "Orphan", parent_id: trashed.id },
+         as: :json
+
+    assert_response :not_found
   end
 
   test "public token is rejected on the operations API" do
@@ -422,12 +453,18 @@ class SupportApiTest < ActionDispatch::IntegrationTest
 
   test "q searches nested section pages and the pages collection" do
     token = "Zephyr#{SecureRandom.hex(4)}"
-    live_hit = record_support_page(@root, @section, title: "#{token} live receipt", body: "Body")
-    draft_hit = record_support_page(@root, @section, title: "#{token} draft receipt", body: "Body")
-    miss = record_support_page(@root, @section, title: "Unrelated #{SecureRandom.hex(4)}", body: "Body")
-    publish!(live_hit, slug: "live-#{token}", status: "published")
-    publish!(draft_hit, slug: "draft-#{token}", status: "draft")
-    publish!(miss, slug: "miss-#{token}", status: "published")
+    live_hit, draft_hit, miss = record_as_staff do
+      [
+        record_support_page(@root, @section, title: "#{token} live receipt", body: "Body"),
+        record_support_page(@root, @section, title: "#{token} draft receipt", body: "Body"),
+        record_support_page(@root, @section, title: "Unrelated #{SecureRandom.hex(4)}", body: "Body")
+      ]
+    end
+    record_as_staff do
+      publish!(live_hit, slug: "live-#{token}", status: "published")
+      publish!(draft_hit, slug: "draft-#{token}", status: "draft")
+      publish!(miss, slug: "miss-#{token}", status: "published")
+    end
 
     get "#{PUBLIC_ROOT}/support_pages",
         headers: auth(@staff_public_token),
@@ -453,13 +490,15 @@ class SupportApiTest < ActionDispatch::IntegrationTest
 
     get "#{OPERATIONS_ROOT}/support_sections/#{@section.id}/pages",
         headers: auth(@editor_operations_token),
+        params: { q: token },
         as: :json
 
     assert_response :success
     nested_titles = response.parsed_body.fetch("records").map { |record| record.fetch("title") }
     assert_includes nested_titles, live_hit.recordable.title
     assert_includes nested_titles, draft_hit.recordable.title
-    assert_includes nested_titles, miss.recordable.title
+    refute_includes nested_titles, miss.recordable.title
+    assert_equal token, response.parsed_body.fetch("meta").fetch("q")
   end
 
   private
@@ -474,6 +513,14 @@ class SupportApiTest < ActionDispatch::IntegrationTest
 
   def auth(token)
     { "Authorization" => "Bearer #{token}", "Accept" => "application/json" }
+  end
+
+  def record_as_staff
+    previous = Current.actor
+    Current.actor = @staff
+    yield
+  ensure
+    Current.actor = previous
   end
 
   def provision_token(access_point:, actor:, role:, name:, admin_root_recording: nil, admin_root_role: :edit, api: :public)
