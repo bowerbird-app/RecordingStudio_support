@@ -85,8 +85,15 @@ module RecordingStudioSupport
         raise RecordingStudioApi::AuthorizationError, "API access grant is not authorized for this capability"
       end
 
+      def admin_root_edit?(actor)
+        admin_root_authorized?(actor, :edit)
+      end
+
       def authorized_on_admin_root?(context, role)
-        actor = actor_for(context)
+        admin_root_authorized?(actor_for(context), role)
+      end
+
+      def admin_root_authorized?(actor, role)
         recording = admin_root_recording
         return false if actor.blank? || recording.blank?
 

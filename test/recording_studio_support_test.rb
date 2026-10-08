@@ -43,7 +43,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemspec, 'spec.add_dependency "recording_studio_orderable", "~> 0.2"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_publishable", "~> 0.4"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_search", "~> 0.4"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_moveable", "~> 3.0"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_moveable", "~> 3.2"'
     refute_includes gemspec, 'spec.add_dependency "recording_studio_api"'
     refute_includes gemspec, 'spec.add_dependency "recording_studio_user"'
     refute_includes gemspec, "recording_studio_internationalization"
@@ -94,7 +94,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.4.2"'
     assert_includes gemfile, 'path: "../../vendor/recording_studio_search"'
     assert_includes gemfile, "d9cc54dd33ec625dd618f5520de56b9b49a29e01"
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.0.3"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.2.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.3"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_messages", tag: "v0.5.2"'
@@ -102,6 +102,11 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.4"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_Internationalization", tag: "v0.1.2"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.9"'
+
+    dummy_hooks = File.read(File.expand_path("dummy/config/initializers/recording_studio_support.rb", __dir__))
+    assert_includes dummy_hooks, "RecordingStudioSupport.staff_may_manage?"
+    assert_includes dummy_hooks, "authorization_resolver"
+    assert_includes dummy_hooks, "authorization_hook"
     assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.207"'
     refute_includes gemfile, "recording_studio/v3.0.0"
     refute_includes gemfile, 'tag: "v0.6.1"'

@@ -98,6 +98,8 @@ Collection `POST` on `support_pages` needs `parent_id`. Nested `POST …/support
 
 Send writable fields at the JSON root. Do not wrap them in `attributes`.
 
+Move and trash go through Moveable `move_to!` and Trashable. Support handlers still require AdminRoot `:edit`. The **host** should set Trashable `authorization_resolver` and Moveable `authorization_hook` to `RecordingStudioSupport.staff_may_manage?(actor:, recording:)` so an AdminRoot-only operations client can pass those mixin checks (`nil` falls through). Dummy copies that wiring.
+
 Orderable reorder is not allowlisted on Support pages.
 
 ## Fields

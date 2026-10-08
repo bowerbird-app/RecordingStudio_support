@@ -18,7 +18,7 @@ gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashab
 gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.2.5"
 gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.4.2"
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"
-gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.0.3"
+gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.2.0"
 gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.5.2"
 gem "recording_studio_notifications", github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.4.0"
 gem "recording_studio_notifications_email",
@@ -44,7 +44,7 @@ gem "recording_studio_trashable", "~> 0.4"
 gem "recording_studio_orderable", "~> 0.2"
 gem "recording_studio_publishable", "~> 0.4"
 gem "recording_studio_search", "~> 0.4"
-gem "recording_studio_moveable", "~> 3.0"
+gem "recording_studio_moveable", "~> 3.2"
 gem "recording_studio_messages", "~> 0.5"
 gem "recording_studio_notifications", ">= 0.3.1", "< 1"
 gem "recording_studio_notifications_email", "~> 0.3.1"
@@ -71,7 +71,26 @@ bin/rails generate recording_studio_accessible:migrations
 bin/rails db:migrate
 ```
 
-Accessible `v0.11` stores roles as strings (`view`, `edit`, `admin`) and adds access invitations. Run its 0.8–0.11 migrations. Grant through `bootstrap_owner_access!` / `grant_access` — do not create `RecordingStudio::Access` rows. Dummy pins API PR `#30` (`0.6.9`; switch to tag `v0.6.9` when released).
+Accessible `v0.11` stores roles as strings (`view`, `edit`, `admin`) and adds access invitations. Run its 0.8–0.11 migrations. Grant through `bootstrap_owner_access!` / `grant_access` — do not create `RecordingStudio::Access` rows. Dummy pins API `v0.6.9`. For operations move and trash by an AdminRoot-only client, the **host** sets Trashable and Moveable hooks (Support does not). `nil` falls through to Accessible `:edit`:
+
+```ruby
+RecordingStudioTrashable.configure do |config|
+  config.authorization_resolver = lambda do |actor:, recording:, **|
+    RecordingStudioSupport.staff_may_manage?(actor: actor, recording: recording)
+  end
+end
+
+RecordingStudio::Moveable.configure do |config|
+  config.use_builtin_access = true
+  config.authorization_hook = lambda do |actor:, source:, destination:, **|
+    source_ok = RecordingStudioSupport.staff_may_manage?(actor: actor, recording: source)
+    destination_ok = RecordingStudioSupport.staff_may_manage?(actor: actor, recording: destination)
+    next true if source_ok && destination_ok
+
+    nil
+  end
+end
+```
 
 Keep Search `default_backend = :pg_trgm`. Do not run `searchable_pgvector` for Support in this phase. `SupportPage` is already declared searchable (title weight A, body weight D). Allowlist only that model for Instant UI (`config.instant_search_models = ["RecordingStudioSupport::SupportPage"]`). Mount `RecordingStudioSearch::Engine` at `/recording_studio_search`, pin `controllers/recording_studio_search`, and `eagerLoadControllersFrom` it. Public section Instant hits `/help/sections/:slug/instant_search` (same trigram, live pages in that section). Staff section Instant hits `/admin/support/sections/:id/instant_search`. `/help?q=` stays a GET form on section titles.
 
@@ -407,9 +426,9 @@ Dummy kit pins:
 | Orderable | `v0.2.5` |
 | Publishable | `v0.4.2` |
 | Icons | `v0.1.1` |
-| Moveable | `v3.0.3` |
+| Moveable | `v3.2.0` |
 | Root Switchable | `v0.5.3` |
-| API | PR `#30` / `0.6.9` until tagged (dummy only; not a Support gemspec dependency) |
+| API | `v0.6.9` (dummy only; not a Support gemspec dependency) |
 | Internationalization | `v0.1.2` (dummy only; not a Support gemspec dependency) |
 | FlatPack | `v0.1.207` (Content + kit i18n; Flatpack #237) |
 

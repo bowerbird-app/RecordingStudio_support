@@ -17,7 +17,6 @@ require "recording_studio_support/version"
 require "recording_studio_support/copy"
 require "recording_studio_support/engine"
 require "recording_studio_support/configuration"
-require "recording_studio_support/mixin_staff_access"
 require "recording_studio_support/pages"
 require "recording_studio_support/sections"
 require "recording_studio_support/messages"
@@ -39,5 +38,15 @@ module RecordingStudioSupport
     def configure
       yield(configuration) if block_given?
     end
+
+    # Host hooks treat nil as fall-through. false would deny non-Support records.
+    # rubocop:disable Style/ReturnNilInPredicateMethodDefinition
+    def staff_may_manage?(actor:, recording:)
+      return unless Api.support_type?(recording&.recordable_type)
+      return unless Api::Access.admin_root_edit?(actor)
+
+      true
+    end
+    # rubocop:enable Style/ReturnNilInPredicateMethodDefinition
   end
 end

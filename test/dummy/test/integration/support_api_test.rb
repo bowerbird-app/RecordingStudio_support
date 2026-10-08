@@ -404,6 +404,62 @@ class SupportApiTest < ActionDispatch::IntegrationTest
          as: :json
 
     assert_response :forbidden
+
+    post "#{OPERATIONS_ROOT}/support_pages/#{@live.id}/actions/move",
+         headers: auth(@workspace_operations_token),
+         params: { parent_id: @section.id },
+         as: :json
+
+    assert_response :forbidden
+
+    delete "#{OPERATIONS_ROOT}/support_pages/#{@live.id}",
+           headers: auth(@workspace_operations_token),
+           as: :json
+
+    assert_response :forbidden
+  end
+
+  test "operations staff without workspace grant can move and trash through mixins" do
+    ops_staff = User.create!(
+      email: "ops-only-#{SecureRandom.hex(4)}@example.com",
+      password: "Password",
+      password_confirmation: "Password"
+    )
+    grant!(@admin_root, ops_staff, :edit)
+    refute RecordingStudioAccessible.authorized?(actor: ops_staff, recording: @root, role: :edit)
+
+    token = provision_token(
+      access_point: @admin_root,
+      actor: @staff,
+      role: :edit,
+      name: "Ops only #{SecureRandom.hex(4)}",
+      api: :operations
+    )
+
+    page = record_as_staff { record_support_page(@root, @section, title: "Ops move #{SecureRandom.hex(4)}", body: "Body") }
+    destination = record_as_staff { record_support_section(@root, title: "Ops dest #{SecureRandom.hex(4)}") }
+    events_before = RecordingStudio::Event.where(recording_id: page.id).count
+
+    post "#{OPERATIONS_ROOT}/support_pages/#{page.id}/actions/move",
+         headers: auth(token),
+         params: { parent_id: destination.id },
+         as: :json
+
+    assert_response :success
+    page.reload
+    assert_equal destination.id, page.parent_recording_id
+    moved_events = RecordingStudio::Event.where(recording_id: page.id, action: "moved")
+    assert_operator RecordingStudio::Event.where(recording_id: page.id).count, :>, events_before
+    assert moved_events.exists?
+    metadata = moved_events.order(:id).last.metadata
+    assert metadata["from_root_id"].present? || metadata[:from_root_id].present?
+
+    delete "#{OPERATIONS_ROOT}/support_pages/#{page.id}",
+           headers: auth(token),
+           as: :json
+
+    assert_response :success
+    assert page.reload.trashed_at
   end
 
   test "operations publish and unpublish control public visibility" do
