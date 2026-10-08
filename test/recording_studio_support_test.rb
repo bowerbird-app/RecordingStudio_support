@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.12.0", ::RecordingStudioSupport::VERSION
+    assert_equal "0.13.0", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -26,9 +26,19 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemspec, 'spec.add_dependency "recording_studio_accessible", "~> 0.11"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_admin", "~> 2.0"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_attachable", "~> 0.7"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_messages", "~> 0.4"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_notifications", "~> 0.3.1"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_messages", "~> 0.5"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_notifications", ">= 0.3.1", "< 1"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_notifications_email", "~> 0.3.1"'
+
+    notifications = Gem::Dependency.new("recording_studio_notifications", ">= 0.3.1", "< 1")
+    messages = Gem::Dependency.new("recording_studio_messages", "~> 0.5")
+
+    assert notifications.requirement.satisfied_by?(Gem::Version.new("0.3.1"))
+    assert notifications.requirement.satisfied_by?(Gem::Version.new("0.4.0"))
+    refute notifications.requirement.satisfied_by?(Gem::Version.new("1.0.0"))
+    assert messages.requirement.satisfied_by?(Gem::Version.new("0.5.0"))
+    assert messages.requirement.satisfied_by?(Gem::Version.new("0.5.1"))
+    refute messages.requirement.satisfied_by?(Gem::Version.new("0.4.6"))
     assert_includes gemspec, 'spec.add_dependency "recording_studio_trashable", "~> 0.4"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_orderable", "~> 0.2"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_publishable", "~> 0.4"'
@@ -36,6 +46,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemspec, 'spec.add_dependency "recording_studio_moveable", "~> 3.0"'
     refute_includes gemspec, 'spec.add_dependency "recording_studio_api"'
     refute_includes gemspec, 'spec.add_dependency "recording_studio_user"'
+    refute_includes gemspec, "recording_studio_internationalization"
   end
 
   def test_api_reference_lists_endpoints_for_installers
@@ -86,11 +97,12 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.0.3"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.3"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_messages", tag: "v0.4.3"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.3.4"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_messages", tag: "v0.5.2"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.4.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.4"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_Internationalization", tag: "v0.1.2"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.4"'
-    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.198"'
+    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.206"'
     refute_includes gemfile, "recording_studio/v3.0.0"
     refute_includes gemfile, 'tag: "v0.6.1"'
     refute_includes gemfile, 'tag: "v0.1.171"'
@@ -161,7 +173,8 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes controller_source, "return \"application\" if devise_controller?"
     assert_includes controller_source, "recording_studio_user/auth"
     refute_includes controller_source, "flat_pack_sidebar"
-    assert_includes default_layout, '<html data-theme="rounded">'
+    assert_includes default_layout, "dummy_document_attributes"
+    assert_includes default_layout, "dummy_language_selector"
     assert_includes default_layout, "@layer theme, base, components, utilities"
     assert_includes default_layout, 'stylesheet_link_tag "flat_pack/variables"'
     assert_includes default_layout, 'stylesheet_link_tag "flat_pack/application"'
@@ -323,7 +336,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "Recording Studio Support"
     assert_includes readme, "v4.2.2"
     assert_includes readme, "v0.11.1"
-    assert_includes readme, "v0.1.198"
+    assert_includes readme, "v0.1.206"
     assert_includes readme, "v0.15.0"
     assert_includes readme, "Support page"
     assert_includes readme, "SupportSection"
@@ -350,6 +363,8 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "RecordingStudioSearch::Engine"
     assert_includes readme, "d9cc54dd33ec625dd618f5520de56b9b49a29e01"
     assert_includes readme, 'public_layout: "recording_studio/default_layout"'
+    assert_includes readme, "recording_studio.support"
+    assert_includes readme, "Internationalization"
     assert_includes readme, '<html data-theme="rounded">'
     assert_includes readme, "config.help_title"
     refute_includes readme, 'public_layout: "recording_studio_publishable/application"'
@@ -364,9 +379,9 @@ class RecordingStudioSupportTest < Minitest::Test
     view_path = File.expand_path("dummy/app/views/home/index.html.erb", __dir__)
     view_source = File.read(view_path)
 
-    assert_includes view_source, 'title: "Dummy host"'
+    assert_includes view_source, 't("dummy.home.title")'
     assert_includes view_source, "FlatPack::Card::Component"
-    assert_includes view_source, "Open help pages"
+    assert_includes view_source, 't("dummy.home.open_help")'
     assert_includes view_source, "recording_studio_page_nav"
     refute_includes view_source, "dummy_page_nav"
     refute_includes view_source, "Sign out"
@@ -432,6 +447,8 @@ class RecordingStudioSupportTest < Minitest::Test
   def test_dummy_mounts_support_and_admin
     routes = File.read(File.expand_path("dummy/config/routes.rb", __dir__))
 
+    assert_includes routes, "mount RecordingStudioInternationalization::Engine"
+    assert_includes routes, 'at: "/recording_studio_internationalization"'
     assert_includes routes, 'mount RecordingStudioSupport::Engine, at: "/admin/support"'
     assert_includes routes, 'get "/support", to: redirect("/admin")'
     assert_includes routes, "recording_studio_admin_for :admin, at: \"/admin\", root_section: :support"

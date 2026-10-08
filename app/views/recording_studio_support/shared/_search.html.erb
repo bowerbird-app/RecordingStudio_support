@@ -15,7 +15,7 @@
   <%= render FlatPack::Search::Component.new(
     name: "q",
     value: query,
-    placeholder: local_assigns.fetch(:placeholder, "Search support"),
+    placeholder: local_assigns.fetch(:placeholder, support_t("help.search_placeholder")),
     max_width: :none,
     size: size
   ) %>

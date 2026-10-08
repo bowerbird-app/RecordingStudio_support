@@ -29,7 +29,7 @@ class PagesTest < Minitest::Test
     assert_includes index, 'render "recording_studio_support/shared/search"'
     assert_includes search, "FlatPack::Search::Component"
     assert_includes search, 'name: "q"'
-    assert_includes search, 'local_assigns.fetch(:placeholder, "Search support")'
+    assert_includes search, 'local_assigns.fetch(:placeholder, support_t("help.search_placeholder"))'
     assert_includes search, "max_width: :none"
     assert_includes search, 'class: "w-full"'
     assert_includes search, "--search-input-background-color: var(--color-white)"
@@ -248,7 +248,7 @@ class PagesTest < Minitest::Test
     assert_includes show, "support_page_meta_description"
     assert_includes show, "page_nav_secondary_anchor"
     assert_includes show, '"home"'
-    assert_includes show, '"Home"'
+    assert_includes show, 'support_t("help.home")'
     assert_includes show, "gap-1.5"
     refute_includes show, 'class: "text-sm text-[var(--surface-muted-content-color)]"'
     refute_includes show, "size: :sm"

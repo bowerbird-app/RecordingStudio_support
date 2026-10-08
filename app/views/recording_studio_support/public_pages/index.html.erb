@@ -42,8 +42,8 @@
     <% end %>
   <% elsif @query.present? %>
     <%= render FlatPack::EmptyState::Component.new(
-      title: "Nothing matches that",
-      description: "Try another word.",
+      title: support_t("empty.no_match_title"),
+      description: support_t("empty.no_match_description"),
       class: "py-6"
     ) do |empty| %>
       <% if (contact_href = support_public_contact_href).present? %>
@@ -58,8 +58,8 @@
     <% end %>
   <% else %>
     <%= render FlatPack::EmptyState::Component.new(
-      title: "Nothing live yet",
-      description: "Check back soon.",
+      title: support_t("empty.nothing_live_title"),
+      description: support_t("empty.nothing_live_description"),
       class: "py-6"
     ) %>
   <% end %>

@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-10-08
+
+Customer-facing Support copy now lives under `recording_studio.support.*` so hosts can translate public help, search chrome, contact CTAs, the signed-in `/help/messages` desk, and related screens.
+
+### Added
+- Engine ships English only in `config/locales/en.yml`
+- Nested keys: `t("recording_studio.support.help.search_placeholder")` (not a top-level `recording_studio_support:` namespace)
+- Dummy hosts English and French via Recording Studio Internationalization, with a compact language selector in the top nav
+
+### Upgrade notes
+- Bump to **0.13.0** (minor: hosts can translate customer Support screens). No migration
+- English screens stay the same. Helper arguments and `RecordingStudioSupport.configure` copy that already accept custom text (`public_help_title`, `public_help_subtitle`, `public_contact_label`, `public_section_subtitle`, Search `placeholder:`) still win over the locale default. A host that keeps the English default string follows I18n
+- To offer another language, copy `recording_studio.support.*` from `config/locales/en.yml` into the host (`config/locales/<locale>.yml`) and list that locale in `config.i18n.available_locales`. Dummy `test/dummy/config/locales/fr.yml` is a complete starting point
+- Do not add `RecordingStudio_Internationalization` as a gem dependency of this engine. Use plain Rails I18n. Internationalization is a host (and dummy) concern
+- Help article titles/bodies, category names, and other content written by staff or stored in the database are data. This gem does not translate them
+- Staff `/admin/support` screens stay English
+- Allows Notifications 0.4. Gemspec Notifications is `>= 0.3.1`, `< 1` (same style as notifications_email / notifications_push). Dummy and development pin Messages `v0.5.2` and Notifications `v0.4.0` so help-desk and notification chrome can follow the locale. Dummy Users is `v0.15.0`. Gemspec Messages stays `~> 0.5` (covers 0.5.x). Notifications Email stays `~> 0.3.1`. Dummy and development pin Flatpack `v0.1.206` so kit copy can follow the locale.
+
 ## [0.12.0] - 2026-10-08
 
 ### Changed
@@ -656,7 +674,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.12.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.13.0...HEAD
+[0.13.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.10.0...v0.11.0
 [0.9.8]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.7...v0.9.8

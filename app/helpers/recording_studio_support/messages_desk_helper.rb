@@ -18,7 +18,7 @@ module RecordingStudioSupport
     # Prefer profile/display names so sidebar snippets say "Avery Admin: …"
     # instead of the email local-part ("Admin: …").
     def message_sender_name(actor)
-      return "Someone" if actor.blank?
+      return Copy.t("messages.someone") if actor.blank?
 
       actor_display_name(actor) || actor_email_label(actor) || actor.class.name.demodulize
     end

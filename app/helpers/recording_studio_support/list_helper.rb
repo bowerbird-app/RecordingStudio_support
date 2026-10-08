@@ -11,8 +11,7 @@ module RecordingStudioSupport
     end
 
     def support_article_count_label(page_count)
-      count = page_count.to_i
-      "#{count} #{'article'.pluralize(count)}"
+      Copy.t("help.articles", count: page_count.to_i)
     end
 
     def support_section_icon_name(recording_or_section)

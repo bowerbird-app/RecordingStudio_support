@@ -1,0 +1,31 @@
+en:
+  recording_studio:
+    support:
+      help:
+        title: Hi, how can we help?
+        subtitle: Find an answer.
+        search_placeholder: Search support
+        home: Home
+        articles:
+          one: 1 article
+          other: "%{count} articles"
+      empty:
+        no_match_title: Nothing matches that
+        no_match_description: Try another word.
+        nothing_live_title: Nothing live yet
+        nothing_live_description: Check back soon.
+      article:
+        updated: "Updated %{date}"
+      section:
+        subtitle: "Find answers in %{title}."
+        search_placeholder: "Search in %{title}…"
+      contact:
+        label: Contact support
+        prompt: "Need something else in %{title}?"
+      search:
+        empty: Try another keyword.
+        empty_with_contact_html: "Try another keyword or %{contact}."
+      messages:
+        title: Messages
+        subtitle: Write to support when Help isn’t enough.
+        someone: Someone

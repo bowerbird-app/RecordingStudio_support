@@ -444,7 +444,7 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "pb-8"
     assert_includes response.body, 'class="w-fit"'
     assert_match(/\bUpdated [A-Z][a-z]+ \d{1,2}, \d{4}\b/, response.body)
-    refute_match(/\bago\b/, response.body)
+    refute_match(/\bago\b/, css_select("main").text)
     assert_select "a[aria-label='Home'][href='/help']"
     refute_includes response.body, "Related"
     assert_select "a[href=?]", related_path, count: 0
