@@ -22,7 +22,7 @@ Mount the engine (dummy uses `/recording_studio_api`). Enable `:accessible` and 
 
 Name the Admin API `:operations` (`default_access :read_only`). Support registers **page reads** on the public API and **section reads plus writes** on `:operations`. Handlers register with `register_resource_handler` (API `v0.6.7`) and call `Pages` / `Sections`. Pass `operations:` explicitly on the operations registrations so the named-API read-only default does not apply.
 
-Recording Studio API still resolves member and nested-parent ids inside the client’s Accessible tree. Provision operations clients on the **workspace** that owns the help tree (or otherwise grant that tree), and grant the same client AdminRoot `:view` / `:edit`. Support handlers still authorize AdminRoot; they do not skip RS_API lookup.
+Recording Studio API still resolves member and nested-parent ids inside the client’s Accessible tree. Operations access points are only types registered on `:operations` that enable `:api_access_point` (dummy registers `AdminRoot` and `Workspace`). Provision the operations client on the **workspace** that owns the help tree, and grant the same client AdminRoot `:view` / `:edit`. Support handlers still authorize AdminRoot; they do not skip RS_API lookup.
 
 Live OpenAPI (Scalar) is optional and owned by the API gem. Generate it in the host if you want an explorer. This file is the Support contract even when Scalar is off.
 
@@ -79,7 +79,7 @@ Public `support_sections` list/show and nested section-pages are not registered 
 | --- | --- | --- | --- |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_sections` | AdminRoot `:view` | List sections |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_sections/:id` | AdminRoot `:view` | One section |
-| `GET` | `/recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages` | AdminRoot `:view` | Pages in that section. `?q=` searches articles |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages` | AdminRoot `:view` | Pages in that section |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages/:relationship_id` | AdminRoot `:view` | One nested page |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_sections` | AdminRoot `:edit` | Body: `title`, optional `icon`, `parent_id` (workspace recording) |
 | `PATCH` | `/recording_studio_api/apis/operations/v1/support_sections/:id` | AdminRoot `:edit` | `title`, `icon` |
@@ -89,7 +89,7 @@ Public `support_sections` list/show and nested section-pages are not registered 
 | `DELETE` | `/recording_studio_api/apis/operations/v1/support_pages/:id` | AdminRoot `:edit` | Trash (`Pages.trash!`) |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/move` | AdminRoot `:edit` | Body: `parent_id` (destination section recording) |
 
-Operations has no top-level `GET support_pages`. Collection `POST` on `support_pages` needs `parent_id`. Nested `…/support_sections/:parent_id/pages` is **read-only** (list/show). Writes go through collection `support_pages` / `support_sections` so Support handlers run.
+Collection `POST` on `support_pages` needs `parent_id`. Nested `…/support_sections/:parent_id/pages` is **read-only** (list/show). Recording Studio API requires page `index` / `show` on operations for those nested reads, so those collection GETs exist there too — prefer the nested section routes. Writes go through collection `support_pages` / `support_sections` so Support handlers run.
 
 Send writable fields at the JSON root. Do not wrap them in `attributes`.
 

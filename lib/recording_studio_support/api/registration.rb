@@ -30,7 +30,7 @@ module RecordingStudioSupport
         )
         register_pages!(
           api: OPERATIONS_API,
-          operations: WRITE_OPERATIONS,
+          operations: (READ_OPERATIONS + WRITE_OPERATIONS),
           capability_actions: %i[move]
         )
       end

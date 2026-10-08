@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Pin `recording_studio_api` `v0.6.7`.
 - Move `GET support_sections` and nested section-page reads to `/recording_studio_api/apis/operations/v1/…`.
 - Keep `GET support_pages` on the public API. Do not rely on per-client Support search rate limits.
-- Provision operations clients on the workspace help tree (Recording Studio API still looks up members there) and grant the same client AdminRoot `:view` / `:edit`. Support handlers authorize AdminRoot; they do not replace lookup.
+- Register the workspace as an operations access-point type (dummy does) so member lookup can see help records. Grant the same client AdminRoot `:view` / `:edit`. Support handlers authorize AdminRoot; they do not replace lookup.
 - Create and revise pages through collection `POST` / `PATCH` `/support_pages`, not nested relationship writes.
 
 ## [0.14.0] - 2026-10-08

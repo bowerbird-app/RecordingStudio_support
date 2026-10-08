@@ -56,7 +56,7 @@ class RecordingStudioSupportTest < Minitest::Test
       /recording_studio_api/oauth/token
       /recording_studio_api/api/v1/support_pages
       /recording_studio_api/apis/operations/v1/support_sections
-      /recording_studio_api/apis/operations/v1/support_sections/:id/pages
+      /recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages
       /recording_studio_api/apis/operations/v1/support_pages
       /recording_studio_api/apis/operations/v1/support_pages/:id/actions/move
     ].each { |path| assert_includes reference, path }
