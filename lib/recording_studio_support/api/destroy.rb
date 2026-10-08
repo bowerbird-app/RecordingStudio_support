@@ -12,6 +12,7 @@ module RecordingStudioSupport
       end
 
       def call
+        Access.refuse_public_sections!(context)
         Access.authorize_edit!(context)
 
         recording = context.recording

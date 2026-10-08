@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - **Breaking:** Public JSON keeps only page reads. `GET support_pages` and `GET support_pages/:id` (including list `?q=`) stay on `/recording_studio_api/api/v1`. Section list/show and nested section-page reads move to the host Admin API named `:operations` (`GET /recording_studio_api/apis/operations/v1/support_sections`, `GET …/support_sections/:id`, `GET …/support_sections/:parent_id/pages` with `?q=`, `GET …/support_sections/:parent_id/pages/:relationship_id`). Operations writes and page `move` stay where they are. Public `support_sections` routes are unregistered (`404` / unsupported).
 - Operations section and nested-page reads authorize Accessible `:view` on **AdminRoot** (`can_view_as_staff?`) — the existing staff read role. Writes still require AdminRoot `:edit`.
+- Public `support_sections` is not registered. Recording Studio API still lists every host recordable type on public and treats a missing registration as full CRUD, so Support handlers refuse those public section (and nested page) calls as unsupported. Empty `operations: []` is not a close — the API gem expands it to all CRUD.
 - HTML staff and public Help screens are unchanged; they still read the database through Support controllers.
 
 ### Upgrade notes

@@ -12,6 +12,7 @@ module RecordingStudioSupport
       end
 
       def call
+        Access.refuse_public_sections!(context)
         authorize_index!
         blocked = search_block
         return blocked if blocked

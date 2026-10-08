@@ -12,6 +12,7 @@ module RecordingStudioSupport
       end
 
       def call
+        Access.refuse_public_sections!(context)
         reject_parent_id_input!
         Access.authorize_edit!(context)
         { json: Serialize.recording(revise_recording!, context: context) }

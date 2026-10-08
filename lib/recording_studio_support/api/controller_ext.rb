@@ -94,6 +94,8 @@ module RecordingStudioSupport
         type = resolve_recordable_type!
         return super unless type == RecordingStudioSupport::Api::SECTION_TYPE
 
+        refuse_public_section_relationship!
+
         recording = RecordingStudio::Recording.where(
           recordable_type: type,
           trashed_at: nil
@@ -172,6 +174,13 @@ module RecordingStudioSupport
 
       def operations_request?
         current_api_key.to_s == Registration::OPERATIONS_API.to_s
+      end
+
+      def refuse_public_section_relationship!
+        return if operations_request?
+
+        raise RecordingStudioApi::UnsupportedActionError,
+              "support_sections is not enabled on the public API"
       end
 
       def assert_pages_collection!(operation)

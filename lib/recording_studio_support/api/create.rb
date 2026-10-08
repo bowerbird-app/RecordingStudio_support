@@ -12,6 +12,7 @@ module RecordingStudioSupport
       end
 
       def call
+        Access.refuse_public_sections!(context)
         cached = cached_idempotent_response
         return cached if cached
 

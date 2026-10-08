@@ -68,6 +68,14 @@ module RecordingStudioSupport
         key.to_s == Registration::OPERATIONS_API.to_s
       end
 
+      def refuse_public_sections!(context)
+        return unless context.recordable_type.to_s == SECTION_TYPE
+        return if operations_api?(context)
+
+        raise RecordingStudioApi::UnsupportedActionError,
+              "support_sections is not enabled on the public API"
+      end
+
       def deny!
         raise RecordingStudioApi::AuthorizationError, "API access grant is not authorized for this capability"
       end
