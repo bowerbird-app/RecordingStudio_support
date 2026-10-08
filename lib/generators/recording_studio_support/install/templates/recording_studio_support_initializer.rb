@@ -15,9 +15,4 @@ RecordingStudioSupport.configure do |config|
   # When blank, `messages_admin_finder` runs (default: User.where(admin: true)).
   # config.messages_admin_email = "support@example.com"
   # config.messages_admin_finder = -> { User.where(admin: true) }
-  # JSON article search (`GET support_pages?q=` and nested section pages `?q=`).
-  # 30 searches per API client per minute.
-  # config.api_search_rate_limit_enabled = true
-  # config.api_search_rate_limit_requests = 30
-  # config.api_search_rate_limit_period_seconds = 60
 end

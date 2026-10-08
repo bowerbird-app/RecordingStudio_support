@@ -17,7 +17,6 @@ class SupportApiTest < ActionDispatch::IntegrationTest
       password: "Password",
       password_confirmation: "Password"
     )
-    RecordingStudioSupport::Api::SearchLimit.reset!
     Current.actor = @staff
     @workspace = Workspace.create!(name: "API #{SecureRandom.hex(4)}")
     @root = RecordingStudio.root_recording_for(@workspace)
@@ -64,7 +63,6 @@ class SupportApiTest < ActionDispatch::IntegrationTest
 
   teardown do
     Current.actor = nil
-    RecordingStudioSupport::Api::SearchLimit.reset!
   end
 
   test "missing token is unauthorized on the public API" do
@@ -362,38 +360,6 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_includes nested_titles, live_hit.recordable.title
     assert_includes nested_titles, draft_hit.recordable.title
     refute_includes nested_titles, miss.recordable.title
-  end
-
-  test "article search is rate limited per client" do
-    original_limit = RecordingStudioSupport.configuration.api_search_rate_limit_requests
-    RecordingStudioSupport.configuration.api_search_rate_limit_requests = 1
-    RecordingStudioSupport::Api::SearchLimit.reset!
-
-    get "#{PUBLIC_ROOT}/support_pages",
-        headers: auth(@workspace_token),
-        params: { q: "invoice" },
-        as: :json
-
-    assert_response :success
-
-    get "#{PUBLIC_ROOT}/support_pages",
-        headers: auth(@workspace_token),
-        params: { q: "invoice" },
-        as: :json
-
-    assert_response :too_many_requests
-    assert_equal "rate_limit_exceeded", response.parsed_body.dig("error", "code")
-    assert response.headers["Retry-After"].present?
-
-    get "#{PUBLIC_ROOT}/support_pages",
-        headers: auth(@staff_public_token),
-        params: { q: "invoice" },
-        as: :json
-
-    assert_response :success
-  ensure
-    RecordingStudioSupport.configuration.api_search_rate_limit_requests = original_limit
-    RecordingStudioSupport::Api::SearchLimit.reset!
   end
 
   private

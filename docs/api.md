@@ -2,14 +2,14 @@
 
 How a host, person, or AI agent talks to Support sections and pages over **Recording Studio API**. Public anonymous browse stays `/help`. This surface is authenticated.
 
-Support does **not** gemspec-depend on `recording_studio_api`. Add that gem in the **host** (`v0.6.4` in dummy). If the constant is missing, Support boots with no JSON routes.
+Support does **not** gemspec-depend on `recording_studio_api`. Add that gem in the **host** (`v0.6.7` in dummy). If the constant is missing, Support boots with no JSON routes.
 
 Do not add a Support `ApiController`. Writes go through `Pages` / `Sections`. Access is **Accessible** only.
 
 ## Install (host)
 
 ```ruby
-gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.4"
+gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.7"
 ```
 
 ```bash
@@ -20,7 +20,7 @@ bin/rails db:migrate
 
 Mount the engine (dummy uses `/recording_studio_api`). Enable `:accessible` and `:api_access_point` on roots that hold API keys. Dummy does this on `Workspace` and `AdminRoot`.
 
-Name the Admin API `:operations` (`default_access :read_only`). Support registers **page reads** on the public API and **section reads plus writes** on `:operations`. Pass `operations:` explicitly on the operations registrations so the named-API read-only default does not apply.
+Name the Admin API `:operations` (`default_access :read_only`). Support registers **page reads** on the public API and **section reads plus writes** on `:operations`. Handlers register with `register_resource_handler` (API `v0.6.7`) and call `Pages` / `Sections`. Pass `operations:` explicitly on the operations registrations so the named-API read-only default does not apply.
 
 Live OpenAPI (Scalar) is optional and owned by the API gem. Generate it in the host if you want an explorer. This file is the Support contract even when Scalar is off.
 
@@ -106,9 +106,7 @@ Recording Studio API also returns recording ids, type, and relationship metadata
 
 ## Search
 
-There is no `GET support/search`. Public `GET …/support_pages?q=` and operations nested `GET …/support_sections/:parent_id/pages?q=` search articles through `Pages.apply_query` → `SupportPage.search` (trigram). Same per-client `SearchLimit` bucket. Empty `q` is a scoped live list and does not count against the bucket. Public workspace-only tokens hide drafts and stay scoped to that client’s workspace root. Operations AdminRoot `:view` readers see drafts.
-
-Search is rate limited **per API client** (default 30 requests per 60 seconds). Over the window: `429`, error code `rate_limit_exceeded`, header `Retry-After`. Tune `api_search_rate_limit_enabled`, `api_search_rate_limit_requests`, and `api_search_rate_limit_period_seconds` on `RecordingStudioSupport.configure`. Keep Recording Studio API read rate limits on in production as well.
+There is no `GET support/search`. Public `GET …/support_pages?q=` uses `Pages.for_root` / `SupportPage.search`. Nested operations `GET …/support_sections/:parent_id/pages` lists pages in that section. Public workspace-only tokens hide drafts and stay scoped to that client’s workspace root. Operations AdminRoot `:view` readers see drafts.
 
 ## Examples
 

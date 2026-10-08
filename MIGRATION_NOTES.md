@@ -1,15 +1,58 @@
 # Upgrade notes
 
-## Unreleased
+## 0.15.0
 
-Kit pins unchanged from 0.12.0. Support is `v0.13.0`. API stays `v0.6.4`.
+Public page reads stay on the public API. Section reads and all Support writes move to operations. Handlers register through Recording Studio API `v0.6.7`.
 
 ### Host app
 
-1. Move `GET support_sections`, `GET support_sections/:id`, and nested `GET support_sections/:id/pages` from `/recording_studio_api/api/v1/…` to `/recording_studio_api/apis/operations/v1/…`.
-2. Provision operations tokens with AdminRoot `:view` for those reads. Writes still need AdminRoot `:edit`.
-3. Keep `GET support_pages` and `GET support_pages/:id` (including list `?q=`) on the public API. Nested `?q=` is operations-only.
-4. Public `support_sections` routes are gone (`404` / unsupported). HTML `/help` and `/admin/support` are unchanged.
+1. Bump `recording_studio_support` to `0.15.0`. Pin `recording_studio_api` to `v0.6.7`.
+2. Move `GET support_sections` and nested `GET support_sections/:id/pages` to `/recording_studio_api/apis/operations/v1/…`.
+3. Keep `GET support_pages` on the public API. Drop any host dependence on Support’s per-client search rate limit.
+
+### Verify
+
+```bash
+bundle exec rake test:all
+```
+
+## 0.14.0
+
+Support tickets. Each ticket owns a MessageGroup under `:support`. Membership on that mount is locked.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.14.0`. Messages stays on `~> 0.5` (dummy/development pin `v0.5.2`). `bundle install`.
+2. Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` for `recording_studio_support_tickets`.
+3. Point `/help/messages` at user desk `index` / `new` / `create` / `show` (see installer routes). Contact still defaults to `/help/messages`.
+4. Existing per-user MessageGroups are not migrated. New conversations open as tickets via `Tickets.open!`.
+5. Enable Messages on Workspace with membership lock:
+
+```ruby
+include RecordingStudio::Capabilities::Messages.to(
+  keys: [:support],
+  membership_locked: [:support]
+)
+```
+
+Trusted staff grants use `RecordingStudioMessages.allow_membership_change` (Support’s `sync_staff_grants!` already wraps this). Mount key stays `:support`.
+
+### Verify
+
+```bash
+bundle exec rake test:all
+```
+
+## 0.13.0
+
+Customer-facing Support copy lives under `recording_studio.support.*`. Kit pins: Messages `v0.5.2`, Notifications `v0.4.0`, Flatpack `v0.1.206`, Internationalization `v0.1.2` (host/dummy only), Users `v0.15.0` (host). Recording Studio stays `v4.2.2`. API is `v0.6.4`. Allows Notifications 0.4 (`>= 0.3.1`, `< 1`).
+
+### Host app
+
+1. Widen gemspec constraints: Messages `~> 0.5`. Notifications `>= 0.3.1`, `< 1` (allows 0.4). Dummy pins Messages `v0.5.2` and Notifications `v0.4.0`. Do not add `RecordingStudio_Internationalization` to this gem. `bundle install`.
+2. English screens stay the same. To offer another language, copy `recording_studio.support.*` from `config/locales/en.yml` into the host and list that locale in `config.i18n.available_locales`. Dummy `test/dummy/config/locales/fr.yml` is a complete starting point.
+3. Config and helper copy (`public_help_title`, `public_contact_label`, Search `placeholder:`) still override the locale when you set custom text.
+4. Pin Flatpack `v0.1.206` if you want kit chrome (PageNav, Search, chat) to follow the locale too.
 
 ### Verify
 

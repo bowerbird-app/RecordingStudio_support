@@ -2,6 +2,7 @@
 
 RecordingStudioSupport::Engine.routes.draw do
   resource :messages, only: :show, controller: "staff_messages"
+  resources :tickets, only: :update, controller: "staff_tickets"
 
   resources :sections, only: %i[index show new create edit update] do
     member do

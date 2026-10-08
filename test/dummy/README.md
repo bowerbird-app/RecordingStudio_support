@@ -12,7 +12,7 @@ This Rails app exists to prove Recording Studio Support in a real host. It is no
 - Admin Support section mounted at `/admin` on an admin root (switch to **Admin** in the top control first — Admin 2.0 gates staff screens on that root)
 - Recording Studio API mounted at `/recording_studio_api` with `api_access_point` on `Workspace` and `AdminRoot`, plus a named `:operations` API. Seeds a public workspace-only client (`:view`) and operations AdminRoot clients (`:edit` writes, `:view` section reads / writes denied)
 - Support pages opt into Trashable, Moveable, and Publishable. Dummy Folder and Page do not.
-- Recording Studio default layout (`UsesDefaultLayout`) with dummy's `<html data-theme="rounded">` override so Flatpack's built-in rounded theme actually applies; back/close chrome on Support and Admin Support screens; no Sign out or workspace switcher in PageNav; Flatpack CSS/JS, Turbo, and Tailwind source scanning. Users auth also puts `rounded` on `<html>`.
+- Recording Studio default layout (`UsesDefaultLayout`) with dummy's `<html>` override so Flatpack's built-in rounded theme actually applies (`data-theme="rounded"`, `lang`, and kit copy data); back/close chrome on Support and Admin Support screens; a compact language selector in PageNav (English/French via Recording Studio Internationalization); no Sign out or workspace switcher in PageNav; Flatpack CSS/JS, Turbo, and Tailwind source scanning. Users auth also puts `rounded` on `<html>`.
 - Root Switchable stays installed for workspace switching via its own routes, not PageNav chrome
 - Mounted `RecordingStudio::Engine` route behavior inside a host app
 
@@ -43,9 +43,9 @@ Auth uses `layouts/recording_studio_user/auth` with `html data-theme="rounded"`.
 
 ## Layouts and assets
 
-Authenticated pages include `RecordingStudio::UsesDefaultLayout` and render `recording_studio/default_layout`. That layout owns the back/close chrome and Flatpack flash alerts. Dummy overrides the layout file so `<html data-theme="rounded">` is set — Flatpack's built-in rounded theme, the same one the live kit uses. Core puts `data-theme` on `<body>` only, which does not recolor buttons and other component tokens. Do not invent a custom theme or a sidebar shell. The override also maps `page_nav_anchor_url` → Flatpack `anchor_href` and `page_nav_secondary_anchor_*` → `secondary_anchor_*` (Home on public section show).
+Authenticated pages include `RecordingStudio::UsesDefaultLayout` and render `recording_studio/default_layout`. That layout owns the back/close chrome and Flatpack flash alerts. Dummy overrides the layout file so `<html>` gets `data-theme="rounded"`, `lang`, and Flatpack copy data — Flatpack's built-in rounded theme, the same one the live kit uses. Core puts `data-theme` on `<body>` only, which does not recolor buttons and other component tokens. Do not invent a custom theme or a sidebar shell. The override also maps `page_nav_anchor_url` → Flatpack `anchor_href` and `page_nav_secondary_anchor_*` → `secondary_anchor_*` (Home on public section show). A compact `recording_studio_language_selector` sits in the PageNav right slot (English/French).
 
-Public and staff help use the same default layout. Do not use Publishable's application layout or invent a Support-only public shell. Support and Admin Support screens are back/close only. Sign out and the workspace switcher stay off PageNav, including dummy host pages, `/admin/support`, `/help`, and `/admin`. Access can stay on Admin. Do not put a login button in that chrome.
+Public and staff help use the same default layout. Do not use Publishable's application layout or invent a Support-only public shell. Support and Admin Support screens are back/close only. Sign out and the workspace switcher stay off PageNav, including dummy host pages, `/admin/support`, `/help`, and `/admin`. Access can stay on Admin. Do not put a login button in that chrome. Switch language from PageNav; article titles stay in the language they were written.
 
 Users gem sign-in and sign-up use `layouts/recording_studio_user/auth`. That layout loads Tailwind, Flatpack stylesheets (`flat_pack/variables`, `flat_pack/application`, `flat_pack/rich_text`), and Importmap JS (`@hotwired/turbo-rails`). Host `layouts/application` is not in the auth stack.
 
@@ -62,7 +62,8 @@ OTP is off (`otp_enabled = false`). OmniAuth Continue-with buttons appear only w
 ## Useful Routes
 
 - `/` - dummy host home page
-- `/help` - public help sections (no sign-in)
+- `/help` - public help sections (no sign-in). Switch English/French from the PageNav language selector
+- `/help/messages` - signed-in messages desk
 - `/help/sections/:slug` - published pages in a section (declare this before the Publishable mount; UUID bookmarks redirect). Typing filters articles in a Turbo Frame via Instant Search (`/help/sections/:slug/instant_search`)
 - `/recording_studio_search/instant_search` - Search Instant engine (live `SupportPage` only)
 - `/help/:uuid/:slug` - public help page through Publishable
@@ -74,7 +75,7 @@ OTP is off (`otp_enabled = false`). OmniAuth Continue-with buttons appear only w
 - `/admin/support/:id/edit` - Edit page form
 - `/recording_studio_api/oauth/token` - OAuth `client_credentials` for a public API bearer token
 - `/recording_studio_api/apis/operations/oauth/token` - OAuth `client_credentials` for an operations API bearer token
-- `/recording_studio_api/api/v1/support_pages` - public JSON pages (`GET` list / show). `?q=` searches; extra searches in a minute return `429`
+- `/recording_studio_api/api/v1/support_pages` - public JSON pages (`GET` list / show). `?q=` searches articles
 - `/recording_studio_api/apis/operations/v1/support_sections` - operations section reads (`GET`) and writes (`POST` / `PATCH` / `DELETE`)
 - `/recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages` - operations nested pages (`GET` list / show, including `?q=`) plus writes
 - `/recording_studio_api/apis/operations/v1/support_pages` - operations writes and `POST …/actions/move`

@@ -1,21 +1,21 @@
-<% recording_studio_page_nav(title: "Dummy host") %>
+<% recording_studio_page_nav(title: t("dummy.home.title")) %>
 
 <div class="flex w-full flex-col gap-6">
   <%= render FlatPack::PageTitle::Component.new(
-    title: "Dummy host",
-    subtitle: "This app proves the support gem in a real host. It is not the product.",
+    title: t("dummy.home.title"),
+    subtitle: t("dummy.home.subtitle"),
     variant: :h1
   ) %>
 
   <%= render FlatPack::Card::Component.new(style: :default) do |card| %>
     <% card.body do %>
       <p class="text-sm leading-6 text-(--surface-content-color)">
-        Sign in stays at admin@admin.com. Help pages live in a section under the workspace.
+        <%= t("dummy.home.intro") %>
       </p>
     <% end %>
     <% card.footer do %>
       <%= render FlatPack::Button::Component.new(
-        text: "Open help pages",
+        text: t("dummy.home.open_help"),
         style: :primary,
         size: :md,
         href: "/help"

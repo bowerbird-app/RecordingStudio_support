@@ -12,15 +12,15 @@ Add the gem next to Recording Studio 4.2, Accessible 0.11, Admin 2.0, Publishabl
 # Gemfile
 gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.2.2"
 gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.11.1"
-gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.0.4"
+gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.0.6"
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.7.1"
 gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.4.4"
 gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.2.5"
 gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.4.2"
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"
 gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.0.3"
-gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.4.3"
-gem "recording_studio_notifications", github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.3.4"
+gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.5.2"
+gem "recording_studio_notifications", github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.4.0"
 gem "recording_studio_notifications_email",
     github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.4"
 # Prefer GitHub once RecordingStudio_search is public (sibling gems already are).
@@ -30,8 +30,8 @@ gem "recording_studio_search", "~> 0.4",
     ref: "d9cc54dd33ec625dd618f5520de56b9b49a29e01" # Instant UI; Search PR #2
 gem "recording_studio_support", github: "bowerbird-app/RecordingStudio_support"
 # Host-owned auth (not a Support gemspec dependency):
-gem "recording_studio_user", github: "bowerbird-app/RecordingStudio_users", tag: "v0.12.5"
-gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.198" # Content + 18px; Flatpack #215
+gem "recording_studio_user", github: "bowerbird-app/RecordingStudio_users", tag: "v0.15.0"
+gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.207" # Content + kit i18n; Flatpack #237
 ```
 
 ```ruby
@@ -45,8 +45,8 @@ gem "recording_studio_orderable", "~> 0.2"
 gem "recording_studio_publishable", "~> 0.4"
 gem "recording_studio_search", "~> 0.4"
 gem "recording_studio_moveable", "~> 3.0"
-gem "recording_studio_messages", "~> 0.4"
-gem "recording_studio_notifications", "~> 0.3.1"
+gem "recording_studio_messages", "~> 0.5"
+gem "recording_studio_notifications", ">= 0.3.1", "< 1"
 gem "recording_studio_notifications_email", "~> 0.3.1"
 ```
 
@@ -71,7 +71,7 @@ bin/rails generate recording_studio_accessible:migrations
 bin/rails db:migrate
 ```
 
-Accessible `v0.11` stores roles as strings (`view`, `edit`, `admin`) and adds access invitations. Run its 0.8–0.11 migrations. Grant through `bootstrap_owner_access!` / `grant_access` — do not create `RecordingStudio::Access` rows. Dummy pins API `v0.6.4` (Accessible 0.11-native; no `Access.roles` shim).
+Accessible `v0.11` stores roles as strings (`view`, `edit`, `admin`) and adds access invitations. Run its 0.8–0.11 migrations. Grant through `bootstrap_owner_access!` / `grant_access` — do not create `RecordingStudio::Access` rows. Dummy pins API `v0.6.7` (Accessible 0.11-native; no `Access.roles` shim).
 
 Keep Search `default_backend = :pg_trgm`. Do not run `searchable_pgvector` for Support in this phase. `SupportPage` is already declared searchable (title weight A, body weight D). Allowlist only that model for Instant UI (`config.instant_search_models = ["RecordingStudioSupport::SupportPage"]`). Mount `RecordingStudioSearch::Engine` at `/recording_studio_search`, pin `controllers/recording_studio_search`, and `eagerLoadControllersFrom` it. Public section Instant hits `/help/sections/:slug/instant_search` (same trigram, live pages in that section). Staff section Instant hits `/admin/support/sections/:id/instant_search`. `/help?q=` stays a GET form on section titles.
 
@@ -102,13 +102,16 @@ RecordingStudio.configure do |config|
 end
 ```
 
-Enable Messages on the workspace (mount parent, key `:support` — not AdminRoot):
+Enable Messages on the workspace (mount parent, key `:support` — not AdminRoot). Lock membership so ticket conversations cannot invite people from the chat UI:
 
 ```ruby
 class Workspace < ApplicationRecord
   recording_studio_recordable label: "Workspace", root: true
   RecordingStudio.enable_capability(:accessible, on: self)
-  include RecordingStudio::Capabilities::Messages.to(keys: [:support])
+  include RecordingStudio::Capabilities::Messages.to(
+    keys: [:support],
+    membership_locked: [:support]
+  )
 end
 ```
 
@@ -201,7 +204,7 @@ Logged-out people can read sections and live pages. Drafts 404.
 
 Public `/help` lists sections. A section show lists `SupportPage.indexable` pages in that section. Do not copy that logic. Public `/help?q=` searches section names (`ILIKE`) with a GET form. Page search lives on a public section show and filters pages **in that section** via Recording Studio Search trigram on title/body. Typing uses Search Instant UI (`instant_search_field` + Turbo Frame) against the section Instant path; Enter / no-JS still GET `?q=` on the section. Staff section show uses the same Instant field against the staff Instant path. The Search engine Instant endpoint is mounted for hosts; it only returns **live** `SupportPage` rows so drafts do not leak. Admin support pages table search is unchanged. Sections are not Searchable yet.
 
-Public `/help` and public section show use Flatpack Search at full width (`max_width: :none`, placeholder “Search support”). Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Public `/help` and public section show pass `size: :lg` (Flatpack `0.1.175+` / pin `v0.1.198`); public `/help` also raises the `:lg` vertical padding (`prominent: true`). Staff search on remaining engine screens keeps the default `:md`.
+Public `/help` and public section show use Flatpack Search at full width (`max_width: :none`, placeholder from `recording_studio.support.help.search_placeholder`, English “Search support”). Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Public `/help` and public section show pass `size: :lg` (Flatpack `0.1.175+` / pin `v0.1.207`); public `/help` also raises the `:lg` vertical padding (`prominent: true`). Staff search on remaining engine screens keeps the default `:md`. Passing `placeholder:` still overrides the locale.
 
 **Public `/help` home** centers a larger PageTitle (`--page-title-h1-size: var(--text-5xl)`) and stacks interactive clickable Flatpack Cards in a Grid (`cols: 3`, `gap: :lg`, `style: :interactive`, `hover: :strong`, body `padding: :lg`, `theme: { background: "#ffffff" }`). Interactive (not elevated) is what Flatpack uses for a visible strong hover — elevated already ships `shadow-md`, so `hover: :strong` on elevated barely changes. Each card shows an optional Heroicons glyph (section `icon` short name via Flatpack `IconComponent`) to the left of the section title and a muted **N article(s)** line (no Badge). Blank icon skips the glyph. Staff section and page forms preview the glyph live beside the Icon field; new pages default to the parent section’s icon. PageTitle is `public_help_title` only — no subtitle on this page.
 
@@ -254,16 +257,21 @@ end
 
 ## Messages desk
 
-One MessageGroup per signed-in user under the Workspace `:support` mount (global — not per AdminRoot). Public `/help` stays anonymous with no composer.
+Tickets own the conversation lifecycle. Each ticket creates a MessageGroup under the Workspace `:support` mount (global — not per AdminRoot). Public `/help` stays anonymous with no composer. Existing per-user MessageGroups are not migrated.
 
 | Desk | Path | Who |
 |---|---|---|
-| User | `GET /help/messages` | Signed-in user (auth required) |
+| User list | `GET /help/messages` | Signed-in user (auth required) |
+| User new | `GET /help/messages/new` + `POST /help/messages` | Signed-in user |
+| User show | `GET /help/messages/:id` | Ticket owner (or staff) |
 | Staff | `GET /admin/support/messages` | Signed-in staff |
+| Staff ticket | `PATCH /admin/support/tickets/:id` | Signed-in staff (status / assignee) |
 
 **Staff set** (`messages_admin_email`): when set to an email, only that user is staff. When blank, `messages_admin_finder` runs — default `User.where(admin: true)` (or your host finder). Same set for `:edit` grants on each conversation, staff desk access, and staff notifications.
 
-First open of the user desk creates/bootstraps their conversation so they can send without Workspace `:admin`. Opening a thread grants staff `:edit` (skips existing grants) and syncs again when the thread is opened. Sends go through Messages `send_message` with `url:` pointing at the other party's desk. Notifications use `:message_received` on **in-app + email**.
+Opening a ticket runs `Tickets.open!`: MessageGroup under `:support`, ticket row (`subject`, `priority`, status `open`), staff `:edit` grants (via `allow_membership_change`), and the first message. Users list their tickets instead of a singleton group. Staff join ticket metadata onto the selected group and edit status / assignee on the ticket only (not on MessageGroup). Status values: `open`, `waiting_on_customer`, `waiting_on_support`, `resolved`. Priority: `low`, `normal`, `high`. Assignee is optional.
+
+The Workspace `:support` mount is **membership locked** (`membership_locked: [:support]`). Ticket panels hide **+ Access** / avatars; Accessible manage/grant/update/revoke on those conversations is denied unless wrapped in `RecordingStudioMessages.allow_membership_change` (Support’s staff sync already does this).
 
 Both desks render `recording_studio_messages/message_groups/desk` only — do not fork Chat::Layout or Chat::Panel. The panel is a Turbo frame; Support prepends Accessible's access button so "+ Access" uses `data-turbo-frame="_top"` and the access page loads in full. Each desk opens with a Flatpack PageTitle (`Messages` for the user desk, `Support messages` for staff). Keep `data-theme="rounded"` on `<html>` and add Tailwind `@source` lines for Messages views.
 
@@ -332,14 +340,14 @@ Bearer token: public `POST /recording_studio_api/oauth/token`; operations `POST 
 | `POST` `PATCH` `DELETE` | `/recording_studio_api/apis/operations/v1/support_pages` |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/move` |
 
-`GET support_pages?q=` on public and nested `support_sections/:parent_id/pages?q=` on operations still run the same `Pages` / `SupportPage.search` lookup as staff and public lists. There is no `GET support/search`. Instant UI is not used. Searches are rate limited per API client (default 30 per minute, `429` with `Retry-After`). Tune `api_search_rate_limit_enabled`, `api_search_rate_limit_requests`, and `api_search_rate_limit_period_seconds`. Keep Recording Studio API read rate limits on in production as well.
+`GET support_pages?q=` on public uses `Pages.for_root` / `SupportPage.search`. There is no `GET support/search`. Instant UI is not used.
 
 Do not add a Support `ApiController`. Domain writes stay `Pages` / `Sections`. Public anonymous browse stays `/help`.
 
 Host sketch:
 
 ```ruby
-gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.4"
+gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.7"
 ```
 
 ```bash
@@ -352,13 +360,29 @@ Enable `:api_access_point` (with `:accessible`) on roots that hold API keys. Dum
 
 Details: [docs/api.md](docs/api.md).
 
+## Internationalization
+
+The gem ships **English only** in `config/locales/en.yml`. Keys nest under `recording_studio.support.*`:
+
+```ruby
+t("recording_studio.support.help.search_placeholder")
+t("recording_studio.support.contact.label")
+t("recording_studio.support.messages.title")
+```
+
+Hosts own other languages. Copy `recording_studio.support.*` into `config/locales/<locale>.yml` and list that locale in `config.i18n.available_locales`. Do not add `RecordingStudio_Internationalization` as a dependency of this gem — it is optional on the host (the dummy uses it to switch English/French).
+
+`public_help_title`, `public_help_subtitle`, `public_contact_label`, `public_section_subtitle`, and Search `placeholder:` still override the locale when the host sets custom text. A host that leaves the English default follows I18n.
+
+Help article titles and bodies, section names, and other staff-written database content are data. This gem does not translate them. Staff Admin Support screens stay English.
+
 ## Dummy host
 
 `test/dummy/` is a host that proves the gem. It is not the product.
 
 Dummy credentials (`test/dummy/config/credentials.yml.enc`) are encrypted with the shared RecordingStudio_* development master key. Set `RAILS_MASTER_KEY` or put that key in `test/dummy/config/master.key` (gitignored). Keep the encrypted file; do not generate a per-repo dummy key.
 
-Dummy help pages — public and staff — use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Dummy overrides that layout file only so Flatpack's built-in `rounded` theme sits on `<html data-theme="rounded">` (https://flatpack.bowerbird.io/). Core puts `data-theme` on `<body>` alone, which is not enough for component tokens. Support screens and Admin Support screens keep that chrome only. Dummy does not inject Sign out or Root Switchable into PageNav (including dummy host pages, `/admin/support`, `/help`, and `/admin`). Access can stay on Admin. Do not put a login button there. Sign-in uses the Users gem (`recording_studio_user` `v0.12.5`): email at `/users/sign_in`, password at `/users/sign_in/password`, layout `recording_studio_user/auth` with `html data-theme="rounded"`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`, `preset: :content`, image upload); dummy Stimulus registers `flat-pack--tiptap` on first paint.
+Dummy help pages — public and staff — use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Dummy overrides that layout file only so Flatpack's built-in `rounded` theme sits on `<html>` (`data-theme="rounded"`, plus `lang` and Flatpack copy data) (https://flatpack.bowerbird.io/). Core puts `data-theme` on `<body>` alone, which is not enough for component tokens. Support screens and Admin Support screens keep that chrome only. Dummy does not inject Sign out or Root Switchable into PageNav (including dummy host pages, `/admin/support`, `/help`, and `/admin`). A compact language selector sits in the PageNav right slot. Access can stay on Admin. Do not put a login button there. Sign-in uses the Users gem (`recording_studio_user` `v0.15.0`): email at `/users/sign_in`, password at `/users/sign_in/password`, layout `recording_studio_user/auth` with `html data-theme="rounded"`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`, `preset: :content`, image upload); dummy Stimulus registers `flat-pack--tiptap` on first paint. The dummy switches English and French with Recording Studio Internationalization. Article titles and seeded bodies stay in the language they were written.
 
 | Field    | Value           |
 |----------|-----------------|
@@ -371,20 +395,21 @@ Dummy kit pins:
 |-----|-----|
 | Recording Studio | `v4.2.2` |
 | Accessible | `v0.11.1` |
-| Admin | `v2.0.4` |
+| Admin | `v2.0.6` |
 | Attachable | `v0.7.1` |
-| Messages | `v0.4.3` |
-| Notifications | `v0.3.4` |
+| Messages | `v0.5.2` |
+| Notifications | `v0.4.0` |
 | Notifications Email | `v0.3.4` |
-| Users | `v0.12.5` |
+| Users | `v0.15.0` |
 | Trashable | `v0.4.4` |
 | Orderable | `v0.2.5` |
 | Publishable | `v0.4.2` |
 | Icons | `v0.1.1` |
 | Moveable | `v3.0.3` |
 | Root Switchable | `v0.5.3` |
-| API | `v0.6.4` (dummy only; not a Support gemspec dependency) |
-| FlatPack | `v0.1.198` (Content + 18px; Flatpack #215) |
+| API | `v0.6.7` (dummy only; not a Support gemspec dependency) |
+| Internationalization | `v0.1.2` (dummy only; not a Support gemspec dependency) |
+| FlatPack | `v0.1.207` (Content + kit i18n; Flatpack #237) |
 
 ```bash
 cd test/dummy
@@ -392,7 +417,7 @@ bin/rails db:setup
 bin/dev
 ```
 
-Then open `/help` without signing in. Search the lists with `?q=`. Sign-in for Admin and staff forms is Users gem two-step login. Dummy uses Flatpack's built-in `rounded` theme on `<html data-theme="rounded">` for Users auth, public help, staff forms, and Admin. For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root. Edit, Move, and New live on the Admin tables. Forms and preview open under `/admin/support`. Old `/support` links redirect to `/admin`.
+Then open `/help` without signing in. Search the lists with `?q=`. Switch English/French with the compact language control in PageNav. Sign-in for Admin and staff forms is Users gem two-step login. Dummy uses Flatpack's built-in `rounded` theme on `<html data-theme="rounded">` for Users auth, public help, staff forms, and Admin. For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root. Edit, Move, and New live on the Admin tables. Forms and preview open under `/admin/support`. Old `/support` links redirect to `/admin`.
 
 Seeds three sections: **Billing**, **Developers**, and **Getting started**, each with a Heroicons icon (`credit-card`, `code-bracket`, `rocket-launch`). Live articles inherit that section icon by default, include a short `description`, multi-section HTML bodies, and inline images where helpful (**How do I sign in?** and **How do I update payment details?**). **How do I change my password?** stays a draft under Getting started. Billing and Developers keep multiple/live pages for section lists.
 

@@ -20,10 +20,7 @@ module RecordingStudioSupport
       # only that user is staff. When blank, `messages_admin_finder` runs
       # (default: all User rows with admin: true).
       messages_admin_email: nil,
-      messages_admin_finder: nil,
-      api_search_rate_limit_enabled: true,
-      api_search_rate_limit_requests: 30,
-      api_search_rate_limit_period_seconds: 60
+      messages_admin_finder: nil
     }.freeze
 
     attr_accessor :api_key, *DEFAULTS.keys

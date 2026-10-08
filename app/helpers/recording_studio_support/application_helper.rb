@@ -2,6 +2,7 @@
 
 module RecordingStudioSupport
   module ApplicationHelper
+    include RecordingStudioSupport::CopyHelper
     include RecordingStudioSupport::PublicSectionHelper
     include RecordingStudioSupport::ListHelper
     include RecordingStudioSupport::BodyHelper
@@ -24,7 +25,7 @@ module RecordingStudioSupport
     def support_page_updated_on(time)
       return if time.blank?
 
-      "Updated #{time.to_date.to_fs(:long)}"
+      Copy.t("article.updated", date: Copy.l(time.to_date, format: :long))
     end
 
     def support_help_title
@@ -36,11 +37,19 @@ module RecordingStudioSupport
     end
 
     def support_public_help_title
-      RecordingStudioSupport.configuration.public_help_title
+      Copy.defaulted(
+        RecordingStudioSupport.configuration.public_help_title,
+        Configuration::DEFAULTS[:public_help_title],
+        "help.title"
+      )
     end
 
     def support_public_help_subtitle
-      RecordingStudioSupport.configuration.public_help_subtitle
+      Copy.defaulted(
+        RecordingStudioSupport.configuration.public_help_subtitle,
+        Configuration::DEFAULTS[:public_help_subtitle],
+        "help.subtitle"
+      )
     end
 
     def support_public_help_path

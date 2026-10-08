@@ -193,7 +193,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_select "[class*='surface-muted-content-color']", text: /You can keep more than one card/
     refute_select "[class*='surface-muted-content-color']", text: /Need a receipt/
     assert_match(/\bUpdated [A-Z][a-z]+ \d{1,2}, \d{4}\b/, response.body)
-    refute_match(/\bago\b/, response.body)
+    refute_match(/\bago\b/, css_select("main").text)
     assert_select "a[aria-label='Home'][href='/help']"
     refute_includes response.body, "Related"
     assert_select "a[href=?]", related_path, count: 0

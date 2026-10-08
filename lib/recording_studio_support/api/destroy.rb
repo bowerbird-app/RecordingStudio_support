@@ -12,7 +12,7 @@ module RecordingStudioSupport
       end
 
       def call
-        authorize!
+        Access.authorize_edit!(context)
         recording = context.recording
         serialized = Serialize.recording(recording, context: context)
         trash!(recording)
@@ -22,11 +22,6 @@ module RecordingStudioSupport
       private
 
       attr_reader :context
-
-      def authorize!
-        Access.refuse_public_sections!(context)
-        Access.authorize_edit!(context)
-      end
 
       def trash!(recording)
         actor = Access.actor_for(context)

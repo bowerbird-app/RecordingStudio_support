@@ -149,7 +149,7 @@ class ApplicationHelperTest < Minitest::Test
     assert_includes source, "style: :default"
     assert_includes source, "size: :xs"
     assert_includes source, "def support_article_count_label"
-    assert_includes source, "pluralize"
+    assert_includes source, 'Copy.t("help.articles"'
     refute_includes source, "removable: true"
     refute_includes source, "def support_page_image_url"
     refute_includes source, "def support_visible_images"
@@ -214,6 +214,12 @@ class ApplicationHelperTest < Minitest::Test
     linked = helper.support_public_search_empty_description(contact_link: "email us")
     assert_equal "Try another keyword or email us.", linked.to_s
 
+    html_link = '<a class="flat-pack-link underline" href="/help/messages">contact support</a>'.html_safe
+    html = helper.support_public_search_empty_description(contact_link: html_link)
+    assert_includes html, 'href="/help/messages"'
+    refute_includes html, "&lt;a"
+    assert html.html_safe?
+
     RecordingStudioSupport.configuration.public_section_subtitle = lambda do |item|
       "Payments, invoices, and plan changes." if item.slug == "billing"
     end
@@ -240,6 +246,7 @@ class ApplicationHelperTest < Minitest::Test
 
   def load_helper
     dir = File.expand_path("../app/helpers/recording_studio_support", __dir__)
+    require File.join(dir, "copy_helper.rb")
     require File.join(dir, "public_section_helper.rb")
     require File.join(dir, "list_helper.rb")
     require File.join(dir, "body_helper.rb")

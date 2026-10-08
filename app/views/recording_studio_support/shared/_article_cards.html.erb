@@ -44,14 +44,14 @@
          end
        end %>
   <%= render FlatPack::EmptyState::Component.new(
-    title: "Nothing matches that",
+    title: support_t("empty.no_match_title"),
     description: support_public_search_empty_description(contact_link: contact_link),
     class: "py-6"
   ) %>
 <% else %>
   <%= render FlatPack::EmptyState::Component.new(
-    title: "Nothing live yet",
-    description: "Check back soon.",
+    title: support_t("empty.nothing_live_title"),
+    description: support_t("empty.nothing_live_description"),
     class: "py-6"
   ) %>
 

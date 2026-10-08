@@ -13,7 +13,6 @@ module RecordingStudioSupport
 
       def call
         recording = context.recording
-        Access.refuse_public_sections!(context)
         if Access.operations_api?(context)
           Access.authorize_staff_view!(context)
         else

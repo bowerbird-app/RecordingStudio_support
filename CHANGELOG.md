@@ -7,18 +7,61 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.13.0] - 2026-10-08
+## [0.15.0] - 2026-10-08
 
 ### Changed
-- **Breaking:** Public JSON keeps only page reads. `GET support_pages` and `GET support_pages/:id` (including list `?q=`) stay on `/recording_studio_api/api/v1`. Section list/show and nested section-page reads move to the host Admin API named `:operations` (`GET /recording_studio_api/apis/operations/v1/support_sections`, `GET …/support_sections/:id`, `GET …/support_sections/:parent_id/pages` with `?q=`, `GET …/support_sections/:parent_id/pages/:relationship_id`). Operations writes and page `move` stay where they are. Public `support_sections` routes are unregistered (`404` / unsupported).
-- Operations section and nested-page reads authorize Accessible `:view` on **AdminRoot** (`can_view_as_staff?`) — the existing staff read role. Writes still require AdminRoot `:edit`.
-- Public `support_sections` is not registered. Recording Studio API still lists every host recordable type on public and treats a missing registration as full CRUD, so Support handlers refuse those public section (and nested page) calls as unsupported. Empty `operations: []` is not a close — the API gem expands it to all CRUD.
-- HTML staff and public Help screens are unchanged; they still read the database through Support controllers.
+- **Breaking:** Public JSON keeps only page reads. `GET support_pages` and `GET support_pages/:id` (including list `?q=`) stay on `/recording_studio_api/api/v1`. Section list/show and nested section-page reads live on `:operations`. Writes and page `move` stay on operations.
+- Support registers per-type handlers through `RecordingStudioApi.register_resource_handler` (API `v0.6.7`). The Intercept prepends into Recording Studio API / Moveable classes are gone.
+- Handlers call `Pages` / `Sections` `create!` / `revise!` / `trash!` and `Pages.move!`. Writes authorize AdminRoot `:edit` the same way staff `authorize_support!(:edit)` does.
+- API-only `SearchLimit`, skipped move `authorize_action!`, and global destination `Recording.find_by` are gone. List `?q=` uses `Pages.apply_query`.
 
 ### Upgrade notes
-- Move `GET support_sections`, `GET support_sections/:id`, and nested `GET support_sections/:id/pages` callers from `/recording_studio_api/api/v1/…` to `/recording_studio_api/apis/operations/v1/…` with an operations token that has AdminRoot `:view`.
-- Keep `GET support_pages` / `GET support_pages/:id` (and list `?q=`) on the public API.
-- Nested article search `?q=` is operations-only. Public list search remains `GET support_pages?q=`.
+- Pin `recording_studio_api` `v0.6.7`.
+- Move `GET support_sections` and nested section-page reads to `/recording_studio_api/apis/operations/v1/…`.
+- Keep `GET support_pages` on the public API. Do not rely on per-client Support search rate limits.
+
+## [0.14.0] - 2026-10-08
+
+Support tickets. Each ticket owns a MessageGroup under the Workspace `:support` mount.
+
+### Added
+- `SupportTicket` model (`subject`, `status`, `priority`, nullable `assignee`, `resolved_at`) with FK `message_group_id` → MessageGroup recording
+- `RecordingStudioSupport::Tickets.open!` — creates ticket + MessageGroup + staff grants + initial message in one transaction
+- User desk ticket list / new / show at `/help/messages` (no more one-group-per-user bootstrap)
+- Staff desk ticket status and assignee edits on the ticket only (`PATCH /admin/support/tickets/:id`)
+- Workspace `:support` mount uses Messages `membership_locked: [:support]`; staff grants go through `RecordingStudioMessages.allow_membership_change`
+- Ticket desk copy under `recording_studio.support.messages.*` (list, new ticket, statuses, priorities)
+
+### Changed
+- Support no longer uses Messages 1:1 helpers (`find_or_create_user_group`, `user_group_on_mount`, `create_user_group!`)
+- Workspace Messages enablement uses `membership_locked: [:support]` (Messages `~> 0.5`)
+- `OpenAccessManagement` composes under Messages `MembershipLock` so authorizer wraps do not recurse
+
+### Upgrade notes
+- Bump to **0.14.0** (minor: tickets). Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` for `recording_studio_support_tickets`
+- Point host routes at user desk `index` / `new` / `create` / `show` (installer does this for new installs)
+- Existing per-user MessageGroups are not migrated; new conversations open as tickets
+- Messages stays on `~> 0.5` (dummy/development pin `v0.5.2`; membership lock ships in Messages 0.3.1+)
+- Enable Messages with `membership_locked: [:support]` on Workspace so ticket conversations hide **+ Access** and refuse manage/grant without `allow_membership_change`
+- Hosts that translate Support should copy the new `recording_studio.support.messages.*` ticket keys from `config/locales/en.yml` (dummy `fr.yml` is updated)
+
+## [0.13.0] - 2026-10-08
+
+Customer-facing Support copy now lives under `recording_studio.support.*` so hosts can translate public help, search chrome, contact CTAs, the signed-in `/help/messages` desk, and related screens.
+
+### Added
+- Engine ships English only in `config/locales/en.yml`
+- Nested keys: `t("recording_studio.support.help.search_placeholder")` (not a top-level `recording_studio_support:` namespace)
+- Dummy hosts English and French via Recording Studio Internationalization, with a compact language selector in the top nav
+
+### Upgrade notes
+- Bump to **0.13.0** (minor: hosts can translate customer Support screens). No migration
+- English screens stay the same. Helper arguments and `RecordingStudioSupport.configure` copy that already accept custom text (`public_help_title`, `public_help_subtitle`, `public_contact_label`, `public_section_subtitle`, Search `placeholder:`) still win over the locale default. A host that keeps the English default string follows I18n
+- To offer another language, copy `recording_studio.support.*` from `config/locales/en.yml` into the host (`config/locales/<locale>.yml`) and list that locale in `config.i18n.available_locales`. Dummy `test/dummy/config/locales/fr.yml` is a complete starting point
+- Do not add `RecordingStudio_Internationalization` as a gem dependency of this engine. Use plain Rails I18n. Internationalization is a host (and dummy) concern
+- Help article titles/bodies, category names, and other content written by staff or stored in the database are data. This gem does not translate them
+- Staff `/admin/support` screens stay English
+- Allows Notifications 0.4. Gemspec Notifications is `>= 0.3.1`, `< 1` (same style as notifications_email / notifications_push). Dummy and development pin Messages `v0.5.2` and Notifications `v0.4.0` so help-desk and notification chrome can follow the locale. Dummy Users is `v0.15.0`. Gemspec Messages stays `~> 0.5` (covers 0.5.x). Notifications Email stays `~> 0.3.1`. Dummy and development pin Flatpack `v0.1.206` so kit copy can follow the locale.
 
 ## [0.12.0] - 2026-10-08
 
@@ -669,7 +712,9 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.12.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.14.0...HEAD
+[0.14.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.13.0...v0.14.0
+[0.13.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.10.0...v0.11.0
 [0.9.8]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.7...v0.9.8

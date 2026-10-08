@@ -20,8 +20,8 @@ module RecordingStudioSupport
       def recording(recording, context:)
         RecordingStudioApi::Serializers::ResourceRecordingSerializer.call(
           recording,
-          version: context.api_version,
-          api: context.api_key,
+          version: api_version_for(context),
+          api: api_key_for(context),
           context: relationship_context(recording, context)
         )
       end
@@ -38,10 +38,22 @@ module RecordingStudioSupport
       def serialize_entry(entry, context, recordings)
         RecordingStudioApi::Serializers::ResourceRecordingSerializer.call(
           entry,
-          version: context.api_version,
-          api: context.api_key,
+          version: api_version_for(context),
+          api: api_key_for(context),
           context: collection_relationship_context(recordings, context)
         )
+      end
+
+      def api_key_for(context)
+        return context.api_key if context.respond_to?(:api_key) && context.api_key.present?
+
+        Registration::OPERATIONS_API
+      end
+
+      def api_version_for(context)
+        return context.api_version if context.respond_to?(:api_version) && context.api_version.present?
+
+        "v1"
       end
 
       def relationship_context(recording, context)
@@ -49,8 +61,8 @@ module RecordingStudioSupport
           recordings: [recording],
           include_values: context.params[:include],
           scoped_recordings: RecordingStudio::Recording.where(id: recording.id),
-          api_key: context.api_key,
-          api_version: context.api_version,
+          api_key: api_key_for(context),
+          api_version: api_version_for(context),
           access_grant: context.access_grant,
           params: context.params
         )
@@ -61,8 +73,8 @@ module RecordingStudioSupport
           recordings: recordings,
           include_values: context.params[:include],
           scoped_recordings: recordings,
-          api_key: context.api_key,
-          api_version: context.api_version,
+          api_key: api_key_for(context),
+          api_version: api_version_for(context),
           access_grant: context.access_grant,
           params: context.params,
           batch: true

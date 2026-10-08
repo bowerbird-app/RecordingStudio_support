@@ -33,7 +33,7 @@ Stock API resource create/update authorize `:edit` on the **parent recording** (
 
 Support does **not** gemspec-depend on `recording_studio_api` (same pattern as Moveable). If the constant is missing, Support boots with no JSON routes.
 
-The **host** adds the API gem, runs its install/migrations, mounts the engine, names `:operations`, enables `:accessible` and `:api_access_point` on roots that hold API keys, and provisions clients. Dummy wires this (`recording_studio_api` `v0.6.4`).
+The **host** adds the API gem, runs its install/migrations, mounts the engine, names `:operations`, enables `:accessible` and `:api_access_point` on roots that hold API keys, and provisions clients. Dummy wires this (`recording_studio_api` `v0.6.7`).
 
 ## Registration
 
