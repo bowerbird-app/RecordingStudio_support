@@ -36,9 +36,8 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_api.git
-  revision: da8fa0bab23b45e5a310cd41d9c913cc3dd2a81b
-  ref: da8fa0bab23b45e5a310cd41d9c913cc3dd2a81b
-  branch: cursor/skip-scoped-lookup-for-handlers-fcac
+  revision: 0e98ca8d251d1a2a7053b80a18aa5a0fdffa3cdc
+  tag: v0.6.9
   specs:
     recording_studio_api (0.6.9)
       rails (~> 8.1.0)
