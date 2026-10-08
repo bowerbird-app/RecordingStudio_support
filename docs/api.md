@@ -53,7 +53,7 @@ Accept: application/json
 
 The API client’s `AccessGrant.actor` is the Accessible actor (person, machine, or agent). Same rules for all of them. A public token is rejected on the operations API.
 
-| Actor | Public page `index` / `show` | Operations section / nested-page `index` / `show` | Operations `create` / `update` / trash / move |
+| Actor | Public page `index` / `show` | Operations section / nested-page `index` / `show` | Operations `create` / `update` / trash / move / publish / unpublish |
 | --- | --- | --- | --- |
 | Accessible `:edit` on **AdminRoot** (operations token) | Yes, with a public token that can view | Yes | Yes |
 | Accessible `:view` on **AdminRoot** (operations token) | Yes, with a public token that can view | Yes | No — `403` |
@@ -71,7 +71,7 @@ Mount prefix is the host’s API engine path. Dummy uses `/recording_studio_api`
 | `GET` | `/recording_studio_api/api/v1/support_pages` | `:view` | List pages. `?q=` searches articles |
 | `GET` | `/recording_studio_api/api/v1/support_pages/:id` | `:view` | One page |
 
-Public `support_sections` list/show and nested section-pages are not registered (`404` / unsupported). Public `POST` / `PATCH` / `DELETE` and public page `move` are not registered.
+Public `support_sections` list/show and nested section-pages are not registered (`404` / unsupported). Public `POST` / `PATCH` / `DELETE` and public page `move` / `publish` / `unpublish` are not registered.
 
 ## Admin API (`api: :operations`, section reads plus writes)
 
@@ -91,12 +91,14 @@ Public `support_sections` list/show and nested section-pages are not registered 
 | `PATCH` | `/recording_studio_api/apis/operations/v1/support_pages/:id` | AdminRoot `:edit` | `title`, `description`, `icon`, `body` |
 | `DELETE` | `/recording_studio_api/apis/operations/v1/support_pages/:id` | AdminRoot `:edit` | Trash (`Pages.trash!`) |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/move` | AdminRoot `:edit` | Body: `parent_id` (destination section recording) |
+| `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/publish` | AdminRoot `:edit` | Uses Publishable `publish`; response matches Publishable snapshot JSON |
+| `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/unpublish` | AdminRoot `:edit` | Uses Publishable `unpublish`; response matches Publishable snapshot JSON |
 
 Collection `POST` on `support_pages` needs `parent_id`. Nested `POST …/support_sections/:parent_id/pages` takes the parent from the URL. Nested create / update / destroy call the same Support page handlers as the collection routes (`Pages.create!` / `revise!` / `trash!`).
 
 Send writable fields at the JSON root. Do not wrap them in `attributes`.
 
-Publishable `:publish` and Orderable reorder are not allowlisted yet.
+Orderable reorder is not allowlisted on Support pages.
 
 ## Fields
 

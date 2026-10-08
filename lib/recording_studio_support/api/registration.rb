@@ -31,7 +31,7 @@ module RecordingStudioSupport
         register_pages!(
           api: OPERATIONS_API,
           operations: (READ_OPERATIONS + WRITE_OPERATIONS),
-          capability_actions: %i[move]
+          capability_actions: %i[move publish unpublish]
         )
       end
 
@@ -58,6 +58,8 @@ module RecordingStudioSupport
           end
         end
         register_handler(PAGE_TYPE, :move, api: OPERATIONS_API, handler: Move)
+        register_handler(PAGE_TYPE, :publish, api: OPERATIONS_API, handler: Publish)
+        register_handler(PAGE_TYPE, :unpublish, api: OPERATIONS_API, handler: Unpublish)
       end
 
       def register_public_section_refusals!

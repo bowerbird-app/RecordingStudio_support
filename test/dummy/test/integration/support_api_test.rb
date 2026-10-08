@@ -151,6 +151,16 @@ class SupportApiTest < ActionDispatch::IntegrationTest
          params: { parent_id: @section.id },
          as: :json
     assert_public_write_unavailable
+
+    post "#{PUBLIC_ROOT}/support_pages/#{@live.id}/actions/publish",
+         headers: auth(@staff_public_token),
+         as: :json
+    assert_public_write_unavailable
+
+    post "#{PUBLIC_ROOT}/support_pages/#{@live.id}/actions/unpublish",
+         headers: auth(@staff_public_token),
+         as: :json
+    assert_public_write_unavailable
   end
 
   test "operations editor token can write sections nested pages and pages including move" do
@@ -341,6 +351,18 @@ class SupportApiTest < ActionDispatch::IntegrationTest
 
     assert_response :forbidden
 
+    post "#{OPERATIONS_ROOT}/support_pages/#{@live.id}/actions/publish",
+         headers: auth(@viewer_operations_token),
+         as: :json
+
+    assert_response :forbidden
+
+    post "#{OPERATIONS_ROOT}/support_pages/#{@live.id}/actions/unpublish",
+         headers: auth(@viewer_operations_token),
+         as: :json
+
+    assert_response :forbidden
+
     post "#{OPERATIONS_ROOT}/support_sections/#{@section.id}/pages",
          headers: auth(@viewer_operations_token),
          params: { title: "Nope" },
@@ -376,6 +398,84 @@ class SupportApiTest < ActionDispatch::IntegrationTest
           as: :json
 
     assert_response :forbidden
+
+    post "#{OPERATIONS_ROOT}/support_pages/#{@live.id}/actions/publish",
+         headers: auth(@workspace_operations_token),
+         as: :json
+
+    assert_response :forbidden
+  end
+
+  test "operations publish and unpublish control public visibility" do
+    token = "Publish#{SecureRandom.hex(4)}"
+    post "#{OPERATIONS_ROOT}/support_pages",
+         headers: auth(@editor_operations_token),
+         params: {
+           title: "#{token} operations draft",
+           body: "<p>#{token}</p>",
+           parent_id: @section.id
+         },
+         as: :json
+
+    assert_response :created
+    page_id = response.parsed_body.fetch("id")
+    refute RecordingStudioSupport::SupportPage.find(
+      RecordingStudio::Recording.find(page_id).recordable_id
+    ).indexable?
+
+    get "#{PUBLIC_ROOT}/support_pages/#{page_id}", headers: auth(@workspace_token), as: :json
+    assert_response :not_found
+
+    get "#{PUBLIC_ROOT}/support_pages",
+        headers: auth(@workspace_token),
+        params: { q: token },
+        as: :json
+
+    assert_response :success
+    refute_includes response.parsed_body.fetch("records").map { |record| record.fetch("id") }, page_id
+
+    post "#{OPERATIONS_ROOT}/support_pages/#{page_id}/actions/publish",
+         headers: auth(@editor_operations_token),
+         as: :json
+
+    assert_response :success
+    assert_equal "published", response.parsed_body.fetch("status")
+    assert RecordingStudioSupport::SupportPage.find(
+      RecordingStudio::Recording.find(page_id).recordable_id
+    ).indexable?
+
+    get "#{PUBLIC_ROOT}/support_pages/#{page_id}", headers: auth(@workspace_token), as: :json
+    assert_response :success
+    assert_equal "#{token} operations draft", response.parsed_body.fetch("title")
+
+    get "#{PUBLIC_ROOT}/support_pages",
+        headers: auth(@workspace_token),
+        params: { q: token },
+        as: :json
+
+    assert_response :success
+    assert_includes response.parsed_body.fetch("records").map { |record| record.fetch("id") }, page_id
+
+    post "#{OPERATIONS_ROOT}/support_pages/#{page_id}/actions/unpublish",
+         headers: auth(@editor_operations_token),
+         as: :json
+
+    assert_response :success
+    assert_equal "draft", response.parsed_body.fetch("status")
+    refute RecordingStudioSupport::SupportPage.find(
+      RecordingStudio::Recording.find(page_id).recordable_id
+    ).indexable?
+
+    get "#{PUBLIC_ROOT}/support_pages/#{page_id}", headers: auth(@workspace_token), as: :json
+    assert_response :not_found
+
+    get "#{PUBLIC_ROOT}/support_pages",
+        headers: auth(@workspace_token),
+        params: { q: token },
+        as: :json
+
+    assert_response :success
+    refute_includes response.parsed_body.fetch("records").map { |record| record.fetch("id") }, page_id
   end
 
   test "public index and show still work for staff and workspace tokens" do

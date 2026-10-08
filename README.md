@@ -10,9 +10,9 @@ Add the gem next to Recording Studio 4.2, Accessible 0.11, Admin 2.0, Publishabl
 
 ```ruby
 # Gemfile
-gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.2.2"
+gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.3.0"
 gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.11.1"
-gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.0.6"
+gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.0.7"
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.7.1"
 gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.4.4"
 gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.2.5"
@@ -30,7 +30,7 @@ gem "recording_studio_search", "~> 0.4",
     ref: "d9cc54dd33ec625dd618f5520de56b9b49a29e01" # Instant UI; Search PR #2
 gem "recording_studio_support", github: "bowerbird-app/RecordingStudio_support"
 # Host-owned auth (not a Support gemspec dependency):
-gem "recording_studio_user", github: "bowerbird-app/RecordingStudio_users", tag: "v0.15.0"
+gem "recording_studio_user", github: "bowerbird-app/RecordingStudio_users", tag: "v0.16.0"
 gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.207" # Content + kit i18n; Flatpack #237
 ```
 
@@ -323,7 +323,7 @@ Full contract for hosts and AI agents: **[docs/api.md](docs/api.md)** (auth, fie
 
 Public keeps only `GET support_pages` and `GET support_pages/:id`. Those use `:view` on the workspace that owns the page, or on the admin root. Admin-root readers see drafts. Workspace-only readers see live/`indexable` pages, matching `/help`.
 
-Section list/show and nested section-page reads live on `/recording_studio_api/apis/operations/v1/…` and authorize Accessible `:view` on the **admin root** (`can_view_as_staff?`). Writes (`create` / `update` / trash / move) stay on operations and still need AdminRoot `:edit` — the same bar as `authorize_support!(:edit)`. A public token is rejected there. An operations actor without AdminRoot `:edit` is `403` on writes.
+Section list/show and nested section-page reads live on `/recording_studio_api/apis/operations/v1/…` and authorize Accessible `:view` on the **admin root** (`can_view_as_staff?`). Writes (`create` / `update` / trash / move / publish / unpublish) stay on operations and still need AdminRoot `:edit` — the same bar as `authorize_support!(:edit)`. A public token is rejected there. An operations actor without AdminRoot `:edit` is `403` on writes.
 
 Bearer token: public `POST /recording_studio_api/oauth/token`; operations `POST /recording_studio_api/apis/operations/oauth/token` (`client_credentials`), then `Authorization: Bearer …`.
 
@@ -339,6 +339,8 @@ Bearer token: public `POST /recording_studio_api/oauth/token`; operations `POST 
 | `POST` `PATCH` `DELETE` | `/recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages` |
 | `POST` `PATCH` `DELETE` | `/recording_studio_api/apis/operations/v1/support_pages` |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/move` |
+| `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/publish` |
+| `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/unpublish` |
 
 `GET support_pages?q=` on public uses `Pages.for_root` / `SupportPage.search`. There is no `GET support/search`. Instant UI is not used.
 
@@ -382,7 +384,7 @@ Help article titles and bodies, section names, and other staff-written database 
 
 Dummy credentials (`test/dummy/config/credentials.yml.enc`) are encrypted with the shared RecordingStudio_* development master key. Set `RAILS_MASTER_KEY` or put that key in `test/dummy/config/master.key` (gitignored). Keep the encrypted file; do not generate a per-repo dummy key.
 
-Dummy help pages — public and staff — use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Dummy overrides that layout file only so Flatpack's built-in `rounded` theme sits on `<html>` (`data-theme="rounded"`, plus `lang` and Flatpack copy data) (https://flatpack.bowerbird.io/). Core puts `data-theme` on `<body>` alone, which is not enough for component tokens. Support screens and Admin Support screens keep that chrome only. Dummy does not inject Sign out or Root Switchable into PageNav (including dummy host pages, `/admin/support`, `/help`, and `/admin`). A compact language selector sits in the PageNav right slot. Access can stay on Admin. Do not put a login button there. Sign-in uses the Users gem (`recording_studio_user` `v0.15.0`): email at `/users/sign_in`, password at `/users/sign_in/password`, layout `recording_studio_user/auth` with `html data-theme="rounded"`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`, `preset: :content`, image upload); dummy Stimulus registers `flat-pack--tiptap` on first paint. The dummy switches English and French with Recording Studio Internationalization. Article titles and seeded bodies stay in the language they were written.
+Dummy help pages — public and staff — use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Dummy overrides that layout file only so Flatpack's built-in `rounded` theme sits on `<html>` (`data-theme="rounded"`, plus `lang` and Flatpack copy data) (https://flatpack.bowerbird.io/). Core puts `data-theme` on `<body>` alone, which is not enough for component tokens. Support screens and Admin Support screens keep that chrome only. Dummy does not inject Sign out or Root Switchable into PageNav (including dummy host pages, `/admin/support`, `/help`, and `/admin`). A compact language selector sits in the PageNav right slot. Access can stay on Admin. Do not put a login button there. Sign-in uses the Users gem (`recording_studio_user` `v0.16.0`): email at `/users/sign_in`, password at `/users/sign_in/password`, layout `recording_studio_user/auth` with `html data-theme="rounded"`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`, `preset: :content`, image upload); dummy Stimulus registers `flat-pack--tiptap` on first paint. The dummy switches English and French with Recording Studio Internationalization. Article titles and seeded bodies stay in the language they were written.
 
 | Field    | Value           |
 |----------|-----------------|
@@ -393,14 +395,14 @@ Dummy kit pins:
 
 | Gem | Pin |
 |-----|-----|
-| Recording Studio | `v4.2.2` |
+| Recording Studio | `v4.3.0` |
 | Accessible | `v0.11.1` |
-| Admin | `v2.0.6` |
+| Admin | `v2.0.7` |
 | Attachable | `v0.7.1` |
 | Messages | `v0.5.2` |
 | Notifications | `v0.4.0` |
 | Notifications Email | `v0.3.4` |
-| Users | `v0.15.0` |
+| Users | `v0.16.0` |
 | Trashable | `v0.4.4` |
 | Orderable | `v0.2.5` |
 | Publishable | `v0.4.2` |

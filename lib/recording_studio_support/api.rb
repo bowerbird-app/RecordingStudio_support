@@ -11,6 +11,7 @@ require_relative "api/destroy"
 require_relative "api/index"
 require_relative "api/show"
 require_relative "api/move"
+require_relative "api/publishable_transition"
 require_relative "api/refuse_public_sections"
 
 module RecordingStudioSupport
