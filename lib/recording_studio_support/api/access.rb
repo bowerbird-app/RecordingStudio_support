@@ -17,7 +17,20 @@ module RecordingStudioSupport
       end
 
       def actor_for(context)
+        return context.actor if context.respond_to?(:actor) && context.actor.present?
+
         context.access_grant&.actor
+      end
+
+      def write_actor(context)
+        current = defined?(Current) && Current.respond_to?(:actor) ? Current.actor : nil
+        return current if person?(current)
+
+        actor_for(context)
+      end
+
+      def person?(actor)
+        actor.present? && actor.class.name != "RecordingStudioApi::ApiClient"
       end
 
       def can_edit?(context)
@@ -57,12 +70,30 @@ module RecordingStudioSupport
         deny!
       end
 
+      def authorize_staff_view!(context)
+        return if can_view_as_staff?(context)
+
+        deny!
+      end
+
+      def operations_api?(context)
+        key = context.respond_to?(:api_key) ? context.api_key : nil
+        key.to_s == Registration::OPERATIONS_API.to_s
+      end
+
       def deny!
         raise RecordingStudioApi::AuthorizationError, "API access grant is not authorized for this capability"
       end
 
+      def admin_root_edit?(actor)
+        admin_root_authorized?(actor, :edit)
+      end
+
       def authorized_on_admin_root?(context, role)
-        actor = actor_for(context)
+        admin_root_authorized?(actor_for(context), role)
+      end
+
+      def admin_root_authorized?(actor, role)
         recording = admin_root_recording
         return false if actor.blank? || recording.blank?
 

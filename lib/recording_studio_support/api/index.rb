@@ -13,9 +13,6 @@ module RecordingStudioSupport
 
       def call
         authorize_index!
-        blocked = search_block
-        return blocked if blocked
-
         collection_response(paginated_recordings)
       end
 
@@ -24,18 +21,17 @@ module RecordingStudioSupport
       attr_reader :context
 
       def authorize_index!
+        if Access.operations_api?(context)
+          Access.authorize_staff_view!(context)
+          return
+        end
+
         return if Access.can_view_as_staff?(context)
 
         workspace = context.access_grant.scope_recording
         return if Access.can_view_workspace?(context, workspace)
 
         Access.deny!
-      end
-
-      def search_block
-        return unless context.recordable_type == Api::PAGE_TYPE
-
-        SearchLimit.blocked_response(client_id: context.api_client&.id, query: search_term)
       end
 
       def collection_response(payload)
@@ -83,36 +79,32 @@ module RecordingStudioSupport
       end
 
       def filtered_recordings
-        relation = apply_workspace_scope(kept_recordings)
-        relation = apply_live_only(relation)
-        apply_search(relation)
+        return section_recordings if context.recordable_type == Api::SECTION_TYPE
+        return nested_page_recordings if nested_section_id.present?
+
+        page_recordings
       end
 
-      def kept_recordings
-        RecordingStudio::Recording.where(
-          recordable_type: context.recordable_type,
-          trashed_at: nil
-        )
+      def nested_page_recordings
+        Pages.for_section(Lookup.section!(id: nested_section_id), query: search_term)
       end
 
-      def apply_workspace_scope(relation)
-        return relation if Access.can_view_as_staff?(context)
+      def nested_section_id
+        return context.parent_id if context.respond_to?(:parent_id) && context.parent_id.present?
 
+        nil
+      end
+
+      def section_recordings
+        Sections.public_index
+      end
+
+      def page_recordings
         workspace = context.access_grant.scope_recording
-        relation.where(root_recording_id: workspace.id)
-      end
-
-      def apply_live_only(relation)
+        relation = Pages.for_root(workspace, query: search_term)
         return relation if Access.can_view_as_staff?(context)
-        return relation unless context.recordable_type == Api::PAGE_TYPE
 
         relation.where(recordable_id: SupportPage.indexable.select(:id))
-      end
-
-      def apply_search(relation)
-        return relation unless context.recordable_type == Api::PAGE_TYPE
-
-        Pages.apply_query(relation, search_term)
       end
 
       def search_term

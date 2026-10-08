@@ -36,10 +36,10 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_api.git
-  revision: d1b8700c361e6b376394764444206ac57367241f
-  tag: v0.6.4
+  revision: 0e98ca8d251d1a2a7053b80a18aa5a0fdffa3cdc
+  tag: v0.6.9
   specs:
-    recording_studio_api (0.6.4)
+    recording_studio_api (0.6.9)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
       recording_studio_accessible (~> 0.11)
@@ -78,10 +78,10 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_moveable.git
-  revision: 0291e76b00f3c8d8065a0cea06daac206ef44cec
-  tag: v3.0.3
+  revision: 7157da3906b9d31e4f26469aba25c42ecf29bc1c
+  tag: v3.2.0
   specs:
-    recording_studio_moveable (3.0.1)
+    recording_studio_moveable (3.2.0)
       rails (>= 8.1.0, < 9.0)
       recording_studio (~> 4.2)
       recording_studio_accessible (~> 0.6)
@@ -194,14 +194,14 @@ PATH
 PATH
   remote: ../..
   specs:
-    recording_studio_support (0.14.0)
+    recording_studio_support (0.15.0)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
       recording_studio_accessible (~> 0.11)
       recording_studio_admin (~> 2.0)
       recording_studio_attachable (~> 0.7)
       recording_studio_messages (~> 0.5)
-      recording_studio_moveable (~> 3.0)
+      recording_studio_moveable (~> 3.2)
       recording_studio_notifications (>= 0.3.1, < 1)
       recording_studio_notifications_email (~> 0.3.1)
       recording_studio_orderable (~> 0.2)
@@ -880,19 +880,19 @@ CHECKSUMS
   recording_studio (4.3.0)
   recording_studio_accessible (0.11.0)
   recording_studio_admin (2.0.7)
-  recording_studio_api (0.6.4)
+  recording_studio_api (0.6.9)
   recording_studio_attachable (0.7.0)
   recording_studio_icons (0.1.1)
   recording_studio_internationalization (0.1.2)
   recording_studio_messages (0.5.2)
-  recording_studio_moveable (3.0.1)
+  recording_studio_moveable (3.2.0)
   recording_studio_notifications (0.4.0)
   recording_studio_notifications_email (0.3.1)
   recording_studio_orderable (0.2.3)
   recording_studio_publishable (0.4.0)
   recording_studio_root_switchable (0.5.1)
   recording_studio_search (0.4.0)
-  recording_studio_support (0.14.0)
+  recording_studio_support (0.15.0)
   recording_studio_trashable (0.4.2)
   recording_studio_user (0.16.0)
   redis (5.4.1) sha256=b5e675b57ad22b15c9bcc765d5ac26f60b675408af916d31527af9bd5a81faae

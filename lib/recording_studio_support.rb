@@ -38,5 +38,12 @@ module RecordingStudioSupport
     def configure
       yield(configuration) if block_given?
     end
+
+    def staff_permission(actor:, recording:)
+      return unless Api.support_type?(recording&.recordable_type)
+      return unless Api::Access.admin_root_edit?(actor)
+
+      true
+    end
   end
 end

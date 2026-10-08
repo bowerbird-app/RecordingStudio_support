@@ -22,26 +22,40 @@ module RecordingStudioSupport
       attr_reader :context
 
       def revise_recording!
-        actor = Access.actor_for(context)
+        actor = Access.write_actor(context)
         attrs = Payload.attributes(context)
-        recordable = context.recording.recordable
-        return revise_section!(attrs, recordable, actor) if context.recordable_type == Api::SECTION_TYPE
+        recording = target_recording
+        recordable = recording.recordable
+        return revise_section!(recording, attrs, recordable, actor) if context.recordable_type == Api::SECTION_TYPE
 
-        revise_page!(attrs, recordable, actor)
+        revise_page!(recording, attrs, recordable, actor)
       end
 
-      def revise_section!(attrs, recordable, actor)
+      def target_recording
+        if context.recordable_type == Api::SECTION_TYPE
+          Lookup.section!(id: Payload.member_id(context))
+        elsif Payload.nested?(context)
+          Lookup.page_in_section!(
+            section: Lookup.section!(id: context.parent_id),
+            id: context.relationship_id
+          )
+        else
+          Lookup.page!(id: Payload.member_id(context))
+        end
+      end
+
+      def revise_section!(recording, attrs, recordable, actor)
         Sections.revise!(
-          recording: context.recording,
+          recording: recording,
           title: attrs.fetch(:title, recordable.title),
           icon: attrs.fetch(:icon, recordable.icon),
           actor: actor
         )
       end
 
-      def revise_page!(attrs, recordable, actor)
+      def revise_page!(recording, attrs, recordable, actor)
         Pages.revise!(
-          recording: context.recording,
+          recording: recording,
           title: attrs.fetch(:title, recordable.title),
           body: attrs.key?(:body) ? attrs[:body] : recordable.body,
           description: attrs.fetch(:description, recordable.description),
@@ -51,7 +65,8 @@ module RecordingStudioSupport
       end
 
       def reject_parent_id_input!
-        return if context.parent_recording
+        return if Payload.nested?(context)
+        return if context.respond_to?(:parent_recording) && context.parent_recording
         return unless Payload.request_hash(context).key?(:parent_id)
 
         raise RecordingStudioApi::InvalidActionInputError,

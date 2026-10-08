@@ -58,10 +58,10 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_moveable.git
-  revision: 0291e76b00f3c8d8065a0cea06daac206ef44cec
-  tag: v3.0.3
+  revision: 7157da3906b9d31e4f26469aba25c42ecf29bc1c
+  tag: v3.2.0
   specs:
-    recording_studio_moveable (3.0.1)
+    recording_studio_moveable (3.2.0)
       rails (>= 8.1.0, < 9.0)
       recording_studio (~> 4.2)
       recording_studio_accessible (~> 0.6)
@@ -133,14 +133,14 @@ GIT
 PATH
   remote: .
   specs:
-    recording_studio_support (0.14.0)
+    recording_studio_support (0.15.0)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
       recording_studio_accessible (~> 0.11)
       recording_studio_admin (~> 2.0)
       recording_studio_attachable (~> 0.7)
       recording_studio_messages (~> 0.5)
-      recording_studio_moveable (~> 3.0)
+      recording_studio_moveable (~> 3.2)
       recording_studio_notifications (>= 0.3.1, < 1)
       recording_studio_notifications_email (~> 0.3.1)
       recording_studio_orderable (~> 0.2)
@@ -457,7 +457,7 @@ DEPENDENCIES
   recording_studio_attachable (~> 0.7)!
   recording_studio_icons!
   recording_studio_messages (~> 0.5)!
-  recording_studio_moveable (~> 3.0)!
+  recording_studio_moveable (~> 3.2)!
   recording_studio_notifications (>= 0.3.1, < 1)!
   recording_studio_notifications_email (~> 0.3.1)!
   recording_studio_orderable (~> 0.2)!
@@ -553,13 +553,13 @@ CHECKSUMS
   recording_studio_attachable (0.7.0)
   recording_studio_icons (0.1.1)
   recording_studio_messages (0.5.2)
-  recording_studio_moveable (3.0.1)
+  recording_studio_moveable (3.2.0)
   recording_studio_notifications (0.4.0)
   recording_studio_notifications_email (0.3.1)
   recording_studio_orderable (0.2.3)
   recording_studio_publishable (0.4.0)
   recording_studio_search (0.4.0)
-  recording_studio_support (0.14.0)
+  recording_studio_support (0.15.0)
   recording_studio_trashable (0.4.2)
   regexp_parser (2.11.3) sha256=ca13f381a173b7a93450e53459075c9b76a10433caadcb2f1180f2c741fc55a4
   reline (0.6.3) sha256=1198b04973565b36ec0f11542ab3f5cfeeec34823f4e54cebde90968092b1835

@@ -18,7 +18,7 @@ gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashab
 gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.2.5"
 gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.4.2"
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"
-gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.0.3"
+gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.2.0"
 gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.5.2"
 gem "recording_studio_notifications", github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.4.0"
 gem "recording_studio_notifications_email",
@@ -44,7 +44,7 @@ gem "recording_studio_trashable", "~> 0.4"
 gem "recording_studio_orderable", "~> 0.2"
 gem "recording_studio_publishable", "~> 0.4"
 gem "recording_studio_search", "~> 0.4"
-gem "recording_studio_moveable", "~> 3.0"
+gem "recording_studio_moveable", "~> 3.2"
 gem "recording_studio_messages", "~> 0.5"
 gem "recording_studio_notifications", ">= 0.3.1", "< 1"
 gem "recording_studio_notifications_email", "~> 0.3.1"
@@ -71,7 +71,26 @@ bin/rails generate recording_studio_accessible:migrations
 bin/rails db:migrate
 ```
 
-Accessible `v0.11` stores roles as strings (`view`, `edit`, `admin`) and adds access invitations. Run its 0.8–0.11 migrations. Grant through `bootstrap_owner_access!` / `grant_access` — do not create `RecordingStudio::Access` rows. Dummy pins API `v0.6.4` (Accessible 0.11-native; no `Access.roles` shim).
+Accessible `v0.11` stores roles as strings (`view`, `edit`, `admin`) and adds access invitations. Run its 0.8–0.11 migrations. Grant through `bootstrap_owner_access!` / `grant_access` — do not create `RecordingStudio::Access` rows. Dummy pins API `v0.6.9`. For operations move and trash by an AdminRoot-only client, the **host** sets Trashable and Moveable hooks (Support does not). `nil` falls through to Accessible `:edit`:
+
+```ruby
+RecordingStudioTrashable.configure do |config|
+  config.authorization_resolver = lambda do |actor:, recording:, **|
+    RecordingStudioSupport.staff_permission(actor: actor, recording: recording)
+  end
+end
+
+RecordingStudio::Moveable.configure do |config|
+  config.use_builtin_access = true
+  config.authorization_hook = lambda do |actor:, source:, destination:, **|
+    source_ok = RecordingStudioSupport.staff_permission(actor: actor, recording: source)
+    destination_ok = RecordingStudioSupport.staff_permission(actor: actor, recording: destination)
+    next true if source_ok && destination_ok
+
+    nil
+  end
+end
+```
 
 Keep Search `default_backend = :pg_trgm`. Do not run `searchable_pgvector` for Support in this phase. `SupportPage` is already declared searchable (title weight A, body weight D). Allowlist only that model for Instant UI (`config.instant_search_models = ["RecordingStudioSupport::SupportPage"]`). Mount `RecordingStudioSearch::Engine` at `/recording_studio_search`, pin `controllers/recording_studio_search`, and `eagerLoadControllersFrom` it. Public section Instant hits `/help/sections/:slug/instant_search` (same trigram, live pages in that section). Staff section Instant hits `/admin/support/sections/:id/instant_search`. `/help?q=` stays a GET form on section titles.
 
@@ -317,34 +336,39 @@ Who can create, revise, publish, and trash is spelled out in [docs/process-flows
 
 ## JSON API
 
-Support does not gemspec-depend on `recording_studio_api`. If the host adds that gem, Support registers `support_sections` and `support_pages` on boot: **public** is read-only, **operations** is writes only.
+Support does not gemspec-depend on `recording_studio_api`. If the host adds that gem, Support registers **public** page reads and **operations** section reads plus writes.
 
 Full contract for hosts and AI agents: **[docs/api.md](docs/api.md)** (auth, fields, search, examples). Design notes: [docs/api-plan.md](docs/api-plan.md).
 
-Writes (`create` / `update` / trash / move) live on `/recording_studio_api/apis/operations/v1/…` and still need Accessible `:edit` on the **admin root** — the same bar as `authorize_support!(:edit)`. A public token is rejected there. An operations actor without AdminRoot `:edit` is `403`. Reads stay on `/recording_studio_api/api/v1/…` and use `:view` on the workspace that owns the page, or on the admin root. Admin-root readers see drafts. Workspace-only readers see live/`indexable` pages, matching `/help`.
+Public keeps only `GET support_pages` and `GET support_pages/:id`. Those use `:view` on the workspace that owns the page, or on the admin root. Admin-root readers see drafts. Workspace-only readers see live/`indexable` pages, matching `/help`.
+
+Section list/show and nested section-page reads live on `/recording_studio_api/apis/operations/v1/…` and authorize Accessible `:view` on the **admin root** (`can_view_as_staff?`). Writes (`create` / `update` / trash / move / publish / unpublish) stay on operations and still need AdminRoot `:edit` — the same bar as `authorize_support!(:edit)`. A public token is rejected there. An operations actor without AdminRoot `:edit` is `403` on writes.
 
 Bearer token: public `POST /recording_studio_api/oauth/token`; operations `POST /recording_studio_api/apis/operations/oauth/token` (`client_credentials`), then `Authorization: Bearer …`.
 
 | Method | Path |
 | --- | --- |
-| `GET` | `/recording_studio_api/api/v1/support_sections` |
-| `GET` | `/recording_studio_api/api/v1/support_sections/:id` |
-| `GET` | `/recording_studio_api/api/v1/support_sections/:id/pages` |
 | `GET` | `/recording_studio_api/api/v1/support_pages` |
 | `GET` | `/recording_studio_api/api/v1/support_pages/:id` |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_sections` |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_sections/:id` |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages` |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages/:relationship_id` |
 | `POST` `PATCH` `DELETE` | `/recording_studio_api/apis/operations/v1/support_sections` |
-| `POST` `PATCH` `DELETE` | `/recording_studio_api/apis/operations/v1/support_sections/:id/pages` |
+| `POST` `PATCH` `DELETE` | `/recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages` |
 | `POST` `PATCH` `DELETE` | `/recording_studio_api/apis/operations/v1/support_pages` |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/move` |
+| `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/publish` |
+| `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/unpublish` |
 
-`GET support_pages?q=` (and nested `support_sections/:id/pages?q=`) still runs the same `Pages` / `SupportPage.search` lookup as staff and public lists. There is no `GET support/search`. Instant UI is not used. Searches are rate limited per API client (default 30 per minute, `429` with `Retry-After`). Tune `api_search_rate_limit_enabled`, `api_search_rate_limit_requests`, and `api_search_rate_limit_period_seconds`. Keep Recording Studio API read rate limits on in production as well.
+`GET support_pages?q=` on public uses `Pages.for_root` / `SupportPage.search`. There is no `GET support/search`. Instant UI is not used.
 
 Do not add a Support `ApiController`. Domain writes stay `Pages` / `Sections`. Public anonymous browse stays `/help`.
 
 Host sketch:
 
 ```ruby
-gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.4"
+gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.9" # after release
 ```
 
 ```bash
@@ -402,9 +426,9 @@ Dummy kit pins:
 | Orderable | `v0.2.5` |
 | Publishable | `v0.4.2` |
 | Icons | `v0.1.1` |
-| Moveable | `v3.0.3` |
+| Moveable | `v3.2.0` |
 | Root Switchable | `v0.5.3` |
-| API | `v0.6.4` (dummy only; not a Support gemspec dependency) |
+| API | `v0.6.9` (dummy only; not a Support gemspec dependency) |
 | Internationalization | `v0.1.2` (dummy only; not a Support gemspec dependency) |
 | FlatPack | `v0.1.207` (Content + kit i18n; Flatpack #237) |
 

@@ -15,9 +15,22 @@ RecordingStudioSupport.configure do |config|
   # When blank, `messages_admin_finder` runs (default: User.where(admin: true)).
   # config.messages_admin_email = "support@example.com"
   # config.messages_admin_finder = -> { User.where(admin: true) }
-  # JSON article search (`GET support_pages?q=` and nested section pages `?q=`).
-  # 30 searches per API client per minute.
-  # config.api_search_rate_limit_enabled = true
-  # config.api_search_rate_limit_requests = 30
-  # config.api_search_rate_limit_period_seconds = 60
+end
+
+# Host-owned. Support does not set these. nil falls through to Accessible :edit.
+RecordingStudioTrashable.configure do |config|
+  config.authorization_resolver = lambda do |actor:, recording:, **|
+    RecordingStudioSupport.staff_permission(actor: actor, recording: recording)
+  end
+end
+
+RecordingStudio::Moveable.configure do |config|
+  config.use_builtin_access = true
+  config.authorization_hook = lambda do |actor:, source:, destination:, **|
+    source_ok = RecordingStudioSupport.staff_permission(actor: actor, recording: source)
+    destination_ok = RecordingStudioSupport.staff_permission(actor: actor, recording: destination)
+    next true if source_ok && destination_ok
+
+    nil
+  end
 end

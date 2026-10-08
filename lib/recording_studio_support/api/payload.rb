@@ -13,12 +13,35 @@ module RecordingStudioSupport
       end
 
       def parent_id(context)
+        return context.parent_id if context.respond_to?(:parent_id) && context.parent_id.present?
+
         raw = request_hash(context)
         raw[:parent_id].presence || raw["parent_id"].presence
       end
 
+      def member_id(context)
+        return context.id if context.respond_to?(:id) && context.id.present?
+        return context.relationship_id if context.respond_to?(:relationship_id) && context.relationship_id.present?
+
+        params = context.params
+        return unless params.respond_to?(:[])
+
+        params[:id].presence || params["id"].presence
+      end
+
+      def nested?(context)
+        context.respond_to?(:parent_id) && context.parent_id.present? &&
+          context.respond_to?(:relationship_id) && context.relationship_id.present?
+      end
+
       def request_hash(context)
-        params = context.request_params || context.params
+        params = if context.respond_to?(:request_params) && context.request_params.present?
+                   context.request_params
+                 else
+                   context.params
+                 end
+        return {} if params.blank?
+
         hash = params.respond_to?(:to_unsafe_h) ? params.to_unsafe_h : params.to_h
         hash.respond_to?(:deep_symbolize_keys) ? hash.deep_symbolize_keys : hash
       end

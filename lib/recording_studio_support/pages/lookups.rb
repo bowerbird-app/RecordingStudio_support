@@ -47,6 +47,12 @@ module RecordingStudioSupport
         ).includes(:recordable).find(id)
       end
 
+      def find!(id:)
+        RecordingStudio::Recording.where(
+          recordable_type: SUPPORT_PAGE_TYPE
+        ).includes(:recordable).find(id)
+      end
+
       def default_section_for(root_recording)
         workspace = Sections.parent_root_for(root_recording)
         return unless workspace

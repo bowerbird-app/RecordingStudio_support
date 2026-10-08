@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.14.0", ::RecordingStudioSupport::VERSION
+    assert_equal "0.15.0", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -43,7 +43,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemspec, 'spec.add_dependency "recording_studio_orderable", "~> 0.2"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_publishable", "~> 0.4"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_search", "~> 0.4"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_moveable", "~> 3.0"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_moveable", "~> 3.2"'
     refute_includes gemspec, 'spec.add_dependency "recording_studio_api"'
     refute_includes gemspec, 'spec.add_dependency "recording_studio_user"'
     refute_includes gemspec, "recording_studio_internationalization"
@@ -54,19 +54,19 @@ class RecordingStudioSupportTest < Minitest::Test
 
     %w[
       /recording_studio_api/oauth/token
-      /recording_studio_api/api/v1/support_sections
-      /recording_studio_api/api/v1/support_sections/:id/pages
       /recording_studio_api/api/v1/support_pages
       /recording_studio_api/apis/operations/v1/support_sections
+      /recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages
       /recording_studio_api/apis/operations/v1/support_pages
       /recording_studio_api/apis/operations/v1/support_pages/:id/actions/move
     ].each { |path| assert_includes reference, path }
+
+    refute_includes reference, "/recording_studio_api/api/v1/support_sections"
 
     refute_includes reference, "/recording_studio_api/api/v1/support/search"
 
     assert_includes reference, "client_credentials"
     assert_includes reference, "SupportPage.search"
-    assert_includes reference, "rate_limit_exceeded"
     assert_includes reference, "parent_id"
   end
 
@@ -94,14 +94,19 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.4.2"'
     assert_includes gemfile, 'path: "../../vendor/recording_studio_search"'
     assert_includes gemfile, "d9cc54dd33ec625dd618f5520de56b9b49a29e01"
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.0.3"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.2.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.3"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_messages", tag: "v0.5.2"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.4.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.4"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_Internationalization", tag: "v0.1.2"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.4"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.9"'
+
+    dummy_hooks = File.read(File.expand_path("dummy/config/initializers/recording_studio_support.rb", __dir__))
+    assert_includes dummy_hooks, "RecordingStudioSupport.staff_permission"
+    assert_includes dummy_hooks, "authorization_resolver"
+    assert_includes dummy_hooks, "authorization_hook"
     assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.207"'
     refute_includes gemfile, "recording_studio/v3.0.0"
     refute_includes gemfile, 'tag: "v0.6.1"'

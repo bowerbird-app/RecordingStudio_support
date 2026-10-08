@@ -46,11 +46,9 @@ module RecordingStudioSupport
     end
 
     def move!(recording:, parent_recording:, actor: nil)
-      assign_actor(actor) do
-        recording.move_to!(
-          new_parent: parent_recording,
-          actor: actor || Current.actor
-        )
+      resolved = actor || (defined?(Current) && Current.actor)
+      assign_actor(resolved) do
+        recording.move_to!(new_parent: parent_recording, actor: resolved)
       end
       recording.reload
     end

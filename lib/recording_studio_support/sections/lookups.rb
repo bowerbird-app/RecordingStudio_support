@@ -10,6 +10,12 @@ module RecordingStudioSupport
         ).includes(:recordable).find(id)
       end
 
+      def find!(id:)
+        RecordingStudio::Recording.where(
+          recordable_type: SUPPORT_SECTION_TYPE
+        ).includes(:recordable).find(id)
+      end
+
       def find_kept_by_slug!(slug:)
         recording = RecordingStudioSupport::Sections.kept
                                                     .joins(RecordingStudioSupport::Sections.section_join_sql)
