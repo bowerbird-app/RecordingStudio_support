@@ -55,20 +55,17 @@ module RecordingStudioSupport
     end
 
     def support_ticket_status_label(ticket)
-      {
-        "open" => "Open",
-        "waiting_on_customer" => "Waiting on customer",
-        "waiting_on_support" => "Waiting on support",
-        "resolved" => "Resolved"
-      }.fetch(ticket.status.to_s, ticket.status.to_s.humanize)
+      key = "messages.statuses.#{ticket.status}"
+      return Copy.t(key) if I18n.exists?("recording_studio.support.#{key}")
+
+      ticket.status.to_s.humanize
     end
 
     def support_ticket_priority_label(priority)
-      {
-        "low" => "Low",
-        "normal" => "Normal",
-        "high" => "High"
-      }.fetch(priority.to_s, priority.to_s.humanize)
+      key = "messages.priorities.#{priority}"
+      return Copy.t(key) if I18n.exists?("recording_studio.support.#{key}")
+
+      priority.to_s.humanize
     end
 
     def support_ticket_status_badge(ticket)

@@ -1,14 +1,14 @@
 <% recording_studio_page_nav(
-     title: "New ticket",
+     title: support_t("messages.new.title"),
      page_nav_back_url: help_messages_path_for_desk,
      page_nav_anchor_url: help_messages_path_for_desk,
-     page_nav_anchor_label: "Close"
+     page_nav_anchor_label: support_t("messages.new.close")
    ) %>
 
 <div class="flex w-full flex-col gap-6">
   <%= render FlatPack::PageTitle::Component.new(
-    title: "New ticket",
-    subtitle: "Tell us what’s up — we’ll take it from there.",
+    title: support_t("messages.new.title"),
+    subtitle: support_t("messages.new.subtitle"),
     variant: :h1
   ) %>
 
@@ -23,7 +23,7 @@
 
       <%= render FlatPack::TextInput::Component.new(
         name: "ticket[subject]",
-        label: "Subject",
+        label: support_t("messages.new.subject"),
         value: @ticket.subject,
         required: true,
         error: @ticket.errors[:subject].presence&.to_sentence
@@ -31,14 +31,14 @@
 
       <%= render FlatPack::Select::Component.new(
         name: "ticket[priority]",
-        label: "Priority",
+        label: support_t("messages.new.priority"),
         options: support_ticket_priority_options,
         value: @ticket.priority
       ) %>
 
       <%= render FlatPack::TextArea::Component.new(
         name: "ticket[body]",
-        label: "Message",
+        label: support_t("messages.new.body"),
         value: @body,
         rows: 6,
         required: true
@@ -46,13 +46,13 @@
 
       <div class="flex gap-2">
         <%= render FlatPack::Button::Component.new(
-          text: "Send",
+          text: support_t("messages.new.send"),
           style: :primary,
           size: :md,
           type: "submit"
         ) %>
         <%= render FlatPack::Button::Component.new(
-          text: "Cancel",
+          text: support_t("messages.new.cancel"),
           style: :secondary,
           size: :md,
           href: help_messages_path_for_desk

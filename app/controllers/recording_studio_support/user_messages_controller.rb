@@ -24,7 +24,7 @@ module RecordingStudioSupport
 
     def create
       @ticket = open_ticket!
-      redirect_to help_message_path_for(@ticket), notice: "Sent. We’ll take a look."
+      redirect_to help_message_path_for(@ticket), notice: Copy.t("messages.sent")
     rescue ArgumentError, ActiveRecord::RecordInvalid, RecordingStudioMessages::Error => e
       render_new_ticket_error(e)
     end
