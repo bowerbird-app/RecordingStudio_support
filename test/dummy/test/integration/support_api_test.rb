@@ -22,7 +22,7 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     @workspace = Workspace.create!(name: "API #{SecureRandom.hex(4)}")
     @root = RecordingStudio.root_recording_for(@workspace)
     @admin_root = RecordingStudio.root_recording_for(AdminRoot.find_or_create_by!(name: "Admin"))
-    grant!(@admin_root, @staff, :edit)
+    grant!(@admin_root, @staff, :admin)
     bootstrap_owner!(@root, @staff)
     grant!(@root, @workspace_user, :edit)
 
@@ -44,7 +44,8 @@ class SupportApiTest < ActionDispatch::IntegrationTest
       actor: @staff,
       role: :edit,
       name: "Staff operations #{SecureRandom.hex(4)}",
-      api: :operations
+      api: :operations,
+      workspace_recording: @root
     )
     @viewer_operations_token = provision_token(
       access_point: @admin_root,
@@ -357,7 +358,7 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     { "Authorization" => "Bearer #{token}", "Accept" => "application/json" }
   end
 
-  def provision_token(access_point:, actor:, role:, name:, admin_root_recording: nil, api: :public)
+  def provision_token(access_point:, actor:, role:, name:, admin_root_recording: nil, api: :public, workspace_recording: nil)
     result = RecordingStudioApi::Services::ProvisionApiClient.call(
       access_point_recording: access_point,
       manager_actor: actor,
@@ -369,6 +370,7 @@ class SupportApiTest < ActionDispatch::IntegrationTest
 
     payload = result.value
     grant!(admin_root_recording, payload.fetch(:api_client), :edit) if admin_root_recording
+    grant!(workspace_recording, payload.fetch(:api_client), :edit) if workspace_recording
 
     token_result = RecordingStudioApi::Services::IssueOauthAccessToken.call(
       grant_type: "client_credentials",
