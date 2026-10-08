@@ -2,11 +2,11 @@
 
 ## 0.13.0
 
-Customer-facing Support copy lives under `recording_studio.support.*`. Kit pins: Messages `v0.5.0`, Notifications `v0.3.4`, Flatpack `v0.1.206`, Internationalization `v0.1.2` (host/dummy only), Users `v0.15.0` (host). Recording Studio stays `v4.2.2`. API is `v0.6.4`. Allows Notifications 0.4 (`>= 0.3.1`, `< 1`).
+Customer-facing Support copy lives under `recording_studio.support.*`. Kit pins: Messages `v0.5.2`, Notifications `v0.4.0`, Flatpack `v0.1.206`, Internationalization `v0.1.2` (host/dummy only), Users `v0.15.0` (host). Recording Studio stays `v4.2.2`. API is `v0.6.4`. Allows Notifications 0.4 (`>= 0.3.1`, `< 1`).
 
 ### Host app
 
-1. Widen gemspec constraints: Messages `~> 0.5`. Notifications `>= 0.3.1`, `< 1` (allows 0.4). Dummy stays on Notifications `v0.3.4` until Messages allows that range too. Do not add `RecordingStudio_Internationalization` to this gem. `bundle install`.
+1. Widen gemspec constraints: Messages `~> 0.5`. Notifications `>= 0.3.1`, `< 1` (allows 0.4). Dummy pins Messages `v0.5.2` and Notifications `v0.4.0`. Do not add `RecordingStudio_Internationalization` to this gem. `bundle install`.
 2. English screens stay the same. To offer another language, copy `recording_studio.support.*` from `config/locales/en.yml` into the host and list that locale in `config.i18n.available_locales`. Dummy `test/dummy/config/locales/fr.yml` is a complete starting point.
 3. Config and helper copy (`public_help_title`, `public_contact_label`, Search `placeholder:`) still override the locale when you set custom text.
 4. Pin Flatpack `v0.1.206` if you want kit chrome (PageNav, Search, chat) to follow the locale too.

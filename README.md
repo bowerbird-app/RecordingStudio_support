@@ -19,8 +19,8 @@ gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderab
 gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.4.2"
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"
 gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.0.3"
-gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.5.0"
-gem "recording_studio_notifications", github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.3.4"
+gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.5.2"
+gem "recording_studio_notifications", github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.4.0"
 gem "recording_studio_notifications_email",
     github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.4"
 # Prefer GitHub once RecordingStudio_search is public (sibling gems already are).
@@ -386,8 +386,8 @@ Dummy kit pins:
 | Accessible | `v0.11.1` |
 | Admin | `v2.0.4` |
 | Attachable | `v0.7.1` |
-| Messages | `v0.5.0` |
-| Notifications | `v0.3.4` |
+| Messages | `v0.5.2` |
+| Notifications | `v0.4.0` |
 | Notifications Email | `v0.3.4` |
 | Users | `v0.15.0` |
 | Trashable | `v0.4.4` |

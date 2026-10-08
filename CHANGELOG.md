@@ -23,7 +23,7 @@ Customer-facing Support copy now lives under `recording_studio.support.*` so hos
 - Do not add `RecordingStudio_Internationalization` as a gem dependency of this engine. Use plain Rails I18n. Internationalization is a host (and dummy) concern
 - Help article titles/bodies, category names, and other content written by staff or stored in the database are data. This gem does not translate them
 - Staff `/admin/support` screens stay English
-- Allows Notifications 0.4. Gemspec Notifications is `>= 0.3.1`, `< 1` (same style as notifications_email / notifications_push). Dummy and development still pin Messages `v0.5.0` and Notifications `v0.3.4` until Messages ships a tag that also allows Notifications 0.4. Dummy Users is `v0.15.0`. Gemspec Messages stays `~> 0.5` (covers 0.5.x). Notifications Email stays `~> 0.3.1`. Dummy and development pin Flatpack `v0.1.206` so help-desk and kit copy can follow the locale.
+- Allows Notifications 0.4. Gemspec Notifications is `>= 0.3.1`, `< 1` (same style as notifications_email / notifications_push). Dummy and development pin Messages `v0.5.2` and Notifications `v0.4.0` so help-desk and notification chrome can follow the locale. Dummy Users is `v0.15.0`. Gemspec Messages stays `~> 0.5` (covers 0.5.x). Notifications Email stays `~> 0.3.1`. Dummy and development pin Flatpack `v0.1.206` so kit copy can follow the locale.
 
 ## [0.12.0] - 2026-10-08
 

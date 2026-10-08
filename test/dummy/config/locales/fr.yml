@@ -183,6 +183,9 @@ fr:
         monthly: Mensuelle
       categories:
         general: Général
+        page: Page
+        workspace: Espace
+        system: Système
   dummy:
     home:
       title: Hôte dummy
