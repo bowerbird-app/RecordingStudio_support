@@ -104,7 +104,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.9"'
 
     dummy_hooks = File.read(File.expand_path("dummy/config/initializers/recording_studio_support.rb", __dir__))
-    assert_includes dummy_hooks, "RecordingStudioSupport.staff_may_manage?"
+    assert_includes dummy_hooks, "RecordingStudioSupport.staff_permission"
     assert_includes dummy_hooks, "authorization_resolver"
     assert_includes dummy_hooks, "authorization_hook"
     assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.207"'

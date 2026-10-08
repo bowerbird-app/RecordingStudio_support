@@ -232,7 +232,7 @@ class InstallGeneratorTest < Minitest::Test
     assert_includes install_guide, "RecordingStudioSearch::Engine"
     assert_includes install_guide, "instant_search"
     assert_includes install_guide, "SupportSection"
-    assert_includes install_guide, "staff_may_manage?"
+    assert_includes install_guide, "staff_permission"
     assert_includes install_guide, "authorization_resolver"
     assert_includes install_guide, "authorization_hook"
     refute_includes install_guide, "RecordingStudio v3"
@@ -243,7 +243,7 @@ class InstallGeneratorTest < Minitest::Test
         __dir__
       )
     )
-    assert_includes initializer, "RecordingStudioSupport.staff_may_manage?"
+    assert_includes initializer, "RecordingStudioSupport.staff_permission"
     assert_includes initializer, "authorization_resolver"
     assert_includes initializer, "authorization_hook"
   end

@@ -39,14 +39,11 @@ module RecordingStudioSupport
       yield(configuration) if block_given?
     end
 
-    # Host hooks treat nil as fall-through. false would deny non-Support records.
-    # rubocop:disable Style/ReturnNilInPredicateMethodDefinition
-    def staff_may_manage?(actor:, recording:)
+    def staff_permission(actor:, recording:)
       return unless Api.support_type?(recording&.recordable_type)
       return unless Api::Access.admin_root_edit?(actor)
 
       true
     end
-    # rubocop:enable Style/ReturnNilInPredicateMethodDefinition
   end
 end
