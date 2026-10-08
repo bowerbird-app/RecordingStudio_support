@@ -86,7 +86,7 @@ class RecordingStudioSupportTest < Minitest::Test
 
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.2.2"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.11.1"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.0.4"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.0.6"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.7.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_users", tag: "v0.15.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.4.4"'
@@ -102,7 +102,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.4"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_Internationalization", tag: "v0.1.2"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.4"'
-    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.206"'
+    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.207"'
     refute_includes gemfile, "recording_studio/v3.0.0"
     refute_includes gemfile, 'tag: "v0.6.1"'
     refute_includes gemfile, 'tag: "v0.1.171"'
@@ -336,13 +336,13 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "Recording Studio Support"
     assert_includes readme, "v4.2.2"
     assert_includes readme, "v0.11.1"
-    assert_includes readme, "v0.1.206"
+    assert_includes readme, "v0.1.207"
     assert_includes readme, "v0.15.0"
     assert_includes readme, "Support page"
     assert_includes readme, "SupportSection"
     assert_includes readme, "Help section"
     assert_includes readme, "Moveable"
-    assert_includes readme, "tag: \"v2.0.4\""
+    assert_includes readme, "tag: \"v2.0.6\""
     assert_includes readme, "/admin/support"
     assert_includes readme, "docs/api.md"
     assert_includes readme, "docs/api-plan.md"

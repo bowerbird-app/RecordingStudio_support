@@ -58,7 +58,7 @@ gem "tailwindcss-rails"
 
 # FlatPack UI component library [https://github.com/bowerbird-app/flatpack]
 # Content + 18px reading type (Flatpack #215). Chat and kit copy follow locale
-# from Flatpack 0.1.206.
+# from Flatpack 0.1.206+. Admin v2.0.6 needs flat_pack ~> 0.1.207.
 gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.207"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
