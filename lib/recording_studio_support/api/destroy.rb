@@ -12,25 +12,30 @@ module RecordingStudioSupport
       end
 
       def call
-        Access.refuse_public_sections!(context)
-        Access.authorize_edit!(context)
-
+        authorize!
         recording = context.recording
         serialized = Serialize.recording(recording, context: context)
-        actor = Access.actor_for(context)
-
-        if context.recordable_type == Api::SECTION_TYPE
-          Sections.trash!(recording: recording, actor: actor)
-        else
-          Pages.trash!(recording: recording, actor: actor)
-        end
-
+        trash!(recording)
         { json: serialized.merge(deleted: true, deleted_via: "trashed") }
       end
 
       private
 
       attr_reader :context
+
+      def authorize!
+        Access.refuse_public_sections!(context)
+        Access.authorize_edit!(context)
+      end
+
+      def trash!(recording)
+        actor = Access.actor_for(context)
+        if context.recordable_type == Api::SECTION_TYPE
+          Sections.trash!(recording: recording, actor: actor)
+        else
+          Pages.trash!(recording: recording, actor: actor)
+        end
+      end
     end
   end
 end
