@@ -57,40 +57,41 @@ class ApiTest < Minitest::Test
     assert_includes engine, 'initializer "recording_studio_support.api"'
     assert_includes engine, "RecordingStudioSupport::Api.register!"
     assert_includes registration, "RecordingStudioApi.register_recordable_type_api"
+    assert_includes registration, "api: :public"
+    assert_includes registration, "api: OPERATIONS_API"
+    assert_includes registration, "WRITE_OPERATIONS"
+    assert_includes registration, "PUBLIC_OPERATIONS"
     assert_includes handlers, "module Create"
     assert_includes intercept, "ResourcesLookup"
     assert_includes intercept, "MemberActionsLookup"
     assert_includes intercept, "NestedPageSearch"
-    assert_includes intercept, "SearchDispatch"
-  end
-
-  def test_general_search_covers_sections_and_pages
-    search = File.read(File.expand_path("../lib/recording_studio_support/api/search.rb", __dir__))
-    registration = File.read(File.expand_path("../lib/recording_studio_support/api/registration.rb", __dir__))
-    dispatch = File.read(File.expand_path("../lib/recording_studio_support/api/search_dispatch.rb", __dir__))
-    sections = File.read(File.expand_path("../lib/recording_studio_support/sections.rb", __dir__))
-
-    assert_equal :support_search, RecordingStudioSupport::Api::SEARCH_ENDPOINT
-    assert_equal "support/search", RecordingStudioSupport::Api::SEARCH_PATH
-    assert_includes search, "Sections.apply_query"
-    assert_includes search, "Pages.apply_query"
-    assert_includes search, "scoped_sections"
-    assert_includes search, "scoped_pages"
-    assert_includes sections, "slug ILIKE"
-    assert_includes registration, "RecordingStudioApi.register_endpoint"
-    assert_includes registration, "path: SEARCH_PATH"
-    assert_includes dispatch, "result.fetch(:status, :ok)"
-    refute_includes search, "InstantSearch"
+    refute_includes intercept, "SearchDispatch"
+    refute_includes registration, "register_endpoint"
+    refute_includes registration, "SEARCH_PATH"
   end
 
   def test_page_index_uses_pages_search_and_a_rate_limit
     index = File.read(File.expand_path("../lib/recording_studio_support/api/index.rb", __dir__))
     limit = File.read(File.expand_path("../lib/recording_studio_support/api/search_limit.rb", __dir__))
+    nested = File.read(File.expand_path("../lib/recording_studio_support/api/nested_page_search.rb", __dir__))
 
     assert_includes index, "Pages.apply_query"
     assert_includes index, "SearchLimit.blocked_response"
+    assert_includes nested, "Pages.apply_query"
+    assert_includes nested, "SearchLimit.blocked_response"
     assert_includes limit, "Too many article searches"
     refute_includes index, "InstantSearch"
+  end
+
+  def test_general_search_endpoint_files_are_gone
+    root = File.expand_path("../lib/recording_studio_support/api", __dir__)
+
+    refute File.exist?(File.join(root, "search.rb"))
+    refute File.exist?(File.join(root, "search_dispatch.rb"))
+    refute File.exist?(File.join(root, "search/context.rb"))
+    refute File.exist?(File.join(root, "search/token.rb"))
+    refute File.exist?(File.join(root, "search/paging.rb"))
+    refute File.exist?(File.join(root, "search"))
   end
 
   def test_gemspec_still_omits_api_dependency

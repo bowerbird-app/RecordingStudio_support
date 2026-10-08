@@ -333,7 +333,7 @@ puts "Seeded: Billing pages 'How do I update payment details?' and 'Where is my 
 puts "Seeded: Admin root with owner access for admin@admin.com"
 
 if defined?(RecordingStudioApi)
-  provision_support_api_client = lambda do |name:, access_point:, role:|
+  provision_support_api_client = lambda do |name:, access_point:, role:, api: :public|
     existing = RecordingStudioApi::ApiClient.find_by(name: name)
     next if existing.present?
 
@@ -341,24 +341,25 @@ if defined?(RecordingStudioApi)
       access_point_recording: access_point,
       manager_actor: user,
       role: role,
-      name: name
+      name: name,
+      api: api
     )
     raise "Failed to provision #{name}: #{result.error}" if result.failure?
 
     payload = result.value
-    grant_workspace_access.call(admin_root_recording, payload.fetch(:api_client)) if name == "Support staff API"
     payload
   end
 
-  provision_support_api_client.call(
-    name: "Support staff API",
-    access_point: root_recording,
-    role: :edit
-  )
   provision_support_api_client.call(
     name: "Workspace help API",
     access_point: root_recording,
     role: :view
   )
-  puts "Seeded: API clients 'Support staff API' (admin-root edit) and 'Workspace help API' (workspace view)"
+  provision_support_api_client.call(
+    name: "Support operations API",
+    access_point: admin_root_recording,
+    role: :edit,
+    api: :operations
+  )
+  puts "Seeded: API clients 'Workspace help API' (public view) and 'Support operations API' (operations edit)"
 end

@@ -3,6 +3,9 @@
 require "test_helper"
 
 class SupportApiTest < ActionDispatch::IntegrationTest
+  PUBLIC_ROOT = "/recording_studio_api/api/v1"
+  OPERATIONS_ROOT = "/recording_studio_api/apis/operations/v1"
+
   setup do
     @staff = User.create!(
       email: "api-staff-#{SecureRandom.hex(4)}@example.com",
@@ -29,12 +32,26 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     publish!(@live, slug: "live-api-#{SecureRandom.hex(4)}", status: "published")
     publish!(@draft, slug: "draft-api-#{SecureRandom.hex(4)}", status: "draft")
 
-    @staff_token = provision_token(
+    @staff_public_token = provision_token(
       access_point: @root,
       actor: @staff,
       role: :edit,
-      name: "Staff #{SecureRandom.hex(4)}",
+      name: "Staff public #{SecureRandom.hex(4)}",
       admin_root_recording: @admin_root
+    )
+    @editor_operations_token = provision_token(
+      access_point: @admin_root,
+      actor: @staff,
+      role: :edit,
+      name: "Staff operations #{SecureRandom.hex(4)}",
+      api: :operations
+    )
+    @viewer_operations_token = provision_token(
+      access_point: @admin_root,
+      actor: @staff,
+      role: :view,
+      name: "Viewer operations #{SecureRandom.hex(4)}",
+      api: :operations
     )
     @workspace_token = provision_token(
       access_point: @root,
@@ -49,15 +66,74 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     RecordingStudioSupport::Api::SearchLimit.reset!
   end
 
-  test "missing token is unauthorized" do
-    get "/recording_studio_api/api/v1/support_sections", as: :json
+  test "missing token is unauthorized on the public API" do
+    get "#{PUBLIC_ROOT}/support_sections", as: :json
 
     assert_response :unauthorized
   end
 
-  test "admin-root client can crud sections and pages including nested create" do
-    post "/recording_studio_api/api/v1/support_sections",
-         headers: auth(@staff_token),
+  test "public writes and move are not found or unsupported" do
+    post "#{PUBLIC_ROOT}/support_sections",
+         headers: auth(@staff_public_token),
+         params: { title: "Nope", parent_id: @root.id },
+         as: :json
+    assert_public_write_unavailable
+
+    patch "#{PUBLIC_ROOT}/support_sections/#{@section.id}",
+          headers: auth(@staff_public_token),
+          params: { title: "Nope" },
+          as: :json
+    assert_public_write_unavailable
+
+    delete "#{PUBLIC_ROOT}/support_sections/#{@section.id}",
+           headers: auth(@staff_public_token),
+           as: :json
+    assert_public_write_unavailable
+
+    post "#{PUBLIC_ROOT}/support_sections/#{@section.id}/pages",
+         headers: auth(@staff_public_token),
+         params: { title: "Nope" },
+         as: :json
+    assert_public_write_unavailable
+
+    patch "#{PUBLIC_ROOT}/support_sections/#{@section.id}/pages/#{@live.id}",
+          headers: auth(@staff_public_token),
+          params: { title: "Nope" },
+          as: :json
+    assert_public_write_unavailable
+
+    delete "#{PUBLIC_ROOT}/support_sections/#{@section.id}/pages/#{@live.id}",
+           headers: auth(@staff_public_token),
+           as: :json
+    assert_public_write_unavailable
+
+    post "#{PUBLIC_ROOT}/support_pages",
+         headers: auth(@staff_public_token),
+         params: { title: "Nope", parent_id: @section.id },
+         as: :json
+    assert_public_write_unavailable
+
+    patch "#{PUBLIC_ROOT}/support_pages/#{@live.id}",
+          headers: auth(@staff_public_token),
+          params: { title: "Nope" },
+          as: :json
+    assert_public_write_unavailable
+
+    delete "#{PUBLIC_ROOT}/support_pages/#{@live.id}",
+           headers: auth(@staff_public_token),
+           as: :json
+    assert_public_write_unavailable
+
+    post "#{PUBLIC_ROOT}/support_pages/#{@live.id}/actions/move",
+         headers: auth(@staff_public_token),
+         params: { parent_id: @section.id },
+         as: :json
+    assert_public_write_unavailable
+  end
+
+  test "operations editor token can write sections nested pages and pages including move" do
+    post "#{OPERATIONS_ROOT}/support_sections",
+         headers: auth(@editor_operations_token),
          params: { title: "Created section #{SecureRandom.hex(4)}", parent_id: @root.id, icon: "sparkles" },
          as: :json
 
@@ -65,8 +141,8 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     section_id = response.parsed_body.fetch("id")
     section_recordable_id = RecordingStudio::Recording.find(section_id).recordable_id
 
-    patch "/recording_studio_api/api/v1/support_sections/#{section_id}",
-          headers: auth(@staff_token),
+    patch "#{OPERATIONS_ROOT}/support_sections/#{section_id}",
+          headers: auth(@editor_operations_token),
           params: { title: "Revised section" },
           as: :json
 
@@ -74,8 +150,8 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_equal "Revised section", response.parsed_body.fetch("title")
     refute_equal section_recordable_id, RecordingStudio::Recording.find(section_id).recordable_id
 
-    post "/recording_studio_api/api/v1/support_sections/#{section_id}/pages",
-         headers: auth(@staff_token),
+    post "#{OPERATIONS_ROOT}/support_sections/#{section_id}/pages",
+         headers: auth(@editor_operations_token),
          params: { title: "Nested page", body: "<p>Hello</p>" },
          as: :json
 
@@ -84,192 +160,120 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_equal "Nested page", response.parsed_body.fetch("title")
     assert_equal "<p>Hello</p>", response.parsed_body.fetch("body")
 
-    get "/recording_studio_api/api/v1/support_pages", headers: auth(@staff_token), as: :json
+    patch "#{OPERATIONS_ROOT}/support_pages/#{page_id}",
+          headers: auth(@editor_operations_token),
+          params: { title: "Revised nested" },
+          as: :json
 
     assert_response :success
-    titles = response.parsed_body.fetch("records").map { |record| record.fetch("title") }
-    assert_includes titles, @live.recordable.title
-    assert_includes titles, @draft.recordable.title
+    assert_equal "Revised nested", response.parsed_body.fetch("title")
 
-    get "/recording_studio_api/api/v1/support_pages/#{@draft.id}", headers: auth(@staff_token), as: :json
+    destination = record_support_section(@root, title: "Move dest #{SecureRandom.hex(4)}")
+    post "#{OPERATIONS_ROOT}/support_pages/#{page_id}/actions/move",
+         headers: auth(@editor_operations_token),
+         params: { parent_id: destination.id },
+         as: :json
 
     assert_response :success
-    assert_equal @draft.recordable.title, response.parsed_body.fetch("title")
+    assert_equal destination.id, RecordingStudio::Recording.find(page_id).reload.parent_recording_id
 
-    delete "/recording_studio_api/api/v1/support_pages/#{page_id}", headers: auth(@staff_token), as: :json
+    delete "#{OPERATIONS_ROOT}/support_pages/#{page_id}",
+           headers: auth(@editor_operations_token),
+           as: :json
 
     assert_response :success
     assert_equal "trashed", response.parsed_body.fetch("deleted_via")
     assert RecordingStudio::Recording.find(page_id).trashed_at
+
+    delete "#{OPERATIONS_ROOT}/support_sections/#{section_id}",
+           headers: auth(@editor_operations_token),
+           as: :json
+
+    assert_response :success
+    assert RecordingStudio::Recording.find(section_id).trashed_at
   end
 
-  test "workspace-only client can read live pages and is forbidden to write" do
-    get "/recording_studio_api/api/v1/support_pages", headers: auth(@workspace_token), as: :json
+  test "public token is rejected on the operations API" do
+    post "#{OPERATIONS_ROOT}/support_sections",
+         headers: auth(@staff_public_token),
+         params: { title: "Nope", parent_id: @root.id },
+         as: :json
 
-    assert_response :success
-    titles = response.parsed_body.fetch("records").map { |record| record.fetch("title") }
-    assert_includes titles, @live.recordable.title
-    refute_includes titles, @draft.recordable.title
+    assert_includes [401, 403], response.status, response.body
+  end
 
-    get "/recording_studio_api/api/v1/support_pages/#{@live.id}", headers: auth(@workspace_token), as: :json
-
-    assert_response :success
-
-    get "/recording_studio_api/api/v1/support_pages/#{@draft.id}", headers: auth(@workspace_token), as: :json
-
-    assert_response :not_found
-
-    post "/recording_studio_api/api/v1/support_sections",
-         headers: auth(@workspace_token),
+  test "operations viewer is forbidden to write" do
+    post "#{OPERATIONS_ROOT}/support_sections",
+         headers: auth(@viewer_operations_token),
          params: { title: "Nope", parent_id: @root.id },
          as: :json
 
     assert_response :forbidden
 
-    patch "/recording_studio_api/api/v1/support_pages/#{@live.id}",
-          headers: auth(@workspace_token),
+    patch "#{OPERATIONS_ROOT}/support_pages/#{@live.id}",
+          headers: auth(@viewer_operations_token),
           params: { title: "Hijack" },
           as: :json
 
     assert_response :forbidden
 
-    delete "/recording_studio_api/api/v1/support_pages/#{@live.id}", headers: auth(@workspace_token), as: :json
+    delete "#{OPERATIONS_ROOT}/support_pages/#{@live.id}",
+           headers: auth(@viewer_operations_token),
+           as: :json
 
     assert_response :forbidden
 
-    post "/recording_studio_api/api/v1/support_pages/#{@live.id}/actions/move",
-         headers: auth(@workspace_token),
+    post "#{OPERATIONS_ROOT}/support_pages/#{@live.id}/actions/move",
+         headers: auth(@viewer_operations_token),
          params: { parent_id: @section.id },
          as: :json
 
     assert_response :forbidden
   end
 
-  test "admin-root client can move a page between sections" do
-    destination = record_support_section(@root, title: "Move dest #{SecureRandom.hex(4)}")
-
-    post "/recording_studio_api/api/v1/support_pages/#{@live.id}/actions/move",
-         headers: auth(@staff_token),
-         params: { parent_id: destination.id },
-         as: :json
+  test "public index and show still work for staff and workspace tokens" do
+    get "#{PUBLIC_ROOT}/support_pages", headers: auth(@staff_public_token), as: :json
 
     assert_response :success
-    assert_equal destination.id, @live.reload.parent_recording_id
-  end
-
-  test "general support search returns matching sections and pages" do
-    billing = record_support_section(@root, title: "Billing")
-    live_hit = record_support_page(@root, billing, title: "Where is my invoice?", body: "Open Billing for invoices.")
-    draft_hit = record_support_page(@root, billing, title: "Draft billing refund", body: "Refunds live in Billing.")
-    miss = record_support_page(@root, @section, title: "Unrelated #{SecureRandom.hex(4)}", body: "Body")
-    publish!(live_hit, slug: "search-live-billing-#{SecureRandom.hex(4)}", status: "published")
-    publish!(draft_hit, slug: "search-draft-billing-#{SecureRandom.hex(4)}", status: "draft")
-    publish!(miss, slug: "search-miss-billing-#{SecureRandom.hex(4)}", status: "published")
-
-    other_workspace = Workspace.create!(name: "Other #{SecureRandom.hex(4)}")
-    other_root = RecordingStudio.root_recording_for(other_workspace)
-    bootstrap_owner!(other_root, @staff)
-    other_section = record_support_section(other_root, title: "Billing")
-    other_hit = record_support_page(other_root, other_section, title: "Other billing invoice", body: "Body")
-    publish!(other_hit, slug: "search-other-billing-#{SecureRandom.hex(4)}", status: "published")
-
-    get "/recording_studio_api/api/v1/support/search",
-        headers: auth(@staff_token),
-        params: { q: "billing" },
-        as: :json
-
-    assert_response :success
-    payload = response.parsed_body
-    records = payload.fetch("records")
-    titles = records.map { |record| record.fetch("title") }
-    types = records.map { |record| record.fetch("type") }
-    assert_equal "support_search", payload.fetch("resource")
-    assert_includes titles, billing.recordable.title
-    assert_includes titles, live_hit.recordable.title
-    assert_includes titles, draft_hit.recordable.title
-    refute_includes titles, miss.recordable.title
-    assert_includes types, "RecordingStudioSupport::SupportSection"
-    assert_includes types, "RecordingStudioSupport::SupportPage"
-    assert_operator types.index("RecordingStudioSupport::SupportSection"), :<, types.index("RecordingStudioSupport::SupportPage")
-    assert_equal "billing", payload.fetch("meta").fetch("q")
-
-    get "/recording_studio_api/api/v1/support/search",
-        headers: auth(@workspace_token),
-        params: { q: "billing" },
-        as: :json
-
-    assert_response :success
-    workspace_records = response.parsed_body.fetch("records")
-    workspace_ids = workspace_records.map { |record| record.fetch("id") }
-    workspace_titles = workspace_records.map { |record| record.fetch("title") }
-    workspace_types = workspace_records.map { |record| record.fetch("type") }
-    assert_includes workspace_ids, billing.id
-    assert_includes workspace_titles, live_hit.recordable.title
-    refute_includes workspace_titles, draft_hit.recordable.title
-    refute_includes workspace_ids, other_section.id
-    refute_includes workspace_ids, other_hit.id
-    assert_includes workspace_types, "RecordingStudioSupport::SupportSection"
-    assert_includes workspace_types, "RecordingStudioSupport::SupportPage"
-  end
-
-  test "general support search is unauthorized without a token and forbids writes" do
-    get "/recording_studio_api/api/v1/support/search", params: { q: "invoice" }, as: :json
-
-    assert_response :unauthorized
-
-    post "/recording_studio_api/api/v1/support/search",
-         headers: auth(@workspace_token),
-         params: { q: "invoice" },
-         as: :json
-
-    assert_response :unprocessable_entity
-  end
-
-  test "empty q on general support search is a scoped live section and page index" do
-    get "/recording_studio_api/api/v1/support/search",
-        headers: auth(@workspace_token),
-        params: { q: "" },
-        as: :json
-
-    assert_response :success
-    records = response.parsed_body.fetch("records")
-    titles = records.map { |record| record.fetch("title") }
-    types = records.map { |record| record.fetch("type") }
-    assert_includes titles, @section.recordable.title
+    titles = response.parsed_body.fetch("records").map { |record| record.fetch("title") }
     assert_includes titles, @live.recordable.title
-    refute_includes titles, @draft.recordable.title
-    assert_includes types, "RecordingStudioSupport::SupportSection"
-    assert_includes types, "RecordingStudioSupport::SupportPage"
-    assert_operator types.index("RecordingStudioSupport::SupportSection"), :<, types.index("RecordingStudioSupport::SupportPage")
-    refute response.parsed_body.fetch("meta").key?("q")
-  end
+    assert_includes titles, @draft.recordable.title
 
-  test "general support search shares the article search rate limit" do
-    original_limit = RecordingStudioSupport.configuration.api_search_rate_limit_requests
-    RecordingStudioSupport.configuration.api_search_rate_limit_requests = 1
-    RecordingStudioSupport::Api::SearchLimit.reset!
+    get "#{PUBLIC_ROOT}/support_pages/#{@draft.id}", headers: auth(@staff_public_token), as: :json
 
-    get "/recording_studio_api/api/v1/support/search",
-        headers: auth(@workspace_token),
-        params: { q: "invoice" },
-        as: :json
+    assert_response :success
+    assert_equal @draft.recordable.title, response.parsed_body.fetch("title")
+
+    get "#{PUBLIC_ROOT}/support_pages", headers: auth(@workspace_token), as: :json
+
+    assert_response :success
+    workspace_titles = response.parsed_body.fetch("records").map { |record| record.fetch("title") }
+    assert_includes workspace_titles, @live.recordable.title
+    refute_includes workspace_titles, @draft.recordable.title
+
+    get "#{PUBLIC_ROOT}/support_pages/#{@live.id}", headers: auth(@workspace_token), as: :json
 
     assert_response :success
 
-    get "/recording_studio_api/api/v1/support_pages",
-        headers: auth(@workspace_token),
-        params: { q: "invoice" },
-        as: :json
+    get "#{PUBLIC_ROOT}/support_pages/#{@draft.id}", headers: auth(@workspace_token), as: :json
 
-    assert_response :too_many_requests
-    assert_equal "rate_limit_exceeded", response.parsed_body.dig("error", "code")
-    assert response.headers["Retry-After"].present?
-  ensure
-    RecordingStudioSupport.configuration.api_search_rate_limit_requests = original_limit
-    RecordingStudioSupport::Api::SearchLimit.reset!
+    assert_response :not_found
+
+    get "#{PUBLIC_ROOT}/support_sections/#{@section.id}", headers: auth(@workspace_token), as: :json
+
+    assert_response :success
   end
 
-  test "q searches articles through SupportPage search" do
+  test "general support search endpoint is gone" do
+    get "#{PUBLIC_ROOT}/support/search",
+        headers: auth(@workspace_token),
+        params: { q: "billing" },
+        as: :json
+
+    assert_response :not_found
+  end
+
+  test "q searches nested section pages and the pages collection" do
     token = "Zephyr#{SecureRandom.hex(4)}"
     live_hit = record_support_page(@root, @section, title: "#{token} live receipt", body: "Body")
     draft_hit = record_support_page(@root, @section, title: "#{token} draft receipt", body: "Body")
@@ -278,8 +282,8 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     publish!(draft_hit, slug: "draft-#{token}", status: "draft")
     publish!(miss, slug: "miss-#{token}", status: "published")
 
-    get "/recording_studio_api/api/v1/support_pages",
-        headers: auth(@staff_token),
+    get "#{PUBLIC_ROOT}/support_pages",
+        headers: auth(@staff_public_token),
         params: { q: token },
         as: :json
 
@@ -290,7 +294,7 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     refute_includes titles, miss.recordable.title
     assert_equal token, response.parsed_body.fetch("meta").fetch("q")
 
-    get "/recording_studio_api/api/v1/support_pages",
+    get "#{PUBLIC_ROOT}/support_pages",
         headers: auth(@workspace_token),
         params: { q: token },
         as: :json
@@ -300,8 +304,8 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_includes workspace_titles, live_hit.recordable.title
     refute_includes workspace_titles, draft_hit.recordable.title
 
-    get "/recording_studio_api/api/v1/support_sections/#{@section.id}/pages",
-        headers: auth(@staff_token),
+    get "#{PUBLIC_ROOT}/support_sections/#{@section.id}/pages",
+        headers: auth(@staff_public_token),
         params: { q: token },
         as: :json
 
@@ -316,14 +320,14 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     RecordingStudioSupport.configuration.api_search_rate_limit_requests = 1
     RecordingStudioSupport::Api::SearchLimit.reset!
 
-    get "/recording_studio_api/api/v1/support_pages",
+    get "#{PUBLIC_ROOT}/support_pages",
         headers: auth(@workspace_token),
         params: { q: "invoice" },
         as: :json
 
     assert_response :success
 
-    get "/recording_studio_api/api/v1/support_pages",
+    get "#{PUBLIC_ROOT}/support_pages",
         headers: auth(@workspace_token),
         params: { q: "invoice" },
         as: :json
@@ -332,8 +336,8 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_equal "rate_limit_exceeded", response.parsed_body.dig("error", "code")
     assert response.headers["Retry-After"].present?
 
-    get "/recording_studio_api/api/v1/support_pages",
-        headers: auth(@staff_token),
+    get "#{PUBLIC_ROOT}/support_pages",
+        headers: auth(@staff_public_token),
         params: { q: "invoice" },
         as: :json
 
@@ -345,16 +349,21 @@ class SupportApiTest < ActionDispatch::IntegrationTest
 
   private
 
+  def assert_public_write_unavailable
+    assert_includes [404, 422], response.status, response.body
+  end
+
   def auth(token)
     { "Authorization" => "Bearer #{token}", "Accept" => "application/json" }
   end
 
-  def provision_token(access_point:, actor:, role:, name:, admin_root_recording: nil)
+  def provision_token(access_point:, actor:, role:, name:, admin_root_recording: nil, api: :public)
     result = RecordingStudioApi::Services::ProvisionApiClient.call(
       access_point_recording: access_point,
       manager_actor: actor,
       role: role,
-      name: name
+      name: name,
+      api: api
     )
     raise result.error unless result.success?
 
@@ -364,7 +373,8 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     token_result = RecordingStudioApi::Services::IssueOauthAccessToken.call(
       grant_type: "client_credentials",
       client_id: payload.fetch(:credential).oauth_client_id,
-      client_secret: payload.fetch(:token)
+      client_secret: payload.fetch(:token),
+      api: api
     )
     raise token_result.error unless token_result.success?
 

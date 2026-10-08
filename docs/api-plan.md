@@ -17,35 +17,37 @@ Public anonymous browse stays `/help`. The JSON API is authenticated (bearer cli
 | Tree | Sections and pages still live under the workspace. Accessible is not enabled on `SupportPage` / `SupportSection` |
 | Anonymous | `/help` only. No logged-out JSON |
 
-| Actor | `index` / `show` | `create` / `update` / trash / move / publish |
+| Actor | Public `index` / `show` | Operations `create` / `update` / trash / move |
 | --- | --- | --- |
-| Accessible `:edit` or `:admin` on **AdminRoot** | Yes (all kept pages in the request’s workspace bucket, including drafts) | Yes |
+| Accessible `:edit` or `:admin` on **AdminRoot** | Yes with a public viewer token (all kept pages in the request’s workspace bucket, including drafts) | Yes with an operations token |
 | Workspace `:view` (or stronger) **without** AdminRoot `:edit` | Yes (that workspace’s help; drafts stay hidden unless product later says otherwise) | No — `403` |
+| Public token on operations | — | Rejected |
 | No Accessible grant | `403` / `401` | `403` / `401` |
 
 The API client’s `AccessGrant.actor` is the actor. Same check for a person, machine client, or agent.
 
-Stock API resource create/update authorize `:edit` on the **parent recording** (workspace/section). That would let a workspace editor write help the UI forbids. Support write handlers must **not** use that default. They authorize the **admin root**, then call Support domain writes.
+Stock API resource create/update authorize `:edit` on the **parent recording** (workspace/section). That would let a workspace editor write help the UI forbids. Support write handlers must **not** use that default. They authorize the **admin root**, then call Support domain writes. Intercept wrappers apply to the same ResourceOperations / relationship / member-action classes used by the operations API.
 
 ## Host vs gem
 
 Support does **not** gemspec-depend on `recording_studio_api` (same pattern as Moveable). If the constant is missing, Support boots with no JSON routes.
 
-The **host** adds the API gem, runs its install/migrations, mounts the engine, enables `:accessible` and `:api_access_point` on roots that hold API keys, and provisions clients. Dummy wires this.
+The **host** adds the API gem, runs its install/migrations, mounts the engine, names `:operations`, enables `:accessible` and `:api_access_point` on roots that hold API keys, and provisions clients. Dummy wires this (`recording_studio_api` `v0.6.4`).
 
 ## Registration
 
-Register both types when `RecordingStudioApi` is defined (`to_prepare`). Resource names are `support_sections` and `support_pages`. Register general Support search (sections and pages) with `RecordingStudioApi.register_endpoint` (`support_search`, `GET support/search`) — it is not a tree recordable.
+Register both types when `RecordingStudioApi` is defined (`to_prepare`). Resource names are `support_sections` and `support_pages`. Public is read-only. Operations is writes only — pass `operations:` so `:read_only` does not apply. Do not register `GET support/search`.
 
 ```ruby
 RecordingStudioApi.register_recordable_type_api(
   "RecordingStudioSupport::SupportSection",
+  api: :public,
   serializer: ->(section, **) {
     { title: section.title, slug: section.slug, icon: section.icon }
   },
   output_keys: %i[title slug icon],
   writable_attributes: %i[title icon],
-  operations: %i[index show create update destroy],
+  operations: %i[index show],
   relationships: {
     pages: {
       source: :children,
@@ -62,13 +64,44 @@ RecordingStudioApi.register_recordable_type_api(
       },
       output_keys: %i[title description icon body],
       limit: 50,
-      endpoints: %i[index show create update destroy]
+      endpoints: %i[index show]
+    }
+  }
+)
+
+RecordingStudioApi.register_recordable_type_api(
+  "RecordingStudioSupport::SupportSection",
+  api: :operations,
+  serializer: ->(section, **) {
+    { title: section.title, slug: section.slug, icon: section.icon }
+  },
+  output_keys: %i[title slug icon],
+  writable_attributes: %i[title icon],
+  operations: %i[create update destroy],
+  relationships: {
+    pages: {
+      source: :children,
+      child_type: "RecordingStudioSupport::SupportPage",
+      many: true,
+      include: :request,
+      serializer: ->(page, **) {
+        {
+          title: page.title,
+          description: page.description,
+          icon: page.icon,
+          body: page.body
+        }
+      },
+      output_keys: %i[title description icon body],
+      limit: 50,
+      endpoints: %i[create update destroy]
     }
   }
 )
 
 RecordingStudioApi.register_recordable_type_api(
   "RecordingStudioSupport::SupportPage",
+  api: :public,
   serializer: ->(page, **) {
     {
       title: page.title,
@@ -79,44 +112,57 @@ RecordingStudioApi.register_recordable_type_api(
   },
   output_keys: %i[title description icon body],
   writable_attributes: %i[title description icon body],
-  operations: %i[index show create update destroy],
+  operations: %i[index show]
+)
+
+RecordingStudioApi.register_recordable_type_api(
+  "RecordingStudioSupport::SupportPage",
+  api: :operations,
+  serializer: ->(page, **) {
+    {
+      title: page.title,
+      description: page.description,
+      icon: page.icon,
+      body: page.body
+    }
+  },
+  output_keys: %i[title description icon body],
+  writable_attributes: %i[title description icon body],
+  operations: %i[create update destroy],
   capability_actions: %i[move]
 )
 ```
 
-Do not use `register_endpoint` for these. They are tree recordables.
+Do not use `register_endpoint` for these. They are tree recordables. There is no general Support search endpoint.
 
-Use `register_endpoint` for general article search (not a collection):
+## Routes
 
-```ruby
-RecordingStudioApi.register_endpoint(
-  :support_search,
-  http_verb: :get,
-  path: "support/search",
-  handler: RecordingStudioSupport::Api::Search
-)
-```
-
-## Routes (public API v1)
+Public API v1:
 
 ```text
 GET    /recording_studio_api/api/v1/support_sections
-POST   /recording_studio_api/api/v1/support_sections
 GET    /recording_studio_api/api/v1/support_sections/:id
-PATCH  /recording_studio_api/api/v1/support_sections/:id
-DELETE /recording_studio_api/api/v1/support_sections/:id
-
 GET    /recording_studio_api/api/v1/support_sections/:id/pages
-POST   /recording_studio_api/api/v1/support_sections/:id/pages
-
-GET    /recording_studio_api/api/v1/support/search
-
+GET    /recording_studio_api/api/v1/support_sections/:id/pages/:id
 GET    /recording_studio_api/api/v1/support_pages
-POST   /recording_studio_api/api/v1/support_pages
 GET    /recording_studio_api/api/v1/support_pages/:id
-PATCH  /recording_studio_api/api/v1/support_pages/:id
-DELETE /recording_studio_api/api/v1/support_pages/:id
-POST   /recording_studio_api/api/v1/support_pages/:id/actions/move
+```
+
+Operations API v1:
+
+```text
+POST   /recording_studio_api/apis/operations/v1/support_sections
+PATCH  /recording_studio_api/apis/operations/v1/support_sections/:id
+DELETE /recording_studio_api/apis/operations/v1/support_sections/:id
+
+POST   /recording_studio_api/apis/operations/v1/support_sections/:id/pages
+PATCH  /recording_studio_api/apis/operations/v1/support_sections/:id/pages/:id
+DELETE /recording_studio_api/apis/operations/v1/support_sections/:id/pages/:id
+
+POST   /recording_studio_api/apis/operations/v1/support_pages
+PATCH  /recording_studio_api/apis/operations/v1/support_pages/:id
+DELETE /recording_studio_api/apis/operations/v1/support_pages/:id
+POST   /recording_studio_api/apis/operations/v1/support_pages/:id/actions/move
 ```
 
 `POST` create at the collection needs `parent_id` (workspace recording for a section; section recording for a page). Nested `…/support_sections/:id/pages` takes the parent from the URL.
@@ -127,16 +173,14 @@ Optional later: Publishable `:publish` on pages, Orderable reorder on a section.
 
 ## Handlers
 
-Stock Index/Show can stay if they honor `:view` on workspace **or** admin root. Filter:
+Stock Index/Show stay on public if they honor `:view` on workspace **or** admin root. Filter:
 
 - AdminRoot `:edit` (or `:view` if we mirror staff preview) — include drafts
 - Workspace `:view` without admin write — live/`indexable` pages only, matching public `/help`
 
-`GET support/search?q=` is the general Support search (`register_endpoint` `support_search`). Sections match title/slug `ILIKE` (`Sections.apply_query`). Pages reuse `Pages.apply_query` → `SupportPage.search` (trigram). One `records` array; default order is sections then pages. Index Access/scoping and `SearchLimit` stay the same. Not Instant Search. No shared `search_vector` on sections. Rate limit searches per API client (default 30/minute). Empty `q` is a scoped live index of sections and pages and does not count against that bucket.
+`GET support_pages?q=` and nested `GET support_sections/:id/pages?q=` keep list/nested `?q=` on the public API. Rate limit searches per API client (default 30/minute). Empty `q` is a scoped live list and does not count against that bucket.
 
-`GET support_pages?q=` and nested `GET support_sections/:id/pages?q=` keep list/nested `?q=` unchanged.
-
-Replace Create / Update / Destroy with Support handlers:
+Replace Create / Update / Destroy with Support handlers (same intercept on public and operations):
 
 1. Resolve admin root the same way staff UI does (`RecordingStudioAdmin` access recording resolver). Fail closed if missing.
 2. `access_grant.authorize!(recording: admin_root, role: :edit)` — or `RecordingStudioAccessible.authorized?` with the grant actor.
@@ -144,35 +188,36 @@ Replace Create / Update / Destroy with Support handlers:
 4. Sanitize body through `Body.sanitize`. Slug stays Support-owned (`SupportSection.slug_for`).
 5. Never `SupportPage.create!` plus `Recording.create!`.
 
-Move stays Moveable’s registered `:move` action. After authorize, Support still requires AdminRoot `:edit` (wrap or extra check) so a workspace `:edit` token cannot move pages.
+Move stays Moveable’s registered `:move` action on operations. After authorize, Support still requires AdminRoot `:edit` (wrap or extra check) so a workspace `:edit` token cannot move pages.
 
 ## Dummy
 
-Dummy adds `recording_studio_api` (host Gemfile only), installs, mounts, and enables `api_access_point` on `Workspace` and `AdminRoot`. Seed:
+Dummy adds `recording_studio_api` (host Gemfile only), installs, mounts, names `:operations`, and enables `api_access_point` on `Workspace` and `AdminRoot`. Seed:
 
-1. Admin-root API client (actor can write)
-2. Workspace-only API client (index/show only)
+1. Public workspace-only API client (index/show)
+2. Operations AdminRoot `:edit` client (writes)
+3. Operations AdminRoot `:view` client (writes denied)
 
 ## Tests
 
 Gem suite:
 
 - Registration is a no-op without `RecordingStudioApi`
-- With API loaded, types register; write handlers refuse workspace-only `:edit`
+- Public registration is index/show; operations registration is create/update/destroy plus page move
 - Writes go through `Pages` / `Sections` (new recordable row on revise)
+- `GET support/search` files are gone; nested `?q=` remains
 
 Dummy suite:
 
-- Admin-root client: CRUD on section and page, including nested create
-- Workspace-only client: `GET` index/show `200`; `POST`/`PATCH`/`DELETE` `403`
-- Missing token: `401`
-- Draft pages absent from workspace-only index; present for admin-root read if we include drafts for staff
-- `q` on page index uses Search; workspace-only clients still hide drafts; over-limit search is `429`
-- `GET support/search?q=` returns matching sections and pages; list `?q=` still works; empty `q` is a scoped live section+page index; workspace tokens stay on their root
+- Public writes and public move: not-found / unsupported
+- Operations editor token: CRUD on section and page, including nested create and move
+- Public token on operations: rejected
+- Operations viewer: writes `403`
+- Public index/show and nested `?q=` still work
+- `GET support/search` is gone (`404`)
 
 ## Out of scope
 
 - Tickets, inbox, chat
 - Accessible on each page/section (stop and extend Accessible if we need per-article authors)
-- Named `operations` API unless the host already splits surfaces; this plan uses the public API with Accessible roles
 - Changing public `/help`

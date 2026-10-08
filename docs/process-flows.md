@@ -111,11 +111,11 @@ Engine root `/admin/support` redirects to `/admin`. Admin tables replace the old
 
 ## 5. JSON API
 
-Endpoints: [docs/api.md](api.md). Design: [docs/api-plan.md](api-plan.md). Dummy mounts Recording Studio API and registers `support_sections` / `support_pages` plus `GET support/search`.
+Endpoints: [docs/api.md](api.md). Design: [docs/api-plan.md](api-plan.md). Dummy mounts Recording Studio API and registers public reads plus operations writes for `support_sections` / `support_pages`.
 
-Accessible is the only access check. Admin is the staff UI. API writes use AdminRoot `:edit` (same as `authorize_support!(:edit)`). API reads use `:view` on the workspace that owns the page **or** on the admin root. Workspace `:edit` without AdminRoot does not create, revise, trash, or move. Anonymous JSON is out; `/help` stays the public browse.
+Accessible is the only access check. Admin is the staff UI. API writes use AdminRoot `:edit` (same as `authorize_support!(:edit)`) on the operations API. API reads use `:view` on the workspace that owns the page **or** on the admin root, on the public API. Workspace `:edit` without AdminRoot does not create, revise, trash, or move. Anonymous JSON is out; `/help` stays the public browse.
 
-Article search is `GET …/support/search?q=` (sections via title/slug `ILIKE`, pages via `SupportPage.search`) plus list `GET …/support_pages?q=`. Per-client search rate limit. Instant stays HTML-only.
+Article search is nested `GET …/support_sections/:id/pages?q=` and list `GET …/support_pages?q=` (`SupportPage.search`). Per-client search rate limit. Instant stays HTML-only. There is no `GET support/search`.
 
 ---
 

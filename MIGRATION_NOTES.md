@@ -2,14 +2,14 @@
 
 ## Unreleased
 
-Kit pins: Accessible `v0.11.1`, Admin `v2.0.4`, Attachable `v0.7.1`, Messages `v0.4.3`, Moveable `v3.0.3`, Notifications `v0.3.4`, Notifications Email `v0.3.4`, Orderable `v0.2.5`, Publishable `v0.4.2`, Trashable `v0.4.4`, Users `v0.12.5` (host), Root Switchable `v0.5.3` (host), Flatpack `v0.1.198`. Recording Studio stays `v4.2.2`. API stays `v0.5.5`.
+Kit pins: Accessible `v0.11.1`, Admin `v2.0.4`, Attachable `v0.7.1`, Messages `v0.4.3`, Moveable `v3.0.3`, Notifications `v0.3.4`, Notifications Email `v0.3.4`, Orderable `v0.2.5`, Publishable `v0.4.2`, Trashable `v0.4.4`, Users `v0.12.5` (host), Root Switchable `v0.5.3` (host), Flatpack `v0.1.198`. Recording Studio stays `v4.2.2`. API is `v0.6.4`.
 
 ### Host app
 
 1. Widen gemspec constraints: Accessible `~> 0.11`, Attachable `~> 0.7`, Messages `~> 0.4`, Publishable `~> 0.4`. `bundle install`.
 2. Run Accessible migrations through 0.11: invitations table, `depends_on_recording_id` if you do not have it, access `role` integer → string (`view` / `edit` / `admin`).
 3. Run Attachable `root_recording_id` + presentation columns, Messages public contact intents, and Users blank profile surname/time zone if you use those gems.
-4. Grant through `bootstrap_owner_access!` / `grant_access`. Do not `Access.create!`. If you still pin API `v0.5.5`, expose `RecordingStudio::Access.roles` from `AccessRoles::ORDER` in a host initializer.
+4. Grant through `bootstrap_owner_access!` / `grant_access`. Do not `Access.create!`. Pin API `v0.6.4` and name `:operations`. Delete any host `Access.roles` shim. Writes move to `/recording_studio_api/apis/operations/v1/…`. `GET support/search` is gone.
 5. Pin Flatpack `v0.1.198`.
 
 ### Verify
