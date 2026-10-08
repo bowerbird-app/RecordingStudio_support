@@ -7,7 +7,7 @@ module RecordingStudioSupport
     def subtitle_for(section)
       configured = RecordingStudioSupport.configuration.public_section_subtitle
       result = configured.respond_to?(:call) ? configured.call(section) : configured
-      result.to_s.presence || "Find answers in #{section.title}."
+      result.to_s.presence || Copy.t("section.subtitle", title: section.title)
     end
 
     def articles_for(section_recording, query: nil)

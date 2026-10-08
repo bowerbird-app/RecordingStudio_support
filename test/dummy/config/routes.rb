@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   get "/recording_studio", to: redirect("/"), as: nil
   mount RecordingStudio::Engine, at: "/recording_studio"
   mount RecordingStudioRootSwitchable::Engine, at: "/recording_studio_root_switchable"
+  mount RecordingStudioInternationalization::Engine, at: "/recording_studio_internationalization"
   mount RecordingStudioAttachable::Engine, at: "/recording_studio_attachable"
   mount RecordingStudioMoveable::Engine, at: "/recording_studio_moveable"
   get "/help", to: RecordingStudioSupport::PublicPagesController.action(:index), as: :public_help

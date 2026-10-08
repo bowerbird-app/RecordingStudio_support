@@ -13,7 +13,7 @@ module RecordingStudioSupport
       )
       content_for(:page_nav_secondary_anchor_url, support_public_help_path)
       content_for(:page_nav_secondary_anchor_icon, "home")
-      content_for(:page_nav_secondary_anchor_tooltip, "Home")
+      content_for(:page_nav_secondary_anchor_tooltip, Copy.t("help.home"))
       nil
     end
 
@@ -26,7 +26,7 @@ module RecordingStudioSupport
     end
 
     def support_public_section_search_placeholder(section)
-      "Search in #{section.title}…"
+      Copy.t("section.search_placeholder", title: section.title)
     end
 
     def support_public_contact_href
@@ -34,19 +34,26 @@ module RecordingStudioSupport
     end
 
     def support_public_contact_label
-      RecordingStudioSupport.configuration.public_contact_label.presence || "Contact support"
+      Copy.defaulted(
+        RecordingStudioSupport.configuration.public_contact_label.presence,
+        Configuration::DEFAULTS[:public_contact_label],
+        "contact.label"
+      )
     end
 
     def support_public_contact_prompt(section)
-      "Need something else in #{section.title}?"
+      Copy.t("contact.prompt", title: section.title)
     end
 
     # Section search EmptyState copy. Pass a Flatpack Link (or nil) so Contact
-    # stays an inline link instead of a Button slot.
+    # stays an inline link instead of a Button slot. The link must stay HTML —
+    # I18n escapes a plain string even when the key ends in `_html`.
     def support_public_search_empty_description(contact_link: nil)
-      return "Try another keyword." if contact_link.blank?
+      return Copy.t("search.empty") if contact_link.blank?
 
-      safe_join(["Try another keyword or ", contact_link, "."])
+      contact = contact_link.html_safe
+      html = Copy.t("search.empty_with_contact_html", contact: contact)
+      html.respond_to?(:html_safe) ? html.html_safe : html
     end
 
     def support_public_section_article(page)

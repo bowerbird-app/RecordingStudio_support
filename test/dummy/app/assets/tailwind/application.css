@@ -20,8 +20,9 @@
   }
 }
 
-/* Include dummy app views for Tailwind CSS */
+/* Include dummy app views and helpers for Tailwind CSS */
 @source "../../views/**/*.erb";
+@source "../../helpers/**/*.rb";
 
 /* Include RecordingStudio engine views for Tailwind CSS */
 @source "../../../vendor/bundle/**/recording_studio/app/views/**/*.erb";

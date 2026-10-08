@@ -1,9 +1,9 @@
-<% recording_studio_page_nav(title: "Messages") %>
+<% recording_studio_page_nav(title: support_t("messages.title")) %>
 
 <div class="flex w-full flex-col gap-4">
   <%= render FlatPack::PageTitle::Component.new(
-    title: "Messages",
-    subtitle: "Write to support when Help isn’t enough.",
+    title: support_t("messages.title"),
+    subtitle: support_t("messages.subtitle"),
     variant: :h1
   ) %>
 
