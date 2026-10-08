@@ -2,7 +2,7 @@
 
 ## 0.13.0
 
-Customer-facing Support copy lives under `recording_studio.support.*`. Kit pins: Messages `v0.5.0`, Notifications `v0.3.4`, Flatpack `v0.1.206`, Internationalization `v0.1.2` (host/dummy only). Recording Studio stays `v4.2.2`. API is `v0.6.4`.
+Customer-facing Support copy lives under `recording_studio.support.*`. Kit pins: Messages `v0.5.0`, Notifications `v0.3.4`, Flatpack `v0.1.206`, Internationalization `v0.1.2` (host/dummy only), Users `v0.15.0` (host). Recording Studio stays `v4.2.2`. API is `v0.6.4`.
 
 ### Host app
 
