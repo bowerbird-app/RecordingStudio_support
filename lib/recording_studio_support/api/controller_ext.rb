@@ -163,9 +163,15 @@ module RecordingStudioSupport
       def authorize_nested!(role)
         if role == :edit
           Access.authorize_edit!(access_context)
+        elsif operations_request?
+          Access.authorize_staff_view!(access_context)
         else
           Access.authorize_view!(access_context, parent_recording)
         end
+      end
+
+      def operations_request?
+        current_api_key.to_s == Registration::OPERATIONS_API.to_s
       end
 
       def assert_pages_collection!(operation)
@@ -177,6 +183,8 @@ module RecordingStudioSupport
           raise RecordingStudioApi::UnsupportedActionError,
                 "#{operation} is not enabled for #{relationship_name}"
         end
+
+        return if %i[index show].include?(operation)
 
         assert_operation_enabled!(relationship.child_type, operation)
       end

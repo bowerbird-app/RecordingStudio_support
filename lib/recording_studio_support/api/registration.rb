@@ -6,7 +6,10 @@ module RecordingStudioSupport
       module_function
 
       PUBLIC_OPERATIONS = %i[index show].freeze
+      READ_OPERATIONS = %i[index show].freeze
       WRITE_OPERATIONS = %i[create update destroy].freeze
+      ADMIN_SECTION_OPERATIONS = (READ_OPERATIONS + WRITE_OPERATIONS).freeze
+      ADMIN_NESTED_PAGE_OPERATIONS = (READ_OPERATIONS + WRITE_OPERATIONS).freeze
       OPERATIONS_API = :operations
 
       def register!
@@ -15,15 +18,14 @@ module RecordingStudioSupport
       end
 
       def register_public!
-        register_sections!(api: :public, operations: PUBLIC_OPERATIONS, relationship_endpoints: PUBLIC_OPERATIONS)
         register_pages!(api: :public, operations: PUBLIC_OPERATIONS, capability_actions: [])
       end
 
       def register_operations!
         register_sections!(
           api: OPERATIONS_API,
-          operations: WRITE_OPERATIONS,
-          relationship_endpoints: WRITE_OPERATIONS
+          operations: ADMIN_SECTION_OPERATIONS,
+          relationship_endpoints: ADMIN_NESTED_PAGE_OPERATIONS
         )
         register_pages!(
           api: OPERATIONS_API,

@@ -20,7 +20,7 @@ bin/rails db:migrate
 
 Mount the engine (dummy uses `/recording_studio_api`). Enable `:accessible` and `:api_access_point` on roots that hold API keys. Dummy does this on `Workspace` and `AdminRoot`.
 
-Name the Admin API `:operations` (`default_access :read_only`). Support registers **reads** on the public API and **writes** on `:operations`. Pass `operations:` explicitly on the operations registrations so the named-API read-only default does not apply.
+Name the Admin API `:operations` (`default_access :read_only`). Support registers **page reads** on the public API and **section reads plus writes** on `:operations`. Pass `operations:` explicitly on the operations registrations so the named-API read-only default does not apply.
 
 Live OpenAPI (Scalar) is optional and owned by the API gem. Generate it in the host if you want an explorer. This file is the Support contract even when Scalar is off.
 
@@ -51,33 +51,34 @@ Accept: application/json
 
 The API client’s `AccessGrant.actor` is the Accessible actor (person, machine, or agent). Same rules for all of them. A public token is rejected on the operations API.
 
-| Actor | Public `index` / `show` | Operations `create` / `update` / trash / move |
-| --- | --- | --- |
-| Accessible `:edit` on **AdminRoot** (operations token) | Yes, with a public token that can view | Yes |
-| Workspace `:view` (or stronger) **without** AdminRoot `:edit` | Yes (that workspace; drafts hidden) | No — `403` on operations; writes are not on public |
-| Public token on operations | — | Rejected |
-| Missing token | `401` | `401` |
-| No Accessible grant | `403` / `401` | `403` / `401` |
+| Actor | Public page `index` / `show` | Operations section / nested-page `index` / `show` | Operations `create` / `update` / trash / move |
+| --- | --- | --- | --- |
+| Accessible `:edit` on **AdminRoot** (operations token) | Yes, with a public token that can view | Yes | Yes |
+| Accessible `:view` on **AdminRoot** (operations token) | Yes, with a public token that can view | Yes | No — `403` |
+| Workspace `:view` (or stronger) **without** AdminRoot | Yes (that workspace; drafts hidden) | No — `403` | No — `403`; writes are not on public |
+| Public token on operations | — | Rejected | Rejected |
+| Missing token | `401` | `401` | `401` |
+| No Accessible grant | `403` / `401` | `403` / `401` | `403` / `401` |
 
-## Public API (read-only)
+## Public API (page reads only)
 
 Mount prefix is the host’s API engine path. Dummy uses `/recording_studio_api`. Public API version is `v1`.
 
 | Method | Path | Who | Notes |
 | --- | --- | --- | --- |
-| `GET` | `/recording_studio_api/api/v1/support_sections` | `:view` | List sections |
-| `GET` | `/recording_studio_api/api/v1/support_sections/:id` | `:view` | One section |
-| `GET` | `/recording_studio_api/api/v1/support_sections/:id/pages` | `:view` | Pages in that section. `?q=` searches articles |
-| `GET` | `/recording_studio_api/api/v1/support_sections/:id/pages/:id` | `:view` | One nested page |
 | `GET` | `/recording_studio_api/api/v1/support_pages` | `:view` | List pages. `?q=` searches articles |
 | `GET` | `/recording_studio_api/api/v1/support_pages/:id` | `:view` | One page |
 
-Public `POST` / `PATCH` / `DELETE` and public page `move` are not registered (`404` / unsupported).
+Public `support_sections` list/show and nested section-pages are not registered (`404` / unsupported). Public `POST` / `PATCH` / `DELETE` and public page `move` are not registered.
 
-## Admin API (`api: :operations`, writes only)
+## Admin API (`api: :operations`, section reads plus writes)
 
 | Method | Path | Who | Notes |
 | --- | --- | --- | --- |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_sections` | AdminRoot `:view` | List sections |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_sections/:id` | AdminRoot `:view` | One section |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages` | AdminRoot `:view` | Pages in that section. `?q=` searches articles |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages/:relationship_id` | AdminRoot `:view` | One nested page |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_sections` | AdminRoot `:edit` | Body: `title`, optional `icon`, `parent_id` (workspace recording) |
 | `PATCH` | `/recording_studio_api/apis/operations/v1/support_sections/:id` | AdminRoot `:edit` | `title`, `icon` |
 | `DELETE` | `/recording_studio_api/apis/operations/v1/support_sections/:id` | AdminRoot `:edit` | Trash (`Sections.trash!`), not a hard delete |
@@ -89,7 +90,7 @@ Public `POST` / `PATCH` / `DELETE` and public page `move` are not registered (`4
 | `DELETE` | `/recording_studio_api/apis/operations/v1/support_pages/:id` | AdminRoot `:edit` | Trash (`Pages.trash!`) |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/move` | AdminRoot `:edit` | Body: `parent_id` (destination section recording) |
 
-Operations has no `index` / `show`. Collection `POST` on `support_pages` still needs `parent_id`. Nested `POST …/support_sections/:id/pages` takes the parent from the URL.
+Operations has no top-level `GET support_pages`. Collection `POST` on `support_pages` still needs `parent_id`. Nested `…/support_sections/:parent_id/pages` takes the parent from the URL.
 
 Send writable fields at the JSON root. Do not wrap them in `attributes`.
 
@@ -105,7 +106,7 @@ Recording Studio API also returns recording ids, type, and relationship metadata
 
 ## Search
 
-There is no `GET support/search`. Nested `GET …/support_sections/:id/pages?q=` and `GET …/support_pages?q=` search articles through `Pages.apply_query` → `SupportPage.search` (trigram). Same Access and per-client `SearchLimit` bucket. Empty `q` is a scoped live list and does not count against the bucket. Staff/admin-root readers still see draft pages. Workspace-only tokens still hide drafts and stay scoped to that client’s workspace root.
+There is no `GET support/search`. Public `GET …/support_pages?q=` and operations nested `GET …/support_sections/:parent_id/pages?q=` search articles through `Pages.apply_query` → `SupportPage.search` (trigram). Same per-client `SearchLimit` bucket. Empty `q` is a scoped live list and does not count against the bucket. Public workspace-only tokens hide drafts and stay scoped to that client’s workspace root. Operations AdminRoot `:view` readers see drafts.
 
 Search is rate limited **per API client** (default 30 requests per 60 seconds). Over the window: `429`, error code `rate_limit_exceeded`, header `Retry-After`. Tune `api_search_rate_limit_enabled`, `api_search_rate_limit_requests`, and `api_search_rate_limit_period_seconds` on `RecordingStudioSupport.configure`. Keep Recording Studio API read rate limits on in production as well.
 
@@ -118,11 +119,11 @@ GET /recording_studio_api/api/v1/support_pages
 Authorization: Bearer <workspace_token>
 ```
 
-Nested page search:
+Nested page search (operations):
 
 ```http
-GET /recording_studio_api/api/v1/support_sections/:id/pages?q=invoice
-Authorization: Bearer <token>
+GET /recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages?q=invoice
+Authorization: Bearer <operations_token>
 ```
 
 Create a page (operations editor token):

@@ -309,27 +309,30 @@ Who can create, revise, publish, and trash is spelled out in [docs/process-flows
 
 ## JSON API
 
-Support does not gemspec-depend on `recording_studio_api`. If the host adds that gem, Support registers `support_sections` and `support_pages` on boot: **public** is read-only, **operations** is writes only.
+Support does not gemspec-depend on `recording_studio_api`. If the host adds that gem, Support registers **public** page reads and **operations** section reads plus writes.
 
 Full contract for hosts and AI agents: **[docs/api.md](docs/api.md)** (auth, fields, search, examples). Design notes: [docs/api-plan.md](docs/api-plan.md).
 
-Writes (`create` / `update` / trash / move) live on `/recording_studio_api/apis/operations/v1/…` and still need Accessible `:edit` on the **admin root** — the same bar as `authorize_support!(:edit)`. A public token is rejected there. An operations actor without AdminRoot `:edit` is `403`. Reads stay on `/recording_studio_api/api/v1/…` and use `:view` on the workspace that owns the page, or on the admin root. Admin-root readers see drafts. Workspace-only readers see live/`indexable` pages, matching `/help`.
+Public keeps only `GET support_pages` and `GET support_pages/:id`. Those use `:view` on the workspace that owns the page, or on the admin root. Admin-root readers see drafts. Workspace-only readers see live/`indexable` pages, matching `/help`.
+
+Section list/show and nested section-page reads live on `/recording_studio_api/apis/operations/v1/…` and authorize Accessible `:view` on the **admin root** (`can_view_as_staff?`). Writes (`create` / `update` / trash / move) stay on operations and still need AdminRoot `:edit` — the same bar as `authorize_support!(:edit)`. A public token is rejected there. An operations actor without AdminRoot `:edit` is `403` on writes.
 
 Bearer token: public `POST /recording_studio_api/oauth/token`; operations `POST /recording_studio_api/apis/operations/oauth/token` (`client_credentials`), then `Authorization: Bearer …`.
 
 | Method | Path |
 | --- | --- |
-| `GET` | `/recording_studio_api/api/v1/support_sections` |
-| `GET` | `/recording_studio_api/api/v1/support_sections/:id` |
-| `GET` | `/recording_studio_api/api/v1/support_sections/:id/pages` |
 | `GET` | `/recording_studio_api/api/v1/support_pages` |
 | `GET` | `/recording_studio_api/api/v1/support_pages/:id` |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_sections` |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_sections/:id` |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages` |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages/:relationship_id` |
 | `POST` `PATCH` `DELETE` | `/recording_studio_api/apis/operations/v1/support_sections` |
 | `POST` `PATCH` `DELETE` | `/recording_studio_api/apis/operations/v1/support_sections/:id/pages` |
 | `POST` `PATCH` `DELETE` | `/recording_studio_api/apis/operations/v1/support_pages` |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/move` |
 
-`GET support_pages?q=` (and nested `support_sections/:id/pages?q=`) still runs the same `Pages` / `SupportPage.search` lookup as staff and public lists. There is no `GET support/search`. Instant UI is not used. Searches are rate limited per API client (default 30 per minute, `429` with `Retry-After`). Tune `api_search_rate_limit_enabled`, `api_search_rate_limit_requests`, and `api_search_rate_limit_period_seconds`. Keep Recording Studio API read rate limits on in production as well.
+`GET support_pages?q=` on public and nested `support_sections/:parent_id/pages?q=` on operations still run the same `Pages` / `SupportPage.search` lookup as staff and public lists. There is no `GET support/search`. Instant UI is not used. Searches are rate limited per API client (default 30 per minute, `429` with `Retry-After`). Tune `api_search_rate_limit_enabled`, `api_search_rate_limit_requests`, and `api_search_rate_limit_period_seconds`. Keep Recording Studio API read rate limits on in production as well.
 
 Do not add a Support `ApiController`. Domain writes stay `Pages` / `Sections`. Public anonymous browse stays `/help`.
 

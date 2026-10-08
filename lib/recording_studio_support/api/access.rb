@@ -57,6 +57,17 @@ module RecordingStudioSupport
         deny!
       end
 
+      def authorize_staff_view!(context)
+        return if can_view_as_staff?(context)
+
+        deny!
+      end
+
+      def operations_api?(context)
+        key = context.respond_to?(:api_key) ? context.api_key : nil
+        key.to_s == Registration::OPERATIONS_API.to_s
+      end
+
       def deny!
         raise RecordingStudioApi::AuthorizationError, "API access grant is not authorized for this capability"
       end

@@ -24,6 +24,11 @@ module RecordingStudioSupport
       attr_reader :context
 
       def authorize_index!
+        if Access.operations_api?(context)
+          Access.authorize_staff_view!(context)
+          return
+        end
+
         return if Access.can_view_as_staff?(context)
 
         workspace = context.access_grant.scope_recording

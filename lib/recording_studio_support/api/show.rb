@@ -13,7 +13,11 @@ module RecordingStudioSupport
 
       def call
         recording = context.recording
-        Access.authorize_view!(context, recording)
+        if Access.operations_api?(context)
+          Access.authorize_staff_view!(context)
+        else
+          Access.authorize_view!(context, recording)
+        end
         hide_draft!(recording)
 
         { json: Serialize.recording(recording, context: context) }

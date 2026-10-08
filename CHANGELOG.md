@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.13.0] - 2026-10-08
+
+### Changed
+- **Breaking:** Public JSON keeps only page reads. `GET support_pages` and `GET support_pages/:id` (including list `?q=`) stay on `/recording_studio_api/api/v1`. Section list/show and nested section-page reads move to the host Admin API named `:operations` (`GET /recording_studio_api/apis/operations/v1/support_sections`, `GET …/support_sections/:id`, `GET …/support_sections/:parent_id/pages` with `?q=`, `GET …/support_sections/:parent_id/pages/:relationship_id`). Operations writes and page `move` stay where they are. Public `support_sections` routes are unregistered (`404` / unsupported).
+- Operations section and nested-page reads authorize Accessible `:view` on **AdminRoot** (`can_view_as_staff?`) — the existing staff read role. Writes still require AdminRoot `:edit`.
+- HTML staff and public Help screens are unchanged; they still read the database through Support controllers.
+
+### Upgrade notes
+- Move `GET support_sections`, `GET support_sections/:id`, and nested `GET support_sections/:id/pages` callers from `/recording_studio_api/api/v1/…` to `/recording_studio_api/apis/operations/v1/…` with an operations token that has AdminRoot `:view`.
+- Keep `GET support_pages` / `GET support_pages/:id` (and list `?q=`) on the public API.
+- Nested article search `?q=` is operations-only. Public list search remains `GET support_pages?q=`.
+
 ## [0.12.0] - 2026-10-08
 
 ### Changed

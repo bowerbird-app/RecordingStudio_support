@@ -68,9 +68,25 @@ class SupportApiTest < ActionDispatch::IntegrationTest
   end
 
   test "missing token is unauthorized on the public API" do
-    get "#{PUBLIC_ROOT}/support_sections", as: :json
+    get "#{PUBLIC_ROOT}/support_pages", as: :json
 
     assert_response :unauthorized
+  end
+
+  test "public section routes are not found or unsupported" do
+    get "#{PUBLIC_ROOT}/support_sections", headers: auth(@workspace_token), as: :json
+    assert_public_resource_unavailable
+
+    get "#{PUBLIC_ROOT}/support_sections/#{@section.id}", headers: auth(@workspace_token), as: :json
+    assert_public_resource_unavailable
+
+    get "#{PUBLIC_ROOT}/support_sections/#{@section.id}/pages", headers: auth(@workspace_token), as: :json
+    assert_public_resource_unavailable
+
+    get "#{PUBLIC_ROOT}/support_sections/#{@section.id}/pages/#{@live.id}",
+        headers: auth(@workspace_token),
+        as: :json
+    assert_public_resource_unavailable
   end
 
   test "public writes and move are not found or unsupported" do
@@ -259,10 +275,41 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     get "#{PUBLIC_ROOT}/support_pages/#{@draft.id}", headers: auth(@workspace_token), as: :json
 
     assert_response :not_found
+  end
 
-    get "#{PUBLIC_ROOT}/support_sections/#{@section.id}", headers: auth(@workspace_token), as: :json
+  test "operations editor and viewer can read sections and nested pages" do
+    get "#{OPERATIONS_ROOT}/support_sections", headers: auth(@editor_operations_token), as: :json
 
     assert_response :success
+    titles = response.parsed_body.fetch("records").map { |record| record.fetch("title") }
+    assert_includes titles, @section.recordable.title
+
+    get "#{OPERATIONS_ROOT}/support_sections/#{@section.id}",
+        headers: auth(@viewer_operations_token),
+        as: :json
+
+    assert_response :success
+    assert_equal @section.recordable.title, response.parsed_body.fetch("title")
+
+    get "#{OPERATIONS_ROOT}/support_sections/#{@section.id}/pages",
+        headers: auth(@viewer_operations_token),
+        as: :json
+
+    assert_response :success
+    nested_titles = response.parsed_body.fetch("records").map { |record| record.fetch("title") }
+    assert_includes nested_titles, @live.recordable.title
+    assert_includes nested_titles, @draft.recordable.title
+
+    get "#{OPERATIONS_ROOT}/support_sections/#{@section.id}/pages/#{@draft.id}",
+        headers: auth(@viewer_operations_token),
+        as: :json
+
+    assert_response :success
+    assert_equal @draft.recordable.title, response.parsed_body.fetch("title")
+
+    get "#{OPERATIONS_ROOT}/support_sections", headers: auth(@staff_public_token), as: :json
+
+    assert_includes [401, 403], response.status, response.body
   end
 
   test "general support search endpoint is gone" do
@@ -305,14 +352,15 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_includes workspace_titles, live_hit.recordable.title
     refute_includes workspace_titles, draft_hit.recordable.title
 
-    get "#{PUBLIC_ROOT}/support_sections/#{@section.id}/pages",
-        headers: auth(@staff_public_token),
+    get "#{OPERATIONS_ROOT}/support_sections/#{@section.id}/pages",
+        headers: auth(@editor_operations_token),
         params: { q: token },
         as: :json
 
     assert_response :success
     nested_titles = response.parsed_body.fetch("records").map { |record| record.fetch("title") }
     assert_includes nested_titles, live_hit.recordable.title
+    assert_includes nested_titles, draft_hit.recordable.title
     refute_includes nested_titles, miss.recordable.title
   end
 
@@ -351,6 +399,10 @@ class SupportApiTest < ActionDispatch::IntegrationTest
   private
 
   def assert_public_write_unavailable
+    assert_includes [404, 422], response.status, response.body
+  end
+
+  def assert_public_resource_unavailable
     assert_includes [404, 422], response.status, response.body
   end
 
