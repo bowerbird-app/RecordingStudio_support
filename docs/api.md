@@ -2,14 +2,14 @@
 
 How a host, person, or AI agent talks to Support sections and pages over **Recording Studio API**. Public anonymous browse stays `/help`. This surface is authenticated.
 
-Support does **not** gemspec-depend on `recording_studio_api`. Add that gem in the **host** (`v0.6.7` in dummy). If the constant is missing, Support boots with no JSON routes.
+Support does **not** gemspec-depend on `recording_studio_api`. Add that gem in the **host** (`v0.6.8` in dummy). If the constant is missing, Support boots with no JSON routes.
 
 Do not add a Support `ApiController`. Writes go through `Pages` / `Sections`. Access is **Accessible** only.
 
 ## Install (host)
 
 ```ruby
-gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.7"
+gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.8"
 ```
 
 ```bash
@@ -20,7 +20,7 @@ bin/rails db:migrate
 
 Mount the engine (dummy uses `/recording_studio_api`). Enable `:accessible` and `:api_access_point` on roots that hold API keys. Dummy does this on `Workspace` and `AdminRoot`.
 
-Name the Admin API `:operations` (`default_access :read_only`). Support registers **page reads** on the public API and **section reads plus writes** on `:operations`. Handlers register with `register_resource_handler` (API `v0.6.7`) and call `Pages` / `Sections`. Pass `operations:` explicitly on the operations registrations so the named-API read-only default does not apply.
+Name the Admin API `:operations` (`default_access :read_only`). Support registers **page reads** on the public API and **section reads plus writes** on `:operations`. Handlers register with `register_resource_handler` (API `v0.6.8`) and call `Pages` / `Sections`. Nested relationship routes use the same handlers (`parent_recording` set). Pass `operations:` explicitly on the operations registrations so the named-API read-only default does not apply.
 
 Recording Studio API still resolves member and nested-parent ids inside the client’s Accessible tree. Operations access points are only types registered on `:operations` that enable `:api_access_point` (dummy registers `AdminRoot` and `Workspace`). Provision the operations client on the **workspace** that owns the help tree, and grant the same client AdminRoot `:view` / `:edit`. Support handlers still authorize AdminRoot; they do not skip RS_API lookup.
 
@@ -84,12 +84,15 @@ Public `support_sections` list/show and nested section-pages are not registered 
 | `POST` | `/recording_studio_api/apis/operations/v1/support_sections` | AdminRoot `:edit` | Body: `title`, optional `icon`, `parent_id` (workspace recording) |
 | `PATCH` | `/recording_studio_api/apis/operations/v1/support_sections/:id` | AdminRoot `:edit` | `title`, `icon` |
 | `DELETE` | `/recording_studio_api/apis/operations/v1/support_sections/:id` | AdminRoot `:edit` | Trash (`Sections.trash!`), not a hard delete |
+| `POST` | `/recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages` | AdminRoot `:edit` | Parent from the URL. `title`, optional `body`, `description`, `icon` |
+| `PATCH` | `/recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages/:relationship_id` | AdminRoot `:edit` | Nested page revise |
+| `DELETE` | `/recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages/:relationship_id` | AdminRoot `:edit` | Nested page trash |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_pages` | AdminRoot `:edit` | Body: `title`, optional `body`, `description`, `icon`, `parent_id` (section recording) |
 | `PATCH` | `/recording_studio_api/apis/operations/v1/support_pages/:id` | AdminRoot `:edit` | `title`, `description`, `icon`, `body` |
 | `DELETE` | `/recording_studio_api/apis/operations/v1/support_pages/:id` | AdminRoot `:edit` | Trash (`Pages.trash!`) |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/move` | AdminRoot `:edit` | Body: `parent_id` (destination section recording) |
 
-Collection `POST` on `support_pages` needs `parent_id`. Nested `…/support_sections/:parent_id/pages` is **read-only** (list/show). Recording Studio API requires page `index` / `show` on operations for those nested reads, so those collection GETs exist there too — prefer the nested section routes. Writes go through collection `support_pages` / `support_sections` so Support handlers run.
+Collection `POST` on `support_pages` needs `parent_id`. Nested `POST …/support_sections/:parent_id/pages` takes the parent from the URL. Nested create / update / destroy call the same Support page handlers as the collection routes (`Pages.create!` / `revise!` / `trash!`).
 
 Send writable fields at the JSON root. Do not wrap them in `attributes`.
 

@@ -9,7 +9,7 @@ module RecordingStudioSupport
       READ_OPERATIONS = %i[index show].freeze
       WRITE_OPERATIONS = %i[create update destroy].freeze
       ADMIN_SECTION_OPERATIONS = (READ_OPERATIONS + WRITE_OPERATIONS).freeze
-      ADMIN_NESTED_PAGE_OPERATIONS = READ_OPERATIONS
+      ADMIN_NESTED_PAGE_OPERATIONS = (READ_OPERATIONS + WRITE_OPERATIONS).freeze
       OPERATIONS_API = :operations
 
       def register!

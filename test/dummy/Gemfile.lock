@@ -36,10 +36,10 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_api.git
-  revision: 6a46778607f22ed0e4d0fcd00c010c59a1f3b31b
-  tag: v0.6.7
+  revision: 89f5517dd516924c83c6984840e5c9f8591cce2b
+  tag: v0.6.8
   specs:
-    recording_studio_api (0.6.7)
+    recording_studio_api (0.6.8)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
       recording_studio_accessible (~> 0.11)
@@ -880,7 +880,7 @@ CHECKSUMS
   recording_studio (4.2.1)
   recording_studio_accessible (0.11.0)
   recording_studio_admin (2.0.2)
-  recording_studio_api (0.6.7)
+  recording_studio_api (0.6.8)
   recording_studio_attachable (0.7.0)
   recording_studio_icons (0.1.1)
   recording_studio_internationalization (0.1.2)

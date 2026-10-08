@@ -175,23 +175,42 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_equal "Revised section", response.parsed_body.fetch("title")
     refute_equal section_recordable_id, RecordingStudio::Recording.find(section_id).recordable_id
 
-    post "#{OPERATIONS_ROOT}/support_pages",
+    post "#{OPERATIONS_ROOT}/support_sections/#{section_id}/pages",
          headers: auth(@editor_operations_token),
-         params: { title: "Nested page", body: "<p>Hello</p>", parent_id: section_id },
+         params: { title: "Nested page", body: "<p>Hello</p>" },
          as: :json
 
     assert_response :created
     page_id = response.parsed_body.fetch("id")
     assert_equal "Nested page", response.parsed_body.fetch("title")
     assert_equal "<p>Hello</p>", response.parsed_body.fetch("body")
+    assert_equal section_id, RecordingStudio::Recording.find(page_id).parent_recording_id
+    refute_equal page_id, RecordingStudio::Recording.find(page_id).recordable_id
 
-    patch "#{OPERATIONS_ROOT}/support_pages/#{page_id}",
+    patch "#{OPERATIONS_ROOT}/support_sections/#{section_id}/pages/#{page_id}",
           headers: auth(@editor_operations_token),
           params: { title: "Revised nested" },
           as: :json
 
     assert_response :success
     assert_equal "Revised nested", response.parsed_body.fetch("title")
+    refute_equal page_id, RecordingStudio::Recording.find(page_id).recordable_id
+
+    post "#{OPERATIONS_ROOT}/support_pages",
+         headers: auth(@editor_operations_token),
+         params: { title: "Collection page", body: "<p>Hi</p>", parent_id: section_id },
+         as: :json
+
+    assert_response :created
+    collection_page_id = response.parsed_body.fetch("id")
+
+    patch "#{OPERATIONS_ROOT}/support_pages/#{collection_page_id}",
+          headers: auth(@editor_operations_token),
+          params: { title: "Revised collection" },
+          as: :json
+
+    assert_response :success
+    assert_equal "Revised collection", response.parsed_body.fetch("title")
 
     destination = record_support_section(@root, title: "Move dest #{SecureRandom.hex(4)}")
     post "#{OPERATIONS_ROOT}/support_pages/#{page_id}/actions/move",
@@ -202,7 +221,7 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal destination.id, RecordingStudio::Recording.find(page_id).reload.parent_recording_id
 
-    delete "#{OPERATIONS_ROOT}/support_pages/#{page_id}",
+    delete "#{OPERATIONS_ROOT}/support_sections/#{destination.id}/pages/#{page_id}",
            headers: auth(@editor_operations_token),
            as: :json
 
@@ -210,12 +229,48 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_equal "trashed", response.parsed_body.fetch("deleted_via")
     assert RecordingStudio::Recording.find(page_id).trashed_at
 
+    delete "#{OPERATIONS_ROOT}/support_pages/#{collection_page_id}",
+           headers: auth(@editor_operations_token),
+           as: :json
+
+    assert_response :success
+    assert RecordingStudio::Recording.find(collection_page_id).trashed_at
+
     delete "#{OPERATIONS_ROOT}/support_sections/#{section_id}",
            headers: auth(@editor_operations_token),
            as: :json
 
     assert_response :success
     assert RecordingStudio::Recording.find(section_id).trashed_at
+  end
+
+  test "operations editor can create update and delete nested section pages" do
+    post "#{OPERATIONS_ROOT}/support_sections/#{@section.id}/pages",
+         headers: auth(@editor_operations_token),
+         params: { title: "HTTP nested #{SecureRandom.hex(4)}", body: "<p>Nested</p>" },
+         as: :json
+
+    assert_response :created
+    page_id = response.parsed_body.fetch("id")
+    assert_equal @section.id, RecordingStudio::Recording.find(page_id).parent_recording_id
+    assert_equal "<p>Nested</p>", response.parsed_body.fetch("body")
+
+    patch "#{OPERATIONS_ROOT}/support_sections/#{@section.id}/pages/#{page_id}",
+          headers: auth(@editor_operations_token),
+          params: { title: "HTTP nested revised" },
+          as: :json
+
+    assert_response :success
+    assert_equal "HTTP nested revised", response.parsed_body.fetch("title")
+    refute_equal page_id, RecordingStudio::Recording.find(page_id).recordable_id
+
+    delete "#{OPERATIONS_ROOT}/support_sections/#{@section.id}/pages/#{page_id}",
+           headers: auth(@editor_operations_token),
+           as: :json
+
+    assert_response :success
+    assert_equal "trashed", response.parsed_body.fetch("deleted_via")
+    assert RecordingStudio::Recording.find(page_id).trashed_at
   end
 
   test "public token is rejected on the operations API" do
@@ -252,6 +307,26 @@ class SupportApiTest < ActionDispatch::IntegrationTest
          headers: auth(@viewer_operations_token),
          params: { parent_id: @section.id },
          as: :json
+
+    assert_response :forbidden
+
+    post "#{OPERATIONS_ROOT}/support_sections/#{@section.id}/pages",
+         headers: auth(@viewer_operations_token),
+         params: { title: "Nope" },
+         as: :json
+
+    assert_response :forbidden
+
+    patch "#{OPERATIONS_ROOT}/support_sections/#{@section.id}/pages/#{@live.id}",
+          headers: auth(@viewer_operations_token),
+          params: { title: "Hijack" },
+          as: :json
+
+    assert_response :forbidden
+
+    delete "#{OPERATIONS_ROOT}/support_sections/#{@section.id}/pages/#{@live.id}",
+           headers: auth(@viewer_operations_token),
+           as: :json
 
     assert_response :forbidden
   end

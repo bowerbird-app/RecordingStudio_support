@@ -31,7 +31,7 @@ gem "recording_studio_root_switchable", github: "bowerbird-app/RecordingStudio_r
 gem "recording_studio_internationalization", github: "bowerbird-app/RecordingStudio_Internationalization", tag: "v0.1.2"
 
 # Optional JSON API. Not a Support gemspec dependency.
-gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.7"
+gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.8"
 
 # Devise authentication
 gem "devise"

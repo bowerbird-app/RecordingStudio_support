@@ -71,7 +71,7 @@ bin/rails generate recording_studio_accessible:migrations
 bin/rails db:migrate
 ```
 
-Accessible `v0.11` stores roles as strings (`view`, `edit`, `admin`) and adds access invitations. Run its 0.8–0.11 migrations. Grant through `bootstrap_owner_access!` / `grant_access` — do not create `RecordingStudio::Access` rows. Dummy pins API `v0.6.7` (Accessible 0.11-native; no `Access.roles` shim).
+Accessible `v0.11` stores roles as strings (`view`, `edit`, `admin`) and adds access invitations. Run its 0.8–0.11 migrations. Grant through `bootstrap_owner_access!` / `grant_access` — do not create `RecordingStudio::Access` rows. Dummy pins API `v0.6.8` (Accessible 0.11-native; no `Access.roles` shim).
 
 Keep Search `default_backend = :pg_trgm`. Do not run `searchable_pgvector` for Support in this phase. `SupportPage` is already declared searchable (title weight A, body weight D). Allowlist only that model for Instant UI (`config.instant_search_models = ["RecordingStudioSupport::SupportPage"]`). Mount `RecordingStudioSearch::Engine` at `/recording_studio_search`, pin `controllers/recording_studio_search`, and `eagerLoadControllersFrom` it. Public section Instant hits `/help/sections/:slug/instant_search` (same trigram, live pages in that section). Staff section Instant hits `/admin/support/sections/:id/instant_search`. `/help?q=` stays a GET form on section titles.
 
@@ -336,6 +336,7 @@ Bearer token: public `POST /recording_studio_api/oauth/token`; operations `POST 
 | `GET` | `/recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages` |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages/:relationship_id` |
 | `POST` `PATCH` `DELETE` | `/recording_studio_api/apis/operations/v1/support_sections` |
+| `POST` `PATCH` `DELETE` | `/recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages` |
 | `POST` `PATCH` `DELETE` | `/recording_studio_api/apis/operations/v1/support_pages` |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/move` |
 
@@ -346,7 +347,7 @@ Do not add a Support `ApiController`. Domain writes stay `Pages` / `Sections`. P
 Host sketch:
 
 ```ruby
-gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.7"
+gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.8"
 ```
 
 ```bash
@@ -406,7 +407,7 @@ Dummy kit pins:
 | Icons | `v0.1.1` |
 | Moveable | `v3.0.3` |
 | Root Switchable | `v0.5.3` |
-| API | `v0.6.7` (dummy only; not a Support gemspec dependency) |
+| API | `v0.6.8` (dummy only; not a Support gemspec dependency) |
 | Internationalization | `v0.1.2` (dummy only; not a Support gemspec dependency) |
 | FlatPack | `v0.1.207` (Content + kit i18n; Flatpack #237) |
 

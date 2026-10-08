@@ -67,7 +67,7 @@ class ApiTest < Minitest::Test
     refute File.exist?(File.expand_path("../lib/recording_studio_support/api/controller_ext.rb", __dir__))
     refute File.exist?(File.expand_path("../lib/recording_studio_support/api/search_limit.rb", __dir__))
     refute_includes registration, "register_endpoint"
-    assert_includes registration, "ADMIN_NESTED_PAGE_OPERATIONS = READ_OPERATIONS"
+    assert_includes registration, "ADMIN_NESTED_PAGE_OPERATIONS = (READ_OPERATIONS + WRITE_OPERATIONS)"
   end
 
   def test_lib_and_app_do_not_prepend_other_gems

@@ -2,11 +2,11 @@
 
 ## 0.15.0
 
-Public page reads stay on the public API. Section reads and all Support writes move to operations. Handlers register through Recording Studio API `v0.6.7`.
+Public page reads stay on the public API. Section reads and all Support writes move to operations. Handlers register through Recording Studio API `v0.6.8`.
 
 ### Host app
 
-1. Bump `recording_studio_support` to `0.15.0`. Pin `recording_studio_api` to `v0.6.7`.
+1. Bump `recording_studio_support` to `0.15.0`. Pin `recording_studio_api` to `v0.6.8`.
 2. Move `GET support_sections` and nested `GET support_sections/:id/pages` to `/recording_studio_api/apis/operations/v1/…`.
 3. Keep `GET support_pages` on the public API. Drop any host dependence on Support’s per-client search rate limit.
 
