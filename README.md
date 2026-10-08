@@ -30,7 +30,7 @@ gem "recording_studio_search", "~> 0.4",
     ref: "d9cc54dd33ec625dd618f5520de56b9b49a29e01" # Instant UI; Search PR #2
 gem "recording_studio_support", github: "bowerbird-app/RecordingStudio_support"
 # Host-owned auth (not a Support gemspec dependency):
-gem "recording_studio_user", github: "bowerbird-app/RecordingStudio_users", tag: "v0.15.0"
+gem "recording_studio_user", github: "bowerbird-app/RecordingStudio_users", tag: "v0.16.0"
 gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.207" # Content + kit i18n; Flatpack #237
 ```
 
@@ -379,7 +379,7 @@ Help article titles and bodies, section names, and other staff-written database 
 
 Dummy credentials (`test/dummy/config/credentials.yml.enc`) are encrypted with the shared RecordingStudio_* development master key. Set `RAILS_MASTER_KEY` or put that key in `test/dummy/config/master.key` (gitignored). Keep the encrypted file; do not generate a per-repo dummy key.
 
-Dummy help pages — public and staff — use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Dummy overrides that layout file only so Flatpack's built-in `rounded` theme sits on `<html>` (`data-theme="rounded"`, plus `lang` and Flatpack copy data) (https://flatpack.bowerbird.io/). Core puts `data-theme` on `<body>` alone, which is not enough for component tokens. Support screens and Admin Support screens keep that chrome only. Dummy does not inject Sign out or Root Switchable into PageNav (including dummy host pages, `/admin/support`, `/help`, and `/admin`). A compact language selector sits in the PageNav right slot. Access can stay on Admin. Do not put a login button there. Sign-in uses the Users gem (`recording_studio_user` `v0.15.0`): email at `/users/sign_in`, password at `/users/sign_in/password`, layout `recording_studio_user/auth` with `html data-theme="rounded"`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`, `preset: :content`, image upload); dummy Stimulus registers `flat-pack--tiptap` on first paint. The dummy switches English and French with Recording Studio Internationalization. Article titles and seeded bodies stay in the language they were written.
+Dummy help pages — public and staff — use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Dummy overrides that layout file only so Flatpack's built-in `rounded` theme sits on `<html>` (`data-theme="rounded"`, plus `lang` and Flatpack copy data) (https://flatpack.bowerbird.io/). Core puts `data-theme` on `<body>` alone, which is not enough for component tokens. Support screens and Admin Support screens keep that chrome only. Dummy does not inject Sign out or Root Switchable into PageNav (including dummy host pages, `/admin/support`, `/help`, and `/admin`). A compact language selector sits in the PageNav right slot. Access can stay on Admin. Do not put a login button there. Sign-in uses the Users gem (`recording_studio_user` `v0.16.0`): email at `/users/sign_in`, password at `/users/sign_in/password`, layout `recording_studio_user/auth` with `html data-theme="rounded"`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`, `preset: :content`, image upload); dummy Stimulus registers `flat-pack--tiptap` on first paint. The dummy switches English and French with Recording Studio Internationalization. Article titles and seeded bodies stay in the language they were written.
 
 | Field    | Value           |
 |----------|-----------------|
@@ -397,7 +397,7 @@ Dummy kit pins:
 | Messages | `v0.5.2` |
 | Notifications | `v0.4.0` |
 | Notifications Email | `v0.3.4` |
-| Users | `v0.15.0` |
+| Users | `v0.16.0` |
 | Trashable | `v0.4.4` |
 | Orderable | `v0.2.5` |
 | Publishable | `v0.4.2` |

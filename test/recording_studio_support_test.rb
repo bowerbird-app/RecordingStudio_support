@@ -88,7 +88,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.11.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.0.7"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.7.1"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_users", tag: "v0.15.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_users", tag: "v0.16.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.4.4"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.2.5"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.4.2"'
@@ -337,7 +337,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "v4.3.0"
     assert_includes readme, "v0.11.1"
     assert_includes readme, "v0.1.207"
-    assert_includes readme, "v0.15.0"
+    assert_includes readme, "v0.16.0"
     assert_includes readme, "Support page"
     assert_includes readme, "SupportSection"
     assert_includes readme, "Help section"
