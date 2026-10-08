@@ -7,8 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- General Support search at `GET /recording_studio_api/api/v1/support/search?q=` (`support_search`) returns matching **sections and pages** in one `records` array (sections first, then pages). Sections use title/slug `ILIKE`; pages use `SupportPage.search`. Empty `q` is a scoped live section+page index.
+## [0.12.0] - 2026-10-08
+
+### Changed
+- **Breaking:** Support JSON writes leave the public API. `support_sections` and `support_pages` register `index`/`show` (and nested pages `index`/`show`, including `?q=`) on public. `create`/`update`/`destroy` and page `move` register on the host Admin API named `:operations` (`/recording_studio_api/apis/operations/v1/…`). Operations registrations pass `operations:` so the named-API `:read_only` default does not apply. Writes still require Accessible `:edit` on AdminRoot.
+- Dummy pins `recording_studio_api` `v0.6.4` and names `:operations`. Drop the `Access.roles` shim (API 0.6.1+).
+
+### Removed
+- **Breaking:** `GET /recording_studio_api/api/v1/support/search` (`support_search`). Nested `GET support_sections/:id/pages?q=` and list `GET support_pages?q=` stay.
+
+### Upgrade notes
+- Pin `recording_studio_api` `v0.6.4` (or another 0.6.x that has named-API registration). Configure `config.api :operations` with `default_access = :read_only`. Provision write clients on the operations API (`api: :operations`); public tokens are rejected there.
+- Move create/update/destroy and page move callers from `/recording_studio_api/api/v1/…` to `/recording_studio_api/apis/operations/v1/…`.
+- Stop calling `GET support/search`. Use `GET support_pages?q=` or nested `GET support_sections/:id/pages?q=`.
+- Delete any host `Access.roles` shim if you were on API `v0.5.5`.
 
 ## [0.11.0] - 2026-10-07
 
@@ -644,7 +656,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.11.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.12.0...HEAD
+[0.12.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.11.0...v0.12.0
 [0.11.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.10.0...v0.11.0
 [0.9.8]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.7...v0.9.8
 [0.9.7]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.9.6...v0.9.7

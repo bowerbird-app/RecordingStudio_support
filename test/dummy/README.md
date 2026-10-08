@@ -10,7 +10,7 @@ This Rails app exists to prove Recording Studio Support in a real host. It is no
 - Support screens mounted at `/admin/support` (Admin-gated forms and preview). Old `/support` redirects to `/admin`
 - Public help at `/help` for logged-out visitors (default-layout chrome, interactive Flatpack Cards with optional Heroicons icon + **N article(s)** line, then published pages)
 - Admin Support section mounted at `/admin` on an admin root (switch to **Admin** in the top control first — Admin 2.0 gates staff screens on that root)
-- Recording Studio API mounted at `/recording_studio_api` with `api_access_point` on `Workspace` and `AdminRoot`. Seeds a staff client (admin-root `:edit`) and a workspace-only client (`:view`)
+- Recording Studio API mounted at `/recording_studio_api` with `api_access_point` on `Workspace` and `AdminRoot`, plus a named `:operations` API. Seeds a public workspace-only client (`:view`) and operations AdminRoot clients (`:edit` writes, `:view` denied)
 - Support pages opt into Trashable, Moveable, and Publishable. Dummy Folder and Page do not.
 - Recording Studio default layout (`UsesDefaultLayout`) with dummy's `<html data-theme="rounded">` override so Flatpack's built-in rounded theme actually applies; back/close chrome on Support and Admin Support screens; no Sign out or workspace switcher in PageNav; Flatpack CSS/JS, Turbo, and Tailwind source scanning. Users auth also puts `rounded` on `<html>`.
 - Root Switchable stays installed for workspace switching via its own routes, not PageNav chrome
@@ -72,12 +72,13 @@ OTP is off (`otp_enabled = false`). OmniAuth Continue-with buttons appear only w
 - `/admin/support/new` - New page form (Admin Accessible)
 - `/admin/support/:id` - staff preview, publish dropdown, and trash
 - `/admin/support/:id/edit` - Edit page form
-- `/recording_studio_api/oauth/token` - OAuth `client_credentials` for a bearer token
-- `/recording_studio_api/api/v1/support_sections` - JSON sections (`GET` list, `POST` create). Item: `GET`/`PATCH`/`DELETE …/:id`
-- `/recording_studio_api/api/v1/support_sections/:id/pages` - nested pages (`GET` list, `POST` create). `?q=` searches articles
-- `/recording_studio_api/api/v1/support/search` - general Support search (`GET ?q=`). Sections and pages in one `records` array; same Access and search rate limit as list `?q=`
-- `/recording_studio_api/api/v1/support_pages` - JSON pages (`GET` list, `POST` create). Item: `GET`/`PATCH`/`DELETE …/:id`. `?q=` searches; extra searches in a minute return `429`
-- `/recording_studio_api/api/v1/support_pages/:id/actions/move` - move a page (`POST`, staff token)
+- `/recording_studio_api/oauth/token` - OAuth `client_credentials` for a public API bearer token
+- `/recording_studio_api/apis/operations/oauth/token` - OAuth `client_credentials` for an operations API bearer token
+- `/recording_studio_api/api/v1/support_sections` - public JSON sections (`GET` list / show)
+- `/recording_studio_api/api/v1/support_sections/:id/pages` - public nested pages (`GET` list / show). `?q=` searches articles
+- `/recording_studio_api/api/v1/support_pages` - public JSON pages (`GET` list / show). `?q=` searches; extra searches in a minute return `429`
+- `/recording_studio_api/apis/operations/v1/support_sections` - operations writes (`POST` / `PATCH` / `DELETE`)
+- `/recording_studio_api/apis/operations/v1/support_pages` - operations writes and `POST …/actions/move`
 - `/recording_studio` - redirects to `/` while the mounted Recording Studio engine stays available under that prefix for non-root routes
 - `/users/sign_in` - Users gem email-first sign-in
 - `/users/sign_in/password` - Users gem password step

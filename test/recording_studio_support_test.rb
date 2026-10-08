@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.11.0", ::RecordingStudioSupport::VERSION
+    assert_equal "0.12.0", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -45,10 +45,13 @@ class RecordingStudioSupportTest < Minitest::Test
       /recording_studio_api/oauth/token
       /recording_studio_api/api/v1/support_sections
       /recording_studio_api/api/v1/support_sections/:id/pages
-      /recording_studio_api/api/v1/support/search
       /recording_studio_api/api/v1/support_pages
-      /recording_studio_api/api/v1/support_pages/:id/actions/move
+      /recording_studio_api/apis/operations/v1/support_sections
+      /recording_studio_api/apis/operations/v1/support_pages
+      /recording_studio_api/apis/operations/v1/support_pages/:id/actions/move
     ].each { |path| assert_includes reference, path }
+
+    refute_includes reference, "/recording_studio_api/api/v1/support/search"
 
     assert_includes reference, "client_credentials"
     assert_includes reference, "SupportPage.search"
@@ -86,7 +89,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_messages", tag: "v0.4.3"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.3.4"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.4"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.5.5"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.4"'
     assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.198"'
     refute_includes gemfile, "recording_studio/v3.0.0"
     refute_includes gemfile, 'tag: "v0.6.1"'

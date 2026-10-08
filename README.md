@@ -71,7 +71,7 @@ bin/rails generate recording_studio_accessible:migrations
 bin/rails db:migrate
 ```
 
-Accessible `v0.11` stores roles as strings (`view`, `edit`, `admin`) and adds access invitations. Run its 0.8–0.11 migrations. Grant through `bootstrap_owner_access!` / `grant_access` — do not create `RecordingStudio::Access` rows. Dummy keeps API `v0.5.5` and shims `Access.roles` so that gem can still rank string roles.
+Accessible `v0.11` stores roles as strings (`view`, `edit`, `admin`) and adds access invitations. Run its 0.8–0.11 migrations. Grant through `bootstrap_owner_access!` / `grant_access` — do not create `RecordingStudio::Access` rows. Dummy pins API `v0.6.4` (Accessible 0.11-native; no `Access.roles` shim).
 
 Keep Search `default_backend = :pg_trgm`. Do not run `searchable_pgvector` for Support in this phase. `SupportPage` is already declared searchable (title weight A, body weight D). Allowlist only that model for Instant UI (`config.instant_search_models = ["RecordingStudioSupport::SupportPage"]`). Mount `RecordingStudioSearch::Engine` at `/recording_studio_search`, pin `controllers/recording_studio_search`, and `eagerLoadControllersFrom` it. Public section Instant hits `/help/sections/:slug/instant_search` (same trigram, live pages in that section). Staff section Instant hits `/admin/support/sections/:id/instant_search`. `/help?q=` stays a GET form on section titles.
 
@@ -309,32 +309,34 @@ Who can create, revise, publish, and trash is spelled out in [docs/process-flows
 
 ## JSON API
 
-Support does not gemspec-depend on `recording_studio_api`. If the host adds that gem, Support registers `support_sections` and `support_pages` on boot, plus `GET support/search`.
+Support does not gemspec-depend on `recording_studio_api`. If the host adds that gem, Support registers `support_sections` and `support_pages` on boot: **public** is read-only, **operations** is writes only.
 
 Full contract for hosts and AI agents: **[docs/api.md](docs/api.md)** (auth, fields, search, examples). Design notes: [docs/api-plan.md](docs/api-plan.md).
 
-Writes (`create` / `update` / trash / move) need Accessible `:edit` on the **admin root** — the same bar as `authorize_support!(:edit)`. Workspace `:edit` without that grant is `403`. Reads use `:view` on the workspace that owns the page, or on the admin root. Admin-root readers see drafts. Workspace-only readers see live/`indexable` pages, matching `/help`.
+Writes (`create` / `update` / trash / move) live on `/recording_studio_api/apis/operations/v1/…` and still need Accessible `:edit` on the **admin root** — the same bar as `authorize_support!(:edit)`. A public token is rejected there. An operations actor without AdminRoot `:edit` is `403`. Reads stay on `/recording_studio_api/api/v1/…` and use `:view` on the workspace that owns the page, or on the admin root. Admin-root readers see drafts. Workspace-only readers see live/`indexable` pages, matching `/help`.
 
-Bearer token: `POST /recording_studio_api/oauth/token` (`client_credentials`), then `Authorization: Bearer …`.
+Bearer token: public `POST /recording_studio_api/oauth/token`; operations `POST /recording_studio_api/apis/operations/oauth/token` (`client_credentials`), then `Authorization: Bearer …`.
 
 | Method | Path |
 | --- | --- |
-| `GET` `POST` | `/recording_studio_api/api/v1/support_sections` |
-| `GET` `PATCH` `DELETE` | `/recording_studio_api/api/v1/support_sections/:id` |
-| `GET` `POST` | `/recording_studio_api/api/v1/support_sections/:id/pages` |
-| `GET` | `/recording_studio_api/api/v1/support/search` |
-| `GET` `POST` | `/recording_studio_api/api/v1/support_pages` |
-| `GET` `PATCH` `DELETE` | `/recording_studio_api/api/v1/support_pages/:id` |
-| `POST` | `/recording_studio_api/api/v1/support_pages/:id/actions/move` |
+| `GET` | `/recording_studio_api/api/v1/support_sections` |
+| `GET` | `/recording_studio_api/api/v1/support_sections/:id` |
+| `GET` | `/recording_studio_api/api/v1/support_sections/:id/pages` |
+| `GET` | `/recording_studio_api/api/v1/support_pages` |
+| `GET` | `/recording_studio_api/api/v1/support_pages/:id` |
+| `POST` `PATCH` `DELETE` | `/recording_studio_api/apis/operations/v1/support_sections` |
+| `POST` `PATCH` `DELETE` | `/recording_studio_api/apis/operations/v1/support_sections/:id/pages` |
+| `POST` `PATCH` `DELETE` | `/recording_studio_api/apis/operations/v1/support_pages` |
+| `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/move` |
 
-`GET support/search?q=` is the general Support search (sections then pages in one `records` array). `GET support_pages?q=` (and nested `support_sections/:id/pages?q=`) still runs the same `Pages` / `SupportPage.search` lookup as staff and public lists. Instant UI is not used. Searches are rate limited per API client (default 30 per minute, `429` with `Retry-After`). Tune `api_search_rate_limit_enabled`, `api_search_rate_limit_requests`, and `api_search_rate_limit_period_seconds`. Keep Recording Studio API read rate limits on in production as well.
+`GET support_pages?q=` (and nested `support_sections/:id/pages?q=`) still runs the same `Pages` / `SupportPage.search` lookup as staff and public lists. There is no `GET support/search`. Instant UI is not used. Searches are rate limited per API client (default 30 per minute, `429` with `Retry-After`). Tune `api_search_rate_limit_enabled`, `api_search_rate_limit_requests`, and `api_search_rate_limit_period_seconds`. Keep Recording Studio API read rate limits on in production as well.
 
 Do not add a Support `ApiController`. Domain writes stay `Pages` / `Sections`. Public anonymous browse stays `/help`.
 
 Host sketch:
 
 ```ruby
-gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.5.5"
+gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.4"
 ```
 
 ```bash
@@ -378,7 +380,7 @@ Dummy kit pins:
 | Icons | `v0.1.1` |
 | Moveable | `v3.0.3` |
 | Root Switchable | `v0.5.3` |
-| API | `v0.5.5` (dummy only; not a Support gemspec dependency) |
+| API | `v0.6.4` (dummy only; not a Support gemspec dependency) |
 | FlatPack | `v0.1.198` (Content + 18px; Flatpack #215) |
 
 ```bash
