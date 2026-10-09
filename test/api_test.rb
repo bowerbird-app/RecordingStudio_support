@@ -62,6 +62,10 @@ class ApiTest < Minitest::Test
 
     assert_includes engine, 'initializer "recording_studio_support.api"'
     assert_includes engine, "RecordingStudioSupport::Api.register!"
+    prepares = File.read(File.expand_path("../lib/recording_studio_support/engine/runtime_prepares.rb", __dir__))
+    assert_includes prepares, 'initializer "recording_studio_support.metrics"'
+    assert_includes prepares, "RecordingStudioSupport::Metrics.register!"
+    refute_includes engine, "RecordingStudioMetrics::Api.register!"
     assert_includes registration, "RecordingStudioApi.register_recordable_type_api"
     assert_includes registration, "register_resource_handler"
     assert_includes registration, "api: :public"

@@ -33,6 +33,9 @@ gem "recording_studio_internationalization", github: "bowerbird-app/RecordingStu
 # Optional JSON API. Not a Support gemspec dependency.
 gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.9"
 
+# Host registers Metrics endpoints. Support only registers metric definitions.
+gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.2.0"
+
 # Devise authentication
 gem "devise"
 

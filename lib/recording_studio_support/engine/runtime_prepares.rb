@@ -12,6 +12,10 @@ module RecordingStudioSupport
       end
     end
 
+    initializer "recording_studio_support.metrics" do
+      config.to_prepare { RecordingStudioSupport::Metrics.register! }
+    end
+
     initializer "recording_studio_support.messages" do
       config.to_prepare do
         RecordingStudioSupport::Engine.register_message_received_with_email!

@@ -35,6 +35,8 @@ Support does **not** gemspec-depend on `recording_studio_api` (same pattern as M
 
 The **host** adds the API gem, runs its install/migrations, mounts the engine, names `:operations`, enables `:accessible` and `:api_access_point` on roots that hold API keys, and provisions clients. Dummy wires this (API `v0.6.9`) and sets Trashable / Moveable host hooks to `staff_permission`.
 
+Support registers Metrics definitions; the host calls `RecordingStudioMetrics::Api.register!(api: :operations)`.
+
 ## Registration
 
 Register both types when `RecordingStudioApi` is defined (`to_prepare`). Resource names are `support_sections` and `support_pages`. Public is page reads only. Operations is section reads plus writes — pass `operations:` so `:read_only` does not apply. Do not register `GET support/search`. Do not register `support_sections` on public. Recording Studio API’s public surface still lists every host recordable type; an unregistered type gets default CRUD. Support handlers refuse public `support_sections` (and nested pages) so those calls stay `404` / unsupported without emptying `operations:` (the API gem treats `[]` as all CRUD).
