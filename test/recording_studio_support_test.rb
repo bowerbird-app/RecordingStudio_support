@@ -35,6 +35,7 @@ class RecordingStudioSupportTest < Minitest::Test
 
     assert notifications.requirement.satisfied_by?(Gem::Version.new("0.3.1"))
     assert notifications.requirement.satisfied_by?(Gem::Version.new("0.4.0"))
+    assert notifications.requirement.satisfied_by?(Gem::Version.new("0.5.0"))
     refute notifications.requirement.satisfied_by?(Gem::Version.new("1.0.0"))
     assert messages.requirement.satisfied_by?(Gem::Version.new("0.5.0"))
     assert messages.requirement.satisfied_by?(Gem::Version.new("0.5.1"))
@@ -98,7 +99,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.6.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_messages", tag: "v0.5.2"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.4.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.5.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.4"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_Internationalization", tag: "v0.1.2"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.9"'
