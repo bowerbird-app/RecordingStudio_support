@@ -28,7 +28,7 @@ class MetricsTest < Minitest::Test
     assert_includes metrics, "expose: EXPOSE"
     assert_includes metrics, "api: [API]"
     assert_includes metrics, "API = :operations"
-    assert_includes metrics, "Api::Access.can_view_as_staff?"
+    assert_includes metrics, "Api::Access.can_view_metrics?"
     refute_includes metrics, "confirmable_column?"
     refute_includes metrics, "RecordingStudioMetrics::Api.register!"
     refute_includes metrics, "respond_to?"

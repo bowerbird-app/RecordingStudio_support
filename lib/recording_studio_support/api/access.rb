@@ -16,6 +16,20 @@ module RecordingStudioSupport
         resolver.call(ResolverContext.new(nil))
       end
 
+      def metrics_admin_root_recording
+        return unless defined?(RecordingStudioAdmin)
+
+        config = RecordingStudioAdmin.configuration
+        resolver = config.site_admin_recording_resolver || config.access_recording_resolver
+        return unless resolver
+
+        begin
+          resolver.call(ResolverContext.new(nil))
+        rescue StandardError
+          nil
+        end
+      end
+
       def actor_for(context)
         return context.actor if context.respond_to?(:actor) && context.actor.present?
 
@@ -39,6 +53,18 @@ module RecordingStudioSupport
 
       def can_view_as_staff?(context)
         authorized_on_admin_root?(context, :view)
+      end
+
+      def can_view_metrics?(context)
+        actor = actor_for(context)
+        recording = metrics_admin_root_recording
+        return false if actor.blank? || recording.blank?
+
+        RecordingStudioAccessible.authorized?(
+          actor: actor,
+          recording: recording,
+          role: :view
+        )
       end
 
       def can_view_workspace?(context, workspace_recording)
