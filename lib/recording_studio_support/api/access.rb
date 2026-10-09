@@ -55,17 +55,7 @@ module RecordingStudioSupport
         authorized_on_admin_root?(context, :view)
       end
 
-      def can_view_metrics?(context)
-        actor = actor_for(context)
-        recording = metrics_admin_root_recording
-        return false if actor.blank? || recording.blank?
-
-        RecordingStudioAccessible.authorized?(
-          actor: actor,
-          recording: recording,
-          role: :view
-        )
-      end
+      def can_view_metrics?(context) = admin_root_authorized?(actor_for(context), :view, metrics_admin_root_recording)
 
       def can_view_workspace?(context, workspace_recording)
         actor = actor_for(context)
@@ -119,8 +109,7 @@ module RecordingStudioSupport
         admin_root_authorized?(actor_for(context), role)
       end
 
-      def admin_root_authorized?(actor, role)
-        recording = admin_root_recording
+      def admin_root_authorized?(actor, role, recording = admin_root_recording)
         return false if actor.blank? || recording.blank?
 
         RecordingStudioAccessible.authorized?(
