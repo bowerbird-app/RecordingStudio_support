@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.15.0", ::RecordingStudioSupport::VERSION
+    assert_equal "0.16.0", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -27,6 +27,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemspec, 'spec.add_dependency "recording_studio_admin", "~> 2.0"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_attachable", "~> 0.7"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_messages", "~> 0.5"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_metrics", "~> 0.2"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_notifications", ">= 0.3.1", "< 1"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_notifications_email", "~> 0.3.1"'
 
@@ -60,6 +61,8 @@ class RecordingStudioSupportTest < Minitest::Test
       /recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages
       /recording_studio_api/apis/operations/v1/support_pages
       /recording_studio_api/apis/operations/v1/support_pages/:id/actions/move
+      /recording_studio_api/apis/operations/v1/metrics/support_tickets/open
+      /recording_studio_api/apis/operations/v1/metrics/support_pages/total
     ].each { |path| assert_includes reference, path }
 
     refute_includes reference, "/recording_studio_api/api/v1/support_sections"
@@ -103,6 +106,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.4"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_Internationalization", tag: "v0.1.2"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.9"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.2.0"'
 
     dummy_hooks = File.read(File.expand_path("dummy/config/initializers/recording_studio_support.rb", __dir__))
     assert_includes dummy_hooks, "RecordingStudioSupport.staff_permission"
@@ -353,6 +357,8 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "tag: \"v2.1.0\""
     assert_includes readme, "/admin/support"
     assert_includes readme, "docs/api.md"
+    assert_includes readme, "recording_studio_metrics"
+    assert_includes readme, "v0.2.0"
     assert_includes readme, "docs/api-plan.md"
     assert_includes readme, "recording_studio_api"
     assert_includes readme, "/recording_studio_api/api/v1/support_pages"

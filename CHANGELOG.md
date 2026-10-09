@@ -7,6 +7,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.0] - 2026-10-09
+
+Site-wide Support metrics register with Recording Studio Metrics for the operations API.
+
+### Added
+- `RecordingStudioSupport::Metrics.register!` registers `:support_tickets` and
+  `:support_pages` (`blast_radius: :site`) with RecordingStudioMetrics. Tickets:
+  `support_tickets.open` (status open), `support_tickets.by_status`,
+  `support_tickets.by_priority`, `support_tickets.opened` (`created_at`).
+  Pages: `support_pages.total` counts live recordings via
+  `Admin::Queries.kept_page_recordings` (the Admin Support pages card), not
+  SupportPage snapshots. Each metric is exposed on `:operations` only.
+  `api_authorize` uses `RecordingStudioSupport::Api::Access.can_view_as_staff?`
+  (AdminRoot `:view`).
+- Runtime dependency `recording_studio_metrics` `~> 0.2` (GitHub tag `v0.2.0`).
+
+### Upgrade notes
+- Bump to `0.16.0`. No migration.
+- Add `recording_studio_metrics` at tag `v0.2.0`.
+- This gem does not call `RecordingStudioMetrics::Api.register!`. The host
+  registers Metrics endpoints once:
+
+```ruby
+RecordingStudioMetrics::Api.register!(api: :operations)
+```
+
 ## [0.15.0] - 2026-10-08
 
 ### Changed

@@ -20,6 +20,7 @@ gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publi
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"
 gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.3.0"
 gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.5.2"
+gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.2.0"
 gem "recording_studio_notifications", github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.5.0"
 gem "recording_studio_notifications_email",
     github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.4"
@@ -46,6 +47,7 @@ gem "recording_studio_publishable", "~> 0.4"
 gem "recording_studio_search", "~> 0.4"
 gem "recording_studio_moveable", "~> 3.2"
 gem "recording_studio_messages", "~> 0.5"
+gem "recording_studio_metrics", "~> 0.2"
 gem "recording_studio_notifications", ">= 0.3.1", "< 1"
 gem "recording_studio_notifications_email", "~> 0.3.1"
 ```
@@ -362,6 +364,20 @@ Bearer token: public `POST /recording_studio_api/oauth/token`; operations `POST 
 | `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/move` |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/publish` |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/unpublish` |
+| `GET` | `/recording_studio_api/apis/operations/v1/metrics` |
+| `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/open` |
+| `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/by_status` |
+| `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/by_priority` |
+| `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/opened` |
+| `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_pages/total` |
+
+Support registers those metrics with Recording Studio Metrics. The host exposes them once:
+
+```ruby
+RecordingStudioMetrics::Api.register!(api: :operations)
+```
+
+Staff with AdminRoot `:view` can read them. A public token or a non-admin operations token is denied. `support_pages.total` counts live page recordings (`Admin::Queries.kept_page_recordings`), not SupportPage snapshots.
 
 `GET support_pages?q=` on public uses `Pages.for_root` / `SupportPage.search`. There is no `GET support/search`. Instant UI is not used.
 

@@ -2,7 +2,7 @@
 
 How a host, person, or AI agent talks to Support sections and pages over **Recording Studio API**. Public anonymous browse stays `/help`. This surface is authenticated.
 
-Support does **not** gemspec-depend on `recording_studio_api`. Add that gem in the **host** (dummy tracks API PR `#30` / `0.6.9` until `v0.6.9` is tagged). If the constant is missing, Support boots with no JSON routes.
+Support does **not** gemspec-depend on `recording_studio_api`. Add that gem in the **host** (dummy tracks API `v0.6.9`). If the constant is missing, Support boots with no JSON routes. Support **does** depend on `recording_studio_metrics` and registers site-wide Support metrics. The host calls `RecordingStudioMetrics::Api.register!(api: :operations)` once.
 
 Do not add a Support `ApiController`. Writes go through `Pages` / `Sections`. Access is **Accessible** only.
 
@@ -93,6 +93,12 @@ Public `support_sections` list/show and nested section-pages are not registered 
 | `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/move` | AdminRoot `:edit` | Body: `parent_id` (destination section recording) |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/publish` | AdminRoot `:edit` | Uses Publishable `publish`; response matches Publishable snapshot JSON |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/unpublish` | AdminRoot `:edit` | Uses Publishable `unpublish`; response matches Publishable snapshot JSON |
+| `GET` | `/recording_studio_api/apis/operations/v1/metrics` | AdminRoot `:view` | Host-registered Metrics index. Includes Support ticket and page metrics |
+| `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/open` | AdminRoot `:view` | Open tickets |
+| `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/by_status` | AdminRoot `:view` | Tickets by status |
+| `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/by_priority` | AdminRoot `:view` | Tickets by priority |
+| `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/opened` | AdminRoot `:view` | Tickets opened (`created_at` series) |
+| `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_pages/total` | AdminRoot `:view` | Live (non-trashed) support pages |
 
 Collection `POST` on `support_pages` needs `parent_id`. Nested `POST …/support_sections/:parent_id/pages` takes the parent from the URL. Nested create / update / destroy call the same Support page handlers as the collection routes (`Pages.create!` / `revise!` / `trash!`).
 

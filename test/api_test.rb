@@ -62,6 +62,9 @@ class ApiTest < Minitest::Test
 
     assert_includes engine, 'initializer "recording_studio_support.api"'
     assert_includes engine, "RecordingStudioSupport::Api.register!"
+    assert_includes engine, 'initializer "recording_studio_support.metrics"'
+    assert_includes engine, "RecordingStudioSupport::Metrics.register!"
+    refute_includes engine, "RecordingStudioMetrics::Api.register!"
     assert_includes registration, "RecordingStudioApi.register_recordable_type_api"
     assert_includes registration, "register_resource_handler"
     assert_includes registration, "api: :public"
