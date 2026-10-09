@@ -2,7 +2,9 @@
 
 How a host, person, or AI agent talks to Support sections and pages over **Recording Studio API**. Public anonymous browse stays `/help`. This surface is authenticated.
 
-Support does **not** gemspec-depend on `recording_studio_api`. Add that gem in the **host** (dummy tracks API `v0.6.9`). If the constant is missing, Support boots with no JSON routes. Support **does** depend on `recording_studio_metrics` and registers site-wide Support metrics. The host calls `RecordingStudioMetrics::Api.register!(api: :operations)` once.
+Support does **not** gemspec-depend on `recording_studio_api`. Add that gem in the **host** (dummy tracks API PR `#30` / `0.6.9` until `v0.6.9` is tagged). If the constant is missing, Support boots with no JSON routes.
+
+Support **does** depend on `recording_studio_metrics` and registers site-wide Support metrics. The host calls `RecordingStudioMetrics::Api.register!(api: :operations)` once.
 
 Do not add a Support `ApiController`. Writes go through `Pages` / `Sections`. Access is **Accessible** only.
 
