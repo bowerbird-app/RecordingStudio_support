@@ -10,7 +10,7 @@ module RecordingStudioSupport
     PAGES = :support_pages
     API = :operations
     EXPOSE = { api: [API] }.freeze
-    AUTHORIZE = ->(context) { RecordingStudioSupport::Api::Access.can_view_as_staff?(context) }
+    AUTHORIZE = ->(context) { RecordingStudioSupport::Api::Access.can_view_metrics?(context) }
     OPEN = ->(relation) { relation.where(status: "open") }
     LIVE_PAGES = ->(relation) { relation.merge(RecordingStudioSupport::Admin::Queries.kept_page_recordings) }
 

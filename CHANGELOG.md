@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.16.1] - 2026-10-09
+
+Site-wide metrics deny when the admin-root resolver cannot run, instead of failing discovery.
+
+### Fixed
+- Metrics authorization uses `RecordingStudioSupport::Api::Access.can_view_metrics?`.
+  That check resolves the admin root with `site_admin_recording_resolver`, then
+  `access_recording_resolver`, and returns false if the chosen resolver raises.
+  Staff view, create, move, and write still resolve through `access_recording_resolver`
+  and still let resolver errors surface.
+
+### Upgrade notes
+- Bump to `0.16.1`. No migration.
+- Operations metrics prefer the site admin recording when
+  `site_admin_recording_resolver` is set. Staff create, move, and write
+  authorization is unchanged.
+
 ## [0.16.0] - 2026-10-09
 
 Site-wide Support metrics register with Recording Studio Metrics for the operations API.
