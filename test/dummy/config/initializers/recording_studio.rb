@@ -14,6 +14,8 @@ RecordingStudio.configure do |config|
     "RecordingStudioMessages::MessageGroup",
     "RecordingStudioMessages::Message",
     "RecordingStudioAttachable::Attachment",
+    "RecordingStudioAttachable::Library",
+    "RecordingStudioAttachable::Placement",
     "RecordingStudioPublishable::Publishable",
     "RecordingStudio::Access",
     "RecordingStudioApi::ApiClient",
