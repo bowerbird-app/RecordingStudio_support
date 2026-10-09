@@ -429,7 +429,7 @@ Dummy kit pins:
 | Publishable | `v0.4.2` |
 | Icons | `v0.1.1` |
 | Moveable | `v3.2.0` |
-| Root Switchable | `v0.5.3` |
+| Root Switchable | `v0.6.0` |
 | API | `v0.6.9` (dummy only; not a Support gemspec dependency) |
 | Internationalization | `v0.1.2` (dummy only; not a Support gemspec dependency) |
 | FlatPack | `v0.1.213` (Attachable 0.12+ floor) |

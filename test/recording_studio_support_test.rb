@@ -96,7 +96,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, "d9cc54dd33ec625dd618f5520de56b9b49a29e01"
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.2.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.5.3"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.6.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_messages", tag: "v0.5.2"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.4.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.4"'
