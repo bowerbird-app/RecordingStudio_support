@@ -81,7 +81,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     end
 
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/opened",
-        params: { interval: "month", start: "2026-02-01T00:00:00Z", end: "2026-04-01T00:00:00Z" },
+        params: { interval: "month" },
         headers: auth(@staff_operations_token),
         as: :json
     assert_response :success
