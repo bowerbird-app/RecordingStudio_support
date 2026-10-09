@@ -133,10 +133,6 @@ module RecordingStudioSupport
         RecordingStudioSupport::Messages::DeskAccessNavigation.install!
       end
     end
-
-    initializer "recording_studio_support.metrics" do
-      config.to_prepare { RecordingStudioSupport::Metrics.register! }
-    end
   end
 end
 
