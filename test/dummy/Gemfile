@@ -15,7 +15,7 @@ gem "recording_studio_notifications", github: "bowerbird-app/RecordingStudio_not
 gem "recording_studio_notifications_email",
     github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.4"
 gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.2.5"
-gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.4.2"
+gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.6.0"
 # Vendored while RecordingStudio_search is private (CI token cannot clone it).
 # Upstream: d9cc54dd33ec625dd618f5520de56b9b49a29e01 — Search PR #2 Instant UI 0.4.0.
 gem "recording_studio_search", path: "../../vendor/recording_studio_search"
