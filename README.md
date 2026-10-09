@@ -6,7 +6,7 @@ Help pages sit in a section under your workspace. Each page has a title and a fo
 
 ## Install
 
-Add the gem next to Recording Studio 4.2, Accessible 0.13, Admin 2.0, Publishable 0.4, and the mixin gems Support pages use. GitHub hosting is not a reason to skip the gemspec pins.
+Add the gem next to Recording Studio 4.2, Accessible 0.13, Admin 2.0, Publishable 0.6, and the mixin gems Support pages use. GitHub hosting is not a reason to skip the gemspec pins.
 
 ```ruby
 # Gemfile
@@ -16,9 +16,9 @@ gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.13.0"
 gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.6.0"
 gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.2.5"
-gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.4.2"
+gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.6.0"
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"
-gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.2.0"
+gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.3.0"
 gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.5.2"
 gem "recording_studio_notifications", github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.5.0"
 gem "recording_studio_notifications_email",
@@ -426,9 +426,9 @@ Dummy kit pins:
 | Users | `v0.16.0` |
 | Trashable | `v0.6.0` |
 | Orderable | `v0.2.5` |
-| Publishable | `v0.4.2` |
+| Publishable | `v0.6.0` |
 | Icons | `v0.1.1` |
-| Moveable | `v3.2.0` |
+| Moveable | `v3.3.0` |
 | Root Switchable | `v0.6.0` |
 | API | `v0.6.9` (dummy only; not a Support gemspec dependency) |
 | Internationalization | `v0.1.2` (dummy only; not a Support gemspec dependency) |
