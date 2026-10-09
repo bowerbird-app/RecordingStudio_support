@@ -20,7 +20,7 @@ gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publi
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"
 gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.2.0"
 gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.5.2"
-gem "recording_studio_notifications", github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.4.0"
+gem "recording_studio_notifications", github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.5.0"
 gem "recording_studio_notifications_email",
     github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.4"
 # Prefer GitHub once RecordingStudio_search is public (sibling gems already are).
@@ -421,7 +421,7 @@ Dummy kit pins:
 | Admin | `v2.1.0` |
 | Attachable | `v0.13.0` |
 | Messages | `v0.5.2` |
-| Notifications | `v0.4.0` |
+| Notifications | `v0.5.0` |
 | Notifications Email | `v0.3.4` |
 | Users | `v0.16.0` |
 | Trashable | `v0.6.0` |
