@@ -64,6 +64,10 @@ class SupportInstantSearchTest < ActionDispatch::IntegrationTest
   end
 
   test "search engine instant hides drafts and unknown models" do
+    # Search 0.5.0 inherits the host ApplicationController (authenticate_user!).
+    # Support's public Instant stays on PublicInstantSearchesController (skipped auth).
+    sign_in @user
+
     get "/recording_studio_search/instant_search", params: {
       q: "password",
       models: ["RecordingStudioSupport::SupportPage", "User"],
@@ -75,6 +79,8 @@ class SupportInstantSearchTest < ActionDispatch::IntegrationTest
   end
 
   test "search engine instant finds a live page and ignores blank q" do
+    sign_in @user
+
     get "/recording_studio_search/instant_search", params: {
       q: "sign in",
       models: ["RecordingStudioSupport::SupportPage"],

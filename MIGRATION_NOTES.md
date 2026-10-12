@@ -99,17 +99,13 @@ Article search moves from `ILIKE` to Recording Studio Search trigram (`pg_trgm`)
 
 ### Host app
 
-1. Add the Search gem (no release tags yet). Prefer the GitHub pin once
-   `RecordingStudio_search` is public like the other Recording Studio gems:
+1. Add the Search gem (GitHub tag `v0.5.0`; English I18n keys under
+   `recording_studio.search`, no host migration for English):
 
 ```ruby
-gem "recording_studio_search", "~> 0.4",
-    github: "bowerbird-app/RecordingStudio_search",
-    ref: "d9cc54dd33ec625dd618f5520de56b9b49a29e01"
+gem "recording_studio_search", "~> 0.5",
+    github: "bowerbird-app/RecordingStudio_search", tag: "v0.5.0"
 ```
-
-   Until then, hosts that cannot clone the private repo can mirror Support’s
-   temporary `path:` vendor of that same commit (Instant UI 0.4.0).
 
 2. `bundle install`
 3. `bin/rails generate recording_studio_search:install` then `bin/rails db:migrate` (query-cache table only; does not enable `vector`)
@@ -117,6 +113,7 @@ gem "recording_studio_search", "~> 0.4",
 5. Mount `RecordingStudioSearch::Engine` at `/recording_studio_search`, pin Instant Stimulus, and add `/help/sections/:slug/instant_search`
 6. `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` (adds `search_vector` + trigram indexes on `recording_studio_support_pages`)
 7. Do **not** run `recording_studio_search:searchable_pgvector` for Support pages in this phase
+8. Search `v0.5.0` inherits the host `ApplicationController`. Public `/help` Instant stays on Support’s public Instant controller (auth skipped). No host migration for the English I18n keys under `recording_studio.search`.
 
 ### Verify
 
