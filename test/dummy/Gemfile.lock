@@ -164,13 +164,14 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_trashable.git
-  revision: e3b153da0d27e2ab183372b7b580feecb45d7278
-  tag: v0.6.0
+  revision: e89579c84e9449382156d78505625a25e314f089
+  tag: v0.8.0
   specs:
-    recording_studio_trashable (0.6.0)
+    recording_studio_trashable (0.8.0)
       flat_pack (>= 0.1.74)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
+      recording_studio_metrics (~> 0.2)
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_users.git
@@ -909,7 +910,7 @@ CHECKSUMS
   recording_studio_root_switchable (0.8.0)
   recording_studio_search (0.5.0)
   recording_studio_support (0.16.1)
-  recording_studio_trashable (0.6.0)
+  recording_studio_trashable (0.8.0)
   recording_studio_user (0.16.0)
   redis (5.4.1) sha256=b5e675b57ad22b15c9bcc765d5ac26f60b675408af916d31527af9bd5a81faae
   redis-client (0.31.0) sha256=6820cb2a21e6795a823141f50fd25e655de2b8dc8ff833b43509a27b0263fd75
