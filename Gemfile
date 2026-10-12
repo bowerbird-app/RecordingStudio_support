@@ -22,9 +22,7 @@ gem "recording_studio_notifications_email", "~> 0.3.1",
     github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.4"
 gem "recording_studio_orderable", "~> 0.2", github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.2.5"
 gem "recording_studio_publishable", "~> 0.4", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.6.0"
-# Vendored while RecordingStudio_search is private (CI token cannot clone it).
-# Upstream: d9cc54dd33ec625dd618f5520de56b9b49a29e01 — Search PR #2 Instant UI 0.4.0.
-gem "recording_studio_search", "~> 0.4", path: "vendor/recording_studio_search"
+gem "recording_studio_search", "~> 0.5", github: "bowerbird-app/RecordingStudio_search", tag: "v0.5.0"
 gem "recording_studio_trashable", "~> 0.4", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.6.0"
 
 gem "devise"
