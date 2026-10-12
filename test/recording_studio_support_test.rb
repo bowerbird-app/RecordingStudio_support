@@ -91,7 +91,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.5.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.15.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.1.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.13.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.15.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_users", tag: "v0.16.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.6.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.2.5"'
@@ -347,7 +347,6 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "Recording Studio Support"
     assert_includes readme, "v4.5.0"
     assert_includes readme, "v0.15.0"
-    assert_includes readme, "v0.13.0"
     assert_includes readme, "v0.1.213"
     assert_includes readme, "v0.16.0"
     assert_includes readme, "Support page"
@@ -371,7 +370,6 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "RecordingStudio::Capabilities::Publishable.to"
     assert_includes readme, "tag: \"v0.6.0\""
     assert_includes readme, "tag: \"v0.15.0\""
-    assert_includes readme, "tag: \"v0.13.0\""
     assert_includes readme, "tag: \"v0.2.5\""
     assert_includes readme, "/help"
     assert_includes readme, "instant_search_field"
