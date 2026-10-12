@@ -443,7 +443,7 @@ Dummy kit pins:
 | Icons | `v0.1.1` |
 | Moveable | `v3.3.0` |
 | Search | `v0.5.0` |
-| Root Switchable | `v0.6.0` |
+| Root Switchable | `v0.8.0` |
 | API | `v0.6.9` (dummy only; not a Support gemspec dependency) |
 | Internationalization | `v0.1.2` (dummy only; not a Support gemspec dependency) |
 | FlatPack | `v0.1.213` (Attachable 0.12+ floor) |
