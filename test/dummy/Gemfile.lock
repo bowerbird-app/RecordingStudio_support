@@ -153,10 +153,10 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_search.git
-  revision: 1e84ae884282ef98485c370c240ac3bd1afaf575
-  tag: v0.5.0
+  revision: 3f6f5c4813c1b3daf3e87f9e45a23ff316997c34
+  tag: v0.6.0
   specs:
-    recording_studio_search (0.5.0)
+    recording_studio_search (0.6.0)
       json (>= 2.21, < 3)
       pgvector (>= 0.3)
       rails (~> 8.1.0)
@@ -221,7 +221,7 @@ PATH
       recording_studio_notifications_email (~> 0.3.1)
       recording_studio_orderable (~> 0.2)
       recording_studio_publishable (~> 0.4)
-      recording_studio_search (~> 0.5)
+      recording_studio_search (~> 0.6)
       recording_studio_trashable (~> 0.4)
 
 GEM
@@ -908,7 +908,7 @@ CHECKSUMS
   recording_studio_orderable (0.2.3)
   recording_studio_publishable (0.6.0)
   recording_studio_root_switchable (0.8.0)
-  recording_studio_search (0.5.0)
+  recording_studio_search (0.6.0)
   recording_studio_support (0.16.1)
   recording_studio_trashable (0.8.0)
   recording_studio_user (0.16.0)

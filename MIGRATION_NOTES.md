@@ -99,12 +99,12 @@ Article search moves from `ILIKE` to Recording Studio Search trigram (`pg_trgm`)
 
 ### Host app
 
-1. Add the Search gem (GitHub tag `v0.5.0`; English I18n keys under
+1. Add the Search gem (GitHub tag `v0.6.0`; English I18n keys under
    `recording_studio.search`, no host migration for English):
 
 ```ruby
-gem "recording_studio_search", "~> 0.5",
-    github: "bowerbird-app/RecordingStudio_search", tag: "v0.5.0"
+gem "recording_studio_search", "~> 0.6",
+    github: "bowerbird-app/RecordingStudio_search", tag: "v0.6.0"
 ```
 
 2. `bundle install`
@@ -113,7 +113,7 @@ gem "recording_studio_search", "~> 0.5",
 5. Mount `RecordingStudioSearch::Engine` at `/recording_studio_search`, pin Instant Stimulus, and add `/help/sections/:slug/instant_search`
 6. `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` (adds `search_vector` + trigram indexes on `recording_studio_support_pages`)
 7. Do **not** run `recording_studio_search:searchable_pgvector` for Support pages in this phase
-8. Search `v0.5.0` inherits the host `ApplicationController`. Public `/help` Instant stays on Support’s public Instant controller (auth skipped). No host migration for the English I18n keys under `recording_studio.search`.
+8. Search `v0.6.0` inherits the host `ApplicationController`. Public `/help` Instant stays on Support’s public Instant controller (auth skipped). No host migration for the English I18n keys under `recording_studio.search`.
 
 ### Verify
 
