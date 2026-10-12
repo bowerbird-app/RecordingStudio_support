@@ -41,6 +41,8 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert connection.table_exists?(:recording_studio_attachable_attachments)
     assert connection.table_exists?(:recording_studio_attachable_libraries)
     assert connection.table_exists?(:recording_studio_attachable_placements)
+    assert connection.table_exists?(:recording_studio_access_constraints)
+    assert connection.table_exists?(:recording_studio_access_rules)
     assert connection.table_exists?(:active_storage_blobs)
     assert connection.table_exists?(:recording_studio_trashable_retention_settings)
     assert connection.table_exists?(:recording_studio_publishable_publishables)
