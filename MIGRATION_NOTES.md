@@ -113,6 +113,7 @@ gem "recording_studio_search", "~> 0.5",
 5. Mount `RecordingStudioSearch::Engine` at `/recording_studio_search`, pin Instant Stimulus, and add `/help/sections/:slug/instant_search`
 6. `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` (adds `search_vector` + trigram indexes on `recording_studio_support_pages`)
 7. Do **not** run `recording_studio_search:searchable_pgvector` for Support pages in this phase
+8. Search `v0.5.0` inherits the host `ApplicationController`. Public `/help` Instant stays on Support’s public Instant controller (auth skipped). No host migration for the English I18n keys under `recording_studio.search`.
 
 ### Verify
 
