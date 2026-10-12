@@ -44,7 +44,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemspec, 'spec.add_dependency "recording_studio_trashable", "~> 0.4"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_orderable", "~> 0.2"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_publishable", "~> 0.4"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_search", "~> 0.5"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_search", "~> 0.6"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_moveable", "~> 3.2"'
     refute_includes gemspec, 'spec.add_dependency "recording_studio_api"'
     refute_includes gemspec, 'spec.add_dependency "recording_studio_user"'
@@ -96,7 +96,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.8.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.2.5"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.6.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_search", tag: "v0.5.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_search", tag: "v0.6.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.3.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.8.0"'
@@ -375,7 +375,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "/help"
     assert_includes readme, "instant_search_field"
     assert_includes readme, "RecordingStudioSearch::Engine"
-    assert_includes readme, 'tag: "v0.5.0"'
+    assert_includes readme, 'tag: "v0.6.0"'
     assert_includes readme, "recording_studio_search"
     assert_includes readme, 'public_layout: "recording_studio/default_layout"'
     assert_includes readme, "recording_studio.support"
