@@ -57,6 +57,15 @@ GIT
       recording_studio_metrics (~> 0.2)
 
 GIT
+  remote: https://github.com/bowerbird-app/RecordingStudio_cache.git
+  revision: ffadfbd2a804104e1146c835aaf1bdb8068596ff
+  tag: v0.5.0
+  specs:
+    recording_studio_cache (0.5.0)
+      rails (~> 8.1.0)
+      recording_studio (~> 4.2)
+
+GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_icons.git
   revision: f08b966a53544a3e7fb36896fbf34dd3f9c9055d
   tag: v0.1.1
@@ -88,10 +97,10 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_moveable.git
-  revision: d0e2663c7791fdd234347f9ffafa57af83b17250
-  tag: v3.3.0
+  revision: 698b54f96000ab15cdcfb889a9dfbbab7c982d2a
+  tag: v3.4.0
   specs:
-    recording_studio_moveable (3.3.0)
+    recording_studio_moveable (3.4.0)
       rails (>= 8.1.0, < 9.0)
       recording_studio (~> 4.2)
       recording_studio_accessible (~> 0.6)
@@ -142,14 +151,15 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_root_switchable.git
-  revision: 6f4ebe13d8021cc2097d4d93ab89d0dfb03e2c8c
-  tag: v0.8.0
+  revision: 9cc759ea3290724f349269a437a5e284ddd4b30a
+  tag: v0.9.0
   specs:
-    recording_studio_root_switchable (0.8.0)
+    recording_studio_root_switchable (0.9.0)
       flat_pack
       rails (~> 8.1.0)
       recording_studio (~> 4.1)
-      recording_studio_accessible (~> 0.13)
+      recording_studio_accessible (~> 0.15)
+      recording_studio_cache (~> 0.5)
       recording_studio_metrics (~> 0.2)
 
 GIT
@@ -176,10 +186,10 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_users.git
-  revision: 6ceb672ae05b36b8bf56ee405e9ab2f15b71b3be
-  tag: v0.16.0
+  revision: 208aaeff7a2cec103a1f8068bef17d7aefcc8295
+  tag: v0.21.0
   specs:
-    recording_studio_user (0.16.0)
+    recording_studio_user (0.21.0)
       devise (~> 5.0)
       flat_pack (>= 0.1.144)
       omniauth (~> 2.1)
@@ -194,6 +204,8 @@ GIT
       recording_studio_accessible (~> 0.11)
       recording_studio_admin (~> 2.0)
       recording_studio_attachable (~> 0.7)
+      recording_studio_cache (~> 0.5)
+      recording_studio_metrics (~> 0.2)
 
 GIT
   remote: https://github.com/bowerbird-app/flatpack.git
@@ -733,6 +745,7 @@ DEPENDENCIES
   recording_studio_admin!
   recording_studio_api!
   recording_studio_attachable!
+  recording_studio_cache!
   recording_studio_icons!
   recording_studio_internationalization!
   recording_studio_messages!
@@ -899,20 +912,21 @@ CHECKSUMS
   recording_studio_admin (2.2.0)
   recording_studio_api (0.6.9)
   recording_studio_attachable (0.15.0)
+  recording_studio_cache (0.5.0)
   recording_studio_icons (0.1.1)
   recording_studio_internationalization (0.1.2)
   recording_studio_messages (0.5.2)
   recording_studio_metrics (0.2.0)
-  recording_studio_moveable (3.3.0)
+  recording_studio_moveable (3.4.0)
   recording_studio_notifications (0.7.0)
   recording_studio_notifications_email (0.3.1)
   recording_studio_orderable (0.3.0)
   recording_studio_publishable (0.8.0)
-  recording_studio_root_switchable (0.8.0)
+  recording_studio_root_switchable (0.9.0)
   recording_studio_search (0.6.0)
   recording_studio_support (0.17.0)
   recording_studio_trashable (0.9.0)
-  recording_studio_user (0.16.0)
+  recording_studio_user (0.21.0)
   redis (5.4.1) sha256=b5e675b57ad22b15c9bcc765d5ac26f60b675408af916d31527af9bd5a81faae
   redis-client (0.31.0) sha256=6820cb2a21e6795a823141f50fd25e655de2b8dc8ff833b43509a27b0263fd75
   regexp_parser (2.11.3) sha256=ca13f381a173b7a93450e53459075c9b76a10433caadcb2f1180f2c741fc55a4
