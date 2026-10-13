@@ -42,8 +42,9 @@ module RecordingStudioSupport
 
       def find_kept!(id:)
         RecordingStudio::Recording.where(
-          recordable_type: SUPPORT_PAGE_TYPE
-        ).recording_studio_trashable_active.includes(:recordable).find(id)
+          recordable_type: SUPPORT_PAGE_TYPE,
+          trashed_at: nil
+        ).includes(:recordable).find(id)
       end
 
       def find!(id:)
@@ -67,17 +68,19 @@ module RecordingStudioSupport
       end
 
       def recording_for(page)
-        RecordingStudio::Recording.recording_studio_trashable_active.find_by(
+        RecordingStudio::Recording.find_by(
           recordable: page,
-          recordable_type: SUPPORT_PAGE_TYPE
+          recordable_type: SUPPORT_PAGE_TYPE,
+          trashed_at: nil
         )
       end
 
       def kept_pages(root_recording)
         RecordingStudio::Recording.where(
           root_recording_id: root_recording.id,
-          recordable_type: SUPPORT_PAGE_TYPE
-        ).recording_studio_trashable_active
+          recordable_type: SUPPORT_PAGE_TYPE,
+          trashed_at: nil
+        )
       end
 
       def kept_pages_for_section(section_recording)
@@ -85,8 +88,9 @@ module RecordingStudioSupport
 
         RecordingStudio::Recording.where(
           parent_recording_id: section_recording.id,
-          recordable_type: SUPPORT_PAGE_TYPE
-        ).recording_studio_trashable_active
+          recordable_type: SUPPORT_PAGE_TYPE,
+          trashed_at: nil
+        )
       end
 
       def apply_query(relation, query)

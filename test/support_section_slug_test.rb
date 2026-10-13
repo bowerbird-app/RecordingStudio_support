@@ -39,4 +39,3 @@ class SupportSectionSlugTest < Minitest::Test
     refute_includes source, ".trashed_at IS NULL"
   end
 end
-

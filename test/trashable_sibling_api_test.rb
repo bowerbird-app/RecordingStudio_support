@@ -3,34 +3,36 @@
 require "test_helper"
 
 class TrashableSiblingApiTest < Minitest::Test
-  MAPPED_SOURCES = {
-    "lib/recording_studio_support/pages/lookups.rb" => :active_scope,
-    "lib/recording_studio_support/pages/counts.rb" => :active_scope,
-    "lib/recording_studio_support/sections.rb" => :active_scope,
-    "lib/recording_studio_support/sections/lookups.rb" => :active_scope,
-    "lib/recording_studio_support/api/lookup.rb" => :active_scope,
-    "lib/recording_studio_support/admin/queries.rb" => :active_scope,
-    "app/models/recording_studio_support/support_section.rb" => :kept_sql
-  }.freeze
+  # Hash-filter sites keep main's additive trashed_at: nil because
+  # recording_studio_trashable_active unscopes trashed_at first.
+  HASH_FILTER_SOURCES = %w[
+    lib/recording_studio_support/pages/lookups.rb
+    lib/recording_studio_support/pages/counts.rb
+    lib/recording_studio_support/sections.rb
+    lib/recording_studio_support/sections/lookups.rb
+    lib/recording_studio_support/api/lookup.rb
+    lib/recording_studio_support/admin/queries.rb
+  ].freeze
 
-  def test_mapped_call_sites_use_trashable_sibling_api
-    MAPPED_SOURCES.each do |relative_path, kind|
+  def test_hash_filter_sites_keep_main_additive_trashed_at_nil
+    HASH_FILTER_SOURCES.each do |relative_path|
       source = File.read(File.expand_path("../#{relative_path}", __dir__))
+      code = source.lines.grep_v(/^\s*#/).join
 
-      refute_includes source, "trashed_at: nil",
-                      "#{relative_path} still filters with trashed_at: nil"
-      refute_match(/\.trashed_at\s+IS\s+NULL/i, source,
-                   "#{relative_path} still embeds raw trashed_at IS NULL")
-
-      case kind
-      when :active_scope
-        assert_includes source, "recording_studio_trashable_active",
-                        "#{relative_path} should chain recording_studio_trashable_active"
-      when :kept_sql
-        assert_includes source, "recording_studio_trashable_kept_sql",
-                        "#{relative_path} should use recording_studio_trashable_kept_sql"
-      end
+      assert_includes code, "trashed_at: nil",
+                      "#{relative_path} should keep main's additive trashed_at: nil"
+      refute_includes code, "recording_studio_trashable_active",
+                      "#{relative_path} must not chain trashable_active (unscope differs under default_scope)"
     end
+  end
+
+  def test_section_slug_join_uses_kept_sql
+    source = File.read(
+      File.expand_path("../app/models/recording_studio_support/support_section.rb", __dir__)
+    )
+
+    assert_includes source, "recording_studio_trashable_kept_sql"
+    refute_match(/\.trashed_at\s+IS\s+NULL/i, source)
   end
 
   def test_support_does_not_reimplement_void_or_predicates
@@ -54,8 +56,8 @@ class TrashableSiblingApiTest < Minitest::Test
     gemspec = File.read(File.expand_path("../recording_studio_support.gemspec", __dir__))
 
     assert_includes changelog, "## [0.17.0]"
-    assert_includes changelog, "recording_studio_trashable_active"
     assert_includes changelog, "recording_studio_trashable_kept_sql"
+    assert_includes changelog, "recording_studio_trashable_active"
     assert_includes changelog, "v0.9.0"
     assert_includes gemfile, 'tag: "v0.9.0"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_trashable", "~> 0.9"'

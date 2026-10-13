@@ -7,8 +7,9 @@ module RecordingStudioSupport
 
       def kept_page_recordings
         RecordingStudio::Recording.where(
-          recordable_type: Pages::SUPPORT_PAGE_TYPE
-        ).recording_studio_trashable_active
+          recordable_type: Pages::SUPPORT_PAGE_TYPE,
+          trashed_at: nil
+        )
       end
 
       def kept_section_recordings

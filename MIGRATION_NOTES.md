@@ -2,10 +2,11 @@
 
 ## 0.17.0
 
-Kept page/section lookups and the section slug uniqueness join use Trashable’s
-shared sibling `trashed_at` API (`recording_studio_trashable_active`,
-`recording_studio_trashable_kept_sql`). Pin Trashable `v0.9.0` (`~> 0.9`).
-No migration. Trash and restore still use `recording_studio_trashable_trash!` /
+Pin Trashable `v0.9.0` (`~> 0.9`). The section slug uniqueness join uses
+`recording_studio_trashable_kept_sql`. Kept page/section AR filters keep main’s
+additive `where(trashed_at: nil)` because `recording_studio_trashable_active`
+unscopes `trashed_at` first and differs under a host default scope. No migration.
+Trash and restore still use `recording_studio_trashable_trash!` /
 `recording_studio_trashable_restore!`. Support does not call `void_recording!`.
 
 ### Host app

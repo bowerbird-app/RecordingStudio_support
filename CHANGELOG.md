@@ -9,22 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.17.0] - 2026-10-13
 
-Use Trashable’s shared sibling `trashed_at` API for kept lookups and section slug joins.
+Pin Trashable `v0.9.0` and route the section slug join through `kept_sql`.
 
 ### Changed
-- Help page/section kept scopes, API workspace lookup, Admin page queries, and
-  `SupportSection` slug uniqueness join call
-  `recording_studio_trashable_active` / `recording_studio_trashable_kept_sql`
-  instead of raw `trashed_at: nil` / `trashed_at IS NULL`.
+- `SupportSection` slug uniqueness join uses
+  `recording_studio_trashable_kept_sql` instead of raw `trashed_at IS NULL`.
 - Runtime dependency `recording_studio_trashable` `~> 0.9` (GitHub tag `v0.9.0`).
+
+### Notes
+- Kept page/section AR filters keep main’s additive `where(trashed_at: nil)`.
+  Trashable’s `recording_studio_trashable_active` unscopes `trashed_at` first,
+  which differs from main on hosts with a `default_scope { where(trashed_at: nil) }`
+  (and on relations that already constrain `trashed_at`). Parity tests cover that.
+- Support does not call `void_recording!` or the kept/trashed predicates;
+  trash/restore still go through `recording_studio_trashable_trash!` / `restore!`.
 
 ### Upgrade notes
 - Bump to `0.17.0`. No migration.
 - Pin `recording_studio_trashable` to tag `v0.9.0` (`~> 0.9`).
-- Behavior matches prior kept filters. The section slug join SQL now uses
-  quoted identifiers from `kept_sql` (same predicate). Support does not call
-  `void_recording!` or the kept/trashed predicates; trash/restore still go
-  through `recording_studio_trashable_trash!` / `restore!`.
+- Section slug join SQL uses quoted identifiers from `kept_sql` (same predicate).
 
 ## [0.16.1] - 2026-10-09
 
