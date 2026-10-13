@@ -1,5 +1,26 @@
 # Upgrade notes
 
+## 0.17.0
+
+Kept page/section lookups and the section slug uniqueness join use Trashable’s
+shared sibling `trashed_at` API (`recording_studio_trashable_active`,
+`recording_studio_trashable_kept_sql`). Pin Trashable `v0.9.0` (`~> 0.9`).
+No migration. Trash and restore still use `recording_studio_trashable_trash!` /
+`recording_studio_trashable_restore!`. Support does not call `void_recording!`.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.17.0`.
+2. Pin `recording_studio_trashable` to tag `v0.9.0` (`~> 0.9`).
+3. `bundle install`. No new Support or Trashable migrations for this bump.
+
+### Verify
+
+```bash
+bundle exec rake test
+cd test/dummy && bundle exec rails test test/models/trashable_sibling_parity_test.rb
+```
+
 ## 0.15.0
 
 Public page reads stay on the public API. Section reads and all Support writes move to operations. Handlers register through Recording Studio API `0.6.9` (PR `#30` until tagged).

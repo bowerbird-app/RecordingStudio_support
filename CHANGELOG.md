@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.17.0] - 2026-10-13
+
+Use Trashable’s shared sibling `trashed_at` API for kept lookups and section slug joins.
+
+### Changed
+- Help page/section kept scopes, API workspace lookup, Admin page queries, and
+  `SupportSection` slug uniqueness join call
+  `recording_studio_trashable_active` / `recording_studio_trashable_kept_sql`
+  instead of raw `trashed_at: nil` / `trashed_at IS NULL`.
+- Runtime dependency `recording_studio_trashable` `~> 0.9` (GitHub tag `v0.9.0`).
+
+### Upgrade notes
+- Bump to `0.17.0`. No migration.
+- Pin `recording_studio_trashable` to tag `v0.9.0` (`~> 0.9`).
+- Behavior matches prior kept filters. The section slug join SQL now uses
+  quoted identifiers from `kept_sql` (same predicate). Support does not call
+  `void_recording!` or the kept/trashed predicates; trash/restore still go
+  through `recording_studio_trashable_trash!` / `restore!`.
+
 ## [0.16.1] - 2026-10-09
 
 Site-wide metrics deny when the admin-root resolver cannot run, instead of failing discovery.
