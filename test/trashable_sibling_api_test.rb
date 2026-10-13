@@ -94,4 +94,3 @@ class TrashableSiblingApiTest < Minitest::Test
     body.join
   end
 end
-
