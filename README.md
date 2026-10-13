@@ -21,7 +21,7 @@ gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag
 gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.3.0"
 gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.5.2"
 gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.2.0"
-gem "recording_studio_notifications", github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.5.0"
+gem "recording_studio_notifications", github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.7.0"
 gem "recording_studio_notifications_email",
     github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.4"
 gem "recording_studio_search", "~> 0.6",
@@ -434,7 +434,7 @@ Dummy kit pins:
 | Admin | `v2.2.0` |
 | Attachable | `v0.15.0` |
 | Messages | `v0.5.2` |
-| Notifications | `v0.5.0` |
+| Notifications | `v0.7.0` |
 | Notifications Email | `v0.3.4` |
 | Users | `v0.16.0` |
 | Trashable | `v0.8.0` |
