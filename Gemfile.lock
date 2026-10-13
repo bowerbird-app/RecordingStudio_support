@@ -133,10 +133,10 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_trashable.git
-  revision: e89579c84e9449382156d78505625a25e314f089
-  tag: v0.8.0
+  revision: 20275dedcaace3cb0dfcd6b6302216e845485254
+  tag: v0.9.0
   specs:
-    recording_studio_trashable (0.8.0)
+    recording_studio_trashable (0.9.0)
       flat_pack (>= 0.1.74)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
@@ -156,7 +156,7 @@ GIT
 PATH
   remote: .
   specs:
-    recording_studio_support (0.16.1)
+    recording_studio_support (0.17.0)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
       recording_studio_accessible (~> 0.11)
@@ -170,7 +170,7 @@ PATH
       recording_studio_orderable (~> 0.2)
       recording_studio_publishable (~> 0.4)
       recording_studio_search (~> 0.6)
-      recording_studio_trashable (~> 0.4)
+      recording_studio_trashable (~> 0.9)
 
 GEM
   remote: https://rubygems.org/
@@ -480,7 +480,7 @@ DEPENDENCIES
   recording_studio_publishable (~> 0.4)!
   recording_studio_search (~> 0.6)!
   recording_studio_support!
-  recording_studio_trashable (~> 0.4)!
+  recording_studio_trashable (~> 0.9)!
   rubocop
   rubocop-rails
   simplecov
@@ -576,8 +576,8 @@ CHECKSUMS
   recording_studio_orderable (0.3.0)
   recording_studio_publishable (0.8.0)
   recording_studio_search (0.6.0)
-  recording_studio_support (0.16.1)
-  recording_studio_trashable (0.8.0)
+  recording_studio_support (0.17.0)
+  recording_studio_trashable (0.9.0)
   regexp_parser (2.11.3) sha256=ca13f381a173b7a93450e53459075c9b76a10433caadcb2f1180f2c741fc55a4
   reline (0.6.3) sha256=1198b04973565b36ec0f11542ab3f5cfeeec34823f4e54cebde90968092b1835
   responders (3.2.0) sha256=89c2d6ac0ae16f6458a11524cae4a8efdceba1a3baea164d28ee9046bd3df55a

@@ -35,5 +35,8 @@ class SupportSectionSlugTest < Minitest::Test
     assert_includes source, "RESERVED_SLUGS"
     assert_includes source, "before_validation :assign_slug_from_title"
     assert_includes source, "validates :slug, presence: true"
+    assert_includes source, "recording_studio_trashable_kept_sql"
+    assert_includes source, "quote_table_name"
+    refute_includes source, ".trashed_at IS NULL"
   end
 end
