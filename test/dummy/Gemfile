@@ -34,7 +34,7 @@ gem "recording_studio_internationalization", github: "bowerbird-app/RecordingStu
 gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.7.0"
 
 # Host registers Metrics endpoints. Support only registers metric definitions.
-gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.2.2"
+gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.2.3"
 
 # Devise authentication
 gem "devise"
