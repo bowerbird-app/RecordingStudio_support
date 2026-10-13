@@ -49,11 +49,14 @@ module RecordingStudioSupport
     end
 
     def self.current_kept_join_sql
+      connection = ActiveRecord::Base.connection
       table = RecordingStudio::Recording.table_name
-      type = ActiveRecord::Base.connection.quote("RecordingStudioSupport::SupportSection")
+      quoted_table = connection.quote_table_name(table)
+      quoted_sections = connection.quote_table_name(table_name)
+      type = connection.quote("RecordingStudioSupport::SupportSection")
       kept = RecordingStudio::Recording.recording_studio_trashable_kept_sql(table)
-      "INNER JOIN #{table} ON #{table}.recordable_id = recording_studio_support_sections.id " \
-        "AND #{table}.recordable_type = #{type} " \
+      "INNER JOIN #{quoted_table} ON #{quoted_table}.recordable_id = #{quoted_sections}.id " \
+        "AND #{quoted_table}.recordable_type = #{type} " \
         "AND #{kept}"
     end
 

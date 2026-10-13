@@ -37,7 +37,6 @@ module SupportRecordHelpers
   end
 end
 
-
 module ActiveSupport
   class TestCase
     include SupportRecordHelpers

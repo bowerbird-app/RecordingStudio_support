@@ -780,7 +780,11 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.14.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.17.0...HEAD
+[0.17.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.16.1...v0.17.0
+[0.16.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.16.0...v0.16.1
+[0.16.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.15.0...v0.16.0
+[0.15.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.14.0...v0.15.0
 [0.14.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.13.0...v0.14.0
 [0.13.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.12.0...v0.13.0
 [0.12.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.11.0...v0.12.0
