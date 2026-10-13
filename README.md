@@ -6,12 +6,12 @@ Help pages sit in a section under your workspace. Each page has a title and a fo
 
 ## Install
 
-Add the gem next to Recording Studio 4.2, Accessible 0.15, Admin 2.0, Publishable 0.8, and the mixin gems Support pages use. GitHub hosting is not a reason to skip the gemspec pins.
+Add the gem next to Recording Studio 4.2, Accessible 0.17, Admin 2.0, Publishable 0.8, and the mixin gems Support pages use. GitHub hosting is not a reason to skip the gemspec pins.
 
 ```ruby
 # Gemfile
 gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.5.0"
-gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.15.0"
+gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.17.0"
 gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.3.0"
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.15.0"
 gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.10.0"
@@ -430,7 +430,7 @@ Dummy kit pins:
 | Gem | Pin |
 |-----|-----|
 | Recording Studio | `v4.5.0` |
-| Accessible | `v0.15.0` |
+| Accessible | `v0.17.0` |
 | Admin | `v2.3.0` |
 | Attachable | `v0.15.0` |
 | Messages | `v0.5.2` |

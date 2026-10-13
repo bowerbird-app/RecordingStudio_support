@@ -8,12 +8,13 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_accessible.git
-  revision: db1d692fdecccdf251c7c8b5dc19074a0e4da97c
-  tag: v0.15.0
+  revision: 226c6a92472f6ddf1fabcb27ea52ef6a23e53f87
+  tag: v0.17.0
   specs:
-    recording_studio_accessible (0.15.0)
+    recording_studio_accessible (0.17.0)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
+      recording_studio_trashable (~> 0.10)
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_admin.git
@@ -565,7 +566,7 @@ CHECKSUMS
   rake (13.3.1) sha256=8c9e89d09f66a26a01264e7e3480ec0607f0c497a861ef16063604b1b08eb19c
   rdoc (6.16.1) sha256=71357cc208e6da77ba0c4494e01ae870dd18b437c7c7d801dd73ee2f340b9f5c
   recording_studio (4.5.0)
-  recording_studio_accessible (0.15.0)
+  recording_studio_accessible (0.17.0)
   recording_studio_admin (2.3.0)
   recording_studio_attachable (0.15.0)
   recording_studio_icons (0.1.1)
