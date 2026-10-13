@@ -38,13 +38,15 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_api.git
-  revision: 0e98ca8d251d1a2a7053b80a18aa5a0fdffa3cdc
-  tag: v0.6.9
+  revision: 18cd57917a217dd7f2452ed73ae179f227082f30
+  tag: v0.7.0
   specs:
-    recording_studio_api (0.6.9)
+    recording_studio_api (0.7.0)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
       recording_studio_accessible (~> 0.11)
+      recording_studio_metrics (~> 0.2, >= 0.2.2)
+      recording_studio_trashable (~> 0.10)
       redis (~> 5.3)
 
 GIT
@@ -90,10 +92,10 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_metrics.git
-  revision: 6e02b6b75a8a9dad2bd80c6ba2d30f7444e67b9e
-  tag: v0.2.0
+  revision: eeada2296c2db27585fc5f2726bec19677fe8b5d
+  tag: v0.2.3
   specs:
-    recording_studio_metrics (0.2.0)
+    recording_studio_metrics (0.2.2)
       rails (~> 8.1.0)
       recording_studio (~> 4.2)
 
@@ -912,13 +914,13 @@ CHECKSUMS
   recording_studio (4.5.0)
   recording_studio_accessible (0.17.0)
   recording_studio_admin (2.3.0)
-  recording_studio_api (0.6.9)
+  recording_studio_api (0.7.0)
   recording_studio_attachable (0.15.0)
   recording_studio_cache (0.5.0)
   recording_studio_icons (0.1.1)
   recording_studio_internationalization (0.1.2)
   recording_studio_messages (0.5.2)
-  recording_studio_metrics (0.2.0)
+  recording_studio_metrics (0.2.2)
   recording_studio_moveable (3.4.0)
   recording_studio_notifications (0.7.0)
   recording_studio_notifications_email (0.3.1)

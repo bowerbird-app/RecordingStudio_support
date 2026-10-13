@@ -105,8 +105,8 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.7.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.4"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_Internationalization", tag: "v0.1.2"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.9"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.2.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.7.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.2.3"'
 
     dummy_hooks = File.read(File.expand_path("dummy/config/initializers/recording_studio_support.rb", __dir__))
     assert_includes dummy_hooks, "RecordingStudioSupport.staff_permission"
@@ -359,7 +359,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "/admin/support"
     assert_includes readme, "docs/api.md"
     assert_includes readme, "recording_studio_metrics"
-    assert_includes readme, "v0.2.0"
+    assert_includes readme, "v0.2.3"
     assert_includes readme, "docs/api-plan.md"
     assert_includes readme, "recording_studio_api"
     assert_includes readme, "/recording_studio_api/api/v1/support_pages"

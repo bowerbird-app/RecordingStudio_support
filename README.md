@@ -20,7 +20,7 @@ gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publi
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"
 gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.4.0"
 gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.5.2"
-gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.2.0"
+gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.2.3"
 gem "recording_studio_notifications", github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.7.0"
 gem "recording_studio_notifications_email",
     github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.4"
@@ -70,7 +70,7 @@ bin/rails generate recording_studio_accessible:migrations
 bin/rails db:migrate
 ```
 
-Accessible `v0.11` stores roles as strings (`view`, `edit`, `admin`) and adds access invitations. Accessible `v0.14` adds access constraint and access rule tables for optional action audiences. Run its 0.8–0.14 migrations (0.15 is translation-only). Grant through `bootstrap_owner_access!` / `grant_access` — do not create `RecordingStudio::Access` rows. Dummy pins API `v0.6.9`. For operations move and trash by an AdminRoot-only client, the **host** sets Trashable and Moveable hooks (Support does not). `nil` falls through to Accessible `:edit`:
+Accessible `v0.11` stores roles as strings (`view`, `edit`, `admin`) and adds access invitations. Accessible `v0.14` adds access constraint and access rule tables for optional action audiences. Run its 0.8–0.14 migrations (0.15 is translation-only). Grant through `bootstrap_owner_access!` / `grant_access` — do not create `RecordingStudio::Access` rows. Dummy pins API `v0.7.0`. For operations move and trash by an AdminRoot-only client, the **host** sets Trashable and Moveable hooks (Support does not). `nil` falls through to Accessible `:edit`:
 
 ```ruby
 RecordingStudioTrashable.configure do |config|
@@ -383,7 +383,7 @@ Do not add a Support `ApiController`. Domain writes stay `Pages` / `Sections`. P
 Host sketch:
 
 ```ruby
-gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.6.9" # after release
+gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.7.0"
 ```
 
 ```bash
@@ -445,7 +445,7 @@ Dummy kit pins:
 | Search | `v0.6.0` |
 | Root Switchable | `v0.9.0` |
 | Cache | `v0.5.0` (dummy only; Users 0.21+ / Root Switchable 0.9+ floor) |
-| API | `v0.6.9` (dummy only; not a Support gemspec dependency) |
+| API | `v0.7.0` (dummy only; not a Support gemspec dependency) |
 | Internationalization | `v0.1.2` (dummy only; not a Support gemspec dependency) |
 | FlatPack | `v0.1.213` (Attachable 0.12+ floor) |
 
