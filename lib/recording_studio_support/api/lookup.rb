@@ -26,7 +26,7 @@ module RecordingStudioSupport
       def workspace!(id:)
         raise_not_found("Parent resource was not found") if id.blank?
 
-        recording = RecordingStudio::Recording.where(trashed_at: nil).find(id)
+        recording = RecordingStudio::Recording.recording_studio_trashable_active.find(id)
         raise_not_found("Parent resource was not found") unless Sections.allowed_parent_root?(recording)
 
         recording

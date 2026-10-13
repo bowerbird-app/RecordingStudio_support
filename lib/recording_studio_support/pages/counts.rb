@@ -23,9 +23,8 @@ module RecordingStudioSupport
       def kept_pages_for_sections(section_ids)
         RecordingStudio::Recording.where(
           parent_recording_id: section_ids,
-          recordable_type: SUPPORT_PAGE_TYPE,
-          trashed_at: nil
-        )
+          recordable_type: SUPPORT_PAGE_TYPE
+        ).recording_studio_trashable_active
       end
 
       def published_pages_in(pages)

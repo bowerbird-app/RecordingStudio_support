@@ -24,9 +24,8 @@ module RecordingStudioSupport
 
     def kept
       RecordingStudio::Recording.where(
-        recordable_type: SUPPORT_SECTION_TYPE,
-        trashed_at: nil
-      )
+        recordable_type: SUPPORT_SECTION_TYPE
+      ).recording_studio_trashable_active
     end
 
     def create!(root_recording:, title:, icon: nil, actor: nil)
@@ -89,9 +88,8 @@ module RecordingStudioSupport
       RecordingStudio::Recording.where(
         root_recording_id: root_recording.id,
         parent_recording_id: root_recording.id,
-        recordable_type: SUPPORT_SECTION_TYPE,
-        trashed_at: nil
-      )
+        recordable_type: SUPPORT_SECTION_TYPE
+      ).recording_studio_trashable_active
     end
 
     def assign_actor(actor)

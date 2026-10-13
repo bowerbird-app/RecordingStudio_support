@@ -24,16 +24,14 @@ module SupportRecordHelpers
 
   def seeded_section(title)
     RecordingStudio::Recording.where(
-      recordable_type: "RecordingStudioSupport::SupportSection",
-      trashed_at: nil
-    ).find { |recording| recording.recordable.title == title }
+      recordable_type: "RecordingStudioSupport::SupportSection"
+    ).recording_studio_trashable_active.find { |recording| recording.recordable.title == title }
   end
 
   def seeded_page(title)
     RecordingStudio::Recording.where(
-      recordable_type: "RecordingStudioSupport::SupportPage",
-      trashed_at: nil
-    ).find { |recording| recording.recordable.title == title }
+      recordable_type: "RecordingStudioSupport::SupportPage"
+    ).recording_studio_trashable_active.find { |recording| recording.recordable.title == title }
   end
 end
 
