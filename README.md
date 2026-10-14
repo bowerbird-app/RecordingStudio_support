@@ -376,7 +376,7 @@ Support registers those metrics with Recording Studio Metrics. The host exposes 
 RecordingStudioMetrics::Api.register!(api: :operations)
 ```
 
-Staff with AdminRoot `:view` can read them. A public token or a non-admin operations token is denied. `support_pages.total` counts live page recordings (`Admin::Queries.kept_page_recordings`), not SupportPage snapshots. `support_tickets.unassigned_open` counts open tickets (`status: "open"`) with no assignee. `support_tickets.oldest_open_age` is the age in seconds of the oldest open ticket (`null` when none). Results use the Metrics cache (default 5 minutes), so the age can lag by up to that TTL.
+Staff with AdminRoot `:view` can read them. A public token or a non-admin operations token is denied. `support_pages.total` counts live page recordings (`Admin::Queries.kept_page_recordings`), not SupportPage snapshots. `support_tickets.unassigned_open` counts open tickets (`status: "open"`) with no assignee. `support_tickets.oldest_open_age` is the age in seconds of the oldest open ticket (`value` omitted when there are none). Results use the Metrics cache (default 5 minutes), so the age can lag by up to that TTL.
 
 `GET support_pages?q=` on public uses `Pages.for_root` / `SupportPage.search`. There is no `GET support/search`. Instant UI is not used.
 

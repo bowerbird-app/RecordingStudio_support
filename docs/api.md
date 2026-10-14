@@ -98,7 +98,7 @@ Public `support_sections` list/show and nested section-pages are not registered 
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics` | AdminRoot `:view` | Host-registered Metrics index. Includes Support ticket and page metrics |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/open` | AdminRoot `:view` | Open tickets |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/unassigned_open` | AdminRoot `:view` | Open tickets with no assignee |
-| `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/oldest_open_age` | AdminRoot `:view` | Age in seconds of the oldest open ticket (`null` when none) |
+| `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/oldest_open_age` | AdminRoot `:view` | Age in seconds of the oldest open ticket (`value` omitted when there are none) |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/by_status` | AdminRoot `:view` | Tickets by status |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/by_priority` | AdminRoot `:view` | Tickets by priority |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/opened` | AdminRoot `:view` | Tickets opened (`created_at` series) |

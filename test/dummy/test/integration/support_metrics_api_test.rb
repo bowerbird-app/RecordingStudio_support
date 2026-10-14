@@ -123,14 +123,15 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "oldest open age is null and unassigned open is zero without open tickets" do
+  test "oldest open age has no value and unassigned open is zero without open tickets" do
     RecordingStudioSupport::SupportTicket.open.find_each { |ticket| ticket.update!(status: :resolved) }
 
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/oldest_open_age",
         headers: auth(@staff_operations_token),
         as: :json
     assert_response :success
-    assert_nil response.parsed_body.fetch("value")
+    assert_equal "seconds", response.parsed_body.fetch("unit")
+    refute response.parsed_body.key?("value"), "no open tickets means no age value"
 
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/unassigned_open",
         headers: auth(@staff_operations_token),

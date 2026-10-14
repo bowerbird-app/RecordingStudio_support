@@ -15,7 +15,8 @@ Support queue metrics on the operations API.
 - `support_tickets.unassigned_open` (count): open tickets (`status: "open"`,
   same scope as `support_tickets.open`) with no assignee (`assignee_id` is nil).
 - `support_tickets.oldest_open_age` (scalar, unit `seconds`): seconds since the
-  `created_at` of the oldest open ticket. `null` when there are no open tickets.
+  `created_at` of the oldest open ticket. With no open tickets the value is empty, so the
+  JSON response omits `value`.
 - Both are site-wide, exposed to `:operations`, and use the same AdminRoot
   `:view` check (`Api::Access.can_view_metrics?`) as the existing Support metrics.
 
