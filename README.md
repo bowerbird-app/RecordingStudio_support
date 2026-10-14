@@ -370,6 +370,7 @@ Bearer token: public `POST /recording_studio_api/oauth/token`; operations `POST 
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/opened` |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/avg_time_to_resolve` |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_pages/total` |
+| `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_page_views/over_time` |
 
 Support registers those metrics with Recording Studio Metrics. The host exposes them once:
 
@@ -382,6 +383,8 @@ Staff with AdminRoot `:view` can read them. A public token or a non-admin operat
 `group_by` (Metrics 0.3): `support_tickets.open` and `support_tickets.unassigned_open` accept `group_by=priority`; `support_tickets.opened` accepts `group_by=status` or `group_by=priority` with `from`/`to`/`interval`. Groups with fewer than 5 tickets fold into `other`, so groups plus `other` equal the total. `oldest_open_age`, `by_status` and `by_priority` take no `group_by`. There is no assignee grouping and no metric filters (Support has no ticket list endpoint whose filters they could mirror). The catalog lists `group_by`, `min_group_size`, `date_range`, `timezone` and `freshness` for each metric.
 
 `support_tickets.avg_time_to_resolve` (unit `seconds`) is the mean of `resolved_at - created_at` for tickets in the `resolved` status, bucketed by `resolved_at`, with `from`/`to`/`interval`. A bucket with no resolutions is `null`, not 0. It accepts `group_by=priority` (the same queue grouping and 5-ticket fold as `open`). A reopened ticket clears `resolved_at` and counts again from its next resolution. There are no filters, as above.
+
+`support_page_views.over_time` (unit `views`) counts `PageView` rows (one per signed-in or public page show) by `created_at`, with `from`/`to`/`interval`. Views are not de-duplicated by visitor, and there is no `group_by` or filter, so no viewer or page identity is exposed.
 
 `GET support_pages?q=` on public uses `Pages.for_root` / `SupportPage.search`. There is no `GET support/search`. Instant UI is not used.
 

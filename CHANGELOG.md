@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.21.0] - 2026-10-14
+
+### Added
+- `support_page_views.over_time`: Support page views (`PageView` rows) by `created_at`. No migration.
+
 ## [0.20.0] - 2026-10-14
 
 ### Added

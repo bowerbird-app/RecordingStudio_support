@@ -226,6 +226,29 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
+  test "support_page_views.over_time counts page views by created_at" do
+    recording_id = SecureRandom.uuid
+    [Time.utc(2025, 3, 5, 9), Time.utc(2025, 3, 5, 15), Time.utc(2025, 3, 6, 9)].each do |at|
+      RecordingStudioSupport::PageView.create!(recording_id: recording_id, created_at: at)
+    end
+
+    get "#{OPERATIONS_ROOT}/metrics/support_page_views/over_time",
+        params: { interval: "day", from: "2025-03-05T00:00:00Z", to: "2025-03-07T00:00:00Z", timezone: "UTC" },
+        headers: auth(@staff_operations_token), as: :json
+    assert_response :success
+    body = response.parsed_body
+    assert_equal "views", body.fetch("unit")
+    assert_equal "Support page views", body.fetch("title")
+    values = timeseries_counts(body)
+    assert_equal 2, values.fetch("2025-03-05")
+    assert_equal 1, values.fetch("2025-03-06")
+
+    get "#{OPERATIONS_ROOT}/metrics/support_page_views/over_time",
+        params: { interval: "day", group_by: "actor_id" },
+        headers: auth(@staff_operations_token), as: :json
+    assert_response :unprocessable_entity
+  end
+
   test "group_by rejects unsupported and non-groupable metrics" do
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/open",
         params: { group_by: "assignee_id" },
@@ -279,6 +302,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
       support_tickets.opened
       support_tickets.avg_time_to_resolve
       support_pages.total
+      support_page_views.over_time
     ].each { |identifier| assert_includes identifiers, identifier }
   end
 
