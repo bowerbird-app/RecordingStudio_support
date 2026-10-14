@@ -1,5 +1,10 @@
 # Upgrade notes
 
+
+## 0.20.0
+
+No migration. Adds `support_tickets.avg_time_to_resolve`.
+
 ## 0.19.0
 
 Section list search (`Sections.for_root` / `Sections.public_index` / Admin

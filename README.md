@@ -368,6 +368,7 @@ Bearer token: public `POST /recording_studio_api/oauth/token`; operations `POST 
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/by_status` |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/by_priority` |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/opened` |
+| `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/avg_time_to_resolve` |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_pages/total` |
 
 Support registers those metrics with Recording Studio Metrics. The host exposes them once:
@@ -379,6 +380,8 @@ RecordingStudioMetrics::Api.register!(api: :operations)
 Staff with AdminRoot `:view` can read them. A public token or a non-admin operations token is denied. `support_pages.total` counts live page recordings (`Admin::Queries.kept_page_recordings`), not SupportPage snapshots. `support_tickets.unassigned_open` counts open tickets (`status: "open"`) with no assignee. `support_tickets.oldest_open_age` is the age in seconds of the oldest open ticket (`value` omitted when there are none). Results use the Metrics cache (default 5 minutes), so the age can lag by up to that TTL.
 
 `group_by` (Metrics 0.3): `support_tickets.open` and `support_tickets.unassigned_open` accept `group_by=priority`; `support_tickets.opened` accepts `group_by=status` or `group_by=priority` with `from`/`to`/`interval`. Groups with fewer than 5 tickets fold into `other`, so groups plus `other` equal the total. `oldest_open_age`, `by_status` and `by_priority` take no `group_by`. There is no assignee grouping and no metric filters (Support has no ticket list endpoint whose filters they could mirror). The catalog lists `group_by`, `min_group_size`, `date_range`, `timezone` and `freshness` for each metric.
+
+`support_tickets.avg_time_to_resolve` (unit `seconds`) is the mean of `resolved_at - created_at` for tickets in the `resolved` status, bucketed by `resolved_at`, with `from`/`to`/`interval`. A bucket with no resolutions is `null`, not 0. It accepts `group_by=priority` (the same queue grouping and 5-ticket fold as `open`). A reopened ticket clears `resolved_at` and counts again from its next resolution. There are no filters, as above.
 
 `GET support_pages?q=` on public uses `Pages.for_root` / `SupportPage.search`. There is no `GET support/search`. Instant UI is not used.
 
