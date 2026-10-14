@@ -100,6 +100,134 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     assert_operator RecordingStudioSupport::SupportPage.count, :>, live_pages
   end
 
+  test "operations staff token reads support queue metrics" do
+    open_tickets = RecordingStudioSupport::SupportTicket.open
+    get "#{OPERATIONS_ROOT}/metrics/support_tickets/unassigned_open",
+        headers: auth(@staff_operations_token),
+        as: :json
+    assert_response :success
+    assert_equal open_tickets.where(assignee_id: nil).count, response.parsed_body.fetch("value")
+    assert_equal "count", response.parsed_body.fetch("unit")
+    assert_operator response.parsed_body.fetch("value"), :>=, 1
+    assert_operator response.parsed_body.fetch("value"), :<, open_tickets.count
+
+    travel_to Time.utc(2026, 4, 1, 12) do
+      get "#{OPERATIONS_ROOT}/metrics/support_tickets/oldest_open_age",
+          headers: auth(@staff_operations_token),
+          as: :json
+      assert_response :success
+      expected = (Time.current - open_tickets.minimum(:created_at)).to_i
+      assert_equal expected, response.parsed_body.fetch("value")
+      assert_equal "seconds", response.parsed_body.fetch("unit")
+      assert_operator response.parsed_body.fetch("value"), :>=, (Time.current - Time.utc(2026, 2, 10, 12)).to_i
+    end
+  end
+
+  test "oldest open age has no value and unassigned open is zero without open tickets" do
+    RecordingStudioSupport::SupportTicket.open.find_each { |ticket| ticket.update!(status: :resolved) }
+
+    get "#{OPERATIONS_ROOT}/metrics/support_tickets/oldest_open_age",
+        headers: auth(@staff_operations_token),
+        as: :json
+    assert_response :success
+    assert_equal "seconds", response.parsed_body.fetch("unit")
+    refute response.parsed_body.key?("value"), "no open tickets means no age value"
+
+    get "#{OPERATIONS_ROOT}/metrics/support_tickets/unassigned_open",
+        headers: auth(@staff_operations_token),
+        as: :json
+    assert_response :success
+    assert_equal 0, response.parsed_body.fetch("value")
+  end
+
+  test "open and unassigned open group by priority and fold small groups into other" do
+    seed_high_priority_queue!
+
+    %w[open unassigned_open].each do |name|
+      get "#{OPERATIONS_ROOT}/metrics/support_tickets/#{name}",
+          params: { group_by: "priority" },
+          headers: auth(@staff_operations_token),
+          as: :json
+      assert_response :success
+      body = response.parsed_body
+      relation = RecordingStudioSupport::SupportTicket.open
+      relation = relation.where(assignee_id: nil) if name == "unassigned_open"
+      counts = relation.group(:priority).count
+
+      assert_equal "priority", body.fetch("group_by")
+      assert_equal relation.count, body.fetch("value")
+      groups = body.fetch("groups").to_h { |row| [row.fetch("key"), row.fetch("value")] }
+      assert_equal counts["high"], groups["high"]
+      counts.each { |key, count| assert_not groups.key?(key) if count < 5 }
+      assert_equal body.fetch("value"), groups.values.sum + body.dig("other", "value").to_i
+      small = counts.values.select { |count| count < 5 }
+      assert_equal small.sum, body.dig("other", "value").to_i
+      assert_operator small.size, :>=, 1
+    end
+  end
+
+  test "opened time series groups by status and priority with other fold" do
+    seed_high_priority_queue!
+
+    %w[status priority].each do |field|
+      get "#{OPERATIONS_ROOT}/metrics/support_tickets/opened",
+          params: { interval: "month", group_by: field, from: "2026-02-01", to: "2026-04-01" },
+          headers: auth(@staff_operations_token),
+          as: :json
+      assert_response :success
+      body = response.parsed_body
+      assert_equal field, body.fetch("group_by")
+      totals = timeseries_counts(body)
+      kept = body.fetch("groups").map { |row| row.fetch("key") }
+      other = body.fetch("other")
+      assert other.present?, "groups below min_group_size fold into other for #{field}"
+      totals.each do |date, total|
+        grouped = body.fetch("groups").sum { |row| series_value(row.fetch("data"), date) }
+        assert_equal total, grouped + series_value(other.fetch("data"), date)
+      end
+      window = RecordingStudioSupport::SupportTicket.where(created_at: Time.utc(2026, 2, 1)...Time.utc(2026, 4, 1))
+      window.group(field).count.each do |key, count|
+        count >= 5 ? assert_includes(kept, key) : refute_includes(kept, key)
+      end
+    end
+  end
+
+  test "group_by rejects unsupported and non-groupable metrics" do
+    get "#{OPERATIONS_ROOT}/metrics/support_tickets/open",
+        params: { group_by: "assignee_id" },
+        headers: auth(@staff_operations_token),
+        as: :json
+    assert_response :unprocessable_entity
+
+    get "#{OPERATIONS_ROOT}/metrics/support_tickets/oldest_open_age",
+        params: { group_by: "priority" },
+        headers: auth(@staff_operations_token),
+        as: :json
+    assert_response :unprocessable_entity
+  end
+
+  test "catalog lists group_by, date range and freshness for ticket metrics" do
+    get "#{OPERATIONS_ROOT}/metrics", headers: auth(@staff_operations_token), as: :json
+    assert_response :success
+    catalog = response.parsed_body.fetch("metrics").index_by { |row| row.fetch("identifier") }
+
+    assert_equal %w[priority], catalog.dig("support_tickets.open", "group_by")
+    assert_equal %w[priority], catalog.dig("support_tickets.unassigned_open", "group_by")
+    assert_equal %w[status priority], catalog.dig("support_tickets.opened", "group_by")
+    assert_equal [], catalog.dig("support_tickets.oldest_open_age", "group_by")
+    assert_equal [], catalog.dig("support_tickets.by_status", "group_by")
+    assert_equal 5, catalog.dig("support_tickets.open", "min_group_size")
+    assert_equal "seconds", catalog.dig("support_tickets.oldest_open_age", "unit")
+    assert_equal true, catalog.dig("support_tickets.opened", "date_range", "supported")
+    assert_equal false, catalog.dig("support_tickets.open", "date_range", "supported")
+    catalog.each_value do |entry|
+      next unless entry.fetch("identifier").start_with?("support_tickets.")
+
+      assert entry.key?("timezone")
+      assert entry.key?("freshness")
+    end
+  end
+
   test "metrics index lists support ticket and page metrics" do
     get "#{OPERATIONS_ROOT}/metrics", headers: auth(@staff_operations_token), as: :json
 
@@ -107,6 +235,8 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     identifiers = response.parsed_body.fetch("metrics").map { |row| row.fetch("identifier") }
     %w[
       support_tickets.open
+      support_tickets.unassigned_open
+      support_tickets.oldest_open_age
       support_tickets.by_status
       support_tickets.by_priority
       support_tickets.opened
@@ -115,6 +245,13 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
   end
 
   test "non-admin operations token is denied support metrics" do
+    %w[unassigned_open oldest_open_age].each do |name|
+      get "#{OPERATIONS_ROOT}/metrics/support_tickets/#{name}",
+          headers: auth(@workspace_operations_token),
+          as: :json
+      assert_response :forbidden
+    end
+
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/open",
         headers: auth(@workspace_operations_token),
         as: :json
@@ -129,10 +266,17 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     assert_response :success
     identifiers = response.parsed_body.fetch("metrics").map { |row| row.fetch("identifier") }
     refute_includes identifiers, "support_tickets.open"
+    refute_includes identifiers, "support_tickets.unassigned_open"
+    refute_includes identifiers, "support_tickets.oldest_open_age"
     refute_includes identifiers, "support_pages.total"
   end
 
   test "public API token is denied operations support metrics" do
+    get "#{OPERATIONS_ROOT}/metrics/support_tickets/oldest_open_age",
+        headers: auth(@public_token),
+        as: :json
+    assert_response :unauthorized
+
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/open",
         headers: auth(@public_token),
         as: :json
@@ -175,6 +319,13 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
         priority: :normal
       )
       resolved.update!(status: :resolved)
+      assigned = RecordingStudioSupport::Tickets.open!(
+        actor: @patron,
+        subject: "March assigned #{SecureRandom.hex(4)}",
+        body: "On it.",
+        priority: :normal
+      )
+      assigned.update!(assignee: @staff)
     end
   end
 
@@ -199,6 +350,29 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     RecordingStudioSupport::Pages.trash!(recording: trashed, actor: @staff)
 
     @live_page = live
+  end
+
+  def seed_high_priority_queue!
+    travel_to Time.utc(2026, 3, 20, 12) do
+      5.times do |index|
+        RecordingStudioSupport::Tickets.open!(
+          actor: @patron,
+          subject: "Queue high #{index} #{SecureRandom.hex(4)}",
+          body: "Urgent.",
+          priority: :high
+        )
+      end
+      RecordingStudioSupport::Tickets.open!(
+        actor: @patron,
+        subject: "Queue low #{SecureRandom.hex(4)}",
+        body: "Whenever.",
+        priority: :low
+      )
+    end
+  end
+
+  def series_value(rows, date)
+    rows.find { |row| row.fetch("date").to_s == date }&.fetch("value").to_i
   end
 
   def breakdown_counts(payload)

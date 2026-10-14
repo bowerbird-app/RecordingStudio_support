@@ -20,7 +20,7 @@ gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publi
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"
 gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.4.0"
 gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.5.2"
-gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.2.3"
+gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.3.1"
 gem "recording_studio_notifications", github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.7.0"
 gem "recording_studio_notifications_email",
     github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.4"
@@ -44,7 +44,7 @@ gem "recording_studio_publishable", "~> 0.4"
 gem "recording_studio_search", "~> 0.6"
 gem "recording_studio_moveable", "~> 3.2"
 gem "recording_studio_messages", "~> 0.5"
-gem "recording_studio_metrics", "~> 0.2"
+gem "recording_studio_metrics", "~> 0.3"
 gem "recording_studio_notifications", ">= 0.3.1", "< 1"
 gem "recording_studio_notifications_email", "~> 0.3.1"
 ```
@@ -363,6 +363,8 @@ Bearer token: public `POST /recording_studio_api/oauth/token`; operations `POST 
 | `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/unpublish` |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics` |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/open` |
+| `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/unassigned_open` |
+| `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/oldest_open_age` |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/by_status` |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/by_priority` |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/opened` |
@@ -374,7 +376,9 @@ Support registers those metrics with Recording Studio Metrics. The host exposes 
 RecordingStudioMetrics::Api.register!(api: :operations)
 ```
 
-Staff with AdminRoot `:view` can read them. A public token or a non-admin operations token is denied. `support_pages.total` counts live page recordings (`Admin::Queries.kept_page_recordings`), not SupportPage snapshots.
+Staff with AdminRoot `:view` can read them. A public token or a non-admin operations token is denied. `support_pages.total` counts live page recordings (`Admin::Queries.kept_page_recordings`), not SupportPage snapshots. `support_tickets.unassigned_open` counts open tickets (`status: "open"`) with no assignee. `support_tickets.oldest_open_age` is the age in seconds of the oldest open ticket (`value` omitted when there are none). Results use the Metrics cache (default 5 minutes), so the age can lag by up to that TTL.
+
+`group_by` (Metrics 0.3): `support_tickets.open` and `support_tickets.unassigned_open` accept `group_by=priority`; `support_tickets.opened` accepts `group_by=status` or `group_by=priority` with `from`/`to`/`interval`. Groups with fewer than 5 tickets fold into `other`, so groups plus `other` equal the total. `oldest_open_age`, `by_status` and `by_priority` take no `group_by`. There is no assignee grouping and no metric filters (Support has no ticket list endpoint whose filters they could mirror). The catalog lists `group_by`, `min_group_size`, `date_range`, `timezone` and `freshness` for each metric.
 
 `GET support_pages?q=` on public uses `Pages.for_root` / `SupportPage.search`. There is no `GET support/search`. Instant UI is not used.
 
