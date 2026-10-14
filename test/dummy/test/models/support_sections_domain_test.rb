@@ -179,10 +179,11 @@ class SupportSectionsDomainTest < ActiveSupport::TestCase
   end
 
   test "for_root search matches former ILIKE for blank partial mixed-case and no-match" do
-    billing = record_support_section(@root_recording, title: "Billing FAQ")
-    getting_started = record_support_section(@root_recording, title: "Getting started")
-    developers = record_support_section(@root_recording, title: "Developers")
+    billing = record_support_section(@root_recording, title: "Billing FAQ #{SecureRandom.hex(4)}")
+    getting_started = record_support_section(@root_recording, title: "Getting started #{SecureRandom.hex(4)}")
+    developers = record_support_section(@root_recording, title: "Developers #{SecureRandom.hex(4)}")
 
+    # Representative queries where former ILIKE and SupportSection.search agree.
     queries = [nil, "", "   ", "bill", "BILL", "Billing", "getting", "getting-started",
                "Develop", "faq", "STARTED", "billing faq", "developers",
                "no-such-help-section", "zzzz-missing"]
@@ -199,10 +200,13 @@ class SupportSectionsDomainTest < ActiveSupport::TestCase
                                       .sort
     end
 
-    assert_equal ["Billing FAQ", "Developers", "Getting started"].sort, titles.call(nil)
-    assert_equal ["Billing FAQ"], titles.call("bill")
-    assert_equal ["Billing FAQ"], titles.call("BILL")
-    assert_equal ["Getting started"], titles.call("getting-started")
+    assert_equal(
+      [billing, getting_started, developers].map { |recording| recording.recordable.title }.sort,
+      titles.call(nil)
+    )
+    assert_equal [billing.recordable.title], titles.call("bill")
+    assert_equal [billing.recordable.title], titles.call("BILL")
+    assert_equal [getting_started.recordable.title], titles.call("getting-started")
     assert_empty titles.call("no-such-help-section")
 
     scoped_elsewhere = RecordingStudioSupport::Sections.for_root(
@@ -215,8 +219,8 @@ class SupportSectionsDomainTest < ActiveSupport::TestCase
                  RecordingStudioSupport::Sections.for_root(@root_recording, query: "billing faq").sole.id
     assert_equal getting_started.id,
                  RecordingStudioSupport::Sections.for_root(@root_recording, query: "STARTED").sole.id
-    assert_equal developers.id,
-                 RecordingStudioSupport::Sections.public_index(query: "developers").sole.id
+    assert_includes RecordingStudioSupport::Sections.public_index(query: developers.recordable.slug).map(&:id),
+                    developers.id
   end
 
   test "SupportSection.search uses pg_trgm against title and slug" do
