@@ -192,6 +192,40 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "avg time to resolve averages open-to-resolved seconds by resolved_at" do
+    RecordingStudioSupport::SupportTicket.delete_all
+    resolve_after!(Time.utc(2026, 3, 1, 12), 2.hours, :normal)
+    resolve_after!(Time.utc(2026, 3, 1, 12), 4.hours, :normal)
+    resolve_after!(Time.utc(2026, 1, 1, 12), 10.hours, :high)
+    travel_to(Time.utc(2026, 3, 2, 12)) do
+      RecordingStudioSupport::Tickets.open!(actor: @patron, subject: "Open #{SecureRandom.hex(4)}", body: "x",
+                                            priority: :normal)
+    end
+
+    get "#{OPERATIONS_ROOT}/metrics/support_tickets/avg_time_to_resolve",
+        params: { interval: "month", from: "2026-02-01", to: "2026-04-01" },
+        headers: auth(@staff_operations_token), as: :json
+    assert_response :success
+    body = response.parsed_body
+    assert_equal "seconds", body.fetch("unit")
+    assert_equal "Average time to resolve", body.fetch("title")
+    assert body.fetch("description").present?
+    values = timeseries_counts(body)
+    assert_in_delta 3.hours.to_i, values.fetch("2026-03-01").to_f, 1
+    assert_nil values["2026-01-01"]
+
+    get "#{OPERATIONS_ROOT}/metrics/support_tickets/avg_time_to_resolve",
+        params: { interval: "month", from: "2026-02-01", to: "2026-04-01", group_by: "priority" },
+        headers: auth(@staff_operations_token), as: :json
+    assert_response :success
+    assert_equal "priority", response.parsed_body.fetch("group_by")
+
+    get "#{OPERATIONS_ROOT}/metrics/support_tickets/avg_time_to_resolve",
+        params: { interval: "month", group_by: "assignee_id" },
+        headers: auth(@staff_operations_token), as: :json
+    assert_response :unprocessable_entity
+  end
+
   test "group_by rejects unsupported and non-groupable metrics" do
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/open",
         params: { group_by: "assignee_id" },
@@ -214,6 +248,9 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     assert_equal %w[priority], catalog.dig("support_tickets.open", "group_by")
     assert_equal %w[priority], catalog.dig("support_tickets.unassigned_open", "group_by")
     assert_equal %w[status priority], catalog.dig("support_tickets.opened", "group_by")
+    assert_equal %w[priority], catalog.dig("support_tickets.avg_time_to_resolve", "group_by")
+    assert_equal "seconds", catalog.dig("support_tickets.avg_time_to_resolve", "unit")
+    assert_equal true, catalog.dig("support_tickets.avg_time_to_resolve", "date_range", "supported")
     assert_equal [], catalog.dig("support_tickets.oldest_open_age", "group_by")
     assert_equal [], catalog.dig("support_tickets.by_status", "group_by")
     assert_equal 5, catalog.dig("support_tickets.open", "min_group_size")
@@ -240,6 +277,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
       support_tickets.by_status
       support_tickets.by_priority
       support_tickets.opened
+      support_tickets.avg_time_to_resolve
       support_pages.total
     ].each { |identifier| assert_includes identifiers, identifier }
   end
@@ -369,6 +407,14 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
         priority: :low
       )
     end
+  end
+
+  def resolve_after!(opened_at, duration, priority)
+    ticket = travel_to(opened_at) do
+      RecordingStudioSupport::Tickets.open!(actor: @patron, subject: "Resolved #{SecureRandom.hex(4)}", body: "x",
+                                            priority: priority)
+    end
+    travel_to(opened_at + duration) { ticket.update!(status: :resolved) }
   end
 
   def series_value(rows, date)

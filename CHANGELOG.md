@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.20.0] - 2026-10-14
+
+### Added
+- `support_tickets.avg_time_to_resolve` (timeseries, unit `seconds`): mean seconds from `created_at` to `resolved_at` for resolved tickets, bucketed by `resolved_at`. Takes `from` / `to` / `interval` and `group_by=priority` (groups under `min_group_size` 5 fold into `other`). No filters (Support has no ticket list endpoint). Same site scope, `:operations` exposure and staff metrics check as the other ticket metrics. No migration.
+
 ## [0.19.0] - 2026-10-14
 
 Route help-section list search through Recording Studio Search instead of hand-rolled `ILIKE`.

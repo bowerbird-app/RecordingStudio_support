@@ -19,6 +19,10 @@ module RecordingStudioSupport
     end
     QUEUE_GROUPS = %i[priority].freeze
     TICKET_GROUPS = %i[status priority].freeze
+    RESOLVED = ->(relation) { relation.where(status: "resolved").where.not(resolved_at: nil) }
+    RESOLVE_SECONDS = Arel.sql("EXTRACT(EPOCH FROM (resolved_at - created_at))")
+    AVG_RESOLVE_DESCRIPTION = "Mean seconds from opening to resolution for tickets resolved in each " \
+                              "period, by resolved_at. Reopened tickets count from their latest resolution."
     LIVE_PAGES = ->(relation) { relation.merge(RecordingStudioSupport::Admin::Queries.kept_page_recordings) }
 
     module_function
@@ -56,6 +60,14 @@ module RecordingStudioSupport
       dsl.breakdown :by_status, title: "Tickets by status", field: :status, expose: EXPOSE
       dsl.breakdown :by_priority, title: "Tickets by priority", field: :priority, expose: EXPOSE
       dsl.timeseries :opened, title: "Tickets opened", field: :created_at, expose: EXPOSE, group_by: TICKET_GROUPS
+      define_avg_time_to_resolve(dsl)
+    end
+
+    def define_avg_time_to_resolve(dsl)
+      dsl.timeseries :avg_time_to_resolve, title: "Average time to resolve", description: AVG_RESOLVE_DESCRIPTION,
+                                           unit: "seconds", field: :resolved_at, measurement: :average,
+                                           value_field: RESOLVE_SECONDS, semantics: "records_resolved_during_period",
+                                           scope: RESOLVED, group_by: QUEUE_GROUPS, expose: EXPOSE
     end
 
     def define_pages(dsl)
