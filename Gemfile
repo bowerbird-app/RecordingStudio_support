@@ -9,7 +9,7 @@ gemspec
 # Attachable 0.12+ needs flat_pack >= 0.1.213 (smallest resolving tag).
 gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.213"
 gem "recording_studio", "~> 4.2", github: "bowerbird-app/RecordingStudio", tag: "v4.6.0"
-gem "recording_studio_accessible", "~> 0.11", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.17.0"
+gem "recording_studio_accessible", "~> 0.11", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.18.0"
 gem "recording_studio_admin", "~> 2.0", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.3.0"
 gem "recording_studio_attachable", "~> 0.7", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.15.0"
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"
