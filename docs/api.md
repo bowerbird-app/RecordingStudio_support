@@ -125,7 +125,7 @@ Recording Studio API also returns recording ids, type, and relationship metadata
 
 ## Search
 
-There is no `GET support/search`. Public `GET …/support_pages?q=` uses `Pages.for_root` / `SupportPage.search`. Nested operations `GET …/support_sections/:parent_id/pages?q=` uses `Pages.for_section`. Public workspace-only tokens hide drafts and stay scoped to that client’s workspace root. Operations AdminRoot `:view` readers see drafts.
+There is no `GET support/search`. Public `GET …/support_pages?q=` uses `Pages.for_root` / `SupportPage.search`. Operations `GET …/support_sections?q=` uses `Sections.for_root` / `SupportSection.search` (trigram on title and slug). Nested operations `GET …/support_sections/:parent_id/pages?q=` uses `Pages.for_section`. Public workspace-only tokens hide drafts and stay scoped to that client’s workspace root. Operations AdminRoot `:view` readers see drafts.
 
 ## Examples
 

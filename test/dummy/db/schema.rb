@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_10_000014) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_14_080000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -473,7 +473,11 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_10_000014) do
     t.string "icon"
     t.string "slug", null: false
     t.string "title", null: false
+    t.virtual "search_vector", type: :tsvector, as: "(setweight(to_tsvector('english'::regconfig, COALESCE((title)::text, ''::text)), 'A'::\"char\") || setweight(to_tsvector('english'::regconfig, COALESCE((slug)::text, ''::text)), 'B'::\"char\"))", stored: true
+    t.index ["search_vector"], name: "index_recording_studio_support_sections_on_search_vector", using: :gin
+    t.index ["slug"], name: "index_recording_studio_support_sections_on_slug_trgm", opclass: :gin_trgm_ops, using: :gin
     t.index ["slug"], name: "index_rs_support_sections_on_slug"
+    t.index ["title"], name: "index_recording_studio_support_sections_on_title_trgm", opclass: :gin_trgm_ops, using: :gin
   end
 
   create_table "recording_studio_support_tickets", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

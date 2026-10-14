@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.19.0] - 2026-10-14
+
+Route help-section list search through Recording Studio Search instead of hand-rolled `ILIKE`.
+
+### Changed
+- `SupportSection` includes `RecordingStudioSearch::Searchable` (`pg_trgm` against
+  `title` / `slug`).
+- `Sections.apply_query` uses `SupportSection.search` (same shape as
+  `Pages.apply_query` / `SupportPage.search`). The join + `ILIKE` path is gone.
+- Migration adds generated `search_vector` plus trigram indexes on
+  `recording_studio_support_sections`.
+
+### Upgrade notes
+- Bump to `0.19.0`.
+- Run `bin/rails generate recording_studio_support:migrations` and
+  `bin/rails db:migrate` for `search_vector` on support sections.
+- Search still depends on `recording_studio_search` `~> 0.6` (tag `v0.6.0`).
+- Matching is trigram / full-text (case-insensitive, partial/token), not SQL
+  `ILIKE '%term%'`. Representative blank, partial, mixed-case, and no-match
+  queries stay covered by domain tests.
+
 ## [0.18.0] - 2026-10-14
 
 Support queue metrics on the operations API.
@@ -808,7 +829,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.18.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.19.0...HEAD
+[0.19.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.16.1...v0.17.0
 [0.16.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.16.0...v0.16.1

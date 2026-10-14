@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.18.0", ::RecordingStudioSupport::VERSION
+    assert_equal "0.19.0", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -71,6 +71,7 @@ class RecordingStudioSupportTest < Minitest::Test
 
     assert_includes reference, "client_credentials"
     assert_includes reference, "SupportPage.search"
+    assert_includes reference, "SupportSection.search"
     assert_includes reference, "parent_id"
   end
 
@@ -141,6 +142,8 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes source, "RecordingStudio::Capabilities::Trashable.to"
     assert_includes source, "RecordingStudio::Capabilities::Orderable.to"
     assert_includes source, 'allows: ["RecordingStudioSupport::SupportPage"]'
+    assert_includes source, "RecordingStudioSearch::Searchable"
+    assert_includes source, "searchable backend: :pg_trgm, against: { title: \"A\", slug: \"B\" }"
     refute_includes source, "Capabilities::Attachable"
     refute_includes source, "Capabilities::Publishable"
     refute_includes source, "Capabilities::Moveable"

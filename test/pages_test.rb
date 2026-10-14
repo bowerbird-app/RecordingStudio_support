@@ -205,6 +205,15 @@ class PagesTest < Minitest::Test
     assert_includes pages, "SupportPage.search(term)"
     assert_includes pages, "relation.search(term)"
     refute_includes pages, "ILIKE"
+
+    sections = File.read(File.expand_path("../lib/recording_studio_support/sections.rb", __dir__))
+    support_section = File.read(
+      File.expand_path("../app/models/recording_studio_support/support_section.rb", __dir__)
+    )
+    assert_includes sections, "SupportSection.search(term)"
+    refute_includes sections, "ILIKE"
+    assert_includes support_section, "RecordingStudioSearch::Searchable"
+    assert_includes support_section, "searchable backend: :pg_trgm, against: { title: \"A\", slug: \"B\" }"
     refute_includes pages, "meta_robots"
     refute_includes pages, "noindex"
     assert_includes public_index, 'render "recording_studio_support/shared/search"'

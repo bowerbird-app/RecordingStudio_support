@@ -1,5 +1,27 @@
 # Upgrade notes
 
+## 0.19.0
+
+Section list search (`Sections.for_root` / `Sections.public_index` / Admin
+section table filter) uses `SupportSection.search` (`recording_studio_search`
+`pg_trgm` on title and slug). The hand-rolled `ILIKE` join is removed. Same
+Search pin as before (`~> 0.6`, tag `v0.6.0`).
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.19.0`.
+2. `bundle install`.
+3. Run `bin/rails generate recording_studio_support:migrations` and
+   `bin/rails db:migrate` for `search_vector` + trigram indexes on
+   `recording_studio_support_sections`.
+
+### Verify
+
+```bash
+bundle exec rake test:all
+cd test/dummy && bundle exec rails test test/models/support_sections_domain_test.rb
+```
+
 ## 0.18.0
 
 Adds `support_tickets.unassigned_open` and `support_tickets.oldest_open_age`
