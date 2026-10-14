@@ -363,6 +363,8 @@ Bearer token: public `POST /recording_studio_api/oauth/token`; operations `POST 
 | `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/unpublish` |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics` |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/open` |
+| `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/unassigned_open` |
+| `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/oldest_open_age` |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/by_status` |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/by_priority` |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/opened` |
@@ -374,7 +376,7 @@ Support registers those metrics with Recording Studio Metrics. The host exposes 
 RecordingStudioMetrics::Api.register!(api: :operations)
 ```
 
-Staff with AdminRoot `:view` can read them. A public token or a non-admin operations token is denied. `support_pages.total` counts live page recordings (`Admin::Queries.kept_page_recordings`), not SupportPage snapshots.
+Staff with AdminRoot `:view` can read them. A public token or a non-admin operations token is denied. `support_pages.total` counts live page recordings (`Admin::Queries.kept_page_recordings`), not SupportPage snapshots. `support_tickets.unassigned_open` counts open tickets (`status: "open"`) with no assignee. `support_tickets.oldest_open_age` is the age in seconds of the oldest open ticket (`null` when none). Results use the Metrics cache (default 5 minutes), so the age can lag by up to that TTL.
 
 `GET support_pages?q=` on public uses `Pages.for_root` / `SupportPage.search`. There is no `GET support/search`. Instant UI is not used.
 

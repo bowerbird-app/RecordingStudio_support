@@ -1,5 +1,15 @@
 # Upgrade notes
 
+## 0.18.0
+
+Adds `support_tickets.unassigned_open` and `support_tickets.oldest_open_age`
+(seconds) to the operations metrics. No migration, no new dependency.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.18.0`.
+2. `bundle install`.
+
 ## 0.17.0
 
 Pin Trashable `v0.9.0` (`~> 0.9`). The section slug uniqueness join uses

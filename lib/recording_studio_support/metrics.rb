@@ -12,6 +12,11 @@ module RecordingStudioSupport
     EXPOSE = { api: [API] }.freeze
     AUTHORIZE = ->(context) { RecordingStudioSupport::Api::Access.can_view_metrics?(context) }
     OPEN = ->(relation) { relation.where(status: "open") }
+    UNASSIGNED_OPEN = ->(relation) { OPEN.call(relation).where(assignee_id: nil) }
+    OLDEST_OPEN_AGE = lambda do |relation, _context|
+      oldest = relation.minimum(:created_at)
+      oldest && (Time.current - oldest).to_i
+    end
     LIVE_PAGES = ->(relation) { relation.merge(RecordingStudioSupport::Admin::Queries.kept_page_recordings) }
 
     module_function
@@ -42,6 +47,9 @@ module RecordingStudioSupport
 
     def define_tickets(dsl)
       dsl.count :open, title: "Open tickets", expose: EXPOSE, scope: OPEN
+      dsl.count :unassigned_open, title: "Unassigned open tickets", expose: EXPOSE, scope: UNASSIGNED_OPEN
+      dsl.custom :oldest_open_age, title: "Oldest open ticket age", result_type: :scalar, unit: "seconds",
+                                   expose: EXPOSE, scope: OPEN, &OLDEST_OPEN_AGE
       dsl.breakdown :by_status, title: "Tickets by status", field: :status, expose: EXPOSE
       dsl.breakdown :by_priority, title: "Tickets by priority", field: :priority, expose: EXPOSE
       dsl.timeseries :opened, title: "Tickets opened", field: :created_at, expose: EXPOSE

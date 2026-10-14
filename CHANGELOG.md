@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.18.0] - 2026-10-14
+
+Support queue metrics on the operations API.
+
+### Added
+- `support_tickets.unassigned_open` (count): open tickets (`status: "open"`,
+  same scope as `support_tickets.open`) with no assignee (`assignee_id` is nil).
+- `support_tickets.oldest_open_age` (scalar, unit `seconds`): seconds since the
+  `created_at` of the oldest open ticket. `null` when there are no open tickets.
+- Both are site-wide, exposed to `:operations`, and use the same AdminRoot
+  `:view` check (`Api::Access.can_view_metrics?`) as the existing Support metrics.
+
+### Upgrade notes
+- Bump to `0.18.0`. No migration. No new dependency.
+
 ## [0.17.0] - 2026-10-13
 
 Pin Trashable `v0.9.0` and route the section slug join through `kept_sql`.
@@ -780,7 +795,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.17.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.18.0...HEAD
+[0.18.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.16.1...v0.17.0
 [0.16.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.16.0...v0.16.1
 [0.16.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.15.0...v0.16.0

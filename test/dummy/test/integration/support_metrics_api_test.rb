@@ -100,6 +100,45 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     assert_operator RecordingStudioSupport::SupportPage.count, :>, live_pages
   end
 
+  test "operations staff token reads support queue metrics" do
+    open_tickets = RecordingStudioSupport::SupportTicket.open
+    get "#{OPERATIONS_ROOT}/metrics/support_tickets/unassigned_open",
+        headers: auth(@staff_operations_token),
+        as: :json
+    assert_response :success
+    assert_equal open_tickets.where(assignee_id: nil).count, response.parsed_body.fetch("value")
+    assert_equal "count", response.parsed_body.fetch("unit")
+    assert_operator response.parsed_body.fetch("value"), :>=, 1
+    assert_operator response.parsed_body.fetch("value"), :<, open_tickets.count
+
+    travel_to Time.utc(2026, 4, 1, 12) do
+      get "#{OPERATIONS_ROOT}/metrics/support_tickets/oldest_open_age",
+          headers: auth(@staff_operations_token),
+          as: :json
+      assert_response :success
+      expected = (Time.current - open_tickets.minimum(:created_at)).to_i
+      assert_equal expected, response.parsed_body.fetch("value")
+      assert_equal "seconds", response.parsed_body.fetch("unit")
+      assert_operator response.parsed_body.fetch("value"), :>=, (Time.current - Time.utc(2026, 2, 10, 12)).to_i
+    end
+  end
+
+  test "oldest open age is null and unassigned open is zero without open tickets" do
+    RecordingStudioSupport::SupportTicket.open.find_each { |ticket| ticket.update!(status: :resolved) }
+
+    get "#{OPERATIONS_ROOT}/metrics/support_tickets/oldest_open_age",
+        headers: auth(@staff_operations_token),
+        as: :json
+    assert_response :success
+    assert_nil response.parsed_body.fetch("value")
+
+    get "#{OPERATIONS_ROOT}/metrics/support_tickets/unassigned_open",
+        headers: auth(@staff_operations_token),
+        as: :json
+    assert_response :success
+    assert_equal 0, response.parsed_body.fetch("value")
+  end
+
   test "metrics index lists support ticket and page metrics" do
     get "#{OPERATIONS_ROOT}/metrics", headers: auth(@staff_operations_token), as: :json
 
@@ -107,6 +146,8 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     identifiers = response.parsed_body.fetch("metrics").map { |row| row.fetch("identifier") }
     %w[
       support_tickets.open
+      support_tickets.unassigned_open
+      support_tickets.oldest_open_age
       support_tickets.by_status
       support_tickets.by_priority
       support_tickets.opened
@@ -115,6 +156,13 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
   end
 
   test "non-admin operations token is denied support metrics" do
+    %w[unassigned_open oldest_open_age].each do |name|
+      get "#{OPERATIONS_ROOT}/metrics/support_tickets/#{name}",
+          headers: auth(@workspace_operations_token),
+          as: :json
+      assert_response :forbidden
+    end
+
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/open",
         headers: auth(@workspace_operations_token),
         as: :json
@@ -129,10 +177,17 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     assert_response :success
     identifiers = response.parsed_body.fetch("metrics").map { |row| row.fetch("identifier") }
     refute_includes identifiers, "support_tickets.open"
+    refute_includes identifiers, "support_tickets.unassigned_open"
+    refute_includes identifiers, "support_tickets.oldest_open_age"
     refute_includes identifiers, "support_pages.total"
   end
 
   test "public API token is denied operations support metrics" do
+    get "#{OPERATIONS_ROOT}/metrics/support_tickets/oldest_open_age",
+        headers: auth(@public_token),
+        as: :json
+    assert_response :unauthorized
+
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/open",
         headers: auth(@public_token),
         as: :json
@@ -175,6 +230,13 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
         priority: :normal
       )
       resolved.update!(status: :resolved)
+      assigned = RecordingStudioSupport::Tickets.open!(
+        actor: @patron,
+        subject: "March assigned #{SecureRandom.hex(4)}",
+        body: "On it.",
+        priority: :normal
+      )
+      assigned.update!(assignee: @staff)
     end
   end
 

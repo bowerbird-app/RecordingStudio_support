@@ -15,6 +15,11 @@ class MetricsTest < Minitest::Test
     assert_includes metrics, "RecordingStudioSupport::SupportTicket"
     assert_includes metrics, "count :open"
     assert_includes metrics, 'relation.where(status: "open")'
+    assert_includes metrics, "count :unassigned_open"
+    assert_includes metrics, "where(assignee_id: nil)"
+    assert_includes metrics, "custom :oldest_open_age"
+    assert_includes metrics, 'unit: "seconds"'
+    assert_includes metrics, "minimum(:created_at)"
     assert_includes metrics, "breakdown :by_status"
     assert_includes metrics, "field: :status"
     assert_includes metrics, "breakdown :by_priority"
