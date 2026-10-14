@@ -3,12 +3,14 @@
 ## 0.18.0
 
 Adds `support_tickets.unassigned_open` and `support_tickets.oldest_open_age`
-(seconds) to the operations metrics. No migration, no new dependency.
+(seconds) to the operations metrics, and `group_by` on the ticket count and
+time series metrics. Requires Recording Studio Metrics `~> 0.3`. No migration.
 
 ### Host app
 
 1. Bump `recording_studio_support` to `0.18.0`.
-2. `bundle install`.
+2. Pin `recording_studio_metrics` to tag `v0.3.1` (`~> 0.3`).
+3. `bundle install`.
 
 ## 0.17.0
 

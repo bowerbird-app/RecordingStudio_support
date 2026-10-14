@@ -20,6 +20,9 @@ class MetricsTest < Minitest::Test
     assert_includes metrics, "custom :oldest_open_age"
     assert_includes metrics, 'unit: "seconds"'
     assert_includes metrics, "minimum(:created_at)"
+    assert_includes metrics, "QUEUE_GROUPS = %i[priority]"
+    assert_includes metrics, "TICKET_GROUPS = %i[status priority]"
+    refute_includes metrics, "assignee_id]"
     assert_includes metrics, "breakdown :by_status"
     assert_includes metrics, "field: :status"
     assert_includes metrics, "breakdown :by_priority"
@@ -43,7 +46,7 @@ class MetricsTest < Minitest::Test
     refute_includes engine, "RecordingStudioMetrics::Api.register!"
     refute_includes prepares, "RecordingStudioMetrics::Api.register!"
 
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_metrics", "~> 0.2"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_metrics", "~> 0.3"'
     assert_includes dummy_metrics, "RecordingStudioMetrics::Api.register!(api: :operations)"
   end
 end

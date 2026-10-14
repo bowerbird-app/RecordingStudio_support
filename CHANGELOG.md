@@ -19,9 +19,21 @@ Support queue metrics on the operations API.
   JSON response omits `value`.
 - Both are site-wide, exposed to `:operations`, and use the same AdminRoot
   `:view` check (`Api::Access.can_view_metrics?`) as the existing Support metrics.
+- `group_by` on Support ticket metrics (Recording Studio Metrics 0.3):
+  `support_tickets.open` and `support_tickets.unassigned_open` group by `priority`;
+  `support_tickets.opened` groups by `status` or `priority` and takes `from`/`to`/`interval`.
+  Groups under the default `min_group_size` (5) fold into `other`, so groups plus
+  `other` equal the total. `oldest_open_age` (custom) and the `by_status`/`by_priority`
+  breakdowns cannot take `group_by` in Metrics 0.3. No assignee grouping.
+- Catalog entries now carry Metrics 0.3 `group_by`, `min_group_size`, `date_range`,
+  `timezone` and `freshness` (cache-derived, 5 minutes by default).
+
+### Changed
+- Runtime dependency `recording_studio_metrics` `~> 0.3` (GitHub tag `v0.3.1`, gem 0.3.0).
 
 ### Upgrade notes
-- Bump to `0.18.0`. No migration. No new dependency.
+- Bump to `0.18.0`. No migration.
+- Pin `recording_studio_metrics` to tag `v0.3.1` (`~> 0.3`).
 
 ## [0.17.0] - 2026-10-13
 
