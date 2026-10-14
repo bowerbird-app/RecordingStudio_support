@@ -178,7 +178,76 @@ class SupportSectionsDomainTest < ActiveSupport::TestCase
     assert_equal "#{title.parameterize}-2", second.recordable.slug
   end
 
+  test "for_root search matches former ILIKE for blank partial mixed-case and no-match" do
+    billing = record_support_section(@root_recording, title: "Billing FAQ #{SecureRandom.hex(4)}")
+    getting_started = record_support_section(@root_recording, title: "Getting started #{SecureRandom.hex(4)}")
+    developers = record_support_section(@root_recording, title: "Developers #{SecureRandom.hex(4)}")
+
+    # Representative queries where former ILIKE and SupportSection.search agree.
+    queries = [nil, "", "   ", "bill", "BILL", "Billing", "getting", "getting-started",
+               "Develop", "faq", "STARTED", "billing faq", "developers",
+               "no-such-help-section", "zzzz-missing"]
+
+    queries.each do |query|
+      assert_equal former_ilike_section_ids(@root_recording, query),
+                   RecordingStudioSupport::Sections.for_root(@root_recording, query: query).pluck(:id).sort,
+                   "Sections.for_root diverged from former ILIKE for #{query.inspect}"
+    end
+
+    titles = lambda do |query|
+      RecordingStudioSupport::Sections.for_root(@root_recording, query: query)
+                                      .map { |recording| recording.recordable.title }
+                                      .sort
+    end
+
+    assert_equal(
+      [billing, getting_started, developers].map { |recording| recording.recordable.title }.sort,
+      titles.call(nil)
+    )
+    assert_equal [billing.recordable.title], titles.call("bill")
+    assert_equal [billing.recordable.title], titles.call("BILL")
+    assert_equal [getting_started.recordable.title], titles.call("getting-started")
+    assert_empty titles.call("no-such-help-section")
+
+    scoped_elsewhere = RecordingStudioSupport::Sections.for_root(
+      RecordingStudio.root_recording_for(Workspace.create!(name: "Other #{SecureRandom.hex(4)}")),
+      query: "bill"
+    )
+    assert_empty scoped_elsewhere
+
+    assert_equal billing.id,
+                 RecordingStudioSupport::Sections.for_root(@root_recording, query: "billing faq").sole.id
+    assert_equal getting_started.id,
+                 RecordingStudioSupport::Sections.for_root(@root_recording, query: "STARTED").sole.id
+    assert_includes RecordingStudioSupport::Sections.public_index(query: developers.recordable.slug).map(&:id),
+                    developers.id
+  end
+
+  test "SupportSection.search uses pg_trgm against title and slug" do
+    record_support_section(@root_recording, title: "Refund policy")
+    record_support_section(@root_recording, title: "Shipping labels")
+
+    hits = RecordingStudioSupport::SupportSection.search("refund").map(&:title)
+
+    assert_equal ["Refund policy"], hits
+    assert_equal :pg_trgm, RecordingStudioSearch::Registry.entry_for(RecordingStudioSupport::SupportSection).backend
+    assert_equal %i[title slug], RecordingStudioSearch::Registry.entry_for(RecordingStudioSupport::SupportSection).against
+  end
+
   private
+
+  # Former Sections.apply_query ILIKE path (title/slug substring), kept only for parity.
+  def former_ilike_section_ids(root_recording, query)
+    relation = RecordingStudioSupport::Sections.kept_sections(root_recording)
+    term = query.to_s.strip
+    return relation.pluck(:id).sort if term.blank?
+
+    like = "%#{ActiveRecord::Base.sanitize_sql_like(term)}%"
+    relation.joins(RecordingStudioSupport::Sections.section_join_sql).where(
+      "recording_studio_support_sections.title ILIKE :q OR recording_studio_support_sections.slug ILIKE :q",
+      q: like
+    ).pluck(:id).sort
+  end
 
   def publish!(page_recording, slug:, status:)
     result = RecordingStudioPublishable::Services::Publishables::Update.call(
