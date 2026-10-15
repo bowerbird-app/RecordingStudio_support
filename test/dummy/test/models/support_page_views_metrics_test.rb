@@ -42,7 +42,7 @@ class SupportPageViewsMetricsTest < ActiveSupport::TestCase
   end
 
   test "execute handler returns the series when access allows" do
-    bootstrap_owner_access!(@actor, @admin_recording)
+    grant_view!(@actor, @admin_recording)
     recording_id = SecureRandom.uuid
     travel_to(Time.utc(2025, 3, 5, 9)) do
       RecordingStudioSupport::PageView.create!(recording_id: recording_id)
@@ -72,7 +72,7 @@ class SupportPageViewsMetricsTest < ActiveSupport::TestCase
     denied = RecordingStudioMetrics::Api::DiscoveryHandler.call(build_api_context(@actor))
     refute_includes denied.fetch(:metrics).map { |row| row[:identifier] }, "support_page_views.over_time"
 
-    bootstrap_owner_access!(@actor, @admin_recording)
+    grant_view!(@actor, @admin_recording)
     allowed = RecordingStudioMetrics::Api::DiscoveryHandler.call(build_api_context(@actor))
     row = allowed.fetch(:metrics).find { |metric| metric[:identifier] == "support_page_views.over_time" }
 
@@ -109,11 +109,19 @@ class SupportPageViewsMetricsTest < ActiveSupport::TestCase
     context
   end
 
-  def bootstrap_owner_access!(actor, recording)
-    result = RecordingStudioAccessible.bootstrap_owner_access!(
+  def grant_view!(actor, recording)
+    return if RecordingStudioAccessible.authorized?(actor: actor, recording: recording, role: :view)
+
+    original = RecordingStudioAccessible.configuration.access_management_authorizer
+    RecordingStudioAccessible.configuration.access_management_authorizer = ->(**) { true }
+    result = RecordingStudioAccessible.grant_access(
       recording: recording,
-      actor: actor
+      actor: actor,
+      role: :view,
+      manager_actor: actor
     )
     raise result.error if result.failure?
+  ensure
+    RecordingStudioAccessible.configuration.access_management_authorizer = original
   end
 end
