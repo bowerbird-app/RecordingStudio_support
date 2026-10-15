@@ -280,8 +280,12 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     assert_equal "seconds", catalog.dig("support_tickets.oldest_open_age", "unit")
     assert_equal true, catalog.dig("support_tickets.opened", "date_range", "supported")
     assert_equal false, catalog.dig("support_tickets.open", "date_range", "supported")
+    assert_equal "views", catalog.dig("support_page_views.over_time", "unit")
+    assert_equal [], catalog.dig("support_page_views.over_time", "group_by")
+    assert_equal true, catalog.dig("support_page_views.over_time", "date_range", "supported")
+    refute catalog.fetch("support_page_views.over_time").key?("min_group_size")
     catalog.each_value do |entry|
-      next unless entry.fetch("identifier").start_with?("support_tickets.")
+      next unless entry.fetch("identifier").start_with?("support_tickets.", "support_page_views.")
 
       assert entry.key?("timezone")
       assert entry.key?("freshness")
@@ -324,6 +328,11 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
         as: :json
     assert_response :forbidden
 
+    get "#{OPERATIONS_ROOT}/metrics/support_page_views/over_time",
+        headers: auth(@workspace_operations_token),
+        as: :json
+    assert_response :forbidden
+
     get "#{OPERATIONS_ROOT}/metrics", headers: auth(@workspace_operations_token), as: :json
     assert_response :success
     identifiers = response.parsed_body.fetch("metrics").map { |row| row.fetch("identifier") }
@@ -331,6 +340,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     refute_includes identifiers, "support_tickets.unassigned_open"
     refute_includes identifiers, "support_tickets.oldest_open_age"
     refute_includes identifiers, "support_pages.total"
+    refute_includes identifiers, "support_page_views.over_time"
   end
 
   test "public API token is denied operations support metrics" do
@@ -345,6 +355,11 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     assert_response :unauthorized
 
     get "#{OPERATIONS_ROOT}/metrics/support_pages/total",
+        headers: auth(@public_token),
+        as: :json
+    assert_response :unauthorized
+
+    get "#{OPERATIONS_ROOT}/metrics/support_page_views/over_time",
         headers: auth(@public_token),
         as: :json
     assert_response :unauthorized

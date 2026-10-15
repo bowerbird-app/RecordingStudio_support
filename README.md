@@ -44,7 +44,7 @@ gem "recording_studio_publishable", "~> 0.4"
 gem "recording_studio_search", "~> 0.6"
 gem "recording_studio_moveable", "~> 3.2"
 gem "recording_studio_messages", "~> 0.5"
-gem "recording_studio_metrics", "~> 0.3"
+gem "recording_studio_metrics", ">= 0.3.0", "< 0.4"
 gem "recording_studio_notifications", ">= 0.3.1", "< 1"
 gem "recording_studio_notifications_email", "~> 0.3.1"
 ```

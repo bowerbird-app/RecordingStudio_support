@@ -12,6 +12,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - `support_page_views.over_time`: Support page views (`PageView` rows) by `created_at`. No migration.
 
+### Changed
+- Runtime dependency `recording_studio_metrics` is `>= 0.3.0, < 0.4` (same 0.3 line as `~> 0.3`).
+
+### Upgrade notes
+- Bump to `0.21.0`. No migration.
+- Pin `recording_studio_metrics` `>= 0.3.0, < 0.4`. The host still calls
+  `RecordingStudioMetrics::Api.register!(api: :operations)`. This gem only
+  registers definitions and authorizes them with `can_view_metrics?`.
+
 ## [0.20.0] - 2026-10-14
 
 ### Added
