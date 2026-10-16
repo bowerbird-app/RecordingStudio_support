@@ -78,6 +78,9 @@ class ApiTest < Minitest::Test
     refute_includes registration, "register_endpoint"
     refute_includes engine, "MixinStaffAccess"
     assert_includes registration, "ADMIN_NESTED_PAGE_OPERATIONS = (READ_OPERATIONS + WRITE_OPERATIONS)"
+    assert_includes registration, "ADMIN_PAGE_OPERATIONS = (READ_OPERATIONS + WRITE_OPERATIONS)"
+    assert_includes registration, "operations: ADMIN_PAGE_OPERATIONS"
+    assert_includes registration, "operations: PUBLIC_PAGE_OPERATIONS"
   end
 
   def test_lib_and_app_do_not_prepend_other_gems

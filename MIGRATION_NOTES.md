@@ -1,6 +1,26 @@
 # Upgrade notes
 
 
+## 0.22.0
+
+No migration. Operations `SupportPage` `operations:` stay
+`index` / `show` / `create` / `update` / `destroy` so MCP `describe` matches
+Admin writes. Public pages stay `index` / `show`. List handlers read API
+`PaginateResourceCollection` `Page` as well as a Hash. Dummy still pins
+API `v0.7.0`.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.22.0`.
+2. `bundle install`. No new Support migrations.
+
+### Verify
+
+```bash
+bundle exec rake test
+cd test/dummy && bundle exec rails test test/integration/support_api_test.rb
+```
+
 ## 0.21.0
 
 No migration. Adds `support_page_views.over_time` over the existing

@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.22.0] - 2026-10-16
+
+Admin Support pages declare the same writes the Admin API already performs.
+
+### Fixed
+- Operations `SupportPage` registration keeps `create` / `update` / `destroy`
+  (plus `index` / `show`) so MCP `describe` matches the handlers. Public
+  pages stay `index` / `show`. The v0.12.0 split is unchanged: public reads,
+  Admin writes.
+- Support list handlers read `PaginateResourceCollection` `Page` rows and
+  meta. API 0.8+ returns that object instead of a Hash. A Hash payload still
+  works. The paging implementation stays in the API gem.
+
+### Upgrade notes
+- Bump to `0.22.0`. No migration.
+- Hosts on `recording_studio_api` `0.8` or newer can list Support pages and
+  sections without `undefined method fetch` on `Page`. Dummy still pins
+  API `v0.7.0`.
+
 ## [0.21.0] - 2026-10-14
 
 ### Added
@@ -848,7 +867,10 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.19.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.22.0...HEAD
+[0.22.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.21.0...v0.22.0
+[0.21.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.20.0...v0.21.0
+[0.20.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.19.0...v0.20.0
 [0.19.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.18.0...v0.19.0
 [0.18.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.17.0...v0.18.0
 [0.17.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.16.1...v0.17.0

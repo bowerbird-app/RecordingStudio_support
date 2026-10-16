@@ -8,6 +8,7 @@ module RecordingStudioSupport
       PUBLIC_PAGE_OPERATIONS = %i[index show].freeze
       READ_OPERATIONS = %i[index show].freeze
       WRITE_OPERATIONS = %i[create update destroy].freeze
+      ADMIN_PAGE_OPERATIONS = (READ_OPERATIONS + WRITE_OPERATIONS).freeze
       ADMIN_SECTION_OPERATIONS = (READ_OPERATIONS + WRITE_OPERATIONS).freeze
       ADMIN_NESTED_PAGE_OPERATIONS = (READ_OPERATIONS + WRITE_OPERATIONS).freeze
       OPERATIONS_API = :operations
@@ -30,7 +31,7 @@ module RecordingStudioSupport
         )
         register_pages!(
           api: OPERATIONS_API,
-          operations: (READ_OPERATIONS + WRITE_OPERATIONS),
+          operations: ADMIN_PAGE_OPERATIONS,
           capability_actions: %i[move publish unpublish]
         )
       end
