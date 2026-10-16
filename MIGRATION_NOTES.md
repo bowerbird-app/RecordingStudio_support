@@ -1,6 +1,13 @@
 # Upgrade notes
 
 
+## 0.21.0
+
+No migration. Adds `support_page_views.over_time` over the existing
+`recording_studio_support_page_views` table. Pin `recording_studio_metrics`
+`>= 0.3.0, < 0.4`. The host still calls
+`RecordingStudioMetrics::Api.register!(api: :operations)`.
+
 ## 0.20.0
 
 No migration. Adds `support_tickets.avg_time_to_resolve`.

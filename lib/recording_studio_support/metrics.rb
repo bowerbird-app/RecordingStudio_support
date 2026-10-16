@@ -8,6 +8,7 @@ module RecordingStudioSupport
   module Metrics
     TICKETS = :support_tickets
     PAGES = :support_pages
+    PAGE_VIEWS = :support_page_views
     API = :operations
     EXPOSE = { api: [API] }.freeze
     AUTHORIZE = ->(context) { RecordingStudioSupport::Api::Access.can_view_metrics?(context) }
@@ -23,6 +24,8 @@ module RecordingStudioSupport
     RESOLVE_SECONDS = Arel.sql("EXTRACT(EPOCH FROM (resolved_at - created_at))")
     AVG_RESOLVE_DESCRIPTION = "Mean seconds from opening to resolution for tickets resolved in each " \
                               "period, by resolved_at. Reopened tickets count from their latest resolution."
+    PAGE_VIEWS_DESCRIPTION = "Support page views (signed-in and public page shows) by created_at. " \
+                             "One row per page show; not de-duplicated by visitor."
     LIVE_PAGES = ->(relation) { relation.merge(RecordingStudioSupport::Admin::Queries.kept_page_recordings) }
 
     module_function
@@ -30,6 +33,21 @@ module RecordingStudioSupport
     def register!
       register_tickets!
       register_pages!
+      register_page_views!
+    end
+
+    def register_page_views!
+      RecordingStudioMetrics.register(
+        PAGE_VIEWS,
+        model: RecordingStudioSupport::PageView,
+        blast_radius: :site,
+        api_authorize: AUTHORIZE
+      ) { RecordingStudioSupport::Metrics.define_page_views(self) }
+    end
+
+    def define_page_views(dsl)
+      dsl.timeseries :over_time, title: "Support page views", description: PAGE_VIEWS_DESCRIPTION,
+                                 unit: "views", field: :created_at, expose: EXPOSE
     end
 
     def register_tickets!

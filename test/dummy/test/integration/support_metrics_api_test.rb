@@ -226,6 +226,29 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
+  test "support_page_views.over_time counts page views by created_at" do
+    recording_id = SecureRandom.uuid
+    [Time.utc(2025, 3, 5, 9), Time.utc(2025, 3, 5, 15), Time.utc(2025, 3, 6, 9)].each do |at|
+      RecordingStudioSupport::PageView.create!(recording_id: recording_id, created_at: at)
+    end
+
+    get "#{OPERATIONS_ROOT}/metrics/support_page_views/over_time",
+        params: { interval: "day", from: "2025-03-05T00:00:00Z", to: "2025-03-07T00:00:00Z", timezone: "UTC" },
+        headers: auth(@staff_operations_token), as: :json
+    assert_response :success
+    body = response.parsed_body
+    assert_equal "views", body.fetch("unit")
+    assert_equal "Support page views", body.fetch("title")
+    values = timeseries_counts(body)
+    assert_equal 2, values.fetch("2025-03-05")
+    assert_equal 1, values.fetch("2025-03-06")
+
+    get "#{OPERATIONS_ROOT}/metrics/support_page_views/over_time",
+        params: { interval: "day", group_by: "actor_id" },
+        headers: auth(@staff_operations_token), as: :json
+    assert_response :unprocessable_entity
+  end
+
   test "group_by rejects unsupported and non-groupable metrics" do
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/open",
         params: { group_by: "assignee_id" },
@@ -257,8 +280,12 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     assert_equal "seconds", catalog.dig("support_tickets.oldest_open_age", "unit")
     assert_equal true, catalog.dig("support_tickets.opened", "date_range", "supported")
     assert_equal false, catalog.dig("support_tickets.open", "date_range", "supported")
+    assert_equal "views", catalog.dig("support_page_views.over_time", "unit")
+    assert_equal [], catalog.dig("support_page_views.over_time", "group_by")
+    assert_equal true, catalog.dig("support_page_views.over_time", "date_range", "supported")
+    refute catalog.fetch("support_page_views.over_time").key?("min_group_size")
     catalog.each_value do |entry|
-      next unless entry.fetch("identifier").start_with?("support_tickets.")
+      next unless entry.fetch("identifier").start_with?("support_tickets.", "support_page_views.")
 
       assert entry.key?("timezone")
       assert entry.key?("freshness")
@@ -279,6 +306,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
       support_tickets.opened
       support_tickets.avg_time_to_resolve
       support_pages.total
+      support_page_views.over_time
     ].each { |identifier| assert_includes identifiers, identifier }
   end
 
@@ -300,6 +328,11 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
         as: :json
     assert_response :forbidden
 
+    get "#{OPERATIONS_ROOT}/metrics/support_page_views/over_time",
+        headers: auth(@workspace_operations_token),
+        as: :json
+    assert_response :forbidden
+
     get "#{OPERATIONS_ROOT}/metrics", headers: auth(@workspace_operations_token), as: :json
     assert_response :success
     identifiers = response.parsed_body.fetch("metrics").map { |row| row.fetch("identifier") }
@@ -307,6 +340,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     refute_includes identifiers, "support_tickets.unassigned_open"
     refute_includes identifiers, "support_tickets.oldest_open_age"
     refute_includes identifiers, "support_pages.total"
+    refute_includes identifiers, "support_page_views.over_time"
   end
 
   test "public API token is denied operations support metrics" do
@@ -321,6 +355,11 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     assert_response :unauthorized
 
     get "#{OPERATIONS_ROOT}/metrics/support_pages/total",
+        headers: auth(@public_token),
+        as: :json
+    assert_response :unauthorized
+
+    get "#{OPERATIONS_ROOT}/metrics/support_page_views/over_time",
         headers: auth(@public_token),
         as: :json
     assert_response :unauthorized
