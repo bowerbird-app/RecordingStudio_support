@@ -563,6 +563,63 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "describe operations match public reads and Admin writes" do
+    public_page = RecordingStudioApi.recordable_registration_for(
+      "RecordingStudioSupport::SupportPage",
+      api: :public
+    )
+    operations_page = RecordingStudioApi.recordable_registration_for(
+      "RecordingStudioSupport::SupportPage",
+      api: :operations
+    )
+    operations_section = RecordingStudioApi.recordable_registration_for(
+      "RecordingStudioSupport::SupportSection",
+      api: :operations
+    )
+
+    assert_equal %i[index show], public_page.operations
+    refute public_page.supports_operation?(:update)
+    refute public_page.supports_operation?(:create)
+    refute public_page.supports_operation?(:destroy)
+
+    assert_equal %i[create destroy index show update], operations_page.operations
+    assert operations_page.supports_operation?(:update)
+    assert operations_page.supports_operation?(:create)
+    assert operations_page.supports_operation?(:destroy)
+    assert_equal %w[move publish unpublish], operations_page.capability_actions
+
+    assert_equal %i[create destroy index show update], operations_section.operations
+    assert operations_section.supports_operation?(:update)
+  end
+
+  test "page and section lists accept an API Page pagination payload" do
+    service = RecordingStudioApi::Services::PaginateResourceCollection
+    original = service.method(:call)
+    section_rows = RecordingStudio::Recording.where(
+      recordable_type: "RecordingStudioSupport::SupportSection",
+      trashed_at: nil
+    ).limit(5).to_a
+    page_class = Data.define(:rows, :meta)
+    fake_result = Struct.new(:value) do
+      def failure?
+        false
+      end
+    end
+    service = RecordingStudioApi::Services::PaginateResourceCollection
+    original = service.method(:call)
+
+    service.define_singleton_method(:call) do |**_kwargs|
+      fake_result.new(page_class.new(section_rows, { limit: 50, has_more: false }))
+    end
+
+    get "#{OPERATIONS_ROOT}/support_sections", headers: auth(@editor_operations_token), as: :json
+
+    assert_response :success
+    assert_includes response.parsed_body.fetch("records").map { |record| record.fetch("id") }, @section.id
+  ensure
+    service.define_singleton_method(:call, original)
+  end
+
   test "operations editor and viewer can read sections and nested pages" do
     get "#{OPERATIONS_ROOT}/support_sections", headers: auth(@editor_operations_token), as: :json
 

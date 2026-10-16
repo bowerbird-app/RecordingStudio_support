@@ -37,11 +37,23 @@ module RecordingStudioSupport
       def collection_response(payload)
         {
           json: Serialize.collection(
-            payload.fetch(:rows),
+            page_rows(payload),
             context: context,
-            meta: collection_meta(payload.fetch(:meta))
+            meta: collection_meta(page_meta(payload))
           )
         }
+      end
+
+      def page_rows(payload)
+        return payload.rows if payload.respond_to?(:rows)
+
+        payload.fetch(:rows)
+      end
+
+      def page_meta(payload)
+        return payload.meta if payload.respond_to?(:meta)
+
+        payload.fetch(:meta)
       end
 
       def collection_meta(meta)
