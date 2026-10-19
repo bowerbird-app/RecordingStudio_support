@@ -193,8 +193,10 @@ class AdminTest < Minitest::Test
       assert_equal "1d 1h", oldest.value.call(context)
     end
 
-    assert_equal ["support_tickets.unassigned_open", "support_tickets.oldest_open_age"],
-                 seen.map { |row| row[:identifier] }
+    assert_equal(
+      %w[support_tickets.unassigned_open support_tickets.oldest_open_age],
+      seen.map { |row| row[:identifier] }
+    )
     seen.each do |row|
       assert_same context, row[:context]
       assert_equal true, row[:params][:site_authorized]
@@ -228,8 +230,10 @@ class AdminTest < Minitest::Test
       assert_equal "Support pages", views.link_label
     end
 
-    assert_equal ["support_tickets.avg_time_to_resolve", "support_page_views.over_time"],
-                 seen.map { |row| row[:identifier] }
+    assert_equal(
+      %w[support_tickets.avg_time_to_resolve support_page_views.over_time],
+      seen.map { |row| row[:identifier] }
+    )
     seen.each do |row|
       assert_equal true, row[:params][:site_authorized]
     end

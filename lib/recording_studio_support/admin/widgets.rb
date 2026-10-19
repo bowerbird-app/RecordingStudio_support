@@ -29,9 +29,17 @@ module RecordingStudioSupport
         total = seconds.to_i
         return "0s" if total <= 0
 
+        format_age_parts(*age_parts(total))
+      end
+
+      def age_parts(total)
         days, remainder = total.divmod(86_400)
         hours, remainder = remainder.divmod(3_600)
         minutes, secs = remainder.divmod(60)
+        [days, hours, minutes, secs]
+      end
+
+      def format_age_parts(days, hours, minutes, secs)
         parts = []
         parts << "#{days}d" if days.positive?
         parts << "#{hours}h" if hours.positive?
