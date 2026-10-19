@@ -89,13 +89,13 @@ class RecordingStudioSupportTest < Minitest::Test
   def test_dummy_gemfile_pins_verified_4x_github_tags
     gemfile = File.read(File.expand_path("dummy/Gemfile", __dir__))
 
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.6.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v4.7.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.18.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.3.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.15.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_cache", tag: "v0.5.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_users", tag: "v0.21.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.10.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.11.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.3.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.8.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_search", tag: "v0.6.0"'
@@ -349,7 +349,7 @@ class RecordingStudioSupportTest < Minitest::Test
     readme = File.read(File.expand_path("../README.md", __dir__))
 
     assert_includes readme, "Recording Studio Support"
-    assert_includes readme, "v4.6.0"
+    assert_includes readme, "v4.7.0"
     assert_includes readme, "v0.15.0"
     assert_includes readme, "v0.18.0"
     assert_includes readme, "v0.1.213"
@@ -376,7 +376,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "tag: \"v0.6.0\""
     assert_includes readme, "tag: \"v0.7.0\""
     assert_includes readme, "tag: \"v0.8.0\""
-    assert_includes readme, "tag: \"v0.10.0\""
+    assert_includes readme, "tag: \"v0.11.0\""
     assert_includes readme, "tag: \"v0.15.0\""
     assert_includes readme, "tag: \"v0.3.0\""
     assert_includes readme, "tag: \"v3.4.0\""

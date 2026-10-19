@@ -8,7 +8,7 @@ gemspec
 # These gems are not published to RubyGems; resolve the gemspec pins from GitHub.
 # Attachable 0.12+ needs flat_pack >= 0.1.213 (smallest resolving tag).
 gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.213"
-gem "recording_studio", "~> 4.2", github: "bowerbird-app/RecordingStudio", tag: "v4.6.0"
+gem "recording_studio", "~> 4.2", github: "bowerbird-app/RecordingStudio", tag: "v4.7.0"
 gem "recording_studio_accessible", "~> 0.11", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.18.0"
 gem "recording_studio_admin", "~> 2.0", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.3.0"
 gem "recording_studio_attachable", "~> 0.7", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.15.0"
@@ -23,7 +23,7 @@ gem "recording_studio_notifications_email", "~> 0.3.1",
 gem "recording_studio_orderable", "~> 0.2", github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.3.0"
 gem "recording_studio_publishable", "~> 0.4", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.8.0"
 gem "recording_studio_search", "~> 0.6", github: "bowerbird-app/RecordingStudio_search", tag: "v0.6.0"
-gem "recording_studio_trashable", "~> 0.9", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.10.0"
+gem "recording_studio_trashable", "~> 0.9", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.11.0"
 
 gem "devise"
 gem "puma"

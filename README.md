@@ -10,11 +10,11 @@ Add the gem next to Recording Studio 4.2, Accessible 0.18, Admin 2.0, Publishabl
 
 ```ruby
 # Gemfile
-gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.6.0"
+gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.7.0"
 gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.18.0"
 gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.3.0"
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.15.0"
-gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.10.0"
+gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.11.0"
 gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.3.0"
 gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.8.0"
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"
@@ -439,7 +439,7 @@ Dummy kit pins:
 
 | Gem | Pin |
 |-----|-----|
-| Recording Studio | `v4.6.0` |
+| Recording Studio | `v4.7.0` |
 | Accessible | `v0.18.0` |
 | Admin | `v2.3.0` |
 | Attachable | `v0.15.0` |
@@ -447,7 +447,7 @@ Dummy kit pins:
 | Notifications | `v0.7.0` |
 | Notifications Email | `v0.3.4` |
 | Users | `v0.21.0` |
-| Trashable | `v0.10.0` |
+| Trashable | `v0.11.0` |
 | Orderable | `v0.3.0` |
 | Publishable | `v0.8.0` |
 | Icons | `v0.1.1` |
