@@ -102,7 +102,7 @@ module RecordingStudioSupport
         hide_change
         hide_period
         blast_radius :site
-        series { |context| ChartSeries.from_metrics("support_page_views.over_time", context) }
+        series { |context| Widgets.metric_series("support_page_views.over_time", context) }
         link_to { HelpPageViewsScreen.path }
         link_label "Help page views"
       end

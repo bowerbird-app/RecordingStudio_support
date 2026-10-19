@@ -242,11 +242,15 @@ class AdminTest < Minitest::Test
       assert_equal :chart, resolve.type
       assert_equal :line, resolve.chart_type
       scaled = resolve.series.call(context)
-      assert_chart_xy_series scaled, name: "Average time to resolve minutes", x_label: "Oct 1", y_value: 200
+      assert_time_to_close_xy_series(
+        scaled,
+        name: "Average time to resolve minutes",
+        x_label: "2026-10-01",
+        y_value: 200
+      )
       assert_equal "/admin/screens/time_to_close", resolve.link_to.call(context)
       assert_equal "Time to close", resolve.link_label
-      viewed = views.series.call(context)
-      assert_chart_xy_series viewed, name: "Views", x_label: "Oct 1", y_value: 2
+      assert_equal series, views.series.call(context)
       assert_equal "/admin/screens/help_page_views", views.link_to.call(context)
       assert_equal "Help page views", views.link_label
     end
@@ -313,25 +317,50 @@ class AdminTest < Minitest::Test
       [{ name: "Average time to resolve", data: [["2026-10-01", 12_000.0]] }]
     }) do
       scaled = axis.series("support_tickets.avg_time_to_resolve", context)
-      assert_chart_xy_series scaled, name: "Average time to resolve minutes", x_label: "Oct 1", y_value: 200
+      assert_time_to_close_xy_series(
+        scaled,
+        name: "Average time to resolve minutes",
+        x_label: "2026-10-01",
+        y_value: 200
+      )
     end
 
     RecordingStudioMetrics::Admin.stub(:chart_series, lambda { |_identifier, **|
       [{ name: "Average time to resolve", data: [["2026-10-01", 43_200]] }]
     }) do
       scaled = axis.series("support_tickets.avg_time_to_resolve", context)
-      assert_chart_xy_series scaled, name: "Average time to resolve hours", x_label: "Oct 1", y_value: 12
+      assert_time_to_close_xy_series scaled, name: "Average time to resolve hours", x_label: "2026-10-01", y_value: 12
     end
 
     RecordingStudioMetrics::Admin.stub(:chart_series, lambda { |_identifier, **|
       [{ name: "Average time to resolve", data: [["2026-10-01", 345_600]] }]
     }) do
       scaled = axis.series("support_tickets.avg_time_to_resolve", context)
-      assert_chart_xy_series scaled, name: "Average time to resolve days", x_label: "Oct 1", y_value: 4
+      assert_time_to_close_xy_series scaled, name: "Average time to resolve days", x_label: "2026-10-01", y_value: 4
     end
 
     assert_equal 3.5, axis.axis_number(3.54)
     assert_equal 3, axis.axis_number(3.0)
+  end
+
+  def test_time_to_close_series_shape_is_xy_objects
+    context = Object.new
+    RecordingStudioMetrics::Admin.stub(:chart_series, lambda { |_identifier, **|
+      [{ name: "Average time to resolve", data: [["2026-10-01", 12_000], ["2026-10-02", 6_000]] }]
+    }) do
+      scaled = RecordingStudioSupport::Admin::Widgets::AVG_TIME_TO_RESOLVE.series.call(context)
+      point = scaled.first[:data].first
+
+      assert_kind_of Hash, point
+      refute_kind_of Array, point
+      assert_equal({ x: "2026-10-01", y: 200 }, point)
+      scaled.first[:data].each do |item|
+        assert_kind_of Hash, item
+        assert item.key?(:x)
+        assert item.key?(:y)
+        refute_kind_of Array, item
+      end
+    end
   end
 
   def test_age_label_formats_waiting_time
@@ -364,7 +393,7 @@ class AdminTest < Minitest::Test
     value.respond_to?(:call) ? value.call(nil) : value
   end
 
-  def assert_chart_xy_series(series, name:, x_label:, y_value:)
+  def assert_time_to_close_xy_series(series, name:, x_label:, y_value:)
     assert_equal 1, series.size
     assert_equal name, series.first[:name]
     point = series.first[:data].first
@@ -372,7 +401,6 @@ class AdminTest < Minitest::Test
     refute_kind_of Array, point
     assert_equal %i[x y], point.keys
     assert_kind_of String, point[:x]
-    refute_match(/\A\d{4}-\d{2}-\d{2}/, point[:x])
     assert_kind_of Numeric, point[:y]
     refute point[:y].to_s.include?(".000000")
     assert_equal x_label, point[:x]

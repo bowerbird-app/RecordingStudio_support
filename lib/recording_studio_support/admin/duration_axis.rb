@@ -7,9 +7,31 @@ module RecordingStudioSupport
 
       def series(identifier, admin_context)
         rows = Array(Widgets.metric_series(identifier, admin_context))
-        values = rows.flat_map { |row| ChartSeries.data_for(row).filter_map { |point| ChartSeries.point_value(point) } }
+        values = rows.flat_map { |row| values_for(row) }.compact
         divisor, unit = scale(values)
         rows.map { |row| scale_row(row, divisor, unit) }
+      end
+
+      def values_for(row)
+        Array(data_for(row)).filter_map { |point| point_value(point) }
+      end
+
+      def data_for(row)
+        return [] unless row.respond_to?(:[])
+
+        row[:data] || row["data"]
+      end
+
+      def point_value(point)
+        return point[1] if point.is_a?(Array)
+
+        point[:y] || point["y"] || point[:value] || point["value"] if point.respond_to?(:[])
+      end
+
+      def point_x(point)
+        return point[0] if point.is_a?(Array)
+
+        point[:x] || point["x"] || point[:date] || point["date"] if point.respond_to?(:[])
       end
 
       def scale(values)
@@ -21,15 +43,16 @@ module RecordingStudioSupport
       end
 
       def scale_row(row, divisor, unit)
+        name = row.respond_to?(:[]) ? (row[:name] || row["name"]) : nil
         {
-          name: [ChartSeries.name_for(row), unit].compact.join(" ").strip,
-          data: Array(ChartSeries.data_for(row)).map { |point| scale_point(point, divisor) }
+          name: [name, unit].compact.join(" ").strip,
+          data: Array(data_for(row)).map { |point| scale_point(point, divisor) }
         }
       end
 
       def scale_point(point, divisor)
-        y = ChartSeries.point_value(point)
-        ChartSeries.xy(point, value: y.nil? ? nil : axis_number(y.to_f / divisor))
+        y = point_value(point)
+        { x: point_x(point), y: y.nil? ? nil : axis_number(y.to_f / divisor) }
       end
 
       def axis_number(value)

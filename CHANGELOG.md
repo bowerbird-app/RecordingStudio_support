@@ -17,8 +17,8 @@ Admin Support hub shows queue and help-view metrics from RecordingStudioMetrics.
 - Unassigned tickets opens Open tickets filtered to Unassigned (`status: open`,
   no assignee). Oldest open ticket opens that table oldest first.
 - Time to close and Help page views each have an Admin screen (chart plus table).
-- Chart series use `{ x:, y: }` category points so Admin/Flatpack line charts
-  render. Minutes, hours, or days on time to close, without trailing zeros.
+- Time to close series emit `{ x:, y: }` objects (ApexCharts 3.45.1 plots
+  `[date, value]` pairs at x=0). Minutes, hours, or days, without trailing zeros.
 
 ### Upgrade notes
 - Bump to `0.23.0`. No migration.

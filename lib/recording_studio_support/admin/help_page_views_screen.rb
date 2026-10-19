@@ -24,7 +24,7 @@ module RecordingStudioSupport
       chart do
         title "Views over time"
         type :line
-        series { |context| ChartSeries.from_metrics("support_page_views.over_time", context) }
+        series { |context| Widgets.metric_series("support_page_views.over_time", context) }
       end
 
       table do

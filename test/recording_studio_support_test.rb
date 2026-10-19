@@ -477,11 +477,9 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes tickets_screen, 'where(status: "open")'
     assert_includes tickets_screen, "order(created_at: :asc)"
     assert_includes duration_axis, '[60, "minutes"]'
+    assert_includes duration_axis, "{ x: point_x(point), y: y.nil? ? nil : axis_number(y.to_f / divisor) }"
     assert_includes widgets, "DurationAxis.series"
-    assert_includes widgets, "ChartSeries.from_metrics"
     assert_includes widgets, "OpenTicketsScreen.unassigned_path"
-    chart_series = File.read("#{admin_dir}/chart_series.rb")
-    assert_includes chart_series, "{ x: category_x(point_x(point)), y: numeric_y(plotted) }"
   end
 
   def test_dummy_mounts_support_and_admin
