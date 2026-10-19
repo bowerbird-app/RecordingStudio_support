@@ -19,6 +19,11 @@ module RecordingStudioSupport
            url: ->(context) { context.admin_screen_path("support_sections") },
            style: :secondary
 
+      link :open_tickets,
+           text: "Open tickets",
+           url: ->(context) { context.admin_screen_path("open_tickets") },
+           style: :secondary
+
       widget "widgets.support.page_count"
       widget "widgets.support.unassigned_open"
       widget "widgets.support.oldest_open_age"

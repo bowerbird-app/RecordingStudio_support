@@ -121,8 +121,10 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     refute_match(/>\s*Help\s*</, response.body)
     assert_includes response.body, "Support pages"
     assert_includes response.body, "Support sections"
+    assert_includes response.body, "Open tickets"
     assert_includes response.body, "/admin/screens/support_pages"
     assert_includes response.body, "/admin/screens/support_sections"
+    assert_includes response.body, "/admin/screens/open_tickets"
     assert_includes response.body, "Unassigned tickets"
     assert_includes response.body, "Oldest open ticket"
     assert_includes response.body, "Time to close"

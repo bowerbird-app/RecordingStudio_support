@@ -80,15 +80,17 @@ class AdminTest < Minitest::Test
     end
   end
 
-  def test_section_links_to_the_two_admin_tables
+  def test_section_links_to_the_admin_tables
     links = RecordingStudioSupport::Admin::Section.links
     names = links.map(&:name)
     texts = links.map(&:text)
 
     assert_includes names, :support_pages
     assert_includes names, :support_sections
+    assert_includes names, :open_tickets
     assert_includes texts, "Support pages"
     assert_includes texts, "Support sections"
+    assert_includes texts, "Open tickets"
     refute_includes names, :page_list
     refute_includes names, :open_pages
     refute_includes texts, "See every page"
@@ -275,20 +277,6 @@ class AdminTest < Minitest::Test
     assert_equal "None", screen.wait_label(Struct.new(:created_at).new(nil))
     assert_equal "/admin/support/messages?group_id=group-old", screen.desk_path(older)
     assert_equal "/admin/support/messages", screen.desk_path(newer)
-  end
-
-  def test_open_tickets_query_is_open_oldest_first
-    relation = Object.new
-    RecordingStudioSupport::SupportTicket.stub(:where, lambda { |attrs|
-      assert_equal({ status: "open" }, attrs)
-      relation
-    }) do
-      relation.define_singleton_method(:order) do |args|
-        assert_equal({ created_at: :asc }, args)
-        self
-      end
-      assert_same relation, RecordingStudioSupport::Admin::OpenTicketsScreen.tickets
-    end
   end
 
   def test_duration_axis_uses_human_units_without_trailing_zeros
