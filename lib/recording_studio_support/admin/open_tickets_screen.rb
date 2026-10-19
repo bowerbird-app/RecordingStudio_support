@@ -13,6 +13,13 @@ module RecordingStudioSupport
       WAIT_VALUE = ->(row, _context) { wait_label(row) }
       PRIORITY_VALUE = ->(row, _context) { row.priority.to_s.humanize }
       DESK_URL = ->(row, _context) { desk_path(row) }
+      ASSIGNEE_FILTER = lambda { |relation, value, _context|
+        case value.to_s
+        when "Unassigned" then relation.where(assignee_id: nil)
+        when "Assigned" then relation.where.not(assignee_id: nil)
+        else relation
+        end
+      }
 
       query do |_context|
         tickets
@@ -21,6 +28,7 @@ module RecordingStudioSupport
       table do
         title "\u00A0"
         hide_count
+        filter :assignee, options: %w[Unassigned Assigned], apply: ASSIGNEE_FILTER
         column :subject, title: "Subject", sortable: false, value: SUBJECT_VALUE
         column :waiting, title: "Waiting", sortable: false, value: WAIT_VALUE
         column :priority, title: "Priority", sortable: false, value: PRIORITY_VALUE
@@ -32,6 +40,10 @@ module RecordingStudioSupport
 
       def self.path
         "/admin/screens/open_tickets"
+      end
+
+      def self.unassigned_path
+        "#{path}?assignee=Unassigned"
       end
 
       def self.tickets

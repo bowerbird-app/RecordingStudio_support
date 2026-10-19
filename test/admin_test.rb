@@ -88,9 +88,13 @@ class AdminTest < Minitest::Test
     assert_includes names, :support_pages
     assert_includes names, :support_sections
     assert_includes names, :open_tickets
+    assert_includes names, :time_to_close
+    assert_includes names, :help_page_views
     assert_includes texts, "Support pages"
     assert_includes texts, "Support sections"
     assert_includes texts, "Open tickets"
+    assert_includes texts, "Time to close"
+    assert_includes texts, "Help page views"
     refute_includes names, :page_list
     refute_includes names, :open_pages
     refute_includes texts, "See every page"
@@ -162,12 +166,14 @@ class AdminTest < Minitest::Test
     assert_includes called, RecordingStudioSupport::Admin::PagesScreen
     assert_includes called, RecordingStudioSupport::Admin::SectionsScreen
     assert_includes called, RecordingStudioSupport::Admin::OpenTicketsScreen
+    assert_includes called, RecordingStudioSupport::Admin::TimeToCloseScreen
+    assert_includes called, RecordingStudioSupport::Admin::HelpPageViewsScreen
     RecordingStudioSupport::Admin::Widgets::ALL.each do |widget|
       assert_includes called, widget
     end
     refute defined?(RecordingStudioSupport::Admin::Widgets::SECTIONS)
     refute defined?(RecordingStudioSupport::Admin::Widgets::RECENT_PAGES)
-    assert_equal 9, called.size
+    assert_equal 11, called.size
   end
 
   def test_section_includes_metric_widgets
@@ -194,8 +200,8 @@ class AdminTest < Minitest::Test
       assert_equal :number, unassigned.type
       assert_equal "Unassigned tickets", unassigned.title
       assert_equal 4, unassigned.value.call(context)
-      assert_equal "Desk", unassigned.link_label
-      assert_equal "/admin/support/messages", unassigned.link_to.call(context)
+      assert_equal "Unassigned", unassigned.link_label
+      assert_equal "/admin/screens/open_tickets?assignee=Unassigned", unassigned.link_to.call(context)
       assert_equal "1d 1h", oldest.value.call(context)
       assert_equal "Open tickets", oldest.link_label
       assert_equal "/admin/screens/open_tickets", oldest.link_to.call(context)
@@ -236,12 +242,13 @@ class AdminTest < Minitest::Test
       assert_equal :chart, resolve.type
       assert_equal :line, resolve.chart_type
       scaled = resolve.series.call(context)
-      assert_equal [{ name: "Average time to resolve minutes", data: [["2026-10-01", 200]] }], scaled
-      refute scaled.first[:data].first[1].to_s.include?(".000000")
-      assert_equal "/admin/support/messages", resolve.link_to.call(context)
-      assert_equal series, views.series.call(context)
-      assert_equal "/admin/screens/support_pages", views.link_to.call(context)
-      assert_equal "Support pages", views.link_label
+      assert_chart_xy_series scaled, name: "Average time to resolve minutes", x_label: "Oct 1", y_value: 200
+      assert_equal "/admin/screens/time_to_close", resolve.link_to.call(context)
+      assert_equal "Time to close", resolve.link_label
+      viewed = views.series.call(context)
+      assert_chart_xy_series viewed, name: "Views", x_label: "Oct 1", y_value: 2
+      assert_equal "/admin/screens/help_page_views", views.link_to.call(context)
+      assert_equal "Help page views", views.link_label
     end
 
     assert_equal(
@@ -263,6 +270,25 @@ class AdminTest < Minitest::Test
     assert_equal "asc", screen.table_value.default_direction
     assert_includes screen.table_value.columns.map(&:key), :waiting
     assert_includes screen.table_value.actions.map(&:name), :desk
+    assert_includes screen.table_value.filters.map(&:key), :assignee
+    assert_equal "/admin/screens/open_tickets?assignee=Unassigned", screen.unassigned_path
+  end
+
+  def test_time_to_close_and_help_page_views_screens
+    close = RecordingStudioSupport::Admin::TimeToCloseScreen
+    views = RecordingStudioSupport::Admin::HelpPageViewsScreen
+
+    assert_equal "time_to_close", close.key
+    assert_equal :site, close.blast_radius
+    assert_equal :line, close.chart_value.type_value
+    assert_equal :resolved_at, close.table_value.default_sort_key
+    assert_equal "/admin/screens/time_to_close", close.path
+
+    assert_equal "help_page_views", views.key
+    assert_equal :site, views.blast_radius
+    assert_equal :line, views.chart_value.type_value
+    assert_equal :created_at, views.table_value.default_sort_key
+    assert_equal "/admin/screens/help_page_views", views.path
   end
 
   def test_open_ticket_helpers_match_the_age_widget
@@ -287,22 +313,21 @@ class AdminTest < Minitest::Test
       [{ name: "Average time to resolve", data: [["2026-10-01", 12_000.0]] }]
     }) do
       scaled = axis.series("support_tickets.avg_time_to_resolve", context)
-      assert_equal [{ name: "Average time to resolve minutes", data: [["2026-10-01", 200]] }], scaled
-      refute scaled.first[:data].first[1].to_s.include?(".000000")
+      assert_chart_xy_series scaled, name: "Average time to resolve minutes", x_label: "Oct 1", y_value: 200
     end
 
     RecordingStudioMetrics::Admin.stub(:chart_series, lambda { |_identifier, **|
       [{ name: "Average time to resolve", data: [["2026-10-01", 43_200]] }]
     }) do
       scaled = axis.series("support_tickets.avg_time_to_resolve", context)
-      assert_equal [{ name: "Average time to resolve hours", data: [["2026-10-01", 12]] }], scaled
+      assert_chart_xy_series scaled, name: "Average time to resolve hours", x_label: "Oct 1", y_value: 12
     end
 
     RecordingStudioMetrics::Admin.stub(:chart_series, lambda { |_identifier, **|
       [{ name: "Average time to resolve", data: [["2026-10-01", 345_600]] }]
     }) do
       scaled = axis.series("support_tickets.avg_time_to_resolve", context)
-      assert_equal [{ name: "Average time to resolve days", data: [["2026-10-01", 4]] }], scaled
+      assert_chart_xy_series scaled, name: "Average time to resolve days", x_label: "Oct 1", y_value: 4
     end
 
     assert_equal 3.5, axis.axis_number(3.54)
@@ -337,5 +362,20 @@ class AdminTest < Minitest::Test
 
   def resolve_admin_copy(value)
     value.respond_to?(:call) ? value.call(nil) : value
+  end
+
+  def assert_chart_xy_series(series, name:, x_label:, y_value:)
+    assert_equal 1, series.size
+    assert_equal name, series.first[:name]
+    point = series.first[:data].first
+    assert_kind_of Hash, point
+    refute_kind_of Array, point
+    assert_equal %i[x y], point.keys
+    assert_kind_of String, point[:x]
+    refute_match(/\A\d{4}-\d{2}-\d{2}/, point[:x])
+    assert_kind_of Numeric, point[:y]
+    refute point[:y].to_s.include?(".000000")
+    assert_equal x_label, point[:x]
+    assert_equal y_value, point[:y]
   end
 end

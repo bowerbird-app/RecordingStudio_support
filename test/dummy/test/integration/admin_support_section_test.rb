@@ -26,6 +26,12 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
       subject: "Widget queue #{SecureRandom.hex(4)}",
       body: "Need a person on this."
     )
+    closed = RecordingStudioSupport::Tickets.open!(
+      actor: patron,
+      subject: "Closed for chart #{SecureRandom.hex(4)}",
+      body: "Done."
+    )
+    closed.update!(status: :resolved)
     unassigned = RecordingStudioSupport::SupportTicket.open.where(assignee_id: nil).count
     assert_operator unassigned, :>=, 1
 
@@ -34,7 +40,8 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Unassigned tickets"
     assert_includes response.body, unassigned.to_s
-    assert_includes response.body, "/admin/support/messages"
+    assert_includes response.body, "/admin/screens/open_tickets?assignee=Unassigned"
+    refute_includes response.body, "status=resolved"
     refute_includes response.body, "recordable"
 
     get "/admin/sections/support/widgets/widgets.support.oldest_open_age"
@@ -48,13 +55,15 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Time to close"
-    assert_includes response.body, "/admin/support/messages"
+    assert_includes response.body, "/admin/screens/time_to_close"
+    assert_chart_xy_payload response.body
 
     get "/admin/sections/support/widgets/widgets.support.page_views"
 
     assert_response :success
     assert_includes response.body, "Help page views"
-    assert_includes response.body, "/admin/screens/support_pages"
+    assert_includes response.body, "/admin/screens/help_page_views"
+    assert_chart_xy_payload response.body
   end
 
   test "open tickets screen lists oldest open tickets first" do
@@ -109,6 +118,60 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     refute_includes response.body, resolved.subject
+
+    get "/admin/screens/open_tickets/table", params: { assignee: "Unassigned" }
+
+    assert_response :success
+    assert_includes response.body, older.subject
+  end
+
+  test "time to close and help page views screens show a chart and table" do
+    patron = RecordingStudioUser.create_user!(
+      email: "close-queue-#{SecureRandom.hex(4)}@example.com",
+      password: "Password",
+      first_name: "Casey",
+      last_name: "Patron",
+      time_zone: "UTC"
+    )
+    closed = RecordingStudioSupport::Tickets.open!(
+      actor: patron,
+      subject: "Closed waiting ticket",
+      body: "Finished."
+    )
+    closed.update!(status: :resolved)
+
+    get "/admin/screens/time_to_close"
+
+    assert_response :success
+    assert_includes response.body, "Time to close"
+    refute_includes response.body, "recordable"
+
+    get "/admin/screens/time_to_close/chart"
+
+    assert_response :success
+    assert_chart_xy_payload response.body
+
+    get "/admin/screens/time_to_close/table"
+
+    assert_response :success
+    assert_includes response.body, closed.subject
+    refute_includes response.body, "Table data"
+
+    get "/admin/screens/help_page_views"
+
+    assert_response :success
+    assert_includes response.body, "Help page views"
+
+    get "/admin/screens/help_page_views/chart"
+
+    assert_response :success
+    assert_chart_xy_payload response.body
+
+    get "/admin/screens/help_page_views/table"
+
+    assert_response :success
+    assert_includes response.body, "How do I sign in?"
+    refute_includes response.body, "Table data"
   end
 
   test "admin support section shows a page count and two table links" do
@@ -122,15 +185,15 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Support pages"
     assert_includes response.body, "Support sections"
     assert_includes response.body, "Open tickets"
+    assert_includes response.body, "Time to close"
+    assert_includes response.body, "Help page views"
     assert_includes response.body, "/admin/screens/support_pages"
     assert_includes response.body, "/admin/screens/support_sections"
     assert_includes response.body, "/admin/screens/open_tickets"
+    assert_includes response.body, "/admin/screens/time_to_close"
+    assert_includes response.body, "/admin/screens/help_page_views"
     assert_includes response.body, "Unassigned tickets"
     assert_includes response.body, "Oldest open ticket"
-    assert_includes response.body, "Time to close"
-    assert_includes response.body, "Help page views"
-    assert_includes response.body, "/admin/support/messages"
-    assert_includes response.body, "/admin/screens/open_tickets"
     refute_includes response.body, "See every page"
     refute_includes response.body, "Latest pages"
     refute_includes response.body, "How do I sign in?"
@@ -354,6 +417,13 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def assert_chart_xy_payload(html)
+    payload = CGI.unescapeHTML(html.to_s)
+    assert_includes payload, '"x":'
+    assert_includes payload, '"y":'
+    refute_match(/"data":\[\["\d{4}-\d{2}-\d{2}"/, payload)
+  end
 
   def section_page_counts_from_table(html)
     document = Nokogiri::HTML(html)

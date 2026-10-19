@@ -60,8 +60,8 @@ module RecordingStudioSupport
         hide_period
         blast_radius :site
         value { |context| Widgets.metric_value("support_tickets.unassigned_open", context) }
-        link_to { Queries.staff_messages_path }
-        link_label "Desk"
+        link_to { OpenTicketsScreen.unassigned_path }
+        link_label "Unassigned"
       end
 
       OLDEST_OPEN_AGE = RecordingStudioAdmin::Widget.new("widgets.support.oldest_open_age") do
@@ -90,8 +90,8 @@ module RecordingStudioSupport
             yaxis: { min: 0, forceNiceScale: true, decimalsInFloat: 1 }
           }
         end
-        link_to { Queries.staff_messages_path }
-        link_label "Desk"
+        link_to { TimeToCloseScreen.path }
+        link_label "Time to close"
       end
 
       PAGE_VIEWS = RecordingStudioAdmin::Widget.new("widgets.support.page_views") do
@@ -102,9 +102,9 @@ module RecordingStudioSupport
         hide_change
         hide_period
         blast_radius :site
-        series { |context| Widgets.metric_series("support_page_views.over_time", context) }
-        link_to { Queries.admin_pages_screen_path }
-        link_label "Support pages"
+        series { |context| ChartSeries.from_metrics("support_page_views.over_time", context) }
+        link_to { HelpPageViewsScreen.path }
+        link_label "Help page views"
       end
 
       ALL = [

@@ -14,12 +14,11 @@ Admin Support hub shows queue and help-view metrics from RecordingStudioMetrics.
 ### Added
 - Admin widgets for `support_tickets.unassigned_open`, `support_tickets.oldest_open_age`,
   `support_tickets.avg_time_to_resolve`, and `support_page_views.over_time`.
-- Ticket widgets link to the staff Messages desk (`/admin/support/messages`).
-  Page views link to the Support pages admin screen.
-- Oldest open ticket More opens an Open tickets table (`status: open`, oldest
-  first). Row Desk opens that conversation. The age card matches this queue.
-- Time to close charts minutes, hours, or days instead of raw seconds, without
-  trailing zeros.
+- Unassigned tickets opens Open tickets filtered to Unassigned (`status: open`,
+  no assignee). Oldest open ticket opens that table oldest first.
+- Time to close and Help page views each have an Admin screen (chart plus table).
+- Chart series use `{ x:, y: }` category points so Admin/Flatpack line charts
+  render. Minutes, hours, or days on time to close, without trailing zeros.
 
 ### Upgrade notes
 - Bump to `0.23.0`. No migration.

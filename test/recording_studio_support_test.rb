@@ -466,6 +466,8 @@ class RecordingStudioSupportTest < Minitest::Test
     refute_includes sections_screen, "pages"
     assert_includes admin, "register_screen(SectionsScreen)"
     assert_includes admin, "register_screen(OpenTicketsScreen)"
+    assert_includes admin, "register_screen(TimeToCloseScreen)"
+    assert_includes admin, "register_screen(HelpPageViewsScreen)"
     assert_includes admin, "Widgets::ALL.each { |widget| RecordingStudioAdmin.register_widget(widget) }"
 
     admin_dir = File.expand_path("../lib/recording_studio_support/admin", __dir__)
@@ -476,7 +478,10 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes tickets_screen, "order(created_at: :asc)"
     assert_includes duration_axis, '[60, "minutes"]'
     assert_includes widgets, "DurationAxis.series"
-    assert_includes widgets, "OpenTicketsScreen.path"
+    assert_includes widgets, "ChartSeries.from_metrics"
+    assert_includes widgets, "OpenTicketsScreen.unassigned_path"
+    chart_series = File.read("#{admin_dir}/chart_series.rb")
+    assert_includes chart_series, "{ x: category_x(point_x(point)), y: numeric_y(plotted) }"
   end
 
   def test_dummy_mounts_support_and_admin
