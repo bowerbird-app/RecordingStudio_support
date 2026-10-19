@@ -6,8 +6,9 @@
 No migration. Admin Support hub widgets read existing Metrics identifiers
 (`support_tickets.unassigned_open`, `support_tickets.oldest_open_age`,
 `support_tickets.avg_time_to_resolve`, `support_page_views.over_time`).
-Ticket cards open the staff Messages desk. Page views open the Support pages
-screen. Tickets stay under the Workspace. No new gems.
+Unassigned and time-to-close cards open the staff Messages desk. Oldest open
+opens the Open tickets table (`status: open`, oldest first). Page views open
+the Support pages screen. Tickets stay under the Workspace. No new gems.
 
 ### Host app
 

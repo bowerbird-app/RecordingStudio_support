@@ -16,6 +16,10 @@ Admin Support hub shows queue and help-view metrics from RecordingStudioMetrics.
   `support_tickets.avg_time_to_resolve`, and `support_page_views.over_time`.
 - Ticket widgets link to the staff Messages desk (`/admin/support/messages`).
   Page views link to the Support pages admin screen.
+- Oldest open ticket More opens an Open tickets table (`status: open`, oldest
+  first). Row Desk opens that conversation. The age card matches this queue.
+- Time to close charts minutes, hours, or days instead of raw seconds, without
+  trailing zeros.
 
 ### Upgrade notes
 - Bump to `0.23.0`. No migration.

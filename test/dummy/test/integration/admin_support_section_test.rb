@@ -41,7 +41,8 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Oldest open ticket"
-    assert_includes response.body, "/admin/support/messages"
+    assert_includes response.body, "/admin/screens/open_tickets"
+    refute_includes response.body, "/admin/support/messages"
 
     get "/admin/sections/support/widgets/widgets.support.avg_time_to_resolve"
 
@@ -54,6 +55,60 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Help page views"
     assert_includes response.body, "/admin/screens/support_pages"
+  end
+
+  test "open tickets screen lists oldest open tickets first" do
+    patron = RecordingStudioUser.create_user!(
+      email: "open-queue-#{SecureRandom.hex(4)}@example.com",
+      password: "Password",
+      first_name: "Casey",
+      last_name: "Patron",
+      time_zone: "UTC"
+    )
+    older = travel_to(Time.utc(2026, 1, 2, 12)) do
+      RecordingStudioSupport::Tickets.open!(
+        actor: patron,
+        subject: "Oldest waiting ticket",
+        body: "Been here a while."
+      )
+    end
+    newer = travel_to(Time.utc(2026, 3, 2, 12)) do
+      RecordingStudioSupport::Tickets.open!(
+        actor: patron,
+        subject: "Newer open ticket",
+        body: "Opened later."
+      )
+    end
+
+    get "/admin/screens/open_tickets"
+
+    assert_response :success
+    assert_includes response.body, "Open tickets"
+    refute_includes response.body, "recordable"
+
+    get "/admin/screens/open_tickets/table"
+
+    assert_response :success
+    assert_includes response.body, older.subject
+    assert_includes response.body, newer.subject
+    assert_operator response.body.index(older.subject), :<, response.body.index(newer.subject)
+    assert_includes response.body, RecordingStudioSupport::Admin::OpenTicketsScreen.desk_path(older)
+    refute_includes response.body, "Table data"
+
+    resolved = travel_to(Time.utc(2025, 12, 1, 12)) do
+      ticket = RecordingStudioSupport::Tickets.open!(
+        actor: patron,
+        subject: "Already closed ticket",
+        body: "This one is done."
+      )
+      ticket.update!(status: :resolved)
+      ticket
+    end
+
+    get "/admin/screens/open_tickets/table"
+
+    assert_response :success
+    refute_includes response.body, resolved.subject
   end
 
   test "admin support section shows a page count and two table links" do
@@ -73,6 +128,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Time to close"
     assert_includes response.body, "Help page views"
     assert_includes response.body, "/admin/support/messages"
+    assert_includes response.body, "/admin/screens/open_tickets"
     refute_includes response.body, "See every page"
     refute_includes response.body, "Latest pages"
     refute_includes response.body, "How do I sign in?"

@@ -29,14 +29,10 @@ module RecordingStudioSupport
         total = seconds.to_i
         return "0s" if total <= 0
 
-        format_age_parts(*age_parts(total))
-      end
-
-      def age_parts(total)
         days, remainder = total.divmod(86_400)
         hours, remainder = remainder.divmod(3_600)
         minutes, secs = remainder.divmod(60)
-        [days, hours, minutes, secs]
+        format_age_parts(days, hours, minutes, secs)
       end
 
       def format_age_parts(days, hours, minutes, secs)
@@ -76,19 +72,24 @@ module RecordingStudioSupport
         hide_period
         blast_radius :site
         value { |context| Widgets.age_label(Widgets.metric_value("support_tickets.oldest_open_age", context)) }
-        link_to { Queries.staff_messages_path }
-        link_label "Desk"
+        link_to { OpenTicketsScreen.path }
+        link_label "Open tickets"
       end
 
       AVG_TIME_TO_RESOLVE = RecordingStudioAdmin::Widget.new("widgets.support.avg_time_to_resolve") do
         type :chart
         chart_type :line
         title "Time to close"
-        info "Mean seconds from open to resolved, by the day they closed."
+        info "Mean time from open to resolved, by the day they closed. Minutes, hours, or days."
         hide_change
         hide_period
         blast_radius :site
-        series { |context| Widgets.metric_series("support_tickets.avg_time_to_resolve", context) }
+        series { |context| DurationAxis.series("support_tickets.avg_time_to_resolve", context) }
+        chart_options do
+          {
+            yaxis: { min: 0, forceNiceScale: true, decimalsInFloat: 1 }
+          }
+        end
         link_to { Queries.staff_messages_path }
         link_label "Desk"
       end

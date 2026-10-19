@@ -3,6 +3,8 @@
 require "test_helper"
 
 class AdminTest < Minitest::Test
+  include ActiveSupport::Testing::TimeHelpers
+
   def test_support_section_is_help_not_jargon
     assert_equal "support", RecordingStudioSupport::Admin::Section.key
     assert_equal "Support", resolve_admin_copy(RecordingStudioSupport::Admin::Section.title)
@@ -101,6 +103,7 @@ class AdminTest < Minitest::Test
     assert_equal "/admin", RecordingStudioSupport::Admin::Queries.admin_hub_path
     assert_equal "/admin/screens/support_pages", RecordingStudioSupport::Admin::Queries.admin_pages_screen_path
     assert_equal "/admin/screens/support_sections", RecordingStudioSupport::Admin::Queries.admin_sections_screen_path
+    assert_equal "/admin/screens/open_tickets", RecordingStudioSupport::Admin::OpenTicketsScreen.path
     assert_equal "/admin/support/messages", RecordingStudioSupport::Admin::Queries.staff_messages_path
   end
 
@@ -156,12 +159,13 @@ class AdminTest < Minitest::Test
     assert_includes called, RecordingStudioSupport::Admin::Section
     assert_includes called, RecordingStudioSupport::Admin::PagesScreen
     assert_includes called, RecordingStudioSupport::Admin::SectionsScreen
+    assert_includes called, RecordingStudioSupport::Admin::OpenTicketsScreen
     RecordingStudioSupport::Admin::Widgets::ALL.each do |widget|
       assert_includes called, widget
     end
     refute defined?(RecordingStudioSupport::Admin::Widgets::SECTIONS)
     refute defined?(RecordingStudioSupport::Admin::Widgets::RECENT_PAGES)
-    assert_equal 8, called.size
+    assert_equal 9, called.size
   end
 
   def test_section_includes_metric_widgets
@@ -191,6 +195,8 @@ class AdminTest < Minitest::Test
       assert_equal "Desk", unassigned.link_label
       assert_equal "/admin/support/messages", unassigned.link_to.call(context)
       assert_equal "1d 1h", oldest.value.call(context)
+      assert_equal "Open tickets", oldest.link_label
+      assert_equal "/admin/screens/open_tickets", oldest.link_to.call(context)
     end
 
     assert_equal(
@@ -216,14 +222,20 @@ class AdminTest < Minitest::Test
     seen = []
     RecordingStudioMetrics::Admin.stub(:chart_series, lambda { |identifier, admin_context:, **params|
       seen << { identifier: identifier, context: admin_context, params: params }
-      series
+      if identifier == "support_tickets.avg_time_to_resolve"
+        [{ name: "Average time to resolve", data: [["2026-10-01", 12_000]] }]
+      else
+        series
+      end
     }) do
       resolve = RecordingStudioSupport::Admin::Widgets::AVG_TIME_TO_RESOLVE
       views = RecordingStudioSupport::Admin::Widgets::PAGE_VIEWS
 
       assert_equal :chart, resolve.type
       assert_equal :line, resolve.chart_type
-      assert_equal series, resolve.series.call(context)
+      scaled = resolve.series.call(context)
+      assert_equal [{ name: "Average time to resolve minutes", data: [["2026-10-01", 200]] }], scaled
+      refute scaled.first[:data].first[1].to_s.include?(".000000")
       assert_equal "/admin/support/messages", resolve.link_to.call(context)
       assert_equal series, views.series.call(context)
       assert_equal "/admin/screens/support_pages", views.link_to.call(context)
@@ -237,6 +249,76 @@ class AdminTest < Minitest::Test
     seen.each do |row|
       assert_equal true, row[:params][:site_authorized]
     end
+  end
+
+  def test_open_tickets_screen_lists_oldest_first
+    screen = RecordingStudioSupport::Admin::OpenTicketsScreen
+
+    assert_equal "open_tickets", screen.key
+    assert_equal "Open tickets", screen.title
+    assert_equal :site, screen.blast_radius
+    assert_equal :created_at, screen.table_value.default_sort_key
+    assert_equal "asc", screen.table_value.default_direction
+    assert_includes screen.table_value.columns.map(&:key), :waiting
+    assert_includes screen.table_value.actions.map(&:name), :desk
+  end
+
+  def test_open_ticket_helpers_match_the_age_widget
+    screen = RecordingStudioSupport::Admin::OpenTicketsScreen
+    older = Struct.new(:created_at, :message_group_id).new(Time.utc(2026, 10, 17, 12), "group-old")
+    newer = Struct.new(:created_at, :message_group_id).new(Time.utc(2026, 10, 19, 11), nil)
+
+    travel_to Time.utc(2026, 10, 19, 12) do
+      assert_equal "2d", screen.wait_label(older)
+      assert_equal "1h", screen.wait_label(newer)
+    end
+    assert_equal "None", screen.wait_label(Struct.new(:created_at).new(nil))
+    assert_equal "/admin/support/messages?group_id=group-old", screen.desk_path(older)
+    assert_equal "/admin/support/messages", screen.desk_path(newer)
+  end
+
+  def test_open_tickets_query_is_open_oldest_first
+    relation = Object.new
+    RecordingStudioSupport::SupportTicket.stub(:where, lambda { |attrs|
+      assert_equal({ status: "open" }, attrs)
+      relation
+    }) do
+      relation.define_singleton_method(:order) do |args|
+        assert_equal({ created_at: :asc }, args)
+        self
+      end
+      assert_same relation, RecordingStudioSupport::Admin::OpenTicketsScreen.tickets
+    end
+  end
+
+  def test_duration_axis_uses_human_units_without_trailing_zeros
+    axis = RecordingStudioSupport::Admin::DurationAxis
+    context = Object.new
+
+    RecordingStudioMetrics::Admin.stub(:chart_series, lambda { |_identifier, **|
+      [{ name: "Average time to resolve", data: [["2026-10-01", 12_000.0]] }]
+    }) do
+      scaled = axis.series("support_tickets.avg_time_to_resolve", context)
+      assert_equal [{ name: "Average time to resolve minutes", data: [["2026-10-01", 200]] }], scaled
+      refute scaled.first[:data].first[1].to_s.include?(".000000")
+    end
+
+    RecordingStudioMetrics::Admin.stub(:chart_series, lambda { |_identifier, **|
+      [{ name: "Average time to resolve", data: [["2026-10-01", 43_200]] }]
+    }) do
+      scaled = axis.series("support_tickets.avg_time_to_resolve", context)
+      assert_equal [{ name: "Average time to resolve hours", data: [["2026-10-01", 12]] }], scaled
+    end
+
+    RecordingStudioMetrics::Admin.stub(:chart_series, lambda { |_identifier, **|
+      [{ name: "Average time to resolve", data: [["2026-10-01", 345_600]] }]
+    }) do
+      scaled = axis.series("support_tickets.avg_time_to_resolve", context)
+      assert_equal [{ name: "Average time to resolve days", data: [["2026-10-01", 4]] }], scaled
+    end
+
+    assert_equal 3.5, axis.axis_number(3.54)
+    assert_equal 3, axis.axis_number(3.0)
   end
 
   def test_age_label_formats_waiting_time
