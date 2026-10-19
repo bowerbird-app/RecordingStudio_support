@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.0] - 2026-10-19
+
+Admin Support hub shows queue and help-view metrics from RecordingStudioMetrics.
+
+### Added
+- Admin widgets for `support_tickets.unassigned_open`, `support_tickets.oldest_open_age`,
+  `support_tickets.avg_time_to_resolve`, and `support_page_views.over_time`.
+- Ticket widgets link to the staff Messages desk (`/admin/support/messages`).
+  Page views link to the Support pages admin screen.
+
+### Upgrade notes
+- Bump to `0.23.0`. No migration.
+- No new gems. Widgets use the existing `recording_studio_metrics` and
+  `recording_studio_admin` pins.
+
 ## [0.22.0] - 2026-10-16
 
 Admin Support pages declare the same writes the Admin API already performs.
@@ -867,7 +882,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.22.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.23.0...HEAD
+[0.23.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.20.0...v0.21.0
 [0.20.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.19.0...v0.20.0

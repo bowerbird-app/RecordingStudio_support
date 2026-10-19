@@ -13,6 +13,49 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     switch_to_admin_root!
   end
 
+  test "admin support metric widgets read metrics and link to desk or pages" do
+    patron = RecordingStudioUser.create_user!(
+      email: "widget-patron-#{SecureRandom.hex(4)}@example.com",
+      password: "Password",
+      first_name: "Casey",
+      last_name: "Patron",
+      time_zone: "UTC"
+    )
+    RecordingStudioSupport::Tickets.open!(
+      actor: patron,
+      subject: "Widget queue #{SecureRandom.hex(4)}",
+      body: "Need a person on this."
+    )
+    unassigned = RecordingStudioSupport::SupportTicket.open.where(assignee_id: nil).count
+    assert_operator unassigned, :>=, 1
+
+    get "/admin/sections/support/widgets/widgets.support.unassigned_open"
+
+    assert_response :success
+    assert_includes response.body, "Unassigned tickets"
+    assert_includes response.body, unassigned.to_s
+    assert_includes response.body, "/admin/support/messages"
+    refute_includes response.body, "recordable"
+
+    get "/admin/sections/support/widgets/widgets.support.oldest_open_age"
+
+    assert_response :success
+    assert_includes response.body, "Oldest open ticket"
+    assert_includes response.body, "/admin/support/messages"
+
+    get "/admin/sections/support/widgets/widgets.support.avg_time_to_resolve"
+
+    assert_response :success
+    assert_includes response.body, "Time to close"
+    assert_includes response.body, "/admin/support/messages"
+
+    get "/admin/sections/support/widgets/widgets.support.page_views"
+
+    assert_response :success
+    assert_includes response.body, "Help page views"
+    assert_includes response.body, "/admin/screens/support_pages"
+  end
+
   test "admin support section shows a page count and two table links" do
     get "/admin"
 
@@ -25,6 +68,11 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Support sections"
     assert_includes response.body, "/admin/screens/support_pages"
     assert_includes response.body, "/admin/screens/support_sections"
+    assert_includes response.body, "Unassigned tickets"
+    assert_includes response.body, "Oldest open ticket"
+    assert_includes response.body, "Time to close"
+    assert_includes response.body, "Help page views"
+    assert_includes response.body, "/admin/support/messages"
     refute_includes response.body, "See every page"
     refute_includes response.body, "Latest pages"
     refute_includes response.body, "How do I sign in?"

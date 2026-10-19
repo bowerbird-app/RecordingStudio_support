@@ -101,6 +101,7 @@ class AdminTest < Minitest::Test
     assert_equal "/admin", RecordingStudioSupport::Admin::Queries.admin_hub_path
     assert_equal "/admin/screens/support_pages", RecordingStudioSupport::Admin::Queries.admin_pages_screen_path
     assert_equal "/admin/screens/support_sections", RecordingStudioSupport::Admin::Queries.admin_sections_screen_path
+    assert_equal "/admin/support/messages", RecordingStudioSupport::Admin::Queries.staff_messages_path
   end
 
   def test_queries_label_published_and_draft_pages
@@ -155,11 +156,93 @@ class AdminTest < Minitest::Test
     assert_includes called, RecordingStudioSupport::Admin::Section
     assert_includes called, RecordingStudioSupport::Admin::PagesScreen
     assert_includes called, RecordingStudioSupport::Admin::SectionsScreen
-    assert_includes called, RecordingStudioSupport::Admin::Widgets::PAGE_COUNT
-    refute_includes called.map { |item| item.try(:key) }, "widgets.support.page_views"
+    RecordingStudioSupport::Admin::Widgets::ALL.each do |widget|
+      assert_includes called, widget
+    end
     refute defined?(RecordingStudioSupport::Admin::Widgets::SECTIONS)
     refute defined?(RecordingStudioSupport::Admin::Widgets::RECENT_PAGES)
-    assert_equal 4, called.size
+    assert_equal 8, called.size
+  end
+
+  def test_section_includes_metric_widgets
+    keys = RecordingStudioSupport::Admin::Section.widget_keys
+
+    assert_includes keys, "widgets.support.page_count"
+    assert_includes keys, "widgets.support.unassigned_open"
+    assert_includes keys, "widgets.support.oldest_open_age"
+    assert_includes keys, "widgets.support.avg_time_to_resolve"
+    assert_includes keys, "widgets.support.page_views"
+    assert_equal :site, RecordingStudioSupport::Admin::Section.blast_radius
+  end
+
+  def test_ticket_widgets_read_metrics_and_link_to_desk
+    context = Object.new
+    seen = []
+    RecordingStudioMetrics::Admin.stub(:scalar_value, lambda { |identifier, admin_context:, **params|
+      seen << { identifier: identifier, context: admin_context, params: params }
+      identifier == "support_tickets.oldest_open_age" ? 90_000 : 4
+    }) do
+      unassigned = RecordingStudioSupport::Admin::Widgets::UNASSIGNED_OPEN
+      oldest = RecordingStudioSupport::Admin::Widgets::OLDEST_OPEN_AGE
+
+      assert_equal :number, unassigned.type
+      assert_equal "Unassigned tickets", unassigned.title
+      assert_equal 4, unassigned.value.call(context)
+      assert_equal "Desk", unassigned.link_label
+      assert_equal "/admin/support/messages", unassigned.link_to.call(context)
+      assert_equal "1d 1h", oldest.value.call(context)
+    end
+
+    assert_equal ["support_tickets.unassigned_open", "support_tickets.oldest_open_age"],
+                 seen.map { |row| row[:identifier] }
+    seen.each do |row|
+      assert_same context, row[:context]
+      assert_equal true, row[:params][:site_authorized]
+      assert_equal :site, row[:params][:scope]
+    end
+  end
+
+  def test_oldest_open_age_widget_shows_none_when_empty
+    RecordingStudioMetrics::Admin.stub(:scalar_value, nil) do
+      assert_equal "None", RecordingStudioSupport::Admin::Widgets::OLDEST_OPEN_AGE.value.call(Object.new)
+    end
+  end
+
+  def test_chart_widgets_read_metrics_series
+    context = Object.new
+    series = [{ name: "Views", data: [["2026-10-01", 2]] }]
+    seen = []
+    RecordingStudioMetrics::Admin.stub(:chart_series, lambda { |identifier, admin_context:, **params|
+      seen << { identifier: identifier, context: admin_context, params: params }
+      series
+    }) do
+      resolve = RecordingStudioSupport::Admin::Widgets::AVG_TIME_TO_RESOLVE
+      views = RecordingStudioSupport::Admin::Widgets::PAGE_VIEWS
+
+      assert_equal :chart, resolve.type
+      assert_equal :line, resolve.chart_type
+      assert_equal series, resolve.series.call(context)
+      assert_equal "/admin/support/messages", resolve.link_to.call(context)
+      assert_equal series, views.series.call(context)
+      assert_equal "/admin/screens/support_pages", views.link_to.call(context)
+      assert_equal "Support pages", views.link_label
+    end
+
+    assert_equal ["support_tickets.avg_time_to_resolve", "support_page_views.over_time"],
+                 seen.map { |row| row[:identifier] }
+    seen.each do |row|
+      assert_equal true, row[:params][:site_authorized]
+    end
+  end
+
+  def test_age_label_formats_waiting_time
+    widgets = RecordingStudioSupport::Admin::Widgets
+
+    assert_equal "None", widgets.age_label(nil)
+    assert_equal "0s", widgets.age_label(0)
+    assert_equal "45s", widgets.age_label(45)
+    assert_equal "2h 3m", widgets.age_label((2 * 3_600) + (3 * 60))
+    assert_equal "1d 1h", widgets.age_label(90_000)
   end
 
   def test_section_copy_follows_configuration

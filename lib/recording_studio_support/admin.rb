@@ -16,7 +16,7 @@ module RecordingStudioSupport
       RecordingStudioAdmin.register_section(Section)
       RecordingStudioAdmin.register_screen(PagesScreen)
       RecordingStudioAdmin.register_screen(SectionsScreen)
-      RecordingStudioAdmin.register_widget(Widgets::PAGE_COUNT)
+      Widgets::ALL.each { |widget| RecordingStudioAdmin.register_widget(widget) }
     end
   end
 end

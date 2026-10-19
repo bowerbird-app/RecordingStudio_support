@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.22.0", ::RecordingStudioSupport::VERSION
+    assert_equal "0.23.0", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -465,7 +465,7 @@ class RecordingStudioSupportTest < Minitest::Test
     refute_includes sections_screen, "1 page"
     refute_includes sections_screen, "pages"
     assert_includes admin, "register_screen(SectionsScreen)"
-    assert_includes admin, "register_widget(Widgets::PAGE_COUNT)"
+    assert_includes admin, "Widgets::ALL.each { |widget| RecordingStudioAdmin.register_widget(widget) }"
   end
 
   def test_dummy_mounts_support_and_admin
