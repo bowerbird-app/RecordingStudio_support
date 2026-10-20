@@ -7,6 +7,7 @@ module RecordingStudioSupport
       icon :lifebuoy
       title { RecordingStudioSupport.configuration.admin_help_title }
       subtitle { RecordingStudioSupport.configuration.admin_help_subtitle }
+      blast_radius :site
 
       link :support_pages,
            text: "Support pages",
@@ -18,7 +19,26 @@ module RecordingStudioSupport
            url: ->(context) { context.admin_screen_path("support_sections") },
            style: :secondary
 
+      link :open_tickets,
+           text: "Open tickets",
+           url: ->(context) { context.admin_screen_path("open_tickets") },
+           style: :secondary
+
+      link :time_to_close,
+           text: "Time to close",
+           url: ->(context) { context.admin_screen_path("time_to_close") },
+           style: :secondary
+
+      link :help_page_views,
+           text: "Help page views",
+           url: ->(context) { context.admin_screen_path("help_page_views") },
+           style: :secondary
+
       widget "widgets.support.page_count"
+      widget "widgets.support.unassigned_open"
+      widget "widgets.support.oldest_open_age"
+      widget "widgets.support.avg_time_to_resolve"
+      widget "widgets.support.page_views"
     end
   end
 end

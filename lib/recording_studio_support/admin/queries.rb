@@ -60,6 +60,10 @@ module RecordingStudioSupport
         "/admin/screens/support_sections"
       end
 
+      def staff_messages_path
+        "#{pages_prefix}/messages"
+      end
+
       def page_status(recording)
         if recording.respond_to?(:currently_published?) && recording.currently_published?
           "Published"

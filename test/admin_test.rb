@@ -3,6 +3,8 @@
 require "test_helper"
 
 class AdminTest < Minitest::Test
+  include ActiveSupport::Testing::TimeHelpers
+
   def test_support_section_is_help_not_jargon
     assert_equal "support", RecordingStudioSupport::Admin::Section.key
     assert_equal "Support", resolve_admin_copy(RecordingStudioSupport::Admin::Section.title)
@@ -78,15 +80,21 @@ class AdminTest < Minitest::Test
     end
   end
 
-  def test_section_links_to_the_two_admin_tables
+  def test_section_links_to_the_admin_tables
     links = RecordingStudioSupport::Admin::Section.links
     names = links.map(&:name)
     texts = links.map(&:text)
 
     assert_includes names, :support_pages
     assert_includes names, :support_sections
+    assert_includes names, :open_tickets
+    assert_includes names, :time_to_close
+    assert_includes names, :help_page_views
     assert_includes texts, "Support pages"
     assert_includes texts, "Support sections"
+    assert_includes texts, "Open tickets"
+    assert_includes texts, "Time to close"
+    assert_includes texts, "Help page views"
     refute_includes names, :page_list
     refute_includes names, :open_pages
     refute_includes texts, "See every page"
@@ -101,6 +109,8 @@ class AdminTest < Minitest::Test
     assert_equal "/admin", RecordingStudioSupport::Admin::Queries.admin_hub_path
     assert_equal "/admin/screens/support_pages", RecordingStudioSupport::Admin::Queries.admin_pages_screen_path
     assert_equal "/admin/screens/support_sections", RecordingStudioSupport::Admin::Queries.admin_sections_screen_path
+    assert_equal "/admin/screens/open_tickets", RecordingStudioSupport::Admin::OpenTicketsScreen.path
+    assert_equal "/admin/support/messages", RecordingStudioSupport::Admin::Queries.staff_messages_path
   end
 
   def test_queries_label_published_and_draft_pages
@@ -155,11 +165,212 @@ class AdminTest < Minitest::Test
     assert_includes called, RecordingStudioSupport::Admin::Section
     assert_includes called, RecordingStudioSupport::Admin::PagesScreen
     assert_includes called, RecordingStudioSupport::Admin::SectionsScreen
-    assert_includes called, RecordingStudioSupport::Admin::Widgets::PAGE_COUNT
-    refute_includes called.map { |item| item.try(:key) }, "widgets.support.page_views"
+    assert_includes called, RecordingStudioSupport::Admin::OpenTicketsScreen
+    assert_includes called, RecordingStudioSupport::Admin::TimeToCloseScreen
+    assert_includes called, RecordingStudioSupport::Admin::HelpPageViewsScreen
+    RecordingStudioSupport::Admin::Widgets::ALL.each do |widget|
+      assert_includes called, widget
+    end
     refute defined?(RecordingStudioSupport::Admin::Widgets::SECTIONS)
     refute defined?(RecordingStudioSupport::Admin::Widgets::RECENT_PAGES)
-    assert_equal 4, called.size
+    assert_equal 11, called.size
+  end
+
+  def test_section_includes_metric_widgets
+    keys = RecordingStudioSupport::Admin::Section.widget_keys
+
+    assert_includes keys, "widgets.support.page_count"
+    assert_includes keys, "widgets.support.unassigned_open"
+    assert_includes keys, "widgets.support.oldest_open_age"
+    assert_includes keys, "widgets.support.avg_time_to_resolve"
+    assert_includes keys, "widgets.support.page_views"
+    assert_equal :site, RecordingStudioSupport::Admin::Section.blast_radius
+  end
+
+  def test_ticket_widgets_read_metrics_and_link_to_desk
+    context = Object.new
+    seen = []
+    RecordingStudioMetrics::Admin.stub(:scalar_value, lambda { |identifier, admin_context:, **params|
+      seen << { identifier: identifier, context: admin_context, params: params }
+      identifier == "support_tickets.oldest_open_age" ? 90_000 : 4
+    }) do
+      unassigned = RecordingStudioSupport::Admin::Widgets::UNASSIGNED_OPEN
+      oldest = RecordingStudioSupport::Admin::Widgets::OLDEST_OPEN_AGE
+
+      assert_equal :number, unassigned.type
+      assert_equal "Unassigned tickets", unassigned.title
+      assert_equal 4, unassigned.value.call(context)
+      assert_equal "Unassigned", unassigned.link_label
+      assert_equal "/admin/screens/open_tickets?assignee=Unassigned", unassigned.link_to.call(context)
+      assert_equal "1d 1h", oldest.value.call(context)
+      assert_equal "Open tickets", oldest.link_label
+      assert_equal "/admin/screens/open_tickets", oldest.link_to.call(context)
+    end
+
+    assert_equal(
+      %w[support_tickets.unassigned_open support_tickets.oldest_open_age],
+      seen.map { |row| row[:identifier] }
+    )
+    seen.each do |row|
+      assert_same context, row[:context]
+      assert_equal true, row[:params][:site_authorized]
+      assert_equal :site, row[:params][:scope]
+    end
+  end
+
+  def test_oldest_open_age_widget_shows_none_when_empty
+    RecordingStudioMetrics::Admin.stub(:scalar_value, nil) do
+      assert_equal "None", RecordingStudioSupport::Admin::Widgets::OLDEST_OPEN_AGE.value.call(Object.new)
+    end
+  end
+
+  def test_chart_widgets_read_metrics_series
+    context = Object.new
+    series = [{ name: "Views", data: [["2026-10-01", 2]] }]
+    seen = []
+    RecordingStudioMetrics::Admin.stub(:chart_series, lambda { |identifier, admin_context:, **params|
+      seen << { identifier: identifier, context: admin_context, params: params }
+      if identifier == "support_tickets.avg_time_to_resolve"
+        [{ name: "Average time to resolve", data: [["2026-10-01", 12_000]] }]
+      else
+        series
+      end
+    }) do
+      resolve = RecordingStudioSupport::Admin::Widgets::AVG_TIME_TO_RESOLVE
+      views = RecordingStudioSupport::Admin::Widgets::PAGE_VIEWS
+
+      assert_equal :chart, resolve.type
+      assert_equal :line, resolve.chart_type
+      scaled = resolve.series.call(context)
+      assert_time_to_close_xy_series(
+        scaled,
+        name: "Average time to resolve minutes",
+        x_label: "2026-10-01",
+        y_value: 200
+      )
+      assert_equal "/admin/screens/time_to_close", resolve.link_to.call(context)
+      assert_equal "Time to close", resolve.link_label
+      assert_equal series, views.series.call(context)
+      assert_equal "/admin/screens/help_page_views", views.link_to.call(context)
+      assert_equal "Help page views", views.link_label
+    end
+
+    assert_equal(
+      %w[support_tickets.avg_time_to_resolve support_page_views.over_time],
+      seen.map { |row| row[:identifier] }
+    )
+    seen.each do |row|
+      assert_equal true, row[:params][:site_authorized]
+    end
+  end
+
+  def test_open_tickets_screen_lists_oldest_first
+    screen = RecordingStudioSupport::Admin::OpenTicketsScreen
+
+    assert_equal "open_tickets", screen.key
+    assert_equal "Open tickets", screen.title
+    assert_equal :site, screen.blast_radius
+    assert_equal :created_at, screen.table_value.default_sort_key
+    assert_equal "asc", screen.table_value.default_direction
+    assert_includes screen.table_value.columns.map(&:key), :waiting
+    assert_includes screen.table_value.actions.map(&:name), :desk
+    assert_includes screen.table_value.filters.map(&:key), :assignee
+    assert_equal "/admin/screens/open_tickets?assignee=Unassigned", screen.unassigned_path
+  end
+
+  def test_time_to_close_and_help_page_views_screens
+    close = RecordingStudioSupport::Admin::TimeToCloseScreen
+    views = RecordingStudioSupport::Admin::HelpPageViewsScreen
+
+    assert_equal "time_to_close", close.key
+    assert_equal :site, close.blast_radius
+    assert_equal :line, close.chart_value.type_value
+    assert_equal :resolved_at, close.table_value.default_sort_key
+    assert_equal "/admin/screens/time_to_close", close.path
+
+    assert_equal "help_page_views", views.key
+    assert_equal :site, views.blast_radius
+    assert_equal :line, views.chart_value.type_value
+    assert_equal :created_at, views.table_value.default_sort_key
+    assert_equal "/admin/screens/help_page_views", views.path
+  end
+
+  def test_open_ticket_helpers_match_the_age_widget
+    screen = RecordingStudioSupport::Admin::OpenTicketsScreen
+    older = Struct.new(:created_at, :message_group_id).new(Time.utc(2026, 10, 17, 12), "group-old")
+    newer = Struct.new(:created_at, :message_group_id).new(Time.utc(2026, 10, 19, 11), nil)
+
+    travel_to Time.utc(2026, 10, 19, 12) do
+      assert_equal "2d", screen.wait_label(older)
+      assert_equal "1h", screen.wait_label(newer)
+    end
+    assert_equal "None", screen.wait_label(Struct.new(:created_at).new(nil))
+    assert_equal "/admin/support/messages?group_id=group-old", screen.desk_path(older)
+    assert_equal "/admin/support/messages", screen.desk_path(newer)
+  end
+
+  def test_duration_axis_uses_human_units_without_trailing_zeros
+    axis = RecordingStudioSupport::Admin::DurationAxis
+    context = Object.new
+
+    RecordingStudioMetrics::Admin.stub(:chart_series, lambda { |_identifier, **|
+      [{ name: "Average time to resolve", data: [["2026-10-01", 12_000.0]] }]
+    }) do
+      scaled = axis.series("support_tickets.avg_time_to_resolve", context)
+      assert_time_to_close_xy_series(
+        scaled,
+        name: "Average time to resolve minutes",
+        x_label: "2026-10-01",
+        y_value: 200
+      )
+    end
+
+    RecordingStudioMetrics::Admin.stub(:chart_series, lambda { |_identifier, **|
+      [{ name: "Average time to resolve", data: [["2026-10-01", 43_200]] }]
+    }) do
+      scaled = axis.series("support_tickets.avg_time_to_resolve", context)
+      assert_time_to_close_xy_series scaled, name: "Average time to resolve hours", x_label: "2026-10-01", y_value: 12
+    end
+
+    RecordingStudioMetrics::Admin.stub(:chart_series, lambda { |_identifier, **|
+      [{ name: "Average time to resolve", data: [["2026-10-01", 345_600]] }]
+    }) do
+      scaled = axis.series("support_tickets.avg_time_to_resolve", context)
+      assert_time_to_close_xy_series scaled, name: "Average time to resolve days", x_label: "2026-10-01", y_value: 4
+    end
+
+    assert_equal 3.5, axis.axis_number(3.54)
+    assert_equal 3, axis.axis_number(3.0)
+  end
+
+  def test_time_to_close_series_shape_is_xy_objects
+    context = Object.new
+    RecordingStudioMetrics::Admin.stub(:chart_series, lambda { |_identifier, **|
+      [{ name: "Average time to resolve", data: [["2026-10-01", 12_000], ["2026-10-02", 6_000]] }]
+    }) do
+      scaled = RecordingStudioSupport::Admin::Widgets::AVG_TIME_TO_RESOLVE.series.call(context)
+      point = scaled.first[:data].first
+
+      assert_kind_of Hash, point
+      refute_kind_of Array, point
+      assert_equal({ x: "2026-10-01", y: 200 }, point)
+      scaled.first[:data].each do |item|
+        assert_kind_of Hash, item
+        assert item.key?(:x)
+        assert item.key?(:y)
+        refute_kind_of Array, item
+      end
+    end
+  end
+
+  def test_age_label_formats_waiting_time
+    widgets = RecordingStudioSupport::Admin::Widgets
+
+    assert_equal "None", widgets.age_label(nil)
+    assert_equal "0s", widgets.age_label(0)
+    assert_equal "45s", widgets.age_label(45)
+    assert_equal "2h 3m", widgets.age_label((2 * 3_600) + (3 * 60))
+    assert_equal "1d 1h", widgets.age_label(90_000)
   end
 
   def test_section_copy_follows_configuration
@@ -180,5 +391,19 @@ class AdminTest < Minitest::Test
 
   def resolve_admin_copy(value)
     value.respond_to?(:call) ? value.call(nil) : value
+  end
+
+  def assert_time_to_close_xy_series(series, name:, x_label:, y_value:)
+    assert_equal 1, series.size
+    assert_equal name, series.first[:name]
+    point = series.first[:data].first
+    assert_kind_of Hash, point
+    refute_kind_of Array, point
+    assert_equal %i[x y], point.keys
+    assert_kind_of String, point[:x]
+    assert_kind_of Numeric, point[:y]
+    refute point[:y].to_s.include?(".000000")
+    assert_equal x_label, point[:x]
+    assert_equal y_value, point[:y]
   end
 end

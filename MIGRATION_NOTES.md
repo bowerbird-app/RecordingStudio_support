@@ -1,6 +1,28 @@
 # Upgrade notes
 
 
+## 0.23.0
+
+No migration. Admin Support hub widgets read existing Metrics identifiers
+(`support_tickets.unassigned_open`, `support_tickets.oldest_open_age`,
+`support_tickets.avg_time_to_resolve`, `support_page_views.over_time`).
+Unassigned tickets opens the Open tickets table filtered to Unassigned.
+Oldest open opens that table (`status: open`, oldest first). Time to close
+and Help page views open their own Admin screens (chart plus table). Tickets
+stay under the Workspace. No new gems.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.23.0`.
+2. `bundle install`. No new Support migrations.
+
+### Verify
+
+```bash
+bundle exec rake test
+cd test/dummy && bundle exec rails test test/integration/admin_support_section_test.rb
+```
+
 ## 0.22.0
 
 No migration. Operations `SupportPage` `operations:` stay

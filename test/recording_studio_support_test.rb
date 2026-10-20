@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.22.0", ::RecordingStudioSupport::VERSION
+    assert_equal "0.23.0", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -465,7 +465,21 @@ class RecordingStudioSupportTest < Minitest::Test
     refute_includes sections_screen, "1 page"
     refute_includes sections_screen, "pages"
     assert_includes admin, "register_screen(SectionsScreen)"
-    assert_includes admin, "register_widget(Widgets::PAGE_COUNT)"
+    assert_includes admin, "register_screen(OpenTicketsScreen)"
+    assert_includes admin, "register_screen(TimeToCloseScreen)"
+    assert_includes admin, "register_screen(HelpPageViewsScreen)"
+    assert_includes admin, "Widgets::ALL.each { |widget| RecordingStudioAdmin.register_widget(widget) }"
+
+    admin_dir = File.expand_path("../lib/recording_studio_support/admin", __dir__)
+    tickets_screen = File.read("#{admin_dir}/open_tickets_screen.rb")
+    duration_axis = File.read("#{admin_dir}/duration_axis.rb")
+    widgets = File.read("#{admin_dir}/widgets.rb")
+    assert_includes tickets_screen, 'where(status: "open")'
+    assert_includes tickets_screen, "order(created_at: :asc)"
+    assert_includes duration_axis, '[60, "minutes"]'
+    assert_includes duration_axis, "{ x: point_x(point), y: y.nil? ? nil : axis_number(y.to_f / divisor) }"
+    assert_includes widgets, "DurationAxis.series"
+    assert_includes widgets, "OpenTicketsScreen.unassigned_path"
   end
 
   def test_dummy_mounts_support_and_admin
