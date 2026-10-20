@@ -16,59 +16,13 @@ module RecordingStudioSupport
       end
 
       def metric_series(identifier, admin_context)
-        xy_series(
+        XySeries.from(
           RecordingStudioMetrics::Admin.chart_series(
             identifier,
             admin_context: admin_context,
             **METRIC_PARAMS
           )
         )
-      end
-
-      def xy_series(series)
-        Array(series).map { |row| xy_row(row) }
-      end
-
-      def xy_row(row)
-        name = row.respond_to?(:[]) ? (row[:name] || row["name"]) : nil
-        { name: name, data: Array(data_for(row)).map { |point| xy_point(point) } }
-      end
-
-      def data_for(row)
-        return [] unless row.respond_to?(:[])
-
-        inner = row[:data] || row["data"]
-        return inner unless inner.nil?
-
-        [row]
-      end
-
-      def xy_point(point)
-        { x: xy_x(point), y: xy_y(point) }
-      end
-
-      def xy_x(point)
-        raw = if point.is_a?(Array)
-                point[0]
-              elsif point.respond_to?(:[])
-                point[:x] || point["x"] || point[:date] || point["date"]
-              end
-        return if raw.nil?
-        return raw.strftime("%Y-%m-%d") if raw.respond_to?(:strftime)
-
-        raw.to_s
-      end
-
-      def xy_y(point)
-        raw = if point.is_a?(Array)
-                point[1]
-              elsif point.respond_to?(:[])
-                point[:y] || point["y"] || point[:value] || point["value"]
-              end
-        return if raw.nil?
-
-        raw = raw.to_f if raw.is_a?(String) && raw.match?(/\A-?\d+(\.\d+)?\z/)
-        raw
       end
 
       def age_label(seconds)
@@ -134,10 +88,7 @@ module RecordingStudioSupport
         blast_radius :site
         series { |context| DurationAxis.series("support_tickets.avg_time_to_resolve", context) }
         chart_options do
-          {
-            xaxis: { labels: { show: false } },
-            yaxis: { min: 0, forceNiceScale: true, decimalsInFloat: 1 }
-          }
+          { xaxis: { labels: { show: false } }, yaxis: { min: 0, forceNiceScale: true, decimalsInFloat: 1 } }
         end
         link_to { TimeToCloseScreen.path }
         link_label "Time to close"

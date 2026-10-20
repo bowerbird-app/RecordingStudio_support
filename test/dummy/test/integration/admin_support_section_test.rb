@@ -56,7 +56,8 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Time to close"
     assert_includes response.body, "/admin/screens/time_to_close"
-    assert_includes CGI.unescapeHTML(response.body), '"labels":{"show":false}'
+    options = chart_options_from(response.body)
+    assert_equal false, options.dig("xaxis", "labels", "show")
     assert_chart_xy_payload response.body
 
     get "/admin/sections/support/widgets/widgets.support.page_views"
@@ -420,6 +421,13 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def chart_options_from(html)
+    document = Nokogiri::HTML(html)
+    node = document.at_css("[data-flat-pack--chart-options-value]")
+    assert node, "expected a Flatpack chart options payload"
+    JSON.parse(node["data-flat-pack--chart-options-value"])
+  end
 
   def assert_chart_xy_payload(html, require_nonzero: false)
     payload = CGI.unescapeHTML(html.to_s)
