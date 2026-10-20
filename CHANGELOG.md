@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.2] - 2026-10-20
+
+Admin Support hub links stay secondary, Time to close hides x labels, Help page views plot.
+
+### Changed
+- Support pages on `/admin/sections/support` uses the same secondary button as the other hub links.
+- Time to close widget sets Admin `chart_options` `xaxis.labels.show: false`.
+- Help page views widget and screen map Metrics `{ date:, value: }` (and Date x values) to Apex `{ x:, y: }` strings.
+
+### Upgrade notes
+- Bump to `0.23.2`. No migration.
+
 ## [0.23.1] - 2026-10-20
 
 Help page views charts use Metrics `0.5` `{ x:, y: }` points.
@@ -898,7 +910,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.23.1...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.23.2...HEAD
+[0.23.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.23.1...v0.23.2
 [0.23.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.21.0...v0.22.0
