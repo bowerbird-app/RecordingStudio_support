@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.23.2", ::RecordingStudioSupport::VERSION
+    assert_equal "0.24.0", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -480,6 +480,17 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes duration_axis, "{ x: point_x(point), y: y.nil? ? nil : axis_number(y.to_f / divisor) }"
     assert_includes widgets, "DurationAxis.series"
     assert_includes widgets, "OpenTicketsScreen.unassigned_path"
+    assert_includes widgets, "{ xaxis: { labels: { show: false } } }"
+    close_screen = File.read("#{admin_dir}/time_to_close_screen.rb")
+    views_screen = File.read("#{admin_dir}/help_page_views_screen.rb")
+    assert_includes close_screen, "filter_presentation :inline"
+    assert_includes close_screen, "filter :date_range, field: :resolved_at, default: :last_30_days"
+    assert_includes close_screen, "filter :group_by, values: ChartFilters::GROUPS, default: :day"
+    assert_includes views_screen, "filter_presentation :inline"
+    assert_includes views_screen, "filter :date_range, field: :created_at, default: :last_30_days"
+    assert_includes views_screen, "filter :group_by, values: ChartFilters::GROUPS, default: :day"
+    refute_includes close_screen, "filter_presentation :modal"
+    refute_includes views_screen, "filter_presentation :modal"
   end
 
   def test_dummy_mounts_support_and_admin

@@ -15,12 +15,12 @@ module RecordingStudioSupport
         )
       end
 
-      def metric_series(identifier, admin_context)
+      def metric_series(identifier, admin_context, **params)
         XySeries.from(
           RecordingStudioMetrics::Admin.chart_series(
             identifier,
             admin_context: admin_context,
-            **METRIC_PARAMS
+            **METRIC_PARAMS.merge(params)
           )
         )
       end
@@ -103,6 +103,7 @@ module RecordingStudioSupport
         hide_period
         blast_radius :site
         series { |context| Widgets.metric_series("support_page_views.over_time", context) }
+        chart_options { { xaxis: { labels: { show: false } } } }
         link_to { HelpPageViewsScreen.path }
         link_label "Help page views"
       end

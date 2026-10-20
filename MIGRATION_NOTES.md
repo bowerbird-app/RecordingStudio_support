@@ -1,6 +1,25 @@
 # Upgrade notes
 
 
+## 0.24.0
+
+No migration. Admin Support Help page views widget hides x-axis labels. Time to
+close and Help page views screens add inline Date range and Group by filters
+(`filter_presentation :inline`). Date range bounds the table; group by sets
+day/week/month chart buckets. Admin stays `~> 2.0` (dummy tag `v2.3.0`).
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.24.0`.
+2. `bundle install`. No new Support migrations.
+
+### Verify
+
+```bash
+bundle exec rake test
+cd test/dummy && bundle exec rails test test/integration/admin_support_section_test.rb
+```
+
 ## 0.23.2
 
 No migration. Admin Support hub “Support pages” is a secondary link. Time to

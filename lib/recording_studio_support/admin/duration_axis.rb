@@ -5,8 +5,8 @@ module RecordingStudioSupport
     module DurationAxis
       module_function
 
-      def series(identifier, admin_context)
-        rows = Array(Widgets.metric_series(identifier, admin_context))
+      def series(identifier, admin_context, **params)
+        rows = Array(Widgets.metric_series(identifier, admin_context, **params))
         values = rows.flat_map { |row| values_for(row) }.compact
         divisor, unit = scale(values)
         rows.map { |row| scale_row(row, divisor, unit) }

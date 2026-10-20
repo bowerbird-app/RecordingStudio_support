@@ -17,6 +17,10 @@ module RecordingStudioSupport
         tickets
       end
 
+      filter_presentation :inline
+      filter :date_range, field: :resolved_at, default: :last_30_days
+      filter :group_by, values: ChartFilters::GROUPS, default: :day
+
       summary do
         hide_metric
         hide_change
@@ -26,7 +30,9 @@ module RecordingStudioSupport
       chart do
         title "Mean time to close"
         type :line
-        series { |context| DurationAxis.series("support_tickets.avg_time_to_resolve", context) }
+        series do |context|
+          DurationAxis.series("support_tickets.avg_time_to_resolve", context, **ChartFilters.metric_params(context))
+        end
         options do
           {
             yaxis: { min: 0, forceNiceScale: true, decimalsInFloat: 1 }

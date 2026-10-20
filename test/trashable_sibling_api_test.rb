@@ -71,7 +71,7 @@ class TrashableSiblingApiTest < Minitest::Test
     assert_includes changelog, "v0.9.0"
     assert_includes changelog, "[0.17.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.16.1...v0.17.0"
     assert_includes changelog, "## [0.19.0]"
-    assert_includes changelog, "compare/v0.23.2...HEAD"
+    assert_includes changelog, "compare/v0.24.0...HEAD"
     assert_includes changelog, "[0.19.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.18.0...v0.19.0"
     assert_includes changelog, "## [0.18.0]"
     assert_includes changelog, "[0.18.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.17.0...v0.18.0"
