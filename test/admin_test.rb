@@ -256,6 +256,7 @@ class AdminTest < Minitest::Test
       assert_equal "Time to close", resolve.link_label
       assert_equal false, resolve.chart_options.call(context).dig(:xaxis, :labels, :show)
       assert_equal series, views.series.call(context)
+      assert_equal false, views.chart_options.call(context).dig(:xaxis, :labels, :show)
       assert_equal "/admin/screens/help_page_views", views.link_to.call(context)
       assert_equal "Help page views", views.link_label
     end
@@ -292,12 +293,42 @@ class AdminTest < Minitest::Test
     assert_equal :line, close.chart_value.type_value
     assert_equal :resolved_at, close.table_value.default_sort_key
     assert_equal "/admin/screens/time_to_close", close.path
+    assert_screen_inline_date_and_group_filters(
+      close,
+      date_field: :resolved_at
+    )
 
     assert_equal "help_page_views", views.key
     assert_equal :site, views.blast_radius
     assert_equal :line, views.chart_value.type_value
     assert_equal :created_at, views.table_value.default_sort_key
     assert_equal "/admin/screens/help_page_views", views.path
+    assert_screen_inline_date_and_group_filters(
+      views,
+      date_field: :created_at
+    )
+  end
+
+  def test_chart_filters_pass_date_range_and_group_by_into_metrics
+    context = Object.new
+    range = Struct.new(:start_date, :end_date).new(Date.new(2026, 10, 1), Date.new(2026, 10, 14))
+    context.define_singleton_method(:filter_value) do |key|
+      key == :group_by ? :week : range
+    end
+    seen = nil
+    RecordingStudioMetrics::Admin.stub(:chart_series, lambda { |_identifier, admin_context:, **params|
+      seen = params.merge(admin_context: admin_context)
+      [{ name: "Support page views", data: [{ x: "2026-09-28", y: 2 }] }]
+    }) do
+      RecordingStudioSupport::Admin::HelpPageViewsScreen.chart_value.series.call(context)
+    end
+
+    assert_same context, seen[:admin_context]
+    assert_equal :week, seen[:interval]
+    assert_equal range.start_date.beginning_of_day, seen[:start_at]
+    assert_equal range.end_date.end_of_day, seen[:end_at]
+    assert_equal true, seen[:site_authorized]
+    assert_equal :site, seen[:scope]
   end
 
   def test_open_ticket_helpers_match_the_age_widget
@@ -418,6 +449,21 @@ class AdminTest < Minitest::Test
 
   def resolve_admin_copy(value)
     value.respond_to?(:call) ? value.call(nil) : value
+  end
+
+  def assert_screen_inline_date_and_group_filters(screen, date_field:)
+    keys = screen.filters.map(&:key)
+    date_range = screen.filters.find { |filter| filter.key == :date_range }
+    group_by = screen.filters.find { |filter| filter.key == :group_by }
+
+    assert_equal :inline, screen.filter_presentation
+    assert_equal %i[date_range group_by], keys
+    assert_equal :date_range, date_range.type
+    assert_equal date_field, date_range.options[:field]
+    assert_equal :last_30_days, date_range.options[:default]
+    assert_equal :group_by, group_by.type
+    assert_equal %i[day week month], group_by.options[:values]
+    assert_equal :day, group_by.options[:default]
   end
 
   def assert_time_to_close_xy_series(series, name:, x_label:, y_value:)

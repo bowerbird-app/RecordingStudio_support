@@ -65,6 +65,8 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Help page views"
     assert_includes response.body, "/admin/screens/help_page_views"
+    views_options = chart_options_from(response.body)
+    assert_equal false, views_options.dig("xaxis", "labels", "show")
     assert_chart_xy_payload response.body, require_nonzero: true
   end
 
@@ -174,6 +176,107 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "How do I sign in?"
     refute_includes response.body, "Table data"
+  end
+
+  test "time to close and help page views screens keep date range and group by inline" do
+    get "/admin/screens/time_to_close"
+
+    assert_response :success
+    assert_inline_date_and_group_filters
+
+    get "/admin/screens/help_page_views"
+
+    assert_response :success
+    assert_inline_date_and_group_filters
+  end
+
+  test "time to close filters bound the table and bucket the chart" do
+    patron = RecordingStudioUser.create_user!(
+      email: "close-filters-#{SecureRandom.hex(4)}@example.com",
+      password: "Password",
+      first_name: "Casey",
+      last_name: "Patron",
+      time_zone: "UTC"
+    )
+    in_range = travel_to(Time.utc(2026, 10, 8, 12)) do
+      ticket = RecordingStudioSupport::Tickets.open!(
+        actor: patron,
+        subject: "Closed this week",
+        body: "In range."
+      )
+      ticket.update!(status: :resolved, resolved_at: Time.current)
+      ticket
+    end
+    out_of_range = travel_to(Time.utc(2026, 8, 1, 12)) do
+      ticket = RecordingStudioSupport::Tickets.open!(
+        actor: patron,
+        subject: "Closed last summer",
+        body: "Out of range."
+      )
+      ticket.update!(status: :resolved, resolved_at: Time.current)
+      ticket
+    end
+    later = travel_to(Time.utc(2026, 10, 10, 12)) do
+      ticket = RecordingStudioSupport::Tickets.open!(
+        actor: patron,
+        subject: "Closed later this week",
+        body: "Same week."
+      )
+      ticket.update!(status: :resolved, resolved_at: Time.current)
+      ticket
+    end
+
+    table_params = { start_date: "2026-10-01", end_date: "2026-10-14" }
+    get "/admin/screens/time_to_close/table", params: table_params
+
+    assert_response :success
+    assert_includes response.body, in_range.subject
+    assert_includes response.body, later.subject
+    refute_includes response.body, out_of_range.subject
+
+    get "/admin/screens/time_to_close/chart", params: table_params.merge(group_by: "day")
+    day_points = chart_x_labels(response.body)
+
+    get "/admin/screens/time_to_close/chart", params: table_params.merge(group_by: "week")
+    week_points = chart_x_labels(response.body)
+
+    assert_operator day_points.size, :>, week_points.size
+    assert_operator week_points.size, :>=, 1
+  end
+
+  test "help page views filters bound the table and bucket the chart" do
+    workspace = Workspace.find_by!(name: "Studio Workspace")
+    root = RecordingStudio.root_recording_for(workspace)
+    section = seeded_section("Getting started")
+    in_page = record_support_page(root, section, title: "Views this week #{SecureRandom.hex(4)}")
+    out_page = record_support_page(root, section, title: "Views last summer #{SecureRandom.hex(4)}")
+    later_page = record_support_page(root, section, title: "Views later this week #{SecureRandom.hex(4)}")
+    travel_to(Time.utc(2026, 10, 8, 12)) do
+      RecordingStudioSupport::PageView.create!(recording_id: in_page.id)
+    end
+    travel_to(Time.utc(2026, 8, 1, 12)) do
+      RecordingStudioSupport::PageView.create!(recording_id: out_page.id)
+    end
+    travel_to(Time.utc(2026, 10, 10, 12)) do
+      RecordingStudioSupport::PageView.create!(recording_id: later_page.id)
+    end
+
+    table_params = { start_date: "2026-10-01", end_date: "2026-10-14" }
+    get "/admin/screens/help_page_views/table", params: table_params
+
+    assert_response :success
+    assert_includes response.body, in_page.recordable.title
+    assert_includes response.body, later_page.recordable.title
+    refute_includes response.body, out_page.recordable.title
+
+    get "/admin/screens/help_page_views/chart", params: table_params.merge(group_by: "day")
+    day_points = chart_x_labels(response.body)
+
+    get "/admin/screens/help_page_views/chart", params: table_params.merge(group_by: "week")
+    week_points = chart_x_labels(response.body)
+
+    assert_operator day_points.size, :>, week_points.size
+    assert_operator week_points.size, :>=, 1
   end
 
   test "admin support section shows a page count and two table links" do
@@ -427,6 +530,26 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     node = document.at_css("[data-flat-pack--chart-options-value]")
     assert node, "expected a Flatpack chart options payload"
     JSON.parse(node["data-flat-pack--chart-options-value"])
+  end
+
+  def assert_inline_date_and_group_filters
+    assert_includes response.body, 'name="start_date"'
+    assert_includes response.body, 'name="end_date"'
+    assert_includes response.body, 'name="group_by"'
+    assert_includes response.body, 'id="screen-filters-form"'
+    assert_includes response.body, 'data-recording-studio-admin--screen-filters-modal-filters-value="false"'
+    refute_includes response.body, 'id="screen-inline-filters-form"'
+    refute_includes response.body, "FlatPack::ModalFilter"
+  end
+
+  def chart_x_labels(html)
+    document = Nokogiri::HTML(html)
+    node = document.at_css("[data-flat-pack--chart-series-value]")
+    assert node, "expected a Flatpack chart series payload"
+    series = JSON.parse(node["data-flat-pack--chart-series-value"])
+    Array(series).flat_map do |row|
+      Array(row["data"]).filter_map { |point| point.is_a?(Hash) ? point["x"] : nil }
+    end.uniq
   end
 
   def assert_chart_xy_payload(html, require_nonzero: false)

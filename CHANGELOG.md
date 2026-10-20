@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.24.0] - 2026-10-20
+
+Admin Support Help page views hides x labels. Time to close and Help page views
+screens filter by date range and group by.
+
+### Added
+- `/admin/screens/help_page_views` and `/admin/screens/time_to_close` use Admin
+  `filter :date_range`, `filter :group_by`, and `filter_presentation :inline`.
+  Date range bounds the table. Group by buckets the chart by day, week, or month.
+
+### Changed
+- Help page views widget on `/admin/sections/support` sets Admin `chart_options`
+  `xaxis.labels.show: false`.
+
+### Upgrade notes
+- Bump to `0.24.0`. No migration. No Admin pin change (`~> 2.0`, dummy tag `v2.3.0`).
+
 ## [0.23.2] - 2026-10-20
 
 Admin Support hub links stay secondary, Time to close hides x labels, Help page views plot.
@@ -910,7 +927,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.23.2...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.24.0...HEAD
+[0.24.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.23.2...v0.24.0
 [0.23.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.23.1...v0.23.2
 [0.23.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.22.0...v0.23.0

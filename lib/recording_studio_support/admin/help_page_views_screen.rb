@@ -15,6 +15,10 @@ module RecordingStudioSupport
         views
       end
 
+      filter_presentation :inline
+      filter :date_range, field: :created_at, default: :last_30_days
+      filter :group_by, values: ChartFilters::GROUPS, default: :day
+
       summary do
         hide_metric
         hide_change
@@ -24,7 +28,9 @@ module RecordingStudioSupport
       chart do
         title "Views over time"
         type :line
-        series { |context| Widgets.metric_series("support_page_views.over_time", context) }
+        series do |context|
+          Widgets.metric_series("support_page_views.over_time", context, **ChartFilters.metric_params(context))
+        end
       end
 
       table do
