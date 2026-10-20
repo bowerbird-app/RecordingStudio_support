@@ -1,6 +1,25 @@
 # Upgrade notes
 
 
+## 0.23.1
+
+No migration. Pin `recording_studio_metrics` `>= 0.5.0, < 0.6` (tag `v0.5.0`).
+`chart_series` points are `{ x:, y: }` hashes so ApexCharts can plot Help page
+views. Time to close already scaled to that shape.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.23.1`.
+2. Pin `recording_studio_metrics` to tag `v0.5.0` (`>= 0.5.0, < 0.6`).
+3. `bundle install`. No new Support migrations.
+
+### Verify
+
+```bash
+bundle exec rake test
+cd test/dummy && bundle exec rails test test/integration/admin_support_section_test.rb
+```
+
 ## 0.23.0
 
 No migration. Admin Support hub widgets read existing Metrics identifiers

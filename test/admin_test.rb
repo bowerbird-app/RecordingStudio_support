@@ -226,12 +226,12 @@ class AdminTest < Minitest::Test
 
   def test_chart_widgets_read_metrics_series
     context = Object.new
-    series = [{ name: "Views", data: [["2026-10-01", 2]] }]
+    series = [{ name: "Views", data: [{ x: "2026-10-01", y: 2 }] }]
     seen = []
     RecordingStudioMetrics::Admin.stub(:chart_series, lambda { |identifier, admin_context:, **params|
       seen << { identifier: identifier, context: admin_context, params: params }
       if identifier == "support_tickets.avg_time_to_resolve"
-        [{ name: "Average time to resolve", data: [["2026-10-01", 12_000]] }]
+        [{ name: "Average time to resolve", data: [{ x: "2026-10-01", y: 12_000 }] }]
       else
         series
       end
@@ -314,7 +314,7 @@ class AdminTest < Minitest::Test
     context = Object.new
 
     RecordingStudioMetrics::Admin.stub(:chart_series, lambda { |_identifier, **|
-      [{ name: "Average time to resolve", data: [["2026-10-01", 12_000.0]] }]
+      [{ name: "Average time to resolve", data: [{ x: "2026-10-01", y: 12_000.0 }] }]
     }) do
       scaled = axis.series("support_tickets.avg_time_to_resolve", context)
       assert_time_to_close_xy_series(
@@ -326,14 +326,14 @@ class AdminTest < Minitest::Test
     end
 
     RecordingStudioMetrics::Admin.stub(:chart_series, lambda { |_identifier, **|
-      [{ name: "Average time to resolve", data: [["2026-10-01", 43_200]] }]
+      [{ name: "Average time to resolve", data: [{ x: "2026-10-01", y: 43_200 }] }]
     }) do
       scaled = axis.series("support_tickets.avg_time_to_resolve", context)
       assert_time_to_close_xy_series scaled, name: "Average time to resolve hours", x_label: "2026-10-01", y_value: 12
     end
 
     RecordingStudioMetrics::Admin.stub(:chart_series, lambda { |_identifier, **|
-      [{ name: "Average time to resolve", data: [["2026-10-01", 345_600]] }]
+      [{ name: "Average time to resolve", data: [{ x: "2026-10-01", y: 345_600 }] }]
     }) do
       scaled = axis.series("support_tickets.avg_time_to_resolve", context)
       assert_time_to_close_xy_series scaled, name: "Average time to resolve days", x_label: "2026-10-01", y_value: 4
@@ -346,7 +346,7 @@ class AdminTest < Minitest::Test
   def test_time_to_close_series_shape_is_xy_objects
     context = Object.new
     RecordingStudioMetrics::Admin.stub(:chart_series, lambda { |_identifier, **|
-      [{ name: "Average time to resolve", data: [["2026-10-01", 12_000], ["2026-10-02", 6_000]] }]
+      [{ name: "Average time to resolve", data: [{ x: "2026-10-01", y: 12_000 }, { x: "2026-10-02", y: 6_000 }] }]
     }) do
       scaled = RecordingStudioSupport::Admin::Widgets::AVG_TIME_TO_RESOLVE.series.call(context)
       point = scaled.first[:data].first

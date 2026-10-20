@@ -63,6 +63,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Help page views"
     assert_includes response.body, "/admin/screens/help_page_views"
+    assert_chart_xy_payload response.body
   end
 
   test "open tickets screen lists oldest open tickets first" do
@@ -164,6 +165,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     get "/admin/screens/help_page_views/chart"
 
     assert_response :success
+    assert_chart_xy_payload response.body
 
     get "/admin/screens/help_page_views/table"
 
