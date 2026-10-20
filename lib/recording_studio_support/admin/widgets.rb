@@ -103,9 +103,7 @@ module RecordingStudioSupport
         hide_period
         blast_radius :site
         series { |context| Widgets.metric_series("support_page_views.over_time", context) }
-        chart_options do
-          { xaxis: { labels: { show: false } } }
-        end
+        chart_options { { xaxis: { labels: { show: false } } } }
         link_to { HelpPageViewsScreen.path }
         link_label "Help page views"
       end
