@@ -16,10 +16,12 @@ module RecordingStudioSupport
       end
 
       def metric_series(identifier, admin_context)
-        RecordingStudioMetrics::Admin.chart_series(
-          identifier,
-          admin_context: admin_context,
-          **METRIC_PARAMS
+        XySeries.from(
+          RecordingStudioMetrics::Admin.chart_series(
+            identifier,
+            admin_context: admin_context,
+            **METRIC_PARAMS
+          )
         )
       end
 
@@ -86,9 +88,7 @@ module RecordingStudioSupport
         blast_radius :site
         series { |context| DurationAxis.series("support_tickets.avg_time_to_resolve", context) }
         chart_options do
-          {
-            yaxis: { min: 0, forceNiceScale: true, decimalsInFloat: 1 }
-          }
+          { xaxis: { labels: { show: false } }, yaxis: { min: 0, forceNiceScale: true, decimalsInFloat: 1 } }
         end
         link_to { TimeToCloseScreen.path }
         link_label "Time to close"

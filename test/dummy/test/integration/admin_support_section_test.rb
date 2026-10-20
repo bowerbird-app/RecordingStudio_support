@@ -56,6 +56,8 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Time to close"
     assert_includes response.body, "/admin/screens/time_to_close"
+    options = chart_options_from(response.body)
+    assert_equal false, options.dig("xaxis", "labels", "show")
     assert_chart_xy_payload response.body
 
     get "/admin/sections/support/widgets/widgets.support.page_views"
@@ -63,7 +65,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Help page views"
     assert_includes response.body, "/admin/screens/help_page_views"
-    assert_chart_xy_payload response.body
+    assert_chart_xy_payload response.body, require_nonzero: true
   end
 
   test "open tickets screen lists oldest open tickets first" do
@@ -165,7 +167,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     get "/admin/screens/help_page_views/chart"
 
     assert_response :success
-    assert_chart_xy_payload response.body
+    assert_chart_xy_payload response.body, require_nonzero: true
 
     get "/admin/screens/help_page_views/table"
 
@@ -194,6 +196,8 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "/admin/screens/help_page_views"
     assert_includes response.body, "Unassigned tickets"
     assert_includes response.body, "Oldest open ticket"
+    assert_select "a[href='/admin/screens/support_pages'][data-fp-style='secondary']"
+    refute_select "a[href='/admin/screens/support_pages'][data-fp-style='primary']"
     refute_includes response.body, "See every page"
     refute_includes response.body, "Latest pages"
     refute_includes response.body, "How do I sign in?"
@@ -418,11 +422,28 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
 
   private
 
-  def assert_chart_xy_payload(html)
+  def chart_options_from(html)
+    document = Nokogiri::HTML(html)
+    node = document.at_css("[data-flat-pack--chart-options-value]")
+    assert node, "expected a Flatpack chart options payload"
+    JSON.parse(node["data-flat-pack--chart-options-value"])
+  end
+
+  def assert_chart_xy_payload(html, require_nonzero: false)
     payload = CGI.unescapeHTML(html.to_s)
     assert_includes payload, '"x":'
     assert_includes payload, '"y":'
     refute_match(/"data":\[\["\d{4}-\d{2}-\d{2}"/, payload)
+    refute_match(/"x":null/, payload)
+
+    return unless require_nonzero
+
+    document = Nokogiri::HTML(html)
+    node = document.at_css("[data-flat-pack--chart-series-value]")
+    assert node, "expected a Flatpack chart series payload"
+    series = JSON.parse(node["data-flat-pack--chart-series-value"])
+    ys = Array(series).flat_map { |row| Array(row["data"]).map { |point| point.is_a?(Hash) ? point["y"] : nil } }
+    assert ys.any? { |value| value.to_f.positive? }, "expected a non-zero Help page views point, got #{series.inspect}"
   end
 
   def section_page_counts_from_table(html)

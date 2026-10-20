@@ -98,6 +98,10 @@ class AdminTest < Minitest::Test
     refute_includes names, :page_list
     refute_includes names, :open_pages
     refute_includes texts, "See every page"
+    pages = links.find { |link| link.name == :support_pages }
+    refute_equal :primary, pages.style
+    assert_equal :secondary, pages.style
+    links.each { |link| assert_equal :secondary, link.style }
   end
 
   def test_queries_build_authenticated_page_paths
@@ -250,6 +254,7 @@ class AdminTest < Minitest::Test
       )
       assert_equal "/admin/screens/time_to_close", resolve.link_to.call(context)
       assert_equal "Time to close", resolve.link_label
+      assert_equal false, resolve.chart_options.call(context).dig(:xaxis, :labels, :show)
       assert_equal series, views.series.call(context)
       assert_equal "/admin/screens/help_page_views", views.link_to.call(context)
       assert_equal "Help page views", views.link_label
@@ -341,6 +346,28 @@ class AdminTest < Minitest::Test
 
     assert_equal 3.5, axis.axis_number(3.54)
     assert_equal 3, axis.axis_number(3.0)
+  end
+
+  def test_help_page_views_series_maps_date_value_and_date_keys
+    context = Object.new
+    RecordingStudioMetrics::Admin.stub(:chart_series, lambda { |_identifier, **|
+      [{ name: "Support page views", data: [{ date: Date.new(2026, 10, 19), value: 55 }] }]
+    }) do
+      series = RecordingStudioSupport::Admin::Widgets::PAGE_VIEWS.series.call(context)
+      point = series.first[:data].first
+
+      assert_equal "Support page views", series.first[:name]
+      assert_equal({ x: "2026-10-19", y: 55 }, point)
+      assert_operator point[:y], :>, 0
+    end
+
+    RecordingStudioMetrics::Admin.stub(:chart_series, lambda { |_identifier, **|
+      [{ name: "Support page views", data: [{ "date" => "2026-10-19", "value" => 55 }] }]
+    }) do
+      series = RecordingStudioSupport::Admin::HelpPageViewsScreen.chart_value.series.call(context)
+      assert_equal 55, series.first[:data].first[:y]
+      assert_equal "2026-10-19", series.first[:data].first[:x]
+    end
   end
 
   def test_time_to_close_series_shape_is_xy_objects

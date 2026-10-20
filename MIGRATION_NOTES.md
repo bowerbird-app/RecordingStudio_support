@@ -1,6 +1,24 @@
 # Upgrade notes
 
 
+## 0.23.2
+
+No migration. Admin Support hub “Support pages” is a secondary link. Time to
+close hides x-axis labels via Admin `chart_options`. Help page views maps
+`{ date:, value: }` points (including Date x values) to `{ x:, y: }` strings.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.23.2`.
+2. `bundle install`. No new Support migrations.
+
+### Verify
+
+```bash
+bundle exec rake test
+cd test/dummy && bundle exec rails test test/integration/admin_support_section_test.rb
+```
+
 ## 0.23.1
 
 No migration. Pin `recording_studio_metrics` `>= 0.5.0, < 0.6` (tag `v0.5.0`).

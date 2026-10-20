@@ -12,7 +12,7 @@ module RecordingStudioSupport
       link :support_pages,
            text: "Support pages",
            url: ->(context) { context.admin_screen_path("support_pages") },
-           style: :primary
+           style: :secondary
 
       link :support_sections,
            text: "Support sections",
