@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.23.1] - 2026-10-20
+
+Help page views charts use Metrics `0.5` `{ x:, y: }` points.
+
+### Changed
+- Runtime dependency `recording_studio_metrics` is `>= 0.5.0, < 0.6` (GitHub tag `v0.5.0`).
+- Admin Help page views widgets and screens pass through that series shape.
+
+### Upgrade notes
+- Bump to `0.23.1`. No migration.
+- Pin `recording_studio_metrics` `>= 0.5.0, < 0.6` (tag `v0.5.0`). Charts that still
+  send `[date, value]` pairs plot at x=0.
+
 ## [0.23.0] - 2026-10-19
 
 Admin Support hub shows queue and help-view metrics from RecordingStudioMetrics.
@@ -885,7 +898,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.23.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.23.1...HEAD
+[0.23.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.23.0...v0.23.1
 [0.23.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.22.0...v0.23.0
 [0.22.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.21.0...v0.22.0
 [0.21.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.20.0...v0.21.0
