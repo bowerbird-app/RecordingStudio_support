@@ -369,7 +369,9 @@ class PagesTest < Minitest::Test
     assert_includes source, "def self.record!"
     refute_includes source, "recording_studio_recordable"
 
-    pages_controller = File.read(File.expand_path("../app/controllers/recording_studio_support/pages_controller.rb", __dir__))
+    pages_controller = File.read(
+      File.expand_path("../app/controllers/recording_studio_support/pages_controller.rb", __dir__)
+    )
     public_pages = File.read(
       File.expand_path("../app/controllers/recording_studio_support/public_pages_controller.rb", __dir__)
     )

@@ -13,6 +13,7 @@ module RecordingStudioSupport
       RecordingStudioViews::ViewLog.where(resource_type: RESOURCE_TYPE)
     end
 
+    # rubocop:disable Metrics/CyclomaticComplexity, Metrics/MethodLength -- ViewLog columns in one insert hash
     def attributes_for(recording:, occurred_at:, actor: nil, id: nil, path: "/")
       at = occurred_at.utc
       {
@@ -30,5 +31,6 @@ module RecordingStudioSupport
         actor_id: actor&.id&.to_s
       }
     end
+    # rubocop:enable Metrics/CyclomaticComplexity, Metrics/MethodLength
   end
 end

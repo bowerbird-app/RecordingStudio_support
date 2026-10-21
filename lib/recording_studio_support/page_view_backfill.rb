@@ -11,17 +11,12 @@ module RecordingStudioSupport
     def call
       copied = 0
       skipped = 0
-
       PageView.find_each do |page_view|
-        if already_copied?(page_view)
-          skipped += 1
-          next
-        end
+        next skipped += 1 if already_copied?(page_view)
 
         copy!(page_view)
         copied += 1
       end
-
       Result.new(copied: copied, skipped: skipped)
     end
 
@@ -31,22 +26,22 @@ module RecordingStudioSupport
       RecordingStudioViews::ViewLog.exists?(id: page_view.id)
     end
 
+    # rubocop:disable Metrics/AbcSize, Metrics/MethodLength -- preserve actor and recording when lookup misses
     def copy!(page_view)
       recording = RecordingStudio::Recording.find_by(id: page_view.recording_id)
-      actor = actor_for(page_view)
       attributes = HelpPageViews.attributes_for(
         recording: recording,
         occurred_at: page_view.created_at,
-        actor: actor,
+        actor: actor_for(page_view),
         id: page_view.id,
         path: help_path(recording)
       )
       attributes[:recording_id] ||= page_view.recording_id
       attributes[:actor_type] = page_view.actor_type if attributes[:actor_type].blank?
       attributes[:actor_id] = page_view.actor_id.to_s if attributes[:actor_id].blank? && page_view.actor_id.present?
-
       RecordingStudioViews::ViewLog.insert_all!([attributes])
     end
+    # rubocop:enable Metrics/AbcSize, Metrics/MethodLength
 
     def actor_for(page_view)
       type = page_view.actor_type
