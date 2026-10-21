@@ -49,6 +49,7 @@ class InstallGeneratorTest < Minitest::Test
     assert_includes routes, public_help_section_route
     assert_includes routes, public_help_section_instant_search_route
     assert_includes routes, 'mount RecordingStudioSearch::Engine, at: "/recording_studio_search"'
+    assert_includes routes, 'mount RecordingStudioViews::Engine, at: "/recording_studio_views"'
   end
 
   def test_mount_engine_defaults_to_support
@@ -74,6 +75,7 @@ class InstallGeneratorTest < Minitest::Test
     assert_includes routes, public_help_section_route
     assert_includes routes, public_help_section_instant_search_route
     assert_includes routes, 'mount RecordingStudioSearch::Engine, at: "/recording_studio_search"'
+    assert_includes routes, 'mount RecordingStudioViews::Engine, at: "/recording_studio_views"'
   end
 
   def test_enable_admin_support_section_injects_section_on_admin_root

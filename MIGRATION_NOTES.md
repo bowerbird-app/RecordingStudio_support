@@ -1,6 +1,87 @@
 # Upgrade notes
 
 
+## 0.25.0
+
+Help page views move onto RecordingStudio_views (raw `ViewLog` rows on Logs). Support stops writing `recording_studio_support_page_views`. That table stays for this release. `PageView` is deprecated; drop it in a later release after hosts have backfilled.
+
+Public Metrics key `support_page_views.over_time` is unchanged (unit `views`, `from`/`to`/`interval`, no `group_by`). Counts now come from Views raw logs for `RecordingStudioSupport::SupportPage`, still bucketed by `created_at`.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.25.0`.
+2. Pin `recording_studio_views` `>= 0.8.0, < 0.9` (GitHub tag `v0.8.0`) and `recording_studio_logs` `>= 0.4.0, < 0.6` (tag `v0.5.0`).
+3. `bundle install`.
+4. `bin/rails generate recording_studio_logs:migrations`
+5. `bin/rails generate recording_studio_views:install`
+6. `bin/rails generate recording_studio_views:migrations`
+7. `bin/rails db:migrate`
+8. Mount Views:
+
+```ruby
+mount RecordingStudioViews::Engine, at: "/recording_studio_views"
+```
+
+9. In the shared layout **body** (not `<head>`), outside any Turbo permanent element:
+
+```erb
+<%= recording_studio_track_views %>
+```
+
+Views’ default resolver calls public `current_recording`. Staff Support already exposes it. Public articles render on Publishable’s controller, which sets `@parent_recording` / `@recording`. Hosts must implement `current_recording` so those assigns count (a private helper_method is invisible to Views).
+
+10. Pin the collector (importmap):
+
+```ruby
+pin "recording_studio_views/collector", to: "recording_studio_views/collector.js"
+```
+
+```js
+import "recording_studio_views/collector"
+```
+
+11. Public help still needs to count logged-out visitors. Set the Accessible action Views uses:
+
+```ruby
+RecordingStudioAccessible.configure do |config|
+  config.action_audiences[:"recording_studio_views.view"] = {
+    allowed: %i[public signed_in granted],
+    default: :public,
+    granted_roles: %i[view edit admin],
+    manage_role: :admin
+  }
+end
+
+RecordingStudioViews.configure do |config|
+  config.tracking_access_action = :"recording_studio_views.view"
+end
+```
+
+12. Copy existing Support page-view rows (idempotent; skips ids already in Views):
+
+```bash
+bin/rails recording_studio_support:backfill_page_views
+```
+
+13. Schedule in the host (Views starts no cron):
+
+- `RecordingStudioLogs::DailyAggregationJob`
+- `RecordingStudioLogs::ReconciliationJob`
+- `RecordingStudioLogs::RetentionCleanupJob`
+- `RecordingStudioLogs::BackfillJob` after gaps
+- `RecordingStudioViews::ReceiptCleanupJob`
+
+14. Optional MaxMind GeoLite2 City: follow the Views README (`geoip_database_path`, credentials, `bin/rails recording_studio_views:geoip:update`). Geo stays off until that path is set.
+
+15. Do **not** drop `recording_studio_support_page_views` in this release.
+
+### Verify
+
+```bash
+bundle exec rake test
+cd test/dummy && bundle exec rails test test/integration/admin_support_section_test.rb test/models/support_page_view_backfill_test.rb
+```
+
 ## 0.24.0
 
 No migration. Admin Support Help page views widget hides x-axis labels. Time to

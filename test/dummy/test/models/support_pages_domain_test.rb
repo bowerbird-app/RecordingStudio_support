@@ -84,10 +84,11 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
     )
 
     assert_no_difference -> { RecordingStudio::Recording.count } do
-      RecordingStudioSupport::PageView.record!(recording: recording, actor: @user)
+      record_help_view!(recording: recording, actor: @user)
     end
 
-    assert_equal 1, RecordingStudioSupport::PageView.where(recording_id: recording.id).count
+    assert_equal 1, RecordingStudioSupport::HelpPageViews.relation.where(recording_id: recording.id).count
+    refute_includes RecordingStudio.configuration.recordable_types, "RecordingStudioViews::ViewLog"
     refute_includes RecordingStudio.configuration.recordable_types, "RecordingStudioSupport::PageView"
   end
 

@@ -36,4 +36,5 @@ Gem::Specification.new do |spec|
   spec.add_dependency "recording_studio_publishable", "~> 0.4"
   spec.add_dependency "recording_studio_search", "~> 0.6"
   spec.add_dependency "recording_studio_trashable", "~> 0.9"
+  spec.add_dependency "recording_studio_views", ">= 0.8.0", "< 0.9"
 end

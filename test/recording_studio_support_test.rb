@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.24.0", ::RecordingStudioSupport::VERSION
+    assert_equal "0.25.0", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -46,6 +46,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemspec, 'spec.add_dependency "recording_studio_publishable", "~> 0.4"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_search", "~> 0.6"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_moveable", "~> 3.2"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_views", ">= 0.8.0", "< 0.9"'
     refute_includes gemspec, 'spec.add_dependency "recording_studio_api"'
     refute_includes gemspec, 'spec.add_dependency "recording_studio_user"'
     refute_includes gemspec, "recording_studio_internationalization"
@@ -108,6 +109,8 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_Internationalization", tag: "v0.1.2"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_api", tag: "v0.7.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.5.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_logs", tag: "v0.5.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_views", tag: "v0.8.0"'
 
     dummy_hooks = File.read(File.expand_path("dummy/config/initializers/recording_studio_support.rb", __dir__))
     assert_includes dummy_hooks, "RecordingStudioSupport.staff_permission"
@@ -162,6 +165,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes source, "RecordingStudio::Capabilities::Trashable.to"
     refute_includes source, "Capabilities::Orderable"
     assert_includes source, "RecordingStudio::Capabilities::Moveable.to"
+    assert_includes source, "RecordingStudio::Capabilities::Viewable.to"
     assert_includes source, "RecordingStudio::Capabilities::Publishable.to"
     assert_includes source, "RecordingStudioSearch::Searchable"
     assert_includes source, "searchable backend: :pg_trgm, against: { title: \"A\", body: \"D\" }"
@@ -183,6 +187,7 @@ class RecordingStudioSupportTest < Minitest::Test
 
     assert_includes controller_source, "include RecordingStudio::UsesDefaultLayout"
     assert_includes controller_source, '"recording_studio/default_layout"'
+    assert_includes controller_source, "def current_recording"
     assert_includes controller_source, "return \"application\" if devise_controller?"
     assert_includes controller_source, "recording_studio_user/auth"
     refute_includes controller_source, "flat_pack_sidebar"
@@ -200,6 +205,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes default_layout, "page_nav_secondary_anchor_tooltip"
     assert_includes default_layout, ":anchor_href"
     refute_includes default_layout, "page_nav_options[:anchor_url]"
+    assert_includes default_layout, "recording_studio_track_views"
     tailwind_source = File.read(File.expand_path("dummy/app/assets/tailwind/application.css", __dir__))
     assert_includes tailwind_source, ".fp-card-hover-strong:hover"
     assert_includes tailwind_source, "--card-hover-strong-shadow"
@@ -223,6 +229,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes application_layout, "min-h-screen"
     refute_includes application_layout, "mt-28"
     refute_includes application_layout, "flat_pack_sidebar"
+    assert_includes application_layout, "recording_studio_track_views"
   end
 
   def test_dummy_uses_recording_studio_user_auth
@@ -483,6 +490,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes widgets, "{ xaxis: { labels: { show: false } } }"
     close_screen = File.read("#{admin_dir}/time_to_close_screen.rb")
     views_screen = File.read("#{admin_dir}/help_page_views_screen.rb")
+    assert_includes views_screen, "HelpPageViews.relation"
     assert_includes close_screen, "filter_presentation :inline"
     assert_includes close_screen, "filter :date_range, field: :resolved_at, default: :last_30_days"
     assert_includes close_screen, "filter :group_by, values: ChartFilters::GROUPS, default: :day"
@@ -509,6 +517,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes routes, "PublicSectionsController"
     assert_includes routes, "PublicInstantSearchesController"
     assert_includes routes, 'mount RecordingStudioSearch::Engine, at: "/recording_studio_search"'
+    assert_includes routes, 'mount RecordingStudioViews::Engine, at: "/recording_studio_views"'
     assert_includes routes, 'mount RecordingStudioMoveable::Engine, at: "/recording_studio_moveable"'
     assert_includes routes, "recording_studio_user_auth_for :users"
     assert_includes routes, "mount RecordingStudioUser::Engine"

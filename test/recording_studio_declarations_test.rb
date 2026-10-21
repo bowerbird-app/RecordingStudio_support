@@ -221,8 +221,8 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     refute RecordingStudio.capability_enabled?(:accessible, for: "RecordingStudioSupport::SupportPage")
   end
 
-  test "trashable publishable and movable are enabled on support pages only" do
-    %i[trashable publishable movable].each do |capability|
+  test "trashable publishable viewable and movable are enabled on support pages only" do
+    %i[trashable publishable viewable movable].each do |capability|
       assert RecordingStudio.capability_enabled?(capability, for: "RecordingStudioSupport::SupportPage"),
              "#{capability} should be enabled on SupportPage"
       refute RecordingStudio.capability_enabled?(capability, for: "Workspace"),

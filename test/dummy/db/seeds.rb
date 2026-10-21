@@ -312,10 +312,18 @@ begin
   )
 
   [sign_in_page, password_page, billing_page, invoice_page, developers_page].each do |support_recording|
-    next if RecordingStudioSupport::PageView.exists?(recording_id: support_recording.id)
+    next if RecordingStudioSupport::HelpPageViews.relation.exists?(recording_id: support_recording.id)
 
     3.times do
-      RecordingStudioSupport::PageView.record!(recording: support_recording, actor: user)
+      RecordingStudioViews::ViewLog.insert_all!(
+        [
+          RecordingStudioSupport::HelpPageViews.attributes_for(
+            recording: support_recording,
+            occurred_at: Time.current,
+            actor: user
+          )
+        ]
+      )
     end
   end
 ensure

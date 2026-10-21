@@ -60,6 +60,7 @@ class SupportPageCapabilitiesTest < ActiveSupport::TestCase
     refute RecordingStudio.capability_enabled?(:publishable, for: Folder)
     refute RecordingStudio.capability_enabled?(:publishable, for: Page)
     assert RecordingStudio.capability_enabled?(:publishable, for: RecordingStudioSupport::SupportPage)
+    assert RecordingStudio.capability_enabled?(:viewable, for: RecordingStudioSupport::SupportPage)
     refute RecordingStudio.capability_enabled?(:attachable, for: RecordingStudioSupport::SupportPage)
 
     error = assert_raises(RecordingStudio::CapabilityDisabled) do

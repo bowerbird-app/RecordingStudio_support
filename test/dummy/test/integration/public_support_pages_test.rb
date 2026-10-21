@@ -105,6 +105,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "/admin/access"
     refute_includes response.body, "Related"
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
+    assert_includes response.body, "data-recording-studio-views-context"
     assert_includes response.body, "flat-pack-page-nav"
     assert_select "[aria-label='Go back']"
     assert_select "a[aria-label='Home'][href='/help']"
@@ -115,6 +116,11 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, 'href="/users/sign_in"'
     refute_includes response.body, "Open help pages"
     refute_includes response.body, "recordable"
+
+    view = ingest_help_view_from_page
+    assert view
+    assert_equal seeded_page("How do I sign in?").id, view.recording_id
+    assert_nil view.actor_id
   end
 
   test "published article meta description prefers description over body" do

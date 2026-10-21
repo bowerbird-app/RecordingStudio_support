@@ -18,15 +18,7 @@ module RecordingStudioSupport
       @page = @parent_recordable
       @section_recording = Pages.section_for(@parent_recording)
       @updated_at = PublicSection.article_updated_at(@page)
-      record_public_view
-    end
-
-    private
-
-    def record_public_view
-      return if @parent_recording.blank?
-
-      PageView.record!(recording: @parent_recording, actor: current_support_actor)
+      @current_recording = @parent_recording
     end
   end
 end

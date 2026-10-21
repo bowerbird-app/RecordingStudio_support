@@ -365,7 +365,17 @@ class PagesTest < Minitest::Test
     source = File.read(File.expand_path("../app/models/recording_studio_support/page_view.rb", __dir__))
 
     assert_includes source, 'self.table_name = "recording_studio_support_page_views"'
+    assert_includes source, "Deprecated in 0.25.0"
     assert_includes source, "def self.record!"
     refute_includes source, "recording_studio_recordable"
+
+    pages_controller = File.read(
+      File.expand_path("../app/controllers/recording_studio_support/pages_controller.rb", __dir__)
+    )
+    public_pages = File.read(
+      File.expand_path("../app/controllers/recording_studio_support/public_pages_controller.rb", __dir__)
+    )
+    refute_includes pages_controller, "PageView.record!"
+    refute_includes public_pages, "PageView.record!"
   end
 end

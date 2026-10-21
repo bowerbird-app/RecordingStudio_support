@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_14_080000) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_21_080004) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -284,6 +284,28 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_080000) do
     t.index ["recording_id"], name: "index_recording_studio_events_on_recording_id"
   end
 
+  create_table "recording_studio_logs_aggregation_runs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "aggregation_name", null: false
+    t.date "day", null: false
+    t.string "status", null: false
+    t.text "error_message"
+    t.datetime "finished_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["aggregation_name", "day"], name: "index_rs_logs_aggregation_runs_on_name_and_day", unique: true
+  end
+
+  create_table "recording_studio_logs_maintenance_runs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "task", null: false
+    t.string "subject", null: false
+    t.string "status", null: false
+    t.text "details"
+    t.datetime "finished_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["task", "subject", "finished_at"], name: "index_rs_logs_maintenance_runs_on_task_and_subject"
+  end
+
   create_table "recording_studio_message_groups", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "title", null: false
@@ -545,6 +567,58 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_14_080000) do
     t.string "time_zone", default: "UTC"
     t.uuid "user_id", null: false
     t.index ["user_id"], name: "index_recording_studio_user_profiles_on_user_id"
+  end
+
+  create_table "recording_studio_views_daily_view_summaries", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.date "day", null: false
+    t.uuid "root_recording_id"
+    t.uuid "recording_id"
+    t.string "resource_type", limit: 128
+    t.string "page_key", limit: 128, null: false
+    t.integer "views", default: 0, null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["day", "root_recording_id", "recording_id", "resource_type", "page_key"], name: "index_rs_views_daily_view_summaries_identity", unique: true, nulls_not_distinct: true
+  end
+
+  create_table "recording_studio_views_view_logs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "occurred_at", null: false
+    t.datetime "arrived_at", default: -> { "CURRENT_TIMESTAMP" }, null: false
+    t.uuid "root_recording_id"
+    t.uuid "recording_id"
+    t.string "resource_type", limit: 128
+    t.string "page_key", limit: 128, null: false
+    t.string "path", limit: 2048, null: false
+    t.string "actor_type", limit: 128
+    t.string "actor_id", limit: 64
+    t.string "visitor_token_digest", limit: 64
+    t.string "ip", limit: 64
+    t.string "user_agent", limit: 1024
+    t.string "browser", limit: 128
+    t.string "os", limit: 128
+    t.string "device_type", limit: 128
+    t.string "os_version", limit: 128
+    t.string "utm_source", limit: 255
+    t.string "utm_medium", limit: 255
+    t.string "utm_term", limit: 255
+    t.string "utm_content", limit: 255
+    t.string "utm_campaign", limit: 255
+    t.string "country", limit: 128
+    t.string "region", limit: 128
+    t.string "city", limit: 128
+    t.decimal "latitude", precision: 10, scale: 6
+    t.decimal "longitude", precision: 10, scale: 6
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["root_recording_id", "occurred_at"], name: "index_recording_studio_views_view_logs_on_root_recording_id_occ"
+  end
+
+  create_table "recording_studio_views_view_receipts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "target_fingerprint", limit: 64, null: false
+    t.datetime "accepted_at", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["accepted_at"], name: "index_rs_views_view_receipts_on_accepted_at"
   end
 
   create_table "users", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|

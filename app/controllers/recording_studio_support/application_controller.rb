@@ -6,9 +6,14 @@ module RecordingStudioSupport
 
     helper RecordingStudioPublishable::ApplicationHelper if defined?(RecordingStudioPublishable::ApplicationHelper)
 
-    helper_method :current_support_actor, :can_edit_support_pages?
+    helper_method :current_support_actor, :can_edit_support_pages?, :current_recording
 
     ResolverContext = Struct.new(:controller)
+
+    # Views' default recording_resolver calls controller.current_recording (public).
+    def current_recording
+      @current_recording || @page_recording || @parent_recording || @recording
+    end
 
     private
 

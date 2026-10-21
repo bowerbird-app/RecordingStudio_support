@@ -32,7 +32,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: .ruby-version
+          ruby-version: "3.3"
           bundler-cache: true
 
       - name: Scan gems for known vulnerabilities
@@ -54,7 +54,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: .ruby-version
+          ruby-version: "3.3"
           bundler-cache: true
 
       - name: Scan Rails code for security vulnerabilities
@@ -76,7 +76,7 @@ jobs:
       - name: Set up Ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: .ruby-version
+          ruby-version: "3.3"
           bundler-cache: true
 
       - name: Scan importmap dependencies for known vulnerabilities
