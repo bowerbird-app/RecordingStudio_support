@@ -12,6 +12,7 @@ module RecordingStudioSupport
     def show
       @page = @page_recording.recordable
       @section_recording = Pages.section_for(@page_recording)
+      @current_recording = @page_recording
     end
 
     def new

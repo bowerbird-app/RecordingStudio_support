@@ -18,6 +18,7 @@ module RecordingStudioSupport
       @page = @parent_recordable
       @section_recording = Pages.section_for(@parent_recording)
       @updated_at = PublicSection.article_updated_at(@page)
+      @current_recording = @parent_recording
     end
   end
 end

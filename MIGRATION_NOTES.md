@@ -28,6 +28,8 @@ mount RecordingStudioViews::Engine, at: "/recording_studio_views"
 <%= recording_studio_track_views %>
 ```
 
+Views’ default resolver calls public `current_recording`. Staff Support already exposes it. Public articles render on Publishable’s controller, which sets `@parent_recording` / `@recording`. Hosts must implement `current_recording` so those assigns count (a private helper_method is invisible to Views).
+
 10. Pin the collector (importmap):
 
 ```ruby

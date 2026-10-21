@@ -51,7 +51,8 @@ module SupportRecordHelpers
          headers: {
            "CONTENT_TYPE" => "application/json",
            "HTTP_ORIGIN" => "http://www.example.com",
-           "HTTP_X_CSRF_TOKEN" => token ? token["content"] : ""
+           "HTTP_X_CSRF_TOKEN" => token ? token["content"] : "",
+           "HTTP_USER_AGENT" => "Mozilla/5.0 Chrome/120.0"
          }
     session = integration_session
     session.instance_variable_set(:@app, Rails.application)

@@ -10,11 +10,12 @@ module RecordingStudioSupport
 
     ResolverContext = Struct.new(:controller)
 
-    private
-
+    # Views' default recording_resolver calls controller.current_recording (public).
     def current_recording
-      @page_recording || @parent_recording
+      @current_recording || @page_recording || @parent_recording || @recording
     end
+
+    private
 
     def current_support_actor
       return Current.actor if defined?(Current) && Current.actor.present?

@@ -16,6 +16,14 @@ class ApplicationController < ActionController::Base
   before_action :authenticate_user!
   before_action :set_current_actor
 
+  helper_method :current_recording
+
+  # Views' default recording_resolver reads this. Publishable public help
+  # renders on Publishable's controller, which sets @parent_recording/@recording.
+  def current_recording
+    @current_recording || @page_recording || @parent_recording || @recording
+  end
+
   private
 
   def application_layout
