@@ -18,6 +18,8 @@ gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderab
 gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.8.0"
 gem "recording_studio_search", github: "bowerbird-app/RecordingStudio_search", tag: "v0.6.0"
 gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.11.0"
+gem "recording_studio_logs", github: "bowerbird-app/RecordingStudio_logs", tag: "v0.5.0"
+gem "recording_studio_views", github: "bowerbird-app/RecordingStudio_views", tag: "v0.8.0"
 
 # Host-owned auth screens (People + Profile). Not a Support gemspec dependency.
 # Users 0.21+ and Root Switchable 0.9+ need Cache for shared rate limiting.

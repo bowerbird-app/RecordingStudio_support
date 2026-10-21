@@ -47,7 +47,7 @@ module RecordingStudioSupport
       end
 
       def self.views
-        RecordingStudioSupport::PageView.order(created_at: :desc)
+        RecordingStudioSupport::HelpPageViews.relation.order(created_at: :desc)
       end
 
       def self.page_title(view)

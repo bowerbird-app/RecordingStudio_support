@@ -100,7 +100,10 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "Open live page"
     assert_includes response.body, 'aria-label="Move to trash"'
     refute_match(/>\s*Move to trash\s*</, response.body)
-    assert RecordingStudioSupport::PageView.exists?(recording_id: recording.id)
+    assert_includes response.body, "data-recording-studio-views-context"
+    recorded = ingest_help_view_from_page
+    assert recorded
+    assert_equal recording.id, recorded.recording_id
   end
 
   test "show renders sanitized HTML and keeps inline images" do

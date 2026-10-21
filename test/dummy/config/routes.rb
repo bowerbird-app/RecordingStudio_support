@@ -28,6 +28,7 @@ Rails.application.routes.draw do
       to: RecordingStudioSupport::PublicInstantSearchesController.action(:show),
       as: :public_help_section_instant_search
   mount RecordingStudioSearch::Engine, at: "/recording_studio_search"
+  mount RecordingStudioViews::Engine, at: "/recording_studio_views"
   mount RecordingStudioPublishable::Engine, at: "/"
   mount RecordingStudioAccessible::Engine, at: "/admin/access"
   mount RecordingStudioApi::Engine, at: "/recording_studio_api"

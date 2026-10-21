@@ -27,6 +27,9 @@ module RecordingStudioSupport
     PAGE_VIEWS_DESCRIPTION = "Support page views (signed-in and public page shows) by created_at. " \
                              "One row per page show; not de-duplicated by visitor."
     LIVE_PAGES = ->(relation) { relation.merge(RecordingStudioSupport::Admin::Queries.kept_page_recordings) }
+    HELP_PAGE_VIEWS = lambda do |relation|
+      relation.where(resource_type: RecordingStudioSupport::HelpPageViews::RESOURCE_TYPE)
+    end
 
     module_function
 
@@ -39,9 +42,10 @@ module RecordingStudioSupport
     def register_page_views!
       RecordingStudioMetrics.register(
         PAGE_VIEWS,
-        model: RecordingStudioSupport::PageView,
+        model: RecordingStudioViews::ViewLog,
         blast_radius: :site,
-        api_authorize: AUTHORIZE
+        api_authorize: AUTHORIZE,
+        scope: HELP_PAGE_VIEWS
       ) { RecordingStudioSupport::Metrics.define_page_views(self) }
     end
 

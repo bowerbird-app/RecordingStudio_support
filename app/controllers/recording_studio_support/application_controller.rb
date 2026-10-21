@@ -6,11 +6,15 @@ module RecordingStudioSupport
 
     helper RecordingStudioPublishable::ApplicationHelper if defined?(RecordingStudioPublishable::ApplicationHelper)
 
-    helper_method :current_support_actor, :can_edit_support_pages?
+    helper_method :current_support_actor, :can_edit_support_pages?, :current_recording
 
     ResolverContext = Struct.new(:controller)
 
     private
+
+    def current_recording
+      @page_recording || @parent_recording
+    end
 
     def current_support_actor
       return Current.actor if defined?(Current) && Current.actor.present?

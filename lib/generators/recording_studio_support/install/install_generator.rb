@@ -45,6 +45,7 @@ module RecordingStudioSupport
         instant = "RecordingStudioSupport::PublicInstantSearchesController.action(:show)"
         route "get \"/help/sections/:slug/instant_search\", to: #{instant}, as: :public_help_section_instant_search"
         route %(mount RecordingStudioSearch::Engine, at: "/recording_studio_search")
+        route %(mount RecordingStudioViews::Engine, at: "/recording_studio_views")
       end
 
       def enable_workspace_messages

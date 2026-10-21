@@ -10,7 +10,6 @@ module RecordingStudioSupport
     before_action :load_section_choices, only: %i[new create]
 
     def show
-      PageView.record!(recording: @page_recording, actor: current_support_actor)
       @page = @page_recording.recordable
       @section_recording = Pages.section_for(@page_recording)
     end

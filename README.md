@@ -21,6 +21,8 @@ gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag
 gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.4.0"
 gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.5.2"
 gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.5.0"
+gem "recording_studio_logs", github: "bowerbird-app/RecordingStudio_logs", tag: "v0.5.0"
+gem "recording_studio_views", github: "bowerbird-app/RecordingStudio_views", tag: "v0.8.0"
 gem "recording_studio_notifications", github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.7.0"
 gem "recording_studio_notifications_email",
     github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.4"
@@ -45,6 +47,7 @@ gem "recording_studio_search", "~> 0.6"
 gem "recording_studio_moveable", "~> 3.2"
 gem "recording_studio_messages", "~> 0.5"
 gem "recording_studio_metrics", ">= 0.5.0", "< 0.6"
+gem "recording_studio_views", ">= 0.8.0", "< 0.9"
 gem "recording_studio_notifications", ">= 0.3.1", "< 1"
 gem "recording_studio_notifications_email", "~> 0.3.1"
 ```
@@ -59,6 +62,9 @@ bin/rails generate recording_studio_notifications:install
 bin/rails generate recording_studio_notifications_email:install
 bin/rails generate recording_studio_support:install
 bin/rails generate recording_studio_support:migrations
+bin/rails generate recording_studio_logs:migrations
+bin/rails generate recording_studio_views:install
+bin/rails generate recording_studio_views:migrations
 bin/rails generate recording_studio_messages:migrations
 bin/rails generate recording_studio_notifications:migrations
 bin/rails generate recording_studio_attachable:migrations
@@ -216,7 +222,7 @@ get "/support/*legacy_support_path", to: redirect("/admin")
 
 Declare the `/help` and `/help/sections/:slug` routes **before** the Publishable mount. Publishable also claims `/help/:uuid/:slug`, so a later section route never wins. Section URLs use a Support-owned `slug` (from the title). Old UUID bookmarks redirect to the slug URL. Staff forms under `/admin/support/sections/:id` stay on recording UUIDs.
 
-Page reads are logs (`recording_studio_support_page_views`), not extra pages in the tree.
+Help page opens are Recording Studio Views raw logs (`RecordingStudioViews::ViewLog`), not extra pages in the tree and not Support’s old `recording_studio_support_page_views` table. Enable `:viewable` on `SupportPage` (Support does this), mount Views, put `<%= recording_studio_track_views %>` in the shared layout **body**, and pin `recording_studio_views/collector`. Public visitors need the Accessible `tracking_access_action` Views uses (`:"recording_studio_views.view"` with a public audience). After upgrade, copy leftover Support rows with `bin/rails recording_studio_support:backfill_page_views`. Do not drop the old table in 0.25.0. Schedule Logs jobs (`DailyAggregationJob`, `ReconciliationJob`, `RetentionCleanupJob`, `BackfillJob`) and `RecordingStudioViews::ReceiptCleanupJob`. Optional MaxMind geo follows the Views README.
 
 ## Public help
 
@@ -384,7 +390,7 @@ Staff with AdminRoot `:view` can read them. A public token or a non-admin operat
 
 `support_tickets.avg_time_to_resolve` (unit `seconds`) is the mean of `resolved_at - created_at` for tickets in the `resolved` status, bucketed by `resolved_at`, with `from`/`to`/`interval`. A bucket with no resolutions is `null`, not 0. It accepts `group_by=priority` (the same queue grouping and 5-ticket fold as `open`). A reopened ticket clears `resolved_at` and counts again from its next resolution. There are no filters, as above.
 
-`support_page_views.over_time` (unit `views`) counts `PageView` rows (one per signed-in or public page show) by `created_at`, with `from`/`to`/`interval`. Views are not de-duplicated by visitor, and there is no `group_by` or filter, so no viewer or page identity is exposed.
+`support_page_views.over_time` (unit `views`) counts Views raw logs for `RecordingStudioSupport::SupportPage` (one per signed-in or public page show) by `created_at`, with `from`/`to`/`interval`. Identifier, unit, and series shape are unchanged. Views are not de-duplicated by visitor, and there is no `group_by` or filter, so no viewer or page identity is exposed. Daily summaries (`RecordingStudioViews::DailyViewSummary`) are for Logs aggregation, not this public metric.
 
 `GET support_pages?q=` on public uses `Pages.for_root` / `SupportPage.search`. There is no `GET support/search`. Instant UI is not used.
 

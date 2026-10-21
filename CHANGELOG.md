@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.25.0] - 2026-10-21
+
+Help page views use RecordingStudio_views instead of Support’s own counter.
+
+### Added
+- Runtime dependency `recording_studio_views` `>= 0.8.0, < 0.9` (dummy GitHub tag `v0.8.0`). Dummy also pins Logs `v0.5.0`.
+- `SupportPage` enables `:viewable`. Hosts mount Views, add `recording_studio_track_views` plus the collector, and set Accessible `tracking_access_action` so public help still counts.
+- `bin/rails recording_studio_support:backfill_page_views` copies `recording_studio_support_page_views` into Views raw logs once, keeping recording, actor, and timestamp.
+
+### Changed
+- Staff preview and public article show no longer write `RecordingStudioSupport::PageView` rows.
+- Admin Help page views and `support_page_views.over_time` read Views raw logs scoped to Support pages. Public metric key, unit, and series shape stay the same (`created_at`, no `group_by`).
+
+### Deprecated
+- `RecordingStudioSupport::PageView` and `recording_studio_support_page_views`. Do not drop the table in this release.
+
+### Upgrade notes
+- Bump to `0.25.0`. Pin Views `>= 0.8.0, < 0.9` (tag `v0.8.0`) and Logs `>= 0.4.0, < 0.6` (tag `v0.5.0`).
+- Generate Views and Logs migrations, mount `/recording_studio_views`, add the layout helper and collector, configure `tracking_access_action`, run the backfill, and schedule Logs jobs. Optional MaxMind geo is in the Views docs.
+
 ## [0.24.0] - 2026-10-20
 
 Admin Support Help page views hides x labels. Time to close and Help page views

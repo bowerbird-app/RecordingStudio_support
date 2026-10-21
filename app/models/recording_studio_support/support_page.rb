@@ -10,6 +10,8 @@ module RecordingStudioSupport
 
     include RecordingStudio::Capabilities::Trashable.to
     include RecordingStudio::Capabilities::Moveable.to
+    include RecordingStudio::Capabilities::Viewable.to
+    RecordingStudio.enable_capability(:action_audiences, on: self) if defined?(RecordingStudioAccessible)
     include RecordingStudio::Capabilities::Publishable.to(
       public_controller: "recording_studio_support/public_pages",
       public_action: :show,

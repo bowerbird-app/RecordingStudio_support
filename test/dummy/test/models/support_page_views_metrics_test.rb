@@ -45,7 +45,7 @@ class SupportPageViewsMetricsTest < ActiveSupport::TestCase
     grant_view!(@actor, @admin_recording)
     recording_id = SecureRandom.uuid
     travel_to(Time.utc(2025, 3, 5, 9)) do
-      RecordingStudioSupport::PageView.create!(recording_id: recording_id)
+      record_help_view!(recording_id: recording_id, at: Time.utc(2025, 3, 5, 9))
     end
 
     payload = RecordingStudioMetrics::Api::ExecuteHandler.call(

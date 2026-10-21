@@ -229,7 +229,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
   test "support_page_views.over_time counts page views by created_at" do
     recording_id = SecureRandom.uuid
     [Time.utc(2025, 3, 5, 9), Time.utc(2025, 3, 5, 15), Time.utc(2025, 3, 6, 9)].each do |at|
-      RecordingStudioSupport::PageView.create!(recording_id: recording_id, created_at: at)
+      record_help_view!(recording_id: recording_id, at: at)
     end
 
     get "#{OPERATIONS_ROOT}/metrics/support_page_views/over_time",

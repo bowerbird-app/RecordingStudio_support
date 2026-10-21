@@ -26,6 +26,7 @@
   </head>
 
   <body class="m-0 min-h-screen bg-[var(--surface-page-background-color)] text-[var(--surface-content-color)]">
+    <%= recording_studio_track_views %>
     <main class="mx-auto flex min-h-screen w-full max-w-md flex-col items-center justify-center gap-4 p-6">
       <% if flash[:notice].present? %>
         <%= render FlatPack::Alert::Component.new(description: flash[:notice], style: :success, class: "w-full") %>

@@ -252,13 +252,13 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     out_page = record_support_page(root, section, title: "Views last summer #{SecureRandom.hex(4)}")
     later_page = record_support_page(root, section, title: "Views later this week #{SecureRandom.hex(4)}")
     travel_to(Time.utc(2026, 10, 8, 12)) do
-      RecordingStudioSupport::PageView.create!(recording_id: in_page.id)
+      record_help_view!(recording: in_page, at: Time.utc(2026, 10, 8, 12))
     end
     travel_to(Time.utc(2026, 8, 1, 12)) do
-      RecordingStudioSupport::PageView.create!(recording_id: out_page.id)
+      record_help_view!(recording: out_page, at: Time.utc(2026, 8, 1, 12))
     end
     travel_to(Time.utc(2026, 10, 10, 12)) do
-      RecordingStudioSupport::PageView.create!(recording_id: later_page.id)
+      record_help_view!(recording: later_page, at: Time.utc(2026, 10, 10, 12))
     end
 
     table_params = { start_date: "2026-10-01", end_date: "2026-10-14" }

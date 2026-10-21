@@ -30,6 +30,10 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert connection.table_exists?(:recording_studio_support_pages)
     assert connection.table_exists?(:recording_studio_support_sections)
     assert connection.table_exists?(:recording_studio_support_page_views)
+    assert connection.table_exists?(:recording_studio_views_view_logs)
+    assert connection.table_exists?(:recording_studio_views_view_receipts)
+    assert connection.table_exists?(:recording_studio_views_daily_view_summaries)
+    assert connection.table_exists?(:recording_studio_logs_aggregation_runs)
     assert connection.table_exists?(:admin_roots)
     assert connection.column_exists?(:recording_studio_support_pages, :title)
     assert connection.column_exists?(:recording_studio_support_pages, :body)
@@ -116,7 +120,7 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     refute password_page.indexable?
     assert support_page_recording.currently_published?
     refute password_page_recording.currently_published?
-    assert_operator RecordingStudioSupport::PageView.count, :>=, 1
+    assert_operator RecordingStudioSupport::HelpPageViews.relation.count, :>=, 1
     admin = User.find_by!(email: "admin@admin.com")
     assert_predicate admin, :persisted?
     assert RecordingStudioUser.profile_for(admin)
@@ -132,7 +136,7 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert_no_difference -> { User.count } do
       assert_no_difference -> { RecordingStudio::Recording.count } do
         assert_no_difference -> { RecordingStudioSupport::SupportPage.count } do
-          assert_no_difference -> { RecordingStudioSupport::PageView.count } do
+          assert_no_difference -> { RecordingStudioSupport::HelpPageViews.relation.count } do
             load Rails.root.join("db/seeds.rb").to_s
           end
         end
@@ -159,11 +163,13 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert RecordingStudio.capability_enabled?(:trashable, for: RecordingStudioSupport::SupportPage)
     refute RecordingStudio.capability_enabled?(:orderable, for: RecordingStudioSupport::SupportPage)
     assert RecordingStudio.capability_enabled?(:publishable, for: RecordingStudioSupport::SupportPage)
+    assert RecordingStudio.capability_enabled?(:viewable, for: RecordingStudioSupport::SupportPage)
     assert RecordingStudio.capability_enabled?(:movable, for: RecordingStudioSupport::SupportPage)
     assert RecordingStudio.capability_enabled?(:trashable, for: RecordingStudioSupport::SupportSection)
     assert RecordingStudio.capability_enabled?(:orderable, for: RecordingStudioSupport::SupportSection)
     refute RecordingStudio.capability_enabled?(:attachable, for: RecordingStudioSupport::SupportSection)
     refute RecordingStudio.capability_enabled?(:publishable, for: RecordingStudioSupport::SupportSection)
+    refute RecordingStudio.capability_enabled?(:viewable, for: RecordingStudioSupport::SupportSection)
     refute RecordingStudio.capability_enabled?(:movable, for: RecordingStudioSupport::SupportSection)
     refute RecordingStudio.capability_enabled?(:attachable, for: Folder)
     refute RecordingStudio.capability_enabled?(:trashable, for: Folder)
@@ -173,6 +179,8 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     refute RecordingStudio.capability_enabled?(:orderable, for: Page)
     refute RecordingStudio.capability_enabled?(:publishable, for: Folder)
     refute RecordingStudio.capability_enabled?(:publishable, for: Page)
+    refute RecordingStudio.capability_enabled?(:viewable, for: Folder)
+    refute RecordingStudio.capability_enabled?(:viewable, for: Page)
     assert_includes ApplicationController.ancestors, RecordingStudio::UsesDefaultLayout
   end
 end

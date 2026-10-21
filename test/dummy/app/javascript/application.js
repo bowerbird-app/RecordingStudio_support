@@ -5,3 +5,4 @@ import "controllers"
 import * as ActiveStorage from "@rails/activestorage"
 ActiveStorage.start()
 import "recording_studio_attachable/tiptap/attachment_image_addon"
+import "recording_studio_views/collector"
