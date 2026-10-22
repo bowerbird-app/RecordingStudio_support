@@ -9,10 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.25.1] - 2026-10-22
 
-Metrics/Logs ceiling is now `< 1.0` so hosts can use Logs 0.7.0 and Metrics 0.6.1. No code change.
+`recording_studio_metrics` `>= 0.5.0, < 1.0` (CI tested with 0.5.0). No code change.
 
 ### Changed
-- Runtime dependency `recording_studio_metrics` is `>= 0.5.0, < 1.0`.
+- Runtime dependency `recording_studio_metrics` is `>= 0.5.0, < 1.0` (CI tested with 0.5.0).
 
 ### Upgrade notes
 - Bump to `0.25.1`. No migration. No code change.
