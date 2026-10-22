@@ -46,7 +46,7 @@ class MetricsTest < Minitest::Test
     refute_includes engine, "RecordingStudioMetrics::Api.register!"
     refute_includes prepares, "RecordingStudioMetrics::Api.register!"
 
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_metrics", ">= 0.5.0", "< 0.6"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_metrics", ">= 0.5.0", "< 1.0"'
     assert_includes dummy_metrics, "RecordingStudioMetrics::Api.register!(api: :operations)"
   end
 end
