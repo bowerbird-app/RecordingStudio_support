@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.25.1] - 2026-10-22
+
+`recording_studio_metrics` `>= 0.5.0, < 1.0` (CI tested with 0.5.0). No code change.
+
+### Changed
+- Runtime dependency `recording_studio_metrics` is `>= 0.5.0, < 1.0` (CI tested with 0.5.0).
+
+### Upgrade notes
+- Bump to `0.25.1`. No migration. No code change.
+
 ## [0.25.0] - 2026-10-21
 
 Help page views use RecordingStudio_views instead of Support’s own counter.
