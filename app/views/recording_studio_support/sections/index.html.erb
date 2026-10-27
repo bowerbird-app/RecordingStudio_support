@@ -1,33 +1,15 @@
-<% recording_studio_page_nav(
+<% support_page_chrome(
      title: support_help_title,
-     page_nav_anchor_url: (main_app.root_path if main_app.respond_to?(:root_path)),
-     page_nav_anchor_label: "Close"
+     subtitle: support_help_subtitle,
+     anchor_href: (main_app.root_path if main_app.respond_to?(:root_path)),
+     anchor_tooltip: "Close"
    ) %>
+<% if can_edit_support_pages? %>
+  <% register_page_nav "New section", new_section_path, role: :secondary %>
+  <% register_page_nav "New page", new_page_path, role: :primary %>
+<% end %>
 
 <div class="flex w-full flex-col gap-6">
-  <%= render FlatPack::PageTitle::Component.new(
-    title: support_help_title,
-    subtitle: support_help_subtitle,
-    variant: :h1
-  ) do |page_title| %>
-    <% if can_edit_support_pages? %>
-      <% page_title.slot do %>
-        <%= render FlatPack::Button::Component.new(
-          text: "New section",
-          style: :secondary,
-          size: :md,
-          href: new_section_path
-        ) %>
-        <%= render FlatPack::Button::Component.new(
-          text: "New page",
-          style: :primary,
-          size: :md,
-          href: new_page_path
-        ) %>
-      <% end %>
-    <% end %>
-  <% end %>
-
   <%= render "recording_studio_support/shared/search", url: root_path, query: @query %>
 
   <% if @section_recordings.any? %>

@@ -299,7 +299,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "/admin/screens/help_page_views"
     assert_includes response.body, "Unassigned tickets"
     assert_includes response.body, "Oldest open ticket"
-    assert_select "a[href='/admin/screens/support_pages'][data-fp-style='secondary']"
+    assert_select "a[href='/admin/screens/support_pages'][data-fp-style='ghost']"
     refute_select "a[href='/admin/screens/support_pages'][data-fp-style='primary']"
     refute_includes response.body, "See every page"
     refute_includes response.body, "Latest pages"

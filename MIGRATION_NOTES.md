@@ -1,6 +1,34 @@
 # Upgrade notes
 
 
+## 0.26.0
+
+Support follows Recording Studio `v6.1.0` layouts. There is no Support database migration.
+
+`RecordingStudioSupport.configuration.layout` is the gem tier. `nil` uses `RecordingStudio.configuration.layout`, then `"recording_studio/default_layout"`. `false` skips the layout. A String names a layout. A callable is `->(controller:) { ... }` and returns a String, `nil`, or `false`.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.26.0`.
+2. Pin `recording_studio` `>= 6.1.0` (tag `v6.1.0`), `flat_pack` `>= 0.1.315` (commit `1fcbafe94f8eb118f0a22182f63f5110fcc97a56`, version `0.1.319`), and `view_component` `4.19.0`.
+3. Pin `recording_studio_messages` `v0.9.0`, `recording_studio_publishable` `v0.12.0`, `recording_studio_accessible` `v0.19.1`, `recording_studio_admin` `v2.7.0`, and `recording_studio_root_switchable` `v0.10.0` when the host mounts those gems. Do not move Accessible to `0.20` or later until Messages grants the first group owner with `bootstrap_owner_access!`.
+4. If Attachable, Logs, Metrics, Moveable, Notifications, Search, Views, Cache, Users, Root Switchable, Internationalization, or API still require `recording_studio` below 5, widen that requirement while Bundler loads the gemspec. Copy `test/support/widen_recording_studio_requirement.rb`. Do not ship that file in the host gem.
+5. `bundle install`.
+6. Remove `include RecordingStudio::UsesDefaultLayout` and any `layout "recording_studio/default_layout"` from controllers. Call `recording_studio_layout { RecordingStudioSupport.configuration.layout }` on the support base controller, or rely on that call in the engine controller.
+7. Move page titles to `content_for :title` and `content_for :subtitle`. Delete inline `FlatPack::PageTitle` on those screens so the layout renders one `h1`.
+8. Replace `recording_studio_page_nav` with `flat_pack_page_nav(round: true, style: :default, back_href:, back_tooltip:, anchor_href:, anchor_tooltip:)`.
+9. Replace title-slot buttons with `register_page_nav`. Put custom controls in `recording_studio_page_nav_right`.
+10. Remove `style:` and `theme:` from `FlatPack::Card`. Use `background:`, `border:`, and `shadow:`.
+11. In a host layout that replaces the default, load `flat_pack/variables`, `flat_pack/application`, and `flat_pack/rich_text` before Tailwind. Draw back/close with `flat_pack_page_nav_tag` and actions with `page_nav_button_group`.
+
+### Verify
+
+```bash
+bundle exec rake test
+bundle exec rubocop
+bundle exec rake recording_studio:check_layouts
+```
+
 ## 0.25.0
 
 Help page views move onto RecordingStudio_views (raw `ViewLog` rows on Logs). Support stops writing `recording_studio_support_page_views`. That table stays for this release. `PageView` is deprecated; drop it in a later release after hosts have backfilled.

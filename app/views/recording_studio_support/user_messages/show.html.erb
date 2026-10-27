@@ -1,17 +1,12 @@
-<% recording_studio_page_nav(
+<% support_page_chrome(
      title: @ticket.subject,
-     page_nav_back_url: help_messages_path_for_desk,
-     page_nav_anchor_url: help_messages_path_for_desk,
-     page_nav_anchor_label: support_t("messages.new.close")
+     subtitle: support_ticket_status_label(@ticket),
+     back_href: help_messages_path_for_desk,
+     anchor_href: help_messages_path_for_desk,
+     anchor_tooltip: support_t("messages.new.close")
    ) %>
 
 <div class="flex w-full flex-col gap-4">
-  <%= render FlatPack::PageTitle::Component.new(
-    title: @ticket.subject,
-    subtitle: support_ticket_status_label(@ticket),
-    variant: :h1
-  ) %>
-
   <%= render "recording_studio_messages/message_groups/desk",
              group_recordings: @group_recordings,
              group_recording: @group_recording,

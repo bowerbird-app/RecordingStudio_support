@@ -6,20 +6,20 @@ Help pages sit in a section under your workspace. Each page has a title and a fo
 
 ## Install
 
-Add the gem next to Recording Studio 4.2, Accessible 0.18, Admin 2.0, Publishable 0.8, and the mixin gems Support pages use. GitHub hosting is not a reason to skip the gemspec pins.
+Add the gem next to Recording Studio 6.1, Accessible 0.19.1, Admin 2.7, Publishable 0.12, Flatpack 0.1.319, and the mixin gems Support pages use. GitHub hosting is not a reason to skip the gemspec pins. ViewComponent stays on `>= 4.14, < 5` (this repo locks `4.19.0`).
 
 ```ruby
 # Gemfile
-gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v4.7.0"
-gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.18.0"
-gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.3.0"
+gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v6.1.0"
+gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.19.1"
+gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.7.0"
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.15.0"
 gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.11.0"
 gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.3.0"
-gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.8.0"
+gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.12.0"
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"
 gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.4.0"
-gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.5.2"
+gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.9.0"
 gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.5.0"
 gem "recording_studio_logs", github: "bowerbird-app/RecordingStudio_logs", tag: "v0.5.0"
 gem "recording_studio_views", github: "bowerbird-app/RecordingStudio_views", tag: "v0.8.0"
@@ -31,12 +31,15 @@ gem "recording_studio_search", "~> 0.6",
 gem "recording_studio_support", github: "bowerbird-app/RecordingStudio_support"
 # Host-owned auth (not a Support gemspec dependency):
 gem "recording_studio_user", github: "bowerbird-app/RecordingStudio_users", tag: "v0.21.0"
-gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.213" # Attachable 0.12+ floor
+gem "flat_pack", github: "bowerbird-app/flatpack", ref: "1fcbafe94f8eb118f0a22182f63f5110fcc97a56" # 0.1.319
+gem "view_component", "4.19.0"
 ```
 
 ```ruby
 # gemspec / host Gemfile constraints
-gem "recording_studio", "~> 4.2"
+gem "recording_studio", ">= 6.1.0"
+gem "flat_pack", ">= 0.1.315"
+gem "view_component", ">= 4.14", "< 5"
 gem "recording_studio_accessible", "~> 0.11"
 gem "recording_studio_admin", "~> 2.0"
 gem "recording_studio_attachable", "~> 0.7"
@@ -46,11 +49,13 @@ gem "recording_studio_publishable", "~> 0.4"
 gem "recording_studio_search", "~> 0.6"
 gem "recording_studio_moveable", "~> 3.2"
 gem "recording_studio_messages", "~> 0.5"
-gem "recording_studio_metrics", ">= 0.5.0", "< 0.6"
+gem "recording_studio_metrics", ">= 0.5.0", "< 1.0"
 gem "recording_studio_views", ">= 0.8.0", "< 0.9"
 gem "recording_studio_notifications", ">= 0.3.1", "< 1"
 gem "recording_studio_notifications_email", "~> 0.3.1"
 ```
+
+Latest tags of Attachable, Logs, Metrics, Moveable, Notifications, Notifications Email, Search, Views, Cache, Users, Root Switchable, Internationalization, API, and Accessible still require `recording_studio` below 6. This repo's Gemfiles load `test/support/widen_recording_studio_requirement.rb` before the gemspec so Bundler can resolve `6.1.0`. That file is not part of the installed gem. A host Gemfile that includes one of those gems has to widen the requirement the same way. Messages `v0.9.0`, Publishable `v0.12.0`, Admin `v2.7.0`, and Recording Studio `v6.1.0` already allow `6.1.0`. Admin screens need Admin `v2.7.0` because earlier releases still call `recording_studio_page_nav`. Accessible stays on `v0.19.1`: `0.20` and later reject Messages `v0.9.0`'s first-owner `grant_access` (`You can only grant a role you already hold`). Root Switchable `v0.10.0` drops `anchor_label`; its gemspec still caps Recording Studio below 5, so the widen hook stays.
 
 Then:
 
@@ -230,28 +235,38 @@ Logged-out people can read sections and live pages. Drafts 404.
 
 Public `/help` lists sections. A section show lists `SupportPage.indexable` pages in that section. Do not copy that logic. Public `/help?q=` searches section title and slug via `SupportSection.search` (Recording Studio Search `pg_trgm`) with a GET form. Page search lives on a public section show and filters pages **in that section** via Recording Studio Search trigram on title/body. Typing uses Search Instant UI (`instant_search_field` + Turbo Frame) against the section Instant path; Enter / no-JS still GET `?q=` on the section. Staff section show uses the same Instant field against the staff Instant path. The Search engine Instant endpoint is mounted for hosts; Support filters it to **live** `SupportPage` rows so drafts do not leak. Search `v0.6.0` inherits the host `ApplicationController`, so hosts that require sign-in there will require it on the engine Instant path too — public `/help` Instant stays on Support’s public Instant controller. Admin support pages and sections table search use the same Search-backed `apply_query` helpers.
 
-Public `/help` and public section show use Flatpack Search at full width (`max_width: :none`, placeholder from `recording_studio.support.help.search_placeholder`, English “Search support”). Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Public `/help` and public section show pass `size: :lg` (Flatpack `0.1.175+` / pin `v0.1.213`); public `/help` also raises the `:lg` vertical padding (`prominent: true`). Staff search on remaining engine screens keeps the default `:md`. Passing `placeholder:` still overrides the locale.
+Public `/help` and public section show use Flatpack Search at full width (`max_width: :none`, placeholder from `recording_studio.support.help.search_placeholder`, English “Search support”). Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Public `/help` and public section show pass `size: :lg` (Flatpack `0.1.175+`). Public `/help` also raises the `:lg` vertical padding (`prominent: true`). Staff search on remaining engine screens keeps the default `:md`. Passing `placeholder:` still overrides the locale.
 
-**Public `/help` home** centers a larger PageTitle (`--page-title-h1-size: var(--text-5xl)`) and stacks interactive clickable Flatpack Cards in a Grid (`cols: 3`, `gap: :lg`, `style: :interactive`, `hover: :strong`, body `padding: :lg`, `theme: { background: "#ffffff" }`). Interactive (not elevated) is what Flatpack uses for a visible strong hover — elevated already ships `shadow-md`, so `hover: :strong` on elevated barely changes. Each card shows an optional Heroicons glyph (section `icon` short name via Flatpack `IconComponent`) to the left of the section title and a muted **N article(s)** line (no Badge). Blank icon skips the glyph. Staff section and page forms preview the glyph live beside the Icon field; new pages default to the parent section’s icon. PageTitle is `public_help_title` only — no subtitle on this page.
+**Public `/help` home** sets `content_for :title` to `public_help_title`. The default layout draws that string as the only `h1`. There is no subtitle on this page. Section cards are a Grid (`cols: 3`, `gap: :lg`) of clickable Cards (`background: :default`, `border: :default`, `shadow: :sm`, `hover: :strong`, body `padding: :lg`). Each card shows an optional Heroicons glyph (section `icon` short name via Flatpack `IconComponent`) to the left of the section title and a muted **N article(s)** line (no Badge). Blank icon skips the glyph. Staff section and page forms preview the glyph live beside the Icon field. New pages default to the parent section’s icon.
 
 **Staff hub** is Admin Support tables at `/admin`, not a `/support` list. Engine `/admin/support` redirects there. Write, preview, Publish, and trash stay under `/admin/support…`.
 
 Public **section** show (`/help/sections/:slug`) is its own card stack — not the home `link_list` shape:
 
-1. Default layout page nav — history Back, plus a PageNav **secondary** Home (home icon → `/help`, tooltip/aria `"Home"`). No Close
-2. Flatpack PageTitle — section title, subtitle, `variant: :h1`
+1. `flat_pack_page_nav(round: true, style: :default, back_href: /help, back_tooltip: Home)`. No Close
+2. Layout `PageTitle` from `content_for :title` and `content_for :subtitle`
 3. Search Instant field (`instant_search_field`) — `size: :lg`, placeholder `Search in {section}…`, white input tokens as above; results update in Turbo Frame `support_page_search_results`
-4. Flatpack Grid (`cols: 1`, `gap: :lg`) of full-width interactive Cards (`href`, `clickable: true`, `hover: :strong`, `style: :interactive`, white `theme: { background: "var(--color-white)" }`) — Body padding `:lg`, title, muted plain-text snippet (~120 chars from the body; omitted when blank), Flatpack Timestamp from publish time (`publish_at`, then recording `updated_at`, then page `created_at`)
+4. Flatpack Grid (`cols: 1`, `gap: :lg`) of full-width Cards (`href`, `clickable: true`, `hover: :strong`, `background: :default`, `border: :default`, `shadow: :sm`) — Body padding `:lg`, title, muted plain-text snippet (~120 chars from the body; omitted when blank), Flatpack Timestamp from publish time (`publish_at`, then recording `updated_at`, then page `created_at`)
 5. Optional host contact Card + secondary Button — only when `public_contact_href` is set (inside the Instant results frame so Instant updates keep it in sync), spaced below the article Grid (`mt-10`). The Button uses `data-turbo-frame="_top"` so the desk loads as a full page
 6. Flatpack EmptyState when the query matches nothing or the section has no live pages — search no-results copy is `Try another keyword or {contact link}.` (underlined Flatpack Link inline, also `data-turbo-frame="_top"`; no Button slot, no bottom Card)
 
 Public **article** show (`/help/:uuid/:slug`) ends with the same optional contact Card + secondary Button when `public_contact_href` is set (prompt via `support_public_contact_prompt` for the parent section). Public `/help?q=` with no section hits uses the same EmptyState Contact Button in its `slot`.
 
-Hosts that override `recording_studio/default_layout` (as the dummy does) should pass Flatpack `secondary_anchor_href` / `secondary_anchor_icon` / `secondary_anchor_tooltip` from `content_for` keys `page_nav_secondary_anchor_url`, `page_nav_secondary_anchor_icon`, and `page_nav_secondary_anchor_tooltip`. Map `page_nav_anchor_url` to Flatpack’s `anchor_href` (not the old `anchor_url`). Core `recording_studio_page_nav` does not yet forward secondary slots — Support’s public section show sets those `content_for` keys via `support_public_section_page_nav`.
+`RecordingStudioSupport.configuration.layout` defaults to `nil`. `nil` uses `RecordingStudio.configuration.layout`, then `"recording_studio/default_layout"`. `false` renders no layout. A String is a layout name. A callable must be keyword-only, `->(controller:) { ... }`, and return a String, `nil`, or `false`. Any other value raises `ArgumentError` from `RecordingStudio::Layout.accept`.
+
+```ruby
+RecordingStudioSupport.configure do |config|
+  config.layout = nil
+end
+```
+
+Support controllers call `recording_studio_layout { RecordingStudioSupport.configuration.layout }`. Do not include `RecordingStudio::UsesDefaultLayout`. Do not write `layout "recording_studio/default_layout"` in a controller. `rake recording_studio:check_layouts` fails that call.
+
+Page chrome is `content_for :title`, optional `content_for :subtitle`, and `flat_pack_page_nav(round: true, style: :default, back_href:, back_tooltip:, anchor_href:, anchor_tooltip:)`. Action links use `register_page_nav "Label", path, role: :primary` (`:secondary` or `:destructive`). Custom HTML to the left of that button group uses `recording_studio_page_nav_right` or `content_for :page_nav_right`. `recording_studio_page_nav` and the old `:page_nav_back_*` / `:page_nav_anchor_*` slots are gone. Public section show still goes Home through `back_href`. A public article uses `anchor_icon: "home"` for the same place.
 
 Interactive + `hover: :strong` needs a host Tailwind utilities-layer override for the border color change: Flatpack’s hover rules live in `@layer components`, but the card also applies Tailwind’s `border-[var(--card-border-color)]` utility, and utilities win on hover. Dummy’s `app/assets/tailwind/application.css` shows the override hosts should copy until Flatpack moves those hover rules.
 
-No Published badge on public section cards (implied by indexable). Drafts stay off public `/help` lists. No Read / Open buttons. Public help uses Recording Studio's default layout (`UsesDefaultLayout` / `recording_studio/default_layout`). Point Publishable `public_layout` at that layout. Do not use `recording_studio_publishable/application`. Put Flatpack's built-in rounded theme on `<html data-theme="rounded">` — core's body attribute is not enough. Dummy's default-layout override shows the host-side fix. Before Flatpack CSS, declare `@layer theme, base, components, utilities` so TipTap borders survive Tailwind preflight when `flat_pack/rich_text` loads before Tailwind.
+No Published badge on public section cards (implied by indexable). Drafts stay off public `/help` lists. No Read / Open buttons. Public help uses `recording_studio/default_layout`. Point Publishable `public_layout` at that layout. Do not use `recording_studio_publishable/application`. Core puts `data-theme="rounded"` on `<html>`. Load `flat_pack/variables`, `flat_pack/application`, and `flat_pack/rich_text` before the Tailwind sheet. Declare `@layer theme, base, components, utilities` before those sheets so TipTap borders survive Tailwind preflight.
 
 Help titles come from `RecordingStudioSupport.configure`. Staff engine defaults stay “Help” / “Find an answer.” The Admin Support hub title (`admin_help_title`) defaults to **Support**. Public default title is **Hi, how can we help?** (`public_help_subtitle` remains configurable but the shipped `/help` home does not render it). Admin section default subtitle is “Pages people use when they get stuck.” Section blurbs and the optional contact slot are host-configurable:
 
@@ -434,7 +449,7 @@ Help article titles and bodies, section names, and other staff-written database 
 
 Dummy credentials (`test/dummy/config/credentials.yml.enc`) are encrypted with the shared RecordingStudio_* development master key. Set `RAILS_MASTER_KEY` or put that key in `test/dummy/config/master.key` (gitignored). Keep the encrypted file; do not generate a per-repo dummy key.
 
-Dummy help pages — public and staff — use Recording Studio's shared default layout (`UsesDefaultLayout` / `recording_studio/default_layout`) so back/close chrome and Flatpack alerts come from core. Dummy overrides that layout file only so Flatpack's built-in `rounded` theme sits on `<html>` (`data-theme="rounded"`, plus `lang` and Flatpack copy data) (https://flatpack.bowerbird.io/). Core puts `data-theme` on `<body>` alone, which is not enough for component tokens. Support screens and Admin Support screens keep that chrome only. Dummy does not inject Sign out or Root Switchable into PageNav (including dummy host pages, `/admin/support`, `/help`, and `/admin`). A compact language selector sits in the PageNav right slot. Access can stay on Admin. Do not put a login button there. Sign-in uses the Users gem (`recording_studio_user` `v0.21.0`): email at `/users/sign_in`, password at `/users/sign_in/password`, layout `recording_studio_user/auth` with `html data-theme="rounded"`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`, `preset: :content`, image upload); dummy Stimulus registers `flat-pack--tiptap` on first paint. The dummy switches English and French with Recording Studio Internationalization. Article titles and seeded bodies stay in the language they were written.
+Dummy help pages, public and staff, use `recording_studio_layout`. A nil setting selects `recording_studio/default_layout`. Dummy still overrides that layout file so `<html>` gets `lang` and Flatpack copy data, the body calls `recording_studio_track_views`, and the top nav's right slot includes the language selector. Flatpack stylesheets load before Tailwind. Support screens and Admin Support screens keep that chrome only. Dummy does not inject Sign out or Root Switchable into the top nav (including dummy host pages, `/admin/support`, `/help`, and `/admin`). Access can stay on Admin. Do not put a login button there. Sign-in uses the Users gem (`recording_studio_user` `v0.21.0`): email at `/users/sign_in`, password at `/users/sign_in/password`, layout `recording_studio_user/auth` with `html data-theme="rounded"`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`, `preset: :content`, image upload). Dummy Stimulus registers `flat-pack--tiptap` on first paint. The dummy switches English and French with Recording Studio Internationalization. Article titles and seeded bodies stay in the language they were written.
 
 | Field    | Value           |
 |----------|-----------------|
@@ -445,25 +460,26 @@ Dummy kit pins:
 
 | Gem | Pin |
 |-----|-----|
-| Recording Studio | `v4.7.0` |
-| Accessible | `v0.18.0` |
-| Admin | `v2.3.0` |
+| Recording Studio | `v6.1.0` |
+| Accessible | `v0.19.1` |
+| Admin | `v2.7.0` |
 | Attachable | `v0.15.0` |
-| Messages | `v0.5.2` |
+| Messages | `v0.9.0` |
 | Notifications | `v0.7.0` |
 | Notifications Email | `v0.3.4` |
 | Users | `v0.21.0` |
 | Trashable | `v0.11.0` |
 | Orderable | `v0.3.0` |
-| Publishable | `v0.8.0` |
+| Publishable | `v0.12.0` |
 | Icons | `v0.1.1` |
 | Moveable | `v3.4.0` |
 | Search | `v0.6.0` |
-| Root Switchable | `v0.9.0` |
+| Root Switchable | `v0.10.0` |
 | Cache | `v0.5.0` (dummy only; Users 0.21+ / Root Switchable 0.9+ floor) |
 | API | `v0.7.0` (dummy only; not a Support gemspec dependency) |
 | Internationalization | `v0.1.2` (dummy only; not a Support gemspec dependency) |
-| FlatPack | `v0.1.213` (Attachable 0.12+ floor) |
+| FlatPack | `0.1.319` (`1fcbafe94f8eb118f0a22182f63f5110fcc97a56`) |
+| ViewComponent | `4.19.0` |
 
 ```bash
 cd test/dummy

@@ -20,7 +20,7 @@ class CustomerI18nTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Français"
     assert_select "html[lang='en']"
     assert_select ".dummy-language-selector"
-    assert_select "nav.flat-pack-page-nav .dummy-language-selector"
+    assert_select ".fp-top-nav__right .dummy-language-selector"
   end
 
   test "help home article and messages stay English until the host locale changes" do

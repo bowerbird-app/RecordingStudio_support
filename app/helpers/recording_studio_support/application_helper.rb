@@ -22,6 +22,18 @@ module RecordingStudioSupport
       RecordingStudioPublishable::Engine.routes.url_helpers
     end
 
+    def support_page_chrome(title:, subtitle: nil, **nav)
+      content_for(:title, title)
+      content_for(:subtitle, subtitle) if subtitle.present?
+
+      kwargs = { round: true, style: :default }
+      %i[back_href back_tooltip anchor_href anchor_tooltip anchor_icon].each do |key|
+        kwargs[key] = nav[key] if nav[key].present?
+      end
+      flat_pack_page_nav(**kwargs)
+      nil
+    end
+
     def support_page_updated_on(time)
       return if time.blank?
 

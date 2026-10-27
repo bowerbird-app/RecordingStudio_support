@@ -1,17 +1,12 @@
-<% recording_studio_page_nav(
+<% support_page_chrome(
      title: "New section",
-     page_nav_back_url: RecordingStudioSupport::Admin::Queries.admin_sections_screen_path,
-     page_nav_anchor_url: RecordingStudioSupport::Admin::Queries.admin_sections_screen_path,
-     page_nav_anchor_label: "Close"
+     subtitle: "A home for pages on one topic.",
+     back_href: RecordingStudioSupport::Admin::Queries.admin_sections_screen_path,
+     anchor_href: RecordingStudioSupport::Admin::Queries.admin_sections_screen_path,
+     anchor_tooltip: "Close"
    ) %>
 
 <div class="flex w-full flex-col gap-6">
-  <%= render FlatPack::PageTitle::Component.new(
-    title: "New section",
-    subtitle: "A home for pages on one topic.",
-    variant: :h1
-  ) %>
-
   <%= render "form",
              url: sections_path,
              method: :post,

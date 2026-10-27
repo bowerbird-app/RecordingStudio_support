@@ -1,17 +1,12 @@
-<% recording_studio_page_nav(
+<% support_page_chrome(
      title: support_t("messages.new.title"),
-     page_nav_back_url: help_messages_path_for_desk,
-     page_nav_anchor_url: help_messages_path_for_desk,
-     page_nav_anchor_label: support_t("messages.new.close")
+     subtitle: support_t("messages.new.subtitle"),
+     back_href: help_messages_path_for_desk,
+     anchor_href: help_messages_path_for_desk,
+     anchor_tooltip: support_t("messages.new.close")
    ) %>
 
 <div class="flex w-full flex-col gap-6">
-  <%= render FlatPack::PageTitle::Component.new(
-    title: support_t("messages.new.title"),
-    subtitle: support_t("messages.new.subtitle"),
-    variant: :h1
-  ) %>
-
   <%= form_with url: help_messages_path_for_desk, method: :post, scope: :ticket do %>
     <div class="flex flex-col gap-4">
       <% if @ticket.errors.any? %>

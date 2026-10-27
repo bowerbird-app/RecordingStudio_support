@@ -24,7 +24,7 @@ module RecordingStudioSupport
     }.freeze
 
     attr_accessor :api_key, *DEFAULTS.keys
-    attr_reader :hooks
+    attr_reader :hooks, :layout
 
     def initialize
       @api_key = ENV.fetch("RECORDING_STUDIO_SUPPORT_API_KEY", nil)
@@ -32,8 +32,12 @@ module RecordingStudioSupport
       @hooks = RecordingStudio::Hooks.new
     end
 
+    def layout=(value)
+      @layout = RecordingStudio::Layout.accept(value)
+    end
+
     def to_h
-      snapshot = { api_key: api_key, hooks_registered: hook_counts }
+      snapshot = { api_key: api_key, hooks_registered: hook_counts, layout: layout }
       DEFAULTS.each_key { |key| snapshot[key] = public_send(key) }
       snapshot
     end

@@ -1,17 +1,12 @@
-<% recording_studio_page_nav(
+<% support_page_chrome(
      title: "New page",
-     page_nav_back_url: RecordingStudioSupport::Admin::Queries.admin_pages_screen_path,
-     page_nav_anchor_url: RecordingStudioSupport::Admin::Queries.admin_pages_screen_path,
-     page_nav_anchor_label: "Close"
+     subtitle: "Write it like you'd tell a teammate.",
+     back_href: RecordingStudioSupport::Admin::Queries.admin_pages_screen_path,
+     anchor_href: RecordingStudioSupport::Admin::Queries.admin_pages_screen_path,
+     anchor_tooltip: "Close"
    ) %>
 
 <div class="flex w-full flex-col gap-6">
-  <%= render FlatPack::PageTitle::Component.new(
-    title: "New page",
-    subtitle: "Write it like you'd tell a teammate.",
-    variant: :h1
-  ) %>
-
   <%= render "form",
              url: pages_path,
              method: :post,

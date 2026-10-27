@@ -2,19 +2,12 @@
 
 module RecordingStudioSupport
   module PublicSectionHelper
-    # PageNav for public section show: history back stays default; Home is the
-    # secondary anchor to /help. Core recording_studio_page_nav does not yet
-    # forward secondary_anchor_* — hosts wire those via content_for (see dummy
-    # default_layout).
     def support_public_section_page_nav(title:)
-      recording_studio_page_nav(
+      support_page_chrome(
         title: title,
-        page_nav_back_url: support_public_help_path
+        back_href: support_public_help_path,
+        back_tooltip: Copy.t("help.home")
       )
-      content_for(:page_nav_secondary_anchor_url, support_public_help_path)
-      content_for(:page_nav_secondary_anchor_icon, "home")
-      content_for(:page_nav_secondary_anchor_tooltip, Copy.t("help.home"))
-      nil
     end
 
     def support_page_snippet(body)

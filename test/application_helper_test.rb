@@ -39,7 +39,7 @@ class ApplicationHelperTest < Minitest::Test
       File.expand_path("../app/controllers/recording_studio_support/application_controller.rb", __dir__)
     )
 
-    assert_includes application, "include RecordingStudio::UsesDefaultLayout"
+    assert_includes application, "recording_studio_layout { RecordingStudioSupport.configuration.layout }"
     assert_includes application, "helper RecordingStudioPublishable::ApplicationHelper"
     assert_includes source, "skip_before_action :authenticate_user!"
     assert_includes source, "helper RecordingStudioPublishable::ApplicationHelper"

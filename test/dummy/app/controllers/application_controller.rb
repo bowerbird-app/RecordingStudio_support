@@ -1,6 +1,5 @@
 class ApplicationController < ActionController::Base
   include RecordingStudio::RootSwitchable::ControllerSupport
-  include RecordingStudio::UsesDefaultLayout
 
   # Only allow modern browsers supporting webp images, web push, badges, import maps, CSS nesting, and CSS :has.
   allow_browser versions: :modern
@@ -9,9 +8,9 @@ class ApplicationController < ActionController::Base
   stale_when_importmap_changes
 
   # Users gem sign-in/sign-up use layouts/recording_studio_user/auth.
-  # Remaining Devise screens (if any) keep layouts/application. Everything else
-  # uses core default layout.
-  layout :application_layout
+  # Remaining Devise screens keep layouts/application. A nil setting falls
+  # through to RecordingStudio.configuration.layout, then the core default.
+  recording_studio_layout { devise_controller? ? "application" : nil }
 
   before_action :authenticate_user!
   before_action :set_current_actor
@@ -25,12 +24,6 @@ class ApplicationController < ActionController::Base
   end
 
   private
-
-  def application_layout
-    return "application" if devise_controller?
-
-    "recording_studio/default_layout"
-  end
 
   def set_current_actor
     Current.actor = current_user
