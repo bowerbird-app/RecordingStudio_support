@@ -14,11 +14,11 @@ gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v6.1.0"
 gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.19.1"
 gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.7.0"
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.15.0"
-gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.11.0"
-gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.3.0"
+gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.12.0"
+gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.4.0"
 gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.12.0"
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"
-gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.4.0"
+gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.4.3"
 gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.9.0"
 gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.5.0"
 gem "recording_studio_logs", github: "bowerbird-app/RecordingStudio_logs", tag: "v0.5.0"
@@ -55,7 +55,7 @@ gem "recording_studio_notifications", ">= 0.3.1", "< 1"
 gem "recording_studio_notifications_email", "~> 0.3.1"
 ```
 
-Latest tags of Attachable, Logs, Metrics, Moveable, Notifications, Notifications Email, Search, Views, Cache, Users, Root Switchable, Internationalization, API, and Accessible still require `recording_studio` below 6. This repo's Gemfiles load `test/support/widen_recording_studio_requirement.rb` before the gemspec so Bundler can resolve `6.1.0`. That file is not part of the installed gem. A host Gemfile that includes one of those gems has to widen the requirement the same way. Messages `v0.9.0`, Publishable `v0.12.0`, Admin `v2.7.0`, and Recording Studio `v6.1.0` already allow `6.1.0`. Admin screens need Admin `v2.7.0` because earlier releases still call `recording_studio_page_nav`. Accessible stays on `v0.19.1`: `0.20` and later reject Messages `v0.9.0`'s first-owner `grant_access` (`You can only grant a role you already hold`). Root Switchable `v0.10.0` drops `anchor_label`; its gemspec still caps Recording Studio below 5, so the widen hook stays.
+Latest tags of Attachable, Logs, Metrics, Moveable, Notifications, Notifications Email, Search, Views, Cache, Users, Root Switchable, Internationalization, API, and Accessible still require `recording_studio` below 6. This repo's Gemfiles load `test/support/widen_recording_studio_requirement.rb` before the gemspec so Bundler can resolve `6.1.0`. That file is not part of the installed gem. A host Gemfile that includes one of those gems has to widen the requirement the same way. Messages `v0.9.0`, Publishable `v0.12.0`, Orderable `v0.4.0`, Trashable `v0.12.0`, Admin `v2.7.0`, and Recording Studio `v6.1.0` already allow `6.1.0`. Orderable `v0.4.0`, Trashable `v0.12.0`, and Moveable `v3.4.3` drop `RecordingStudio::UsesDefaultLayout`, which Recording Studio 6.1 removed. Earlier tags make `CI=true` eager load raise `NameError`. Admin screens need Admin `v2.7.0` because earlier releases still call `recording_studio_page_nav`. Accessible stays on `v0.19.1`: `0.20` and later reject Messages `v0.9.0`'s first-owner `grant_access` (`You can only grant a role you already hold`). Attachable stays on `v0.15.0` and Notifications stays on `v0.7.0`: later releases need schema changes this dummy does not ship. Root Switchable `v0.10.0` drops `anchor_label`; its gemspec still caps Recording Studio below 5, so the widen hook stays.
 
 Then:
 
@@ -468,11 +468,11 @@ Dummy kit pins:
 | Notifications | `v0.7.0` |
 | Notifications Email | `v0.3.4` |
 | Users | `v0.21.0` |
-| Trashable | `v0.11.0` |
-| Orderable | `v0.3.0` |
+| Trashable | `v0.12.0` |
+| Orderable | `v0.4.0` |
 | Publishable | `v0.12.0` |
 | Icons | `v0.1.1` |
-| Moveable | `v3.4.0` |
+| Moveable | `v3.4.3` |
 | Search | `v0.6.0` |
 | Root Switchable | `v0.10.0` |
 | Cache | `v0.5.0` (dummy only; Users 0.21+ / Root Switchable 0.9+ floor) |

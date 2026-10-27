@@ -16,7 +16,8 @@ Support screens use Recording Studio 6.1's default layout and the 3-tier layout 
 - Runtime dependency `flat_pack` is `>= 0.1.315` (dummy commit `1fcbafe94f8eb118f0a22182f63f5110fcc97a56`, Flatpack `0.1.319`).
 - Runtime dependency `view_component` is `>= 4.14, < 5` (dummy lock `4.19.0`).
 - Messages dummy pin is `v0.9.0`. Publishable dummy pin is `v0.12.0`.
-- Accessible dummy pin is `v0.19.1`. Admin dummy pin is `v2.7.0`. Root Switchable dummy pin is `v0.10.0`.
+- Orderable pin is `v0.4.0`. Moveable pin is `v3.4.3`. Trashable pin is `v0.12.0`. Those releases stop including `RecordingStudio::UsesDefaultLayout`.
+- Accessible pin stays `v0.19.1`. Attachable pin stays `v0.15.0`. Notifications pin stays `v0.7.0`. Admin dummy pin is `v2.7.0`. Root Switchable dummy pin is `v0.10.0`.
 - `RecordingStudioSupport::Configuration#layout` defaults to `nil` and accepts only values `RecordingStudio::Layout.accept` allows.
 - Support controllers call `recording_studio_layout { RecordingStudioSupport.configuration.layout }`.
 - Page titles are `content_for :title` and `content_for :subtitle`. The default layout draws the only `h1`.
@@ -32,7 +33,7 @@ Support screens use Recording Studio 6.1's default layout and the 3-tier layout 
 ### Upgrade notes
 - Bump to `0.26.0`. No Support migration.
 - Pin Recording Studio `v6.1.0`, Flatpack `0.1.319` (commit `1fcbafe94f8eb118f0a22182f63f5110fcc97a56`), and ViewComponent `4.19.0`.
-- Pin Messages `v0.9.0`, Publishable `v0.12.0`, Accessible `v0.19.1`, Admin `v2.7.0`, and Root Switchable `v0.10.0`. Accessible `0.20` and later reject the first-owner grant Messages still uses.
+- Pin Messages `v0.9.0`, Publishable `v0.12.0`, Orderable `v0.4.0`, Moveable `v3.4.3`, Trashable `v0.12.0`, Accessible `v0.19.1`, Attachable `v0.15.0`, Notifications `v0.7.0`, Admin `v2.7.0`, and Root Switchable `v0.10.0`. Accessible `0.20` and later reject the first-owner grant Messages still uses. Attachable `0.22` and Notifications `0.13` need schema this release does not ship.
 - If a sibling gem still requires `recording_studio` below 5, load the same widen hook this repo uses, or move that gem to a release that allows `6.1.0`.
 - Set `config.layout` only when this gem should not follow the host layout. Leave it `nil` to use `RecordingStudio.configuration.layout`, then `recording_studio/default_layout`.
 - Replace host layout forks that still read `:page_nav_*` slots. Render `flat_pack_page_nav_tag`, `page_nav_button_group`, and `content_for(:page_nav_right)`. Load Flatpack stylesheets before Tailwind.

@@ -84,8 +84,8 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_moveable.git
-  revision: 698b54f96000ab15cdcfb889a9dfbbab7c982d2a
-  tag: v3.4.0
+  revision: 50506ca6e7d843216be74014fa1286dd34af8147
+  tag: v3.4.3
   specs:
     recording_studio_moveable (3.4.0)
       rails (>= 8.1.0, < 9.0)
@@ -118,11 +118,11 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_orderable.git
-  revision: f14f2376b8db792b5aba2cc29189c98a2ebadaaa
-  tag: v0.3.0
+  revision: 61dec68fa2c0f0e05edafe6edb302d72bc680d92
+  tag: v0.4.0
   specs:
-    recording_studio_orderable (0.3.0)
-      flat_pack (>= 0.1.74)
+    recording_studio_orderable (0.4.0)
+      flat_pack (>= 0.1.315)
       rails (~> 8.1.0)
       recording_studio (>= 6.1.0)
 
@@ -150,14 +150,14 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_trashable.git
-  revision: 436cbb838e9d30b7a91b6d25c74fb3b749e8afe5
-  tag: v0.11.0
+  revision: 120c5874a2d57e21c435c0599ff6dfa56560b194
+  tag: v0.12.0
   specs:
-    recording_studio_trashable (0.11.0)
-      flat_pack (>= 0.1.74)
+    recording_studio_trashable (0.12.0)
+      flat_pack (>= 0.1.315)
       rails (~> 8.1.0)
       recording_studio (>= 6.1.0)
-      recording_studio_metrics (~> 0.2)
+      recording_studio_metrics (>= 0.3.0, < 1.0)
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_views.git
@@ -612,11 +612,11 @@ CHECKSUMS
   recording_studio_moveable (3.4.0)
   recording_studio_notifications (0.7.0)
   recording_studio_notifications_email (0.3.1)
-  recording_studio_orderable (0.3.0)
+  recording_studio_orderable (0.4.0)
   recording_studio_publishable (0.12.0)
   recording_studio_search (0.6.0)
   recording_studio_support (0.26.0)
-  recording_studio_trashable (0.11.0)
+  recording_studio_trashable (0.12.0)
   recording_studio_views (0.8.0)
   regexp_parser (2.11.3) sha256=ca13f381a173b7a93450e53459075c9b76a10433caadcb2f1180f2c741fc55a4
   reline (0.6.3) sha256=1198b04973565b36ec0f11542ab3f5cfeeec34823f4e54cebde90968092b1835

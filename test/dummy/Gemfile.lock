@@ -115,8 +115,8 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_moveable.git
-  revision: 698b54f96000ab15cdcfb889a9dfbbab7c982d2a
-  tag: v3.4.0
+  revision: 50506ca6e7d843216be74014fa1286dd34af8147
+  tag: v3.4.3
   specs:
     recording_studio_moveable (3.4.0)
       rails (>= 8.1.0, < 9.0)
@@ -149,11 +149,11 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_orderable.git
-  revision: f14f2376b8db792b5aba2cc29189c98a2ebadaaa
-  tag: v0.3.0
+  revision: 61dec68fa2c0f0e05edafe6edb302d72bc680d92
+  tag: v0.4.0
   specs:
-    recording_studio_orderable (0.3.0)
-      flat_pack (>= 0.1.74)
+    recording_studio_orderable (0.4.0)
+      flat_pack (>= 0.1.315)
       rails (~> 8.1.0)
       recording_studio (>= 6.1.0)
 
@@ -194,14 +194,14 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_trashable.git
-  revision: 436cbb838e9d30b7a91b6d25c74fb3b749e8afe5
-  tag: v0.11.0
+  revision: 120c5874a2d57e21c435c0599ff6dfa56560b194
+  tag: v0.12.0
   specs:
-    recording_studio_trashable (0.11.0)
-      flat_pack (>= 0.1.74)
+    recording_studio_trashable (0.12.0)
+      flat_pack (>= 0.1.315)
       rails (~> 8.1.0)
       recording_studio (>= 6.1.0)
-      recording_studio_metrics (~> 0.2)
+      recording_studio_metrics (>= 0.3.0, < 1.0)
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_users.git
@@ -491,7 +491,8 @@ GEM
       net-ssh (>= 5.0.0, < 8.0.0)
     net-smtp (0.5.2)
       net-protocol
-    net-ssh (7.3.0)
+    net-ssh (7.3.8)
+      logger
     nio4r (2.7.5)
     nokogiri (1.19.4-aarch64-linux-gnu)
       racc (~> 1.4)
@@ -895,7 +896,7 @@ CHECKSUMS
   net-scp (4.1.0) sha256=a99b0b92a1e5d360b0de4ffbf2dc0c91531502d3d4f56c28b0139a7c093d1a5d
   net-sftp (4.0.0) sha256=65bb91c859c2f93b09826757af11b69af931a3a9155050f50d1b06d384526364
   net-smtp (0.5.2) sha256=35103cc04d6b2d94632f9928ede07483c24b70b9c0db1f231fea43909b678f3c
-  net-ssh (7.3.0) sha256=172076c4b30ce56fb25a03961b0c4da14e1246426401b0f89cba1a3b54bf3ef0
+  net-ssh (7.3.8) sha256=16bb1fccc4d9a580decdeea8ddb98e8544df29b7e6ac8cb94d4b379cfe4bee9f
   nio4r (2.7.5) sha256=6c90168e48fb5f8e768419c93abb94ba2b892a1d0602cb06eef16d8b7df1dca1
   nokogiri (1.19.4-aarch64-linux-gnu) sha256=1269fb644a6de405057a53dd5c762b1209b43ca7424f839454d3dbc677c31a8f
   nokogiri (1.19.4-aarch64-linux-musl) sha256=35c65b9ce72b3bb03207bdbe7067915019dc18c1b9b59139684bd6690fdd01af
@@ -961,12 +962,12 @@ CHECKSUMS
   recording_studio_moveable (3.4.0)
   recording_studio_notifications (0.7.0)
   recording_studio_notifications_email (0.3.1)
-  recording_studio_orderable (0.3.0)
+  recording_studio_orderable (0.4.0)
   recording_studio_publishable (0.12.0)
   recording_studio_root_switchable (0.10.0)
   recording_studio_search (0.6.0)
   recording_studio_support (0.26.0)
-  recording_studio_trashable (0.11.0)
+  recording_studio_trashable (0.12.0)
   recording_studio_user (0.21.0)
   recording_studio_views (0.8.0)
   redis (5.4.1) sha256=b5e675b57ad22b15c9bcc765d5ac26f60b675408af916d31527af9bd5a81faae
