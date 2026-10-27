@@ -49,8 +49,9 @@ class DefaultLayoutAssetsTest < ActionDispatch::IntegrationTest
 
     assert_includes css, "alert-success-background-color"
     assert_includes css, "alert-danger-background-color"
-    assert_includes css, "button-primary-background-color"
-    # Ghost and secondary button paint live in Flatpack kit CSS, not the Tailwind scan.
+    assert_includes css, "button-focus-ring-color"
+    assert_includes css, "button-border-radius"
+    # Primary, ghost, and secondary button paint live in Flatpack kit CSS, not the Tailwind scan.
   end
 
   test "users auth sign in uses gem layout while still loading Flatpack CSS and JS" do
