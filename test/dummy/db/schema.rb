@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_21_080004) do
+ActiveRecord::Schema[8.1].define(version: 2026_10_27_120000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -503,7 +503,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_21_080004) do
   end
 
   create_table "recording_studio_support_tickets", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
-    t.uuid "message_group_id", null: false
     t.string "status", default: "open", null: false
     t.string "priority", default: "normal", null: false
     t.string "subject", null: false
@@ -513,7 +512,6 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_21_080004) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["assignee_type", "assignee_id"], name: "index_rs_support_tickets_on_assignee"
-    t.index ["message_group_id"], name: "index_rs_support_tickets_on_message_group_id", unique: true
     t.index ["status"], name: "index_rs_support_tickets_on_status"
   end
 

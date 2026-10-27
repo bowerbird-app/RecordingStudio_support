@@ -17,15 +17,34 @@ class SupportTicketTest < Minitest::Test
     assert_includes source, "high"
   end
 
-  def test_model_points_at_message_group_and_optional_assignee
+  def test_model_is_a_message_group_recordable_with_optional_assignee
     source = File.read(
       File.expand_path("../app/models/recording_studio_support/support_ticket.rb", __dir__)
     )
 
+    assert_includes source, 'label: "Support ticket"'
+    assert_includes source, "root: false"
+    assert_includes source, 'allowed_parent_types: ["RecordingStudioMessages::MessageGroup"]'
     assert_includes source, "belongs_to :assignee, polymorphic: true, optional: true"
-    assert_includes source, "validates :message_group_id, presence: true, uniqueness: true"
     assert_includes source, "validates :subject, presence: true"
     assert_includes source, "def sync_resolved_at"
+    refute_includes source, "message_group_id"
+    refute_includes source, "def message_group_recording"
+  end
+
+  def test_migration_drops_message_group_and_deletes_rows
+    migration = File.read(
+      File.expand_path(
+        "../db/migrate/20261027120000_drop_message_group_from_recording_studio_support_tickets.rb",
+        __dir__
+      )
+    )
+
+    assert_includes migration, "DELETE FROM"
+    assert_includes migration, "recording_studio_support_tickets"
+    assert_includes migration, "message_group_id"
+    assert_includes migration, "index_rs_support_tickets_on_message_group_id"
+    assert_includes migration, "remove_column"
   end
 
   def test_migration_creates_tickets_table

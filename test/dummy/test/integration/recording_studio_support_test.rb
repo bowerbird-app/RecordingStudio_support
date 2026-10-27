@@ -152,10 +152,10 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert_includes invoice_bodies, "It's there now. Open Billing, then Invoices, and grab the top PDF."
     assert_includes card_bodies, "I saved a new card. The next charge still used the old one."
     assert_includes card_bodies, "That card is the default now. The next invoice uses it."
-    assert RecordingStudioSupport::Messages.group_owner?(invoice.message_group_recording, admin)
-    assert RecordingStudioSupport::Messages.group_owner?(invoice.message_group_recording, customer)
-    assert RecordingStudioSupport::Messages.group_owner?(card.message_group_recording, admin)
-    assert RecordingStudioSupport::Messages.group_owner?(card.message_group_recording, customer)
+    assert RecordingStudioSupport::Messages.group_owner?(RecordingStudioSupport::Tickets.group_recording_for(invoice), admin)
+    assert RecordingStudioSupport::Messages.group_owner?(RecordingStudioSupport::Tickets.group_recording_for(invoice), customer)
+    assert RecordingStudioSupport::Messages.group_owner?(RecordingStudioSupport::Tickets.group_recording_for(card), admin)
+    assert RecordingStudioSupport::Messages.group_owner?(RecordingStudioSupport::Tickets.group_recording_for(card), customer)
 
     assert_no_difference -> { User.count } do
       assert_no_difference -> { RecordingStudio::Recording.count } do
@@ -213,7 +213,9 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
   private
 
   def message_bodies(ticket)
-    RecordingStudioMessages.message_recordings(ticket.message_group_recording).map do |recording|
+    RecordingStudioMessages.message_recordings(
+      RecordingStudioSupport::Tickets.group_recording_for(ticket)
+    ).map do |recording|
       recording.recordable.body
     end
   end

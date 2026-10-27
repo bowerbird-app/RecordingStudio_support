@@ -12,16 +12,18 @@ module RecordingStudioSupport
     API = :operations
     EXPOSE = { api: [API] }.freeze
     AUTHORIZE = ->(context) { RecordingStudioSupport::Api::Access.can_view_metrics?(context) }
-    OPEN = ->(relation) { relation.where(status: "open") }
+    OPEN = ->(relation) { Tickets.current_relation(relation).where(status: "open") }
     UNASSIGNED_OPEN = ->(relation) { OPEN.call(relation).where(assignee_id: nil) }
     OLDEST_OPEN_AGE = lambda do |relation, _context|
-      oldest = relation.minimum(:created_at)
+      oldest = relation.minimum("recording_studio_recordings.created_at")
       oldest && (Time.current - oldest).to_i
     end
     QUEUE_GROUPS = %i[priority].freeze
     TICKET_GROUPS = %i[status priority].freeze
-    RESOLVED = ->(relation) { relation.where(status: "resolved").where.not(resolved_at: nil) }
-    RESOLVE_SECONDS = Arel.sql("EXTRACT(EPOCH FROM (resolved_at - created_at))")
+    RESOLVED = ->(relation) { Tickets.current_relation(relation).where(status: "resolved").where.not(resolved_at: nil) }
+    RESOLVE_SECONDS = Arel.sql(
+      "EXTRACT(EPOCH FROM (resolved_at - recording_studio_recordings.created_at))"
+    )
     AVG_RESOLVE_DESCRIPTION = "Mean seconds from opening to resolution for tickets resolved in each " \
                               "period, by resolved_at. Reopened tickets count from their latest resolution."
     PAGE_VIEWS_DESCRIPTION = "Support page views (signed-in and public page shows) by created_at. " \
@@ -59,7 +61,8 @@ module RecordingStudioSupport
         TICKETS,
         model: RecordingStudioSupport::SupportTicket,
         blast_radius: :site,
-        api_authorize: AUTHORIZE
+        api_authorize: AUTHORIZE,
+        scope: ->(relation) { Tickets.current_relation(relation) }
       ) { RecordingStudioSupport::Metrics.define_tickets(self) }
     end
 

@@ -55,12 +55,21 @@ module RecordingStudioSupport
       end
 
       def create_ticket!(group)
-        SupportTicket.create!(
-          message_group_id: group.id,
-          subject: @subject,
-          priority: @priority,
-          status: :open
-        )
+        group.with_lock do
+          raise Tickets::AlreadyExists if Tickets.ticket_recordings.exists?(parent_recording_id: group.id)
+
+          RecordingStudio.record!(
+            action: "created",
+            recordable: new_ticket,
+            parent_recording: group,
+            root_recording: group.root_recording || group,
+            actor: @actor
+          ).recordable
+        end
+      end
+
+      def new_ticket
+        SupportTicket.new(subject: @subject, priority: @priority, status: :open)
       end
 
       def post_initial_message!(group)

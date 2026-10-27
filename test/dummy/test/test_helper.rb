@@ -61,6 +61,11 @@ module SupportRecordHelpers
     RecordingStudioViews::ViewLog.find_by(id: event_id)
   end
 
+  def revise_support_ticket!(ticket, **changes)
+    RecordingStudioSupport::Tickets.update!(ticket, actor: Current.actor, **changes)
+    RecordingStudioSupport::Tickets.find!(ticket.id)
+  end
+
   def seeded_page(title)
     RecordingStudio::Recording.where(
       recordable_type: "RecordingStudioSupport::SupportPage",

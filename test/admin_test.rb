@@ -333,8 +333,8 @@ class AdminTest < Minitest::Test
 
   def test_open_ticket_helpers_match_the_age_widget
     screen = RecordingStudioSupport::Admin::OpenTicketsScreen
-    older = Struct.new(:created_at, :message_group_id).new(Time.utc(2026, 10, 17, 12), "group-old")
-    newer = Struct.new(:created_at, :message_group_id).new(Time.utc(2026, 10, 19, 11), nil)
+    older = Struct.new(:created_at, :parent_recording_id).new(Time.utc(2026, 10, 17, 12), "group-old")
+    newer = Struct.new(:created_at, :parent_recording_id).new(Time.utc(2026, 10, 19, 11), nil)
 
     travel_to Time.utc(2026, 10, 19, 12) do
       assert_equal "2d", screen.wait_label(older)

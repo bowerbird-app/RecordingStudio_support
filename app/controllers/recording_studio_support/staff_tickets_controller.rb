@@ -9,13 +9,16 @@ module RecordingStudioSupport
     before_action :set_ticket
 
     def update
-      @ticket.assign_attributes(ticket_update_attrs)
-      apply_assignee!
-      @ticket.save!
+      recording = RecordingStudioSupport::Tickets.recording_for!(@ticket)
+      RecordingStudioSupport::Tickets.update!(
+        recording,
+        actor: current_support_actor,
+        **ticket_changes
+      )
 
-      redirect_to staff_messages_return_to, notice: "Ticket updated."
+      redirect_to staff_messages_return_to(recording), notice: "Ticket updated."
     rescue ActiveRecord::RecordInvalid
-      redirect_to staff_messages_return_to, alert: update_error_message
+      redirect_to staff_messages_return_to(recording), alert: update_error_message
     end
 
     private
@@ -26,14 +29,19 @@ module RecordingStudioSupport
       head :not_found
     end
 
-    def ticket_update_attrs
-      params.fetch(:ticket, {}).permit(:status, :priority).to_h.compact_blank
+    def ticket_changes
+      changes = status_and_priority_changes
+      changes[:assignee] = resolve_assignee(ticket_params[:assignee]) if ticket_params.key?(:assignee)
+      changes
     end
 
-    def apply_assignee!
-      return unless params.fetch(:ticket, {}).key?(:assignee)
+    def status_and_priority_changes
+      attrs = params.fetch(:ticket, {}).permit(:status, :priority).to_h.compact_blank.stringify_keys
+      attrs.slice("status", "priority").symbolize_keys
+    end
 
-      @ticket.assignee = resolve_assignee(params.fetch(:ticket, {})[:assignee])
+    def ticket_params
+      params.fetch(:ticket, {})
     end
 
     def resolve_assignee(raw)
@@ -48,9 +56,10 @@ module RecordingStudioSupport
       @ticket.errors.full_messages.to_sentence.presence || "Could not update."
     end
 
-    def staff_messages_return_to
+    def staff_messages_return_to(recording = nil)
+      recording ||= RecordingStudioSupport::Tickets.recording_for!(@ticket)
       path = RecordingStudioSupport.configuration.pages_path.to_s.chomp("/")
-      "#{path}/messages?group_id=#{@ticket.message_group_id}"
+      "#{path}/messages?group_id=#{recording.parent_recording_id}"
     end
 
     def require_signed_in_actor!

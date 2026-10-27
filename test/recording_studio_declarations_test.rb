@@ -18,6 +18,11 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     assert_equal ["Workspace"],
                  RecordingStudio.allowed_parent_types_for("RecordingStudioSupport::SupportSection")
     assert_equal "Support page", RecordingStudio.recordable_type_label("RecordingStudioSupport::SupportPage")
+    assert_equal ["RecordingStudioMessages::MessageGroup"],
+                 RecordingStudio.allowed_parent_types_for("RecordingStudioSupport::SupportTicket")
+    assert_equal "Support ticket", RecordingStudio.recordable_type_label("RecordingStudioSupport::SupportTicket")
+    assert_includes RecordingStudio.configuration.recordable_types, "RecordingStudioSupport::SupportTicket"
+    refute RecordingStudio.root_allowed?("RecordingStudioSupport::SupportTicket")
     assert_equal "Help section", RecordingStudio.recordable_type_label("RecordingStudioSupport::SupportSection")
     refute RecordingStudio.root_allowed?("RecordingStudioSupport::SupportPage")
   end
@@ -131,6 +136,73 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     assert_equal root_recording, recording.root_recording
     assert_kind_of RecordingStudioSupport::SupportPage, recording.recordable
     assert_equal "recording_studio_support_pages", recording.recordable.class.table_name
+  end
+
+  test "support ticket can be recorded under a message group" do
+    root_recording = RecordingStudio.root_recording_for(Workspace.create!(name: unique_name("Ticket Workspace")))
+    mount = root_recording.ensure_message_mount(:support)
+    group = RecordingStudio.record!(
+      action: "created",
+      recordable: RecordingStudioMessages::MessageGroup.new(title: unique_name("Ticket thread")),
+      root_recording: root_recording,
+      parent_recording: mount
+    ).recording
+
+    assert RecordingStudio.parent_allowed?(
+      child_type: "RecordingStudioSupport::SupportTicket",
+      parent_recording: group
+    )
+
+    event = RecordingStudio.record!(
+      action: "created",
+      recordable: RecordingStudioSupport::SupportTicket.new(subject: "Crop export failed", status: :open),
+      root_recording: root_recording,
+      parent_recording: group
+    )
+
+    assert_equal "created", event.action
+    assert_equal group, event.recording.parent_recording
+    assert_equal root_recording, event.recording.root_recording
+    assert_equal "Crop export failed", event.recording.recordable.subject
+    assert_equal "recording_studio_support_tickets", event.recording.recordable.class.table_name
+  end
+
+  test "support ticket cannot be recorded under another parent" do
+    root_recording = RecordingStudio.root_recording_for(Workspace.create!(name: unique_name("Ticket Parent Workspace")))
+    section = root_recording.record(RecordingStudioSupport::SupportSection) do |record|
+      record.title = unique_name("Not a thread")
+    end
+
+    [root_recording, section].each do |parent|
+      refute RecordingStudio.parent_allowed?(
+        child_type: "RecordingStudioSupport::SupportTicket",
+        parent_recording: parent
+      )
+
+      error = assert_raises(RecordingStudio::InvalidParent) do
+        RecordingStudio.record!(
+          action: "created",
+          recordable: RecordingStudioSupport::SupportTicket.new(subject: "Wrong parent", status: :open),
+          root_recording: root_recording,
+          parent_recording: parent
+        )
+      end
+      assert_equal(
+        "RecordingStudioSupport::SupportTicket cannot be recorded under #{parent.recordable_type}",
+        error.message
+      )
+    end
+  end
+
+  test "support ticket cannot be created as a root" do
+    ticket = RecordingStudioSupport::SupportTicket.create!(
+      subject: unique_name("Root Rejected Ticket"),
+      status: :open
+    )
+
+    assert_raises(RecordingStudio::RootNotAllowed) do
+      RecordingStudio.root_recording_for(ticket)
+    end
   end
 
   test "support page cannot be created as a root" do

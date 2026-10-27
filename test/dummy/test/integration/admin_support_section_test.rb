@@ -31,8 +31,8 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
       subject: "Closed for chart #{SecureRandom.hex(4)}",
       body: "Done."
     )
-    closed.update!(status: :resolved)
-    unassigned = RecordingStudioSupport::SupportTicket.open.where(assignee_id: nil).count
+    revise_support_ticket!(closed, status: :resolved)
+    unassigned = RecordingStudioSupport::Tickets.current.open.where(assignee_id: nil).count
     assert_operator unassigned, :>=, 1
 
     get "/admin/sections/support/widgets/widgets.support.unassigned_open"
@@ -114,8 +114,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
         subject: "Already closed ticket",
         body: "This one is done."
       )
-      ticket.update!(status: :resolved)
-      ticket
+      revise_support_ticket!(ticket, status: :resolved)
     end
 
     get "/admin/screens/open_tickets/table"
@@ -142,7 +141,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
       subject: "Closed waiting ticket",
       body: "Finished."
     )
-    closed.update!(status: :resolved)
+    revise_support_ticket!(closed, status: :resolved)
 
     get "/admin/screens/time_to_close"
 
@@ -204,8 +203,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
         subject: "Closed this week",
         body: "In range."
       )
-      ticket.update!(status: :resolved, resolved_at: Time.current)
-      ticket
+      revise_support_ticket!(ticket, status: :resolved)
     end
     out_of_range = travel_to(Time.utc(2026, 8, 1, 12)) do
       ticket = RecordingStudioSupport::Tickets.open!(
@@ -213,8 +211,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
         subject: "Closed last summer",
         body: "Out of range."
       )
-      ticket.update!(status: :resolved, resolved_at: Time.current)
-      ticket
+      revise_support_ticket!(ticket, status: :resolved)
     end
     later = travel_to(Time.utc(2026, 10, 10, 12)) do
       ticket = RecordingStudioSupport::Tickets.open!(
@@ -222,8 +219,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
         subject: "Closed later this week",
         body: "Same week."
       )
-      ticket.update!(status: :resolved, resolved_at: Time.current)
-      ticket
+      revise_support_ticket!(ticket, status: :resolved)
     end
 
     table_params = { start_date: "2026-10-01", end_date: "2026-10-14" }

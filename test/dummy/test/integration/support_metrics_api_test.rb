@@ -60,7 +60,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
         headers: auth(@staff_operations_token),
         as: :json
     assert_response :success
-    assert_equal RecordingStudioSupport::SupportTicket.open.count, response.parsed_body.fetch("value")
+    assert_equal current_tickets.open.count, response.parsed_body.fetch("value")
 
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/by_status",
         headers: auth(@staff_operations_token),
@@ -68,7 +68,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     assert_response :success
     status_counts = breakdown_counts(response.parsed_body)
     RecordingStudioSupport::SupportTicket::STATUSES.each do |status|
-      assert_equal RecordingStudioSupport::SupportTicket.where(status: status).count, status_counts[status].to_i
+      assert_equal current_tickets.where(status: status).count, status_counts[status].to_i
     end
 
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/by_priority",
@@ -77,7 +77,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     assert_response :success
     priority_counts = breakdown_counts(response.parsed_body)
     RecordingStudioSupport::SupportTicket::PRIORITIES.each do |priority|
-      assert_equal RecordingStudioSupport::SupportTicket.where(priority: priority).count, priority_counts[priority].to_i
+      assert_equal current_tickets.where(priority: priority).count, priority_counts[priority].to_i
     end
 
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/opened",
@@ -101,7 +101,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
   end
 
   test "operations staff token reads support queue metrics" do
-    open_tickets = RecordingStudioSupport::SupportTicket.open
+    open_tickets = current_tickets.open
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/unassigned_open",
         headers: auth(@staff_operations_token),
         as: :json
@@ -124,7 +124,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
   end
 
   test "oldest open age has no value and unassigned open is zero without open tickets" do
-    RecordingStudioSupport::SupportTicket.open.find_each { |ticket| ticket.update!(status: :resolved) }
+    current_tickets.open.find_each { |ticket| revise_support_ticket!(ticket, status: :resolved) }
 
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/oldest_open_age",
         headers: auth(@staff_operations_token),
@@ -150,7 +150,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
           as: :json
       assert_response :success
       body = response.parsed_body
-      relation = RecordingStudioSupport::SupportTicket.open
+      relation = current_tickets.open
       relation = relation.where(assignee_id: nil) if name == "unassigned_open"
       counts = relation.group(:priority).count
 
@@ -185,7 +185,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
         grouped = body.fetch("groups").sum { |row| series_value(row.fetch("data"), date) }
         assert_equal total, grouped + series_value(other.fetch("data"), date)
       end
-      window = RecordingStudioSupport::SupportTicket.where(created_at: Time.utc(2026, 2, 1)...Time.utc(2026, 4, 1))
+      window = current_tickets.where(created_at: Time.utc(2026, 2, 1)...Time.utc(2026, 4, 1))
       window.group(field).count.each do |key, count|
         count >= 5 ? assert_includes(kept, key) : refute_includes(kept, key)
       end
@@ -388,21 +388,21 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
         body: "Need a reply.",
         priority: :low
       )
-      waiting.update!(status: :waiting_on_customer)
+      revise_support_ticket!(waiting, status: :waiting_on_customer)
       resolved = RecordingStudioSupport::Tickets.open!(
         actor: @patron,
         subject: "March resolved #{SecureRandom.hex(4)}",
         body: "Fixed.",
         priority: :normal
       )
-      resolved.update!(status: :resolved)
+      revise_support_ticket!(resolved, status: :resolved)
       assigned = RecordingStudioSupport::Tickets.open!(
         actor: @patron,
         subject: "March assigned #{SecureRandom.hex(4)}",
         body: "On it.",
         priority: :normal
       )
-      assigned.update!(assignee: @staff)
+      revise_support_ticket!(assigned, assignee: @staff)
     end
   end
 
@@ -453,7 +453,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
       RecordingStudioSupport::Tickets.open!(actor: @patron, subject: "Resolved #{SecureRandom.hex(4)}", body: "x",
                                             priority: priority)
     end
-    travel_to(opened_at + duration) { ticket.update!(status: :resolved) }
+    travel_to(opened_at + duration) { revise_support_ticket!(ticket, status: :resolved) }
   end
 
   def series_value(rows, date)
@@ -465,7 +465,11 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
   end
 
   def tickets_opened_between(start_at, end_at)
-    RecordingStudioSupport::SupportTicket.where(created_at: start_at...end_at).count
+    current_tickets.where(created_at: start_at...end_at).count
+  end
+
+  def current_tickets
+    RecordingStudioSupport::Tickets.current
   end
 
   def timeseries_counts(payload)

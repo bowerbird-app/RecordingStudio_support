@@ -42,7 +42,7 @@ class SupportMembershipLockTest < ActionDispatch::IntegrationTest
       subject: "Lock proof",
       body: "Open under membership lock."
     )
-    group = ticket.message_group_recording
+    group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
 
     assert RecordingStudioMessages.membership_locked_for_group?(group)
     assert RecordingStudioSupport::Messages.group_owner?(group, @patron)
@@ -61,7 +61,7 @@ class SupportMembershipLockTest < ActionDispatch::IntegrationTest
       subject: "No invites",
       body: "Membership stays closed."
     )
-    group = ticket.message_group_recording
+    group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
 
     deny = RecordingStudioAccessible.grant_access(
       recording: group,
@@ -95,7 +95,7 @@ class SupportMembershipLockTest < ActionDispatch::IntegrationTest
       subject: "Staff desk lock",
       body: "Staff should not see Access either."
     )
-    group = ticket.message_group_recording
+    group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
 
     sign_in @staff
     get "/admin/support/messages", params: { group_id: group.id }

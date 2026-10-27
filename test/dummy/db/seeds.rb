@@ -377,7 +377,7 @@ begin
       )
     end
 
-    group = ticket.message_group_recording
+    group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
     raise "Sample ticket #{sample[:subject]} has no conversation" if group.blank?
 
     share_sample_ticket.call(group, customer, user)

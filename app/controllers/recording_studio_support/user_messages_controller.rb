@@ -25,12 +25,13 @@ module RecordingStudioSupport
     def create
       @ticket = open_ticket!
       redirect_to help_message_path_for(@ticket), notice: Copy.t("messages.sent")
-    rescue ArgumentError, ActiveRecord::RecordInvalid, RecordingStudioMessages::Error => e
+    rescue ArgumentError, ActiveRecord::RecordInvalid, RecordingStudioMessages::Error,
+           RecordingStudioSupport::Tickets::AlreadyExists => e
       render_new_ticket_error(e)
     end
 
     def show
-      @group_recording = @ticket.message_group_recording
+      @group_recording = RecordingStudioSupport::Tickets.group_recording_for(@ticket)
       return head :not_found if @group_recording.blank?
       return deny_support_access! unless ticket_visible_to_actor?
 

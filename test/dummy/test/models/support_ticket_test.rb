@@ -32,7 +32,7 @@ class SupportTicketModelTest < ActiveSupport::TestCase
     assert_nil ticket.assignee
     assert_nil ticket.resolved_at
 
-    group = ticket.message_group_recording
+    group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
     assert_not_nil group
     assert_equal "Crop export failed", group.recordable.title
     assert RecordingStudioSupport::Messages.group_owner?(group, @patron)
@@ -63,19 +63,19 @@ class SupportTicketModelTest < ActiveSupport::TestCase
       body: "Please close when fixed."
     )
 
-    ticket.update!(status: :resolved)
+    ticket = revise_support_ticket!(ticket, status: :resolved)
     assert_not_nil ticket.resolved_at
 
-    ticket.update!(status: :waiting_on_support)
+    ticket = revise_support_ticket!(ticket, status: :waiting_on_support)
     assert_nil ticket.resolved_at
   end
 
-  test "subject and message_group_id are required" do
+  test "subject is required" do
     ticket = RecordingStudioSupport::SupportTicket.new
 
     refute ticket.valid?
     assert_includes ticket.errors[:subject], "can't be blank"
-    assert_includes ticket.errors[:message_group_id], "can't be blank"
+    refute_includes ticket.errors.attribute_names, :message_group_id
   end
 
   private
