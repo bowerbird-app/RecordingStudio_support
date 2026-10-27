@@ -29,7 +29,8 @@ class SupportTicketReadsTest < ActiveSupport::TestCase
       time_zone: "UTC"
     )
     Current.actor = @staff
-    RecordingStudioSupport::SupportTicket.delete_all
+    RecordingStudio::Recording.where(recordable_type: RecordingStudioSupport::Tickets::TICKET_TYPE)
+                              .update_all(trashed_at: Time.current)
   end
 
   teardown do
