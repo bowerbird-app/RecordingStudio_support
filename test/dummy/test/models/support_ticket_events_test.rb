@@ -141,6 +141,23 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     assert_equal 1, RecordingStudioSupport::Tickets.ticket_recordings.where(parent_recording_id: group.id).count
   end
 
+  test "a trashed ticket allows a second ticket on the thread" do
+    ticket = open_ticket!
+    group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
+    RecordingStudioSupport::Tickets.recording_for!(ticket).update!(trashed_at: Time.current)
+    opener = RecordingStudioSupport::Tickets::Open.new(
+      actor: @patron,
+      subject: "Second ticket",
+      body: "The first one is gone."
+    )
+    opener.define_singleton_method(:create_group!) { group }
+
+    second = opener.call
+
+    live = RecordingStudioSupport::Tickets.ticket_recordings.where(parent_recording_id: group.id)
+    assert_equal [second.id], live.map { |recording| recording.recordable.id }
+  end
+
   private
 
   def open_ticket!
