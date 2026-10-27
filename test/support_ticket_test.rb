@@ -45,6 +45,7 @@ class SupportTicketTest < Minitest::Test
     assert_includes migration, "message_group_id"
     assert_includes migration, "index_rs_support_tickets_on_message_group_id"
     assert_includes migration, "remove_column"
+    assert_includes migration, "ActiveRecord::IrreversibleMigration"
   end
 
   def test_migration_creates_tickets_table

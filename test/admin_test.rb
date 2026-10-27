@@ -333,16 +333,23 @@ class AdminTest < Minitest::Test
 
   def test_open_ticket_helpers_match_the_age_widget
     screen = RecordingStudioSupport::Admin::OpenTicketsScreen
-    older = Struct.new(:created_at, :parent_recording_id).new(Time.utc(2026, 10, 17, 12), "group-old")
-    newer = Struct.new(:created_at, :parent_recording_id).new(Time.utc(2026, 10, 19, 11), nil)
+    older = Struct.new(:created_at).new(Time.utc(2026, 10, 17, 12))
+    newer = Struct.new(:created_at).new(Time.utc(2026, 10, 19, 11))
 
     travel_to Time.utc(2026, 10, 19, 12) do
       assert_equal "2d", screen.wait_label(older)
       assert_equal "1h", screen.wait_label(newer)
     end
     assert_equal "None", screen.wait_label(Struct.new(:created_at).new(nil))
-    assert_equal "/admin/support/messages?group_id=group-old", screen.desk_path(older)
-    assert_equal "/admin/support/messages", screen.desk_path(newer)
+
+    desk_older = ticket_shape("ticket-old", "Crop export failed")
+    desk_newer = ticket_shape("ticket-new", "New card did not stick")
+    RecordingStudioSupport::Tickets.stub(:group_recording_for, lambda { |ticket|
+      ticket.id == "ticket-old" ? Struct.new(:id).new("group-old") : nil
+    }) do
+      assert_equal "/admin/support/messages?group_id=group-old", screen.desk_path(desk_older)
+      assert_equal "/admin/support/messages", screen.desk_path(desk_newer)
+    end
   end
 
   def test_duration_axis_uses_human_units_without_trailing_zeros
@@ -446,6 +453,12 @@ class AdminTest < Minitest::Test
   end
 
   private
+
+  def ticket_shape(id, subject)
+    Struct.new(:id, :subject, :status, :priority, :created_at).new(
+      id, subject, "open", "normal", Time.utc(2026, 10, 17, 12)
+    )
+  end
 
   def resolve_admin_copy(value)
     value.respond_to?(:call) ? value.call(nil) : value

@@ -55,6 +55,9 @@ module RecordingStudioSupport
       end
 
       def create_ticket!(group)
+        # Vacuous when this transaction just inserted the group: no other
+        # connection can see that row yet. The lock still serializes a second
+        # ticket if the parent already existed.
         group.with_lock do
           raise Tickets::AlreadyExists if Tickets.ticket_recordings.exists?(parent_recording_id: group.id)
 

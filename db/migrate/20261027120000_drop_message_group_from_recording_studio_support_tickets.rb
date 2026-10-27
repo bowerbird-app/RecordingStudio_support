@@ -15,11 +15,6 @@ class DropMessageGroupFromRecordingStudioSupportTickets < ActiveRecord::Migratio
   end
 
   def down
-    return unless table_exists?(TABLE)
-    return if column_exists?(TABLE, :message_group_id)
-
-    add_column TABLE, :message_group_id, :uuid
-    add_index TABLE, :message_group_id, unique: true, name: INDEX_NAME
-    change_column_null TABLE, :message_group_id, false
+    raise ActiveRecord::IrreversibleMigration, "deleted ticket rows and message_group_id cannot be restored"
   end
 end

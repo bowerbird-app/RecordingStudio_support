@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - `RecordingStudioSupport::SupportTicket` declares `recording_studio_recordable` with label "Support ticket", `root: false`, and `allowed_parent_types: ["RecordingStudioMessages::MessageGroup"]`.
-- `Tickets.open!` creates the ticket with `RecordingStudio.record!` (`action: "created"`) under the new MessageGroup. The conversation is that parent recording. A second ticket on the same group raises `Tickets::AlreadyExists`.
+- `Tickets.open!` creates the ticket with `RecordingStudio.record!` (`action: "created"`) under the new MessageGroup. The conversation is that parent recording. A second ticket on the same group raises `Tickets::AlreadyExists`. That sentence is the engine English key `recording_studio.support.messages.already_open`. Dummy `fr.yml` mirrors engine keys for the locales test. This gem does not ship a French catalog.
 - `Tickets.update!` revises the recording (`action: "updated"`) and stores the diff on the event as `metadata["changes"]`.
 - Ticket metrics and the open-ticket and time-to-close screens count the current snapshot once. `oldest_open_age` and `avg_time_to_resolve` use the recording's `created_at`.
 - Hosts register `"RecordingStudioSupport::SupportTicket"` in `config.recordable_types`.

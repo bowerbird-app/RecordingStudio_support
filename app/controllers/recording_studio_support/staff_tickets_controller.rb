@@ -17,8 +17,8 @@ module RecordingStudioSupport
       )
 
       redirect_to staff_messages_return_to(recording), notice: "Ticket updated."
-    rescue ActiveRecord::RecordInvalid
-      redirect_to staff_messages_return_to(recording), alert: update_error_message
+    rescue ActiveRecord::RecordInvalid => e
+      redirect_to staff_messages_return_to(recording), alert: update_error_message(e.record)
     end
 
     private
@@ -52,8 +52,8 @@ module RecordingStudioSupport
       end
     end
 
-    def update_error_message
-      @ticket.errors.full_messages.to_sentence.presence || "Could not update."
+    def update_error_message(record)
+      record.errors.full_messages.to_sentence.presence || "Could not update."
     end
 
     def staff_messages_return_to(recording = nil)

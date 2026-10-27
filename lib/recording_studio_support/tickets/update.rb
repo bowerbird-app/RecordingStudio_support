@@ -18,10 +18,13 @@ module RecordingStudioSupport
 
       def call
         recording = coerce_recording
-        changes, attributes = diff(recording.recordable)
-        return recording if changes.empty?
+        recording.with_lock do
+          current = recording.reload.recordable
+          changes, attributes = diff(current)
+          return recording if changes.empty?
 
-        revise(recording, changes, attributes)
+          revise(recording, changes, attributes)
+        end
       end
 
       private

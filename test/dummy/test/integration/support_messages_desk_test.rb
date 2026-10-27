@@ -163,6 +163,30 @@ class SupportMessagesDeskTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/help/messages/#{ticket.id}"
   end
 
+  test "a failed ticket update reports the invalid record" do
+    sign_in @patron
+    ticket = open_ticket!(@patron, subject: "Cannot close yet", body: "Cannot close yet.")
+    group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
+    invalid = RecordingStudioSupport::SupportTicket.new(subject: "")
+    invalid.validate
+    error = ActiveRecord::RecordInvalid.new(invalid)
+
+    sign_out @patron
+    sign_in @staff
+    original = RecordingStudioSupport::Tickets.method(:update!)
+    RecordingStudioSupport::Tickets.define_singleton_method(:update!) { |*| raise error }
+    patch "/admin/support/tickets/#{ticket.id}", params: { ticket: { status: "resolved" } }
+
+    assert_redirected_to "/admin/support/messages?group_id=#{group.id}"
+    assert_equal invalid.errors.full_messages.to_sentence, flash[:alert]
+  ensure
+    if original
+      RecordingStudioSupport::Tickets.define_singleton_method(:update!) do |*args, **kwargs, &block|
+        original.call(*args, **kwargs, &block)
+      end
+    end
+  end
+
   test "non staff cannot open staff desk" do
     sign_in @patron
 
