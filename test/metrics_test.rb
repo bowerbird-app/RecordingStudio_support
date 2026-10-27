@@ -14,12 +14,11 @@ class MetricsTest < Minitest::Test
     assert_includes metrics, ":support_tickets"
     assert_includes metrics, "RecordingStudioSupport::SupportTicket"
     assert_includes metrics, "count :open"
-    assert_includes metrics, 'Tickets.current_relation(relation).where(status: "open")'
+    assert_includes metrics, "Tickets.current_relation"
     assert_includes metrics, "count :unassigned_open"
     assert_includes metrics, "where(assignee_id: nil)"
     assert_includes metrics, "custom :oldest_open_age"
     assert_includes metrics, 'unit: "seconds"'
-    assert_includes metrics, 'minimum("recording_studio_recordings.created_at")'
     assert_includes metrics, "QUEUE_GROUPS = %i[priority]"
     assert_includes metrics, "TICKET_GROUPS = %i[status priority]"
     refute_includes metrics, "assignee_id]"

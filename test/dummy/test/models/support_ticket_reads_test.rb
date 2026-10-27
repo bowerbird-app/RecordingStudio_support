@@ -99,7 +99,37 @@ class SupportTicketReadsTest < ActiveSupport::TestCase
     end
   end
 
+  test "open tickets follow recording open time and a trashed ticket drops out" do
+    older = travel_to(Time.utc(2026, 4, 2, 9)) { open_ticket!("Older queue") }
+    newer = travel_to(Time.utc(2026, 4, 2, 11)) { open_ticket!("Newer queue") }
+    older_recording = RecordingStudioSupport::Tickets.recording_for!(older)
+    travel_to(Time.utc(2026, 4, 2, 15)) do
+      RecordingStudioSupport::Tickets.update!(older_recording, actor: @staff, priority: :high)
+    end
+
+    assert_equal [older.subject, newer.subject], open_subjects
+
+    trashed = travel_to(Time.utc(2026, 4, 2, 8)) { open_ticket!("Trashed queue") }
+    RecordingStudioSupport::Tickets.recording_for!(trashed).update!(trashed_at: Time.current)
+
+    assert_equal [older.subject, newer.subject], open_subjects
+    assert_equal 2, metric_value("support_tickets.open")
+    assert_equal 0, RecordingStudioSupport::Tickets.current.where(subject: trashed.subject).count
+  end
+
   private
+
+  def open_ticket!(subject)
+    RecordingStudioSupport::Tickets.open!(
+      actor: @patron,
+      subject: "#{subject} #{SecureRandom.hex(4)}",
+      body: "Still open."
+    )
+  end
+
+  def open_subjects
+    RecordingStudioSupport::Admin::OpenTicketsScreen.tickets.map(&:subject)
+  end
 
   def metric_context
     @metric_context ||= Struct.new(:actor, :blast_radius, :timezone).new(@staff, :site, "UTC")
