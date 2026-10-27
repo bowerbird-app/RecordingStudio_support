@@ -14,7 +14,7 @@
 
 The generated migration deletes every `recording_studio_support_tickets` row, then drops `message_group_id` and `index_rs_support_tickets_on_message_group_id`.
 
-featured_in already has the copied create migration in `db/migrate` (`*_create_recording_studio_support_tickets.rb`, the generator's copy of `20260925030000_create_recording_studio_support_tickets`). Leave that file. Generate and run this release's migration on top of it. Existing ticket rows are deleted. There is no backfill.
+Host apps that already copied `20260925030000_create_recording_studio_support_tickets` into `db/migrate` (`*_create_recording_studio_support_tickets.rb`) should leave that file. Generate and run this release's migration on top of it. Existing ticket rows are deleted. There is no backfill.
 
 ### Verify
 
