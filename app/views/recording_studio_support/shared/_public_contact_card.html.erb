@@ -1,5 +1,5 @@
 <% if (contact_href = support_public_contact_href).present? %>
-  <%= render FlatPack::Card::Component.new(style: :default) do |card| %>
+  <%= render FlatPack::Card::Component.new(background: :default, border: :default) do |card| %>
     <% card.body do %>
       <div class="flex flex-wrap items-center justify-between gap-3">
         <% if (section = local_assigns[:section]).present? %>

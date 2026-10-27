@@ -20,7 +20,7 @@ class CustomerI18nTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Français"
     assert_select "html[lang='en']"
     assert_select ".dummy-language-selector"
-    assert_select "nav.flat-pack-page-nav .dummy-language-selector"
+    assert_select ".fp-top-nav__right .dummy-language-selector"
   end
 
   test "help home article and messages stay English until the host locale changes" do
@@ -79,10 +79,26 @@ class CustomerI18nTest < ActionDispatch::IntegrationTest
     assert_select "h1", text: "Messages"
     assert_includes response.body, "Vos notes à l’assistance, au même endroit."
     assert_includes response.body, "Nouveau ticket"
+    assert_includes response.body, "Where did my invoice go?"
+    assert_includes response.body, "New card did not stick"
     refute_includes response.body, "Your notes to support, all in one place."
     refute_includes response.body, "New ticket"
-    visible = css_select("main").text
+    refute_includes response.body, "No tickets yet"
+    refute_includes response.body, "Write a message"
 
+    sign_out @user
+    guest = RecordingStudioUser.create_user!(
+      email: "french-guest-#{SecureRandom.hex(4)}@example.com",
+      password: "Password",
+      first_name: "Camille",
+      last_name: "Guest",
+      time_zone: "UTC"
+    )
+    sign_in guest
+    get "/help/messages"
+
+    assert_response :success
+    visible = css_select("main").text
     assert_includes visible, "Pas encore de ticket"
     refute_match(/\bNo tickets yet\b/, visible)
     refute_match(/\bWrite a message\b/, visible)

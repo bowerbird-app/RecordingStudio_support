@@ -8,8 +8,9 @@
         href: article.fetch(:href),
         clickable: true,
         hover: :strong,
-        style: :interactive,
-        theme: { background: "var(--color-white)" },
+        background: :default,
+        border: :default,
+        shadow: :sm,
         data: { turbo_frame: "_top" }
       ) do |card| %>
         <% card.body(padding: :lg) do %>

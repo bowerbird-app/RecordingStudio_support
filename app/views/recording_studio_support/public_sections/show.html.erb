@@ -1,12 +1,7 @@
 <% support_public_section_page_nav(title: @section.title) %>
+<% content_for :subtitle, @section_subtitle %>
 
 <div class="flex w-full flex-col gap-6">
-  <%= render FlatPack::PageTitle::Component.new(
-    title: @section.title,
-    subtitle: @section_subtitle,
-    variant: :h1
-  ) %>
-
   <%= render "recording_studio_support/shared/page_search",
         url: support_public_section_path(@section_recording),
         instant_url: support_public_section_instant_search_path(@section_recording),

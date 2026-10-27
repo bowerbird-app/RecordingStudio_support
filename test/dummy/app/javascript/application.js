@@ -6,3 +6,7 @@ import * as ActiveStorage from "@rails/activestorage"
 ActiveStorage.start()
 import "recording_studio_attachable/tiptap/attachment_image_addon"
 import "recording_studio_views/collector"
+import { initLocalTimes } from "flat_pack/local_time"
+
+document.addEventListener("DOMContentLoaded", () => initLocalTimes())
+document.addEventListener("turbo:load", () => initLocalTimes())

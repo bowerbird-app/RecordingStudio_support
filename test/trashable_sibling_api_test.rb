@@ -75,7 +75,7 @@ class TrashableSiblingApiTest < Minitest::Test
     assert_includes changelog, "[0.19.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.18.0...v0.19.0"
     assert_includes changelog, "## [0.18.0]"
     assert_includes changelog, "[0.18.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.17.0...v0.18.0"
-    assert_includes gemfile, 'tag: "v0.11.0"'
+    assert_includes gemfile, 'tag: "v0.12.0"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_trashable", "~> 0.9"'
   end
 

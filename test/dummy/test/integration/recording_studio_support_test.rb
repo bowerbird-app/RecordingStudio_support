@@ -5,9 +5,9 @@ require "test_helper"
 class RecordingStudioSupportTest < ActiveSupport::TestCase
   test "dummy app loads root switchable config and controller support" do
     assert_equal [ "all_workspaces" ], RecordingStudioRootSwitchable.configuration.scopes.keys
-    assert_equal :application_layout, RecordingStudioRootSwitchable.configuration.layout
+    assert_equal "recording_studio/default_layout", RecordingStudioRootSwitchable.configuration.layout
     assert_includes ApplicationController.ancestors, RecordingStudio::RootSwitchable::ControllerSupport
-    assert_includes ApplicationController.ancestors, RecordingStudio::UsesDefaultLayout
+    assert ApplicationController.method_defined?(:recording_studio_resolved_layout)
   end
 
   test "dummy app validates recordable declarations" do
@@ -133,11 +133,37 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
       recording: admin_root_recording
     )
 
+    customer = User.find_by!(email: "jordan.lee@example.com")
+    refute_predicate customer, :admin?
+    invoice = RecordingStudioSupport::SupportTicket.find_by!(subject: "Where did my invoice go?")
+    card = RecordingStudioSupport::SupportTicket.find_by!(subject: "New card did not stick")
+    assert_equal "open", invoice.status
+    assert_equal "normal", invoice.priority
+    assert_equal "open", card.status
+    assert_equal "high", card.priority
+    assert_equal [ "Where did my invoice go?", "New card did not stick" ].sort,
+                 RecordingStudioSupport::Tickets.for_actor(admin).map(&:subject).sort
+    assert_equal [ "Where did my invoice go?", "New card did not stick" ].sort,
+                 RecordingStudioSupport::Tickets.for_actor(customer).map(&:subject).sort
+
+    invoice_bodies = message_bodies(invoice)
+    card_bodies = message_bodies(card)
+    assert_includes invoice_bodies, "I paid last Tuesday. Billing still has no PDF."
+    assert_includes invoice_bodies, "It's there now. Open Billing, then Invoices, and grab the top PDF."
+    assert_includes card_bodies, "I saved a new card. The next charge still used the old one."
+    assert_includes card_bodies, "That card is the default now. The next invoice uses it."
+    assert RecordingStudioSupport::Messages.group_owner?(invoice.message_group_recording, admin)
+    assert RecordingStudioSupport::Messages.group_owner?(invoice.message_group_recording, customer)
+    assert RecordingStudioSupport::Messages.group_owner?(card.message_group_recording, admin)
+    assert RecordingStudioSupport::Messages.group_owner?(card.message_group_recording, customer)
+
     assert_no_difference -> { User.count } do
       assert_no_difference -> { RecordingStudio::Recording.count } do
         assert_no_difference -> { RecordingStudioSupport::SupportPage.count } do
-          assert_no_difference -> { RecordingStudioSupport::HelpPageViews.relation.count } do
-            load Rails.root.join("db/seeds.rb").to_s
+          assert_no_difference -> { RecordingStudioSupport::SupportTicket.count } do
+            assert_no_difference -> { RecordingStudioSupport::HelpPageViews.relation.count } do
+              load Rails.root.join("db/seeds.rb").to_s
+            end
           end
         end
       end
@@ -181,6 +207,14 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     refute RecordingStudio.capability_enabled?(:publishable, for: Page)
     refute RecordingStudio.capability_enabled?(:viewable, for: Folder)
     refute RecordingStudio.capability_enabled?(:viewable, for: Page)
-    assert_includes ApplicationController.ancestors, RecordingStudio::UsesDefaultLayout
+    assert ApplicationController.method_defined?(:recording_studio_resolved_layout)
+  end
+
+  private
+
+  def message_bodies(ticket)
+    RecordingStudioMessages.message_recordings(ticket.message_group_recording).map do |recording|
+      recording.recordable.body
+    end
   end
 end

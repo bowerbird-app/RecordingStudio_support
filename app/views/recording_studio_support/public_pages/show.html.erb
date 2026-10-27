@@ -1,11 +1,12 @@
 <% back_path = @section_recording ? support_public_section_path(@section_recording) : support_public_help_path %>
-<% recording_studio_page_nav(
+<% support_page_chrome(
      title: @page.title,
-     page_nav_back_url: back_path
+     subtitle: support_page_updated_on(@updated_at),
+     back_href: back_path,
+     anchor_href: support_public_help_path,
+     anchor_icon: "home",
+     anchor_tooltip: support_t("help.home")
    ) %>
-<% content_for :page_nav_secondary_anchor_url, support_public_help_path %>
-<% content_for :page_nav_secondary_anchor_icon, "home" %>
-<% content_for :page_nav_secondary_anchor_tooltip, support_t("help.home") %>
 <% recording_studio_seo_description(
      support_page_meta_description(@page.body, description: @page.description)
    ) %>
@@ -22,16 +23,6 @@
         ) %>
       </div>
     <% end %>
-
-    <%# -mb-6 cancels PageTitle's stock mb-6 so gap-1.5 owns header rhythm %>
-    <div class="-mb-6 w-full" style="--page-title-h1-size: var(--text-5xl);">
-      <%= render FlatPack::PageTitle::Component.new(
-        title: @page.title,
-        subtitle: support_page_updated_on(@updated_at),
-        variant: :h1,
-        class: "text-center"
-      ) %>
-    </div>
   </div>
 
   <%= publishable_preview_badge %>

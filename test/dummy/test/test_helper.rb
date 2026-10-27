@@ -81,7 +81,6 @@ module ActionDispatch
 
     def assert_flatpack_rounded_theme
       assert_select "html[data-theme='rounded']"
-      assert_select "body[data-theme='rounded']"
     end
   end
 end

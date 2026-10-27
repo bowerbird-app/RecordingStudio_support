@@ -1,12 +1,9 @@
-<% recording_studio_page_nav(title: "Support messages") %>
+<% support_page_chrome(
+     title: "Support messages",
+     subtitle: "Inbox for people who wrote from Help."
+   ) %>
 
 <div class="flex w-full flex-col gap-4">
-  <%= render FlatPack::PageTitle::Component.new(
-    title: "Support messages",
-    subtitle: "Inbox for people who wrote from Help.",
-    variant: :h1
-  ) %>
-
   <% if @ticket %>
     <%= render "recording_studio_support/staff_messages/ticket_form", ticket: @ticket %>
   <% end %>

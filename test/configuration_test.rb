@@ -69,6 +69,7 @@ class ConfigurationTest < Minitest::Test
     assert_equal "Contact support", configuration.public_contact_label
     assert_nil configuration.messages_admin_email
     assert_nil configuration.messages_admin_finder
+    assert_nil configuration.layout
     assert_instance_of RecordingStudio::Hooks, configuration.hooks
   ensure
     ENV["RECORDING_STUDIO_SUPPORT_API_KEY"] = previous_value

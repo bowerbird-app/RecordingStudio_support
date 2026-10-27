@@ -44,7 +44,8 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "grid-cols-1"
     assert_includes response.body, "lg:grid-cols-3"
     assert_includes response.body, "text-center"
-    assert_includes response.body, "--page-title-h1-size: var(--text-5xl)"
+    assert_includes response.body, "font-size: var(--page-title-h1-size)"
+    refute_includes response.body, "--page-title-h1-size: var(--text-5xl)"
     assert_includes response.body, "gap-6"
     assert_includes response.body, "card-padding-lg"
     assert_select "ul[role='list']", count: 0
@@ -91,7 +92,8 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "img[src='/how-to-sign-in.jpg'][alt='Sign-in form']"
     assert_select "figure img[src='/how-to-sign-in.jpg']"
     assert_includes response.body, "width: 100%; height: auto"
-    assert_includes response.body, "--page-title-h1-size: var(--text-5xl)"
+    assert_includes response.body, "font-size: var(--page-title-h1-size)"
+    refute_includes response.body, "--page-title-h1-size: var(--text-5xl)"
     assert_includes response.body, "text-center"
     assert_select "h1 + p", text: /\bUpdated [A-Z][a-z]+ \d{1,2}, \d{4}\b/
     refute_includes response.body, "flat-pack-timestamp"
@@ -282,8 +284,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_flatpack_rounded_theme
     assert_includes response.body, "flat-pack-page-nav"
-    assert_select "[aria-label='Go back']"
-    assert_select "[aria-label='Home']"
+    assert_select "[aria-label='Go back']", count: 0
     assert_select "a[href='/help'][aria-label='Home']"
     assert_select "[aria-label='Close']", count: 0
     refute_includes response.body, "flat-pack-breadcrumb"
@@ -292,7 +293,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "gap-6"
     assert_includes response.body, "mt-10"
     assert_includes response.body, "card-padding-lg"
-    assert_includes response.body, "--card-background-color: var(--color-white)"
+    assert_includes response.body, 'data-background="default"'
     refute_includes response.body, "shadow-md dark:shadow-lg"
     assert_select "h3", text: "How do I sign in?"
     assert_includes response.body, "grid-cols-1"
@@ -348,7 +349,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "fp-card-hover-strong"
     assert_includes response.body, "gap-6"
     assert_includes response.body, "card-padding-lg"
-    assert_includes response.body, "--card-background-color: var(--color-white)"
+    assert_includes response.body, 'data-background="default"'
     refute_includes response.body, "shadow-md dark:shadow-lg"
     refute_includes response.body, "Published"
   ensure
