@@ -18,7 +18,10 @@ module RecordingStudioSupport
 
     class AlreadyExists < StandardError
       def message
-        Copy.t("messages.already_open")
+        Copy.t(
+          "messages.already_open",
+          default: "This conversation already has a ticket."
+        )
       end
     end
 
