@@ -61,6 +61,21 @@ API_KEY_BODY = <<~HTML.freeze unless defined?(API_KEY_BODY)
   </ol>
 HTML
 
+SAMPLE_SUPPORT_TICKETS = [
+  {
+    subject: "Where did my invoice go?",
+    body: "I paid last Tuesday. Billing still has no PDF.",
+    reply: "It's there now. Open Billing, then Invoices, and grab the top PDF.",
+    priority: :normal
+  },
+  {
+    subject: "New card did not stick",
+    body: "I saved a new card. The next charge still used the old one.",
+    reply: "That card is the default now. The next invoice uses it.",
+    priority: :high
+  }
+].freeze unless defined?(SAMPLE_SUPPORT_TICKETS)
+
 PASSWORD_BODY = <<~HTML.freeze unless defined?(PASSWORD_BODY)
   <h2>Open account settings</h2>
   <p>Open your account settings and pick a new password.</p>
@@ -189,6 +204,25 @@ elsif RecordingStudioUser.profile_for(user).nil?
   )
 end
 user.update!(admin: true) if user.respond_to?(:admin=) && !user.admin?
+
+customer = User.find_by(email: "jordan.lee@example.com")
+if customer.nil?
+  customer = RecordingStudioUser.create_user!(
+    email: "jordan.lee@example.com",
+    password: "Password",
+    first_name: "Jordan",
+    last_name: "Lee",
+    time_zone: "UTC"
+  )
+elsif RecordingStudioUser.profile_for(customer).nil?
+  RecordingStudioUser.record_profile!(
+    customer,
+    first_name: "Jordan",
+    last_name: "Lee",
+    time_zone: "UTC",
+    actor: customer
+  )
+end
 # Create the workspace recordables
 workspace = Workspace.find_or_create_by!(name: "Studio Workspace")
 accessible_workspace = Workspace.find_or_create_by!(name: "Client Workspace")
@@ -311,6 +345,60 @@ begin
     seo_description: "Open your developer settings. The key is on that page."
   )
 
+  share_sample_ticket = lambda do |group, owner, staff|
+    next if RecordingStudioSupport::Messages.group_owner?(group, staff)
+
+    original = RecordingStudioAccessible.configuration.access_management_authorizer
+    begin
+      RecordingStudioAccessible.configuration.access_management_authorizer = ->(**) { true }
+      RecordingStudioMessages.allow_membership_change do
+        result = RecordingStudioAccessible.grant_access(
+          recording: group,
+          actor: staff,
+          role: :admin,
+          manager_actor: owner
+        )
+        raise "Failed to share sample ticket: #{result.error}" if result.failure?
+      end
+    ensure
+      RecordingStudioAccessible.configuration.access_management_authorizer = original
+    end
+  end
+
+  ensure_sample_ticket = lambda do |sample|
+    ticket = RecordingStudioSupport::SupportTicket.find_by(subject: sample[:subject])
+    if ticket.nil?
+      Current.actor = customer
+      ticket = RecordingStudioSupport::Tickets.open!(
+        actor: customer,
+        subject: sample[:subject],
+        body: sample[:body],
+        priority: sample[:priority]
+      )
+    end
+
+    group = ticket.message_group_recording
+    raise "Sample ticket #{sample[:subject]} has no conversation" if group.blank?
+
+    share_sample_ticket.call(group, customer, user)
+
+    bodies = RecordingStudioMessages.message_recordings(group).map { |recording| recording.recordable.body.to_s }
+    if bodies.exclude?(sample[:reply])
+      Current.actor = user
+      RecordingStudioMessages.send_message(
+        group_recording: group,
+        body: sample[:reply],
+        actor: user,
+        url: "/admin/support/messages?group_id=#{group.id}"
+      )
+    end
+
+    ticket
+  end
+
+  SAMPLE_SUPPORT_TICKETS.each { |sample| ensure_sample_ticket.call(sample) }
+  Current.actor = user
+
   [sign_in_page, password_page, billing_page, invoice_page, developers_page].each do |support_recording|
     next if RecordingStudioSupport::HelpPageViews.relation.exists?(recording_id: support_recording.id)
 
@@ -339,6 +427,7 @@ puts "Seeded: Help sections Billing, Developers, Getting started"
 puts "Seeded: Support pages 'How do I sign in?' (live) and 'How do I change my password?' (draft) under Getting started"
 puts "Seeded: Billing pages 'How do I update payment details?' and 'Where is my invoice?' (both live)"
 puts "Seeded: Admin root with owner access for admin@admin.com"
+puts "Seeded: jordan.lee@example.com / Password with two support tickets and staff replies"
 
 if defined?(RecordingStudioApi)
   provision_support_api_client = lambda do |name:, access_point:, role:, api: :public|
