@@ -163,6 +163,21 @@ class SupportMessagesDeskTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/help/messages/#{ticket.id}"
   end
 
+  test "opening a ticket on a group that already has one shows the error" do
+    sign_in @patron
+    error = RecordingStudioSupport::Tickets::AlreadyExists.new
+    original = RecordingStudioSupport::Tickets.method(:open!)
+    RecordingStudioSupport::Tickets.define_singleton_method(:open!) { |*| raise error }
+    post "/help/messages", params: {
+      ticket: { subject: "Again", body: "This thread already has one.", priority: "normal" }
+    }
+
+    assert_response :unprocessable_entity
+    assert_includes response.body, "This conversation already has a ticket."
+  ensure
+    restore_tickets_method(:open!, original)
+  end
+
   test "a failed ticket update reports the invalid record" do
     sign_in @patron
     ticket = open_ticket!(@patron, subject: "Cannot close yet", body: "Cannot close yet.")
@@ -180,11 +195,7 @@ class SupportMessagesDeskTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/admin/support/messages?group_id=#{group.id}"
     assert_equal invalid.errors.full_messages.to_sentence, flash[:alert]
   ensure
-    if original
-      RecordingStudioSupport::Tickets.define_singleton_method(:update!) do |*args, **kwargs, &block|
-        original.call(*args, **kwargs, &block)
-      end
-    end
+    restore_tickets_method(:update!, original)
   end
 
   test "non staff cannot open staff desk" do
@@ -257,6 +268,14 @@ class SupportMessagesDeskTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def restore_tickets_method(name, original)
+    return unless original
+
+    RecordingStudioSupport::Tickets.define_singleton_method(name) do |*args, **kwargs, &block|
+      original.call(*args, **kwargs, &block)
+    end
+  end
 
   def open_ticket!(actor, subject:, body:, priority: "normal")
     RecordingStudioSupport::Tickets.open!(
