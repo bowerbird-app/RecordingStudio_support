@@ -8,6 +8,7 @@ module RecordingStudioSupport
     helper RecordingStudioMessages::InboxHelper if defined?(RecordingStudioMessages::InboxHelper)
     helper RecordingStudioAccessible::AvatarsHelper if defined?(RecordingStudioAccessible::AvatarsHelper)
     helper RecordingStudioSupport::MessagesDeskHelper
+    helper RecordingStudioSupport::TicketPanelHelper
 
     before_action :require_signed_in_actor!
     before_action :set_ticket, only: :show

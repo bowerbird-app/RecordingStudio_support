@@ -1,0 +1,27 @@
+<%= render FlatPack::Modal::Component.new(
+      id: support_chat_participants_modal_id(group_recording),
+      title: support_t("messages.actions.participants_title"),
+      size: :sm
+    ) do |modal| %>
+  <% modal.body do %>
+    <%= render FlatPack::List::Component.new(spacing: :dense) do %>
+      <% support_chat_participants(group_recording).each do |actor, role| %>
+        <% name = message_sender_name(actor) %>
+        <%= render FlatPack::List::Item.new(
+              leading: render(FlatPack::Avatar::Component.new(name: name, alt: name, size: :sm, show_tooltip: false))
+            ) do %>
+          <div class="flex min-w-0 items-center gap-2">
+            <span class="min-w-0 truncate"><%= name %></span>
+            <% if role %>
+              <%= render FlatPack::Badge::Component.new(
+                    text: support_chat_participant_role(role),
+                    style: :info,
+                    size: :xs
+                  ) %>
+            <% end %>
+          </div>
+        <% end %>
+      <% end %>
+    <% end %>
+  <% end %>
+<% end %>

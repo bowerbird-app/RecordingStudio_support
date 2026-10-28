@@ -11,10 +11,6 @@ module RecordingStudioSupport
       "/recording_studio_messages/message_groups/#{group_recording.id}/messages"
     end
 
-    def messages_inbox_href(group_recording)
-      "/recording_studio_messages/message_groups/#{group_recording.id}"
-    end
-
     # Prefer profile/display names so sidebar snippets say "Avery Admin: …"
     # instead of the email local-part ("Admin: …").
     def message_sender_name(actor)

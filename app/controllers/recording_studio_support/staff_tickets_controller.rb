@@ -4,24 +4,44 @@ module RecordingStudioSupport
   class StaffTicketsController < ApplicationController
     skip_before_action :require_support_root!, raise: false
 
+    helper RecordingStudioSupport::MessagesDeskHelper
+    helper RecordingStudioSupport::TicketPanelHelper
+
     before_action :require_signed_in_actor!
     before_action :require_staff_actor!
     before_action :set_ticket
 
     def update
       recording = RecordingStudioSupport::Tickets.recording_for!(@ticket)
-      RecordingStudioSupport::Tickets.update!(
+      updated = RecordingStudioSupport::Tickets.update!(
         recording,
         actor: current_support_actor,
         **ticket_changes
       )
-
-      redirect_to staff_messages_return_to(recording), notice: "Ticket updated."
+      read_current_ticket(updated)
+      respond_to_ticket_update(updated)
     rescue ActiveRecord::RecordInvalid => e
       redirect_to staff_messages_return_to(recording), alert: update_error_message(e.record)
     end
 
     private
+
+    def respond_to_ticket_update(updated)
+      respond_to do |format|
+        format.turbo_stream
+        format.html { redirect_to_ticket_update(updated) }
+        format.any { redirect_to_ticket_update(updated) }
+      end
+    end
+
+    def redirect_to_ticket_update(updated)
+      redirect_to staff_messages_return_to(updated), notice: Copy.t("messages.actions.updated")
+    end
+
+    def read_current_ticket(updated)
+      @group_recording = updated.parent_recording
+      @ticket = RecordingStudioSupport::Tickets.tickets_by_group_id([@group_recording.id])[@group_recording.id]
+    end
 
     def set_ticket
       @ticket = RecordingStudioSupport::Tickets.find!(params[:id])
