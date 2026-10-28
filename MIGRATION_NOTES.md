@@ -32,7 +32,7 @@ Support follows Recording Studio `v6.1.0` layouts. There is no Support database 
 ### Host app
 
 1. Bump `recording_studio_support` to `0.26.0`.
-2. Pin `recording_studio` `>= 6.1.0` (tag `v6.1.0`), `flat_pack` `>= 0.1.315` (commit `1fcbafe94f8eb118f0a22182f63f5110fcc97a56`, version `0.1.319`), and `view_component` `4.19.0`.
+2. Pin `recording_studio` `>= 6.1.0` (tag `v6.1.0`), `flat_pack` `>= 0.1.315` (`0.1.329` (`3e49ad38b1980add449194d27265edaa7b892c0d`)), and `view_component` `4.19.0`.
 3. Pin `recording_studio_messages` `v0.9.0`, `recording_studio_publishable` `v0.12.0`, `recording_studio_orderable` `v0.4.0`, `recording_studio_moveable` `v3.4.3`, `recording_studio_trashable` `v0.12.0`, `recording_studio_accessible` `v0.19.1`, `recording_studio_attachable` `v0.15.0`, `recording_studio_notifications` `v0.7.0`, `recording_studio_admin` `v2.7.0`, and `recording_studio_root_switchable` `v0.10.0` when the host mounts those gems. Orderable `v0.4.0`, Trashable `v0.12.0`, and Moveable `v3.4.3` drop `RecordingStudio::UsesDefaultLayout`. Earlier tags raise `NameError` when CI eager-loads controllers. Do not move Accessible to `0.20` or later until Messages grants the first group owner with `bootstrap_owner_access!`. Do not move Attachable to `0.22` or Notifications to `0.13` without the schema those releases add.
 4. If Attachable, Logs, Metrics, Moveable, Notifications, Search, Views, Cache, Users, Root Switchable, Internationalization, or API still require `recording_studio` below 5, widen that requirement while Bundler loads the gemspec. Copy `test/support/widen_recording_studio_requirement.rb`. Do not ship that file in the host gem.
 5. `bundle install`.
