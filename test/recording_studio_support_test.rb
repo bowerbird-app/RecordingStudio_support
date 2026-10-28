@@ -118,7 +118,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes dummy_hooks, "RecordingStudioSupport.staff_permission"
     assert_includes dummy_hooks, "authorization_resolver"
     assert_includes dummy_hooks, "authorization_hook"
-    assert_includes gemfile, 'github: "bowerbird-app/flatpack", ref: "1fcbafe94f8eb118f0a22182f63f5110fcc97a56"'
+    assert_includes gemfile, 'github: "bowerbird-app/flatpack", ref: "3e49ad38b1980add449194d27265edaa7b892c0d"'
     assert_includes gemfile, 'gem "view_component", "4.19.0"'
     refute_includes gemfile, "recording_studio/v3.0.0"
     refute_includes gemfile, 'tag: "v0.6.1"'
@@ -365,7 +365,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "v6.1.0"
     assert_includes readme, "v0.15.0"
     assert_includes readme, "v0.19.1"
-    assert_includes readme, "0.1.319"
+    assert_includes readme, "0.1.329"
     assert_includes readme, "v0.21.0"
     assert_includes readme, "Support page"
     assert_includes readme, "SupportSection"

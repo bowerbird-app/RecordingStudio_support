@@ -8,8 +8,8 @@ require_relative "test/support/widen_recording_studio_requirement"
 gemspec
 
 # These gems are not published to RubyGems; resolve the gemspec pins from GitHub.
-# Flatpack 0.1.319 is commit 1fcbafe. Tag v0.1.315 is older. v0.1.320 is a later image-input release.
-gem "flat_pack", ">= 0.1.315", github: "bowerbird-app/flatpack", ref: "1fcbafe94f8eb118f0a22182f63f5110fcc97a56"
+# Flatpack 0.1.329 is tag v0.1.329 (commit 3e49ad3). The gemspec floor stays >= 0.1.315.
+gem "flat_pack", ">= 0.1.315", github: "bowerbird-app/flatpack", ref: "3e49ad38b1980add449194d27265edaa7b892c0d"
 gem "recording_studio", ">= 6.1.0", github: "bowerbird-app/RecordingStudio", tag: "v6.1.0"
 gem "recording_studio_accessible", "~> 0.11", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.19.1"
 gem "recording_studio_admin", "~> 2.0", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.7.0"

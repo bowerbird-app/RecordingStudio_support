@@ -6,7 +6,7 @@ Help pages sit in a section under your workspace. Each page has a title and a fo
 
 ## Install
 
-Add the gem next to Recording Studio 6.1.0, Accessible 0.19.1, Admin 2.7.0, Attachable 0.15.0, Publishable 0.12, and Flatpack 0.1.319 (`1fcbafe`). Those GitHub tags are the dummy-tested pins in `test/dummy/Gemfile.lock`. The constraint block below is the gemspec floor. GitHub hosting is not a reason to skip the gemspec pins. ViewComponent stays on `>= 4.14, < 5` (this repo locks `4.19.0`).
+Add the gem next to Recording Studio 6.1.0, Accessible 0.19.1, Admin 2.7.0, Attachable 0.15.0, Publishable 0.12, and Flatpack 0.1.329 (`3e49ad38b1980add449194d27265edaa7b892c0d`). Those GitHub tags are the dummy-tested pins in `test/dummy/Gemfile.lock`. The constraint block below is the gemspec floor. GitHub hosting is not a reason to skip the gemspec pins. ViewComponent stays on `>= 4.14, < 5` (this repo locks `4.19.0`).
 
 ```ruby
 # Gemfile
@@ -31,7 +31,7 @@ gem "recording_studio_search", "~> 0.6",
 gem "recording_studio_support", github: "bowerbird-app/RecordingStudio_support"
 # Host-owned auth (not a Support gemspec dependency):
 gem "recording_studio_user", github: "bowerbird-app/RecordingStudio_users", tag: "v0.21.0"
-gem "flat_pack", github: "bowerbird-app/flatpack", ref: "1fcbafe94f8eb118f0a22182f63f5110fcc97a56" # 0.1.319
+gem "flat_pack", github: "bowerbird-app/flatpack", ref: "3e49ad38b1980add449194d27265edaa7b892c0d" # 0.1.329
 gem "view_component", "4.19.0"
 ```
 
@@ -479,7 +479,7 @@ Dummy kit pins:
 | Cache | `v0.5.0` (dummy only; Users 0.21+ / Root Switchable 0.9+ floor) |
 | API | `v0.7.0` (dummy only; not a Support gemspec dependency) |
 | Internationalization | `v0.1.2` (dummy only; not a Support gemspec dependency) |
-| FlatPack | `0.1.319` (`1fcbafe94f8eb118f0a22182f63f5110fcc97a56`) |
+| FlatPack | `0.1.329` (`3e49ad38b1980add449194d27265edaa7b892c0d`) |
 | ViewComponent | `4.19.0` |
 
 ```bash
