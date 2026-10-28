@@ -8,7 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
-- Staff chat on `/admin/support/messages` changes status and assignee from the panel header, and opens the people in that chat. Below 640px those sit in one Actions menu. The signed-in conversation shows the people button only. Development pins Messages to commit `ef00cde8f0b875214e0c1ea2b8f99100614cd224` for the panel header hooks. Move that pin to a Messages release tag once the hooks ship.
+- Staff chat on `/admin/support/messages` changes status and assignee from the panel header, and opens the people in that chat. Below 640px those sit in one Actions menu. The signed-in conversation shows the people button only. The form above the desk updates in the same response. Saving that form still reloads the page. The person who opened the ticket is the requester in the people list. Development pins Messages to commit `ef00cde8f0b875214e0c1ea2b8f99100614cd224` for the panel header hooks. Move that pin to a Messages release tag once the hooks ship.
 
 ### Changed
 - Development and dummy apps pin Flatpack `0.1.329` (tag `v0.1.329`, commit `3e49ad38b1980add449194d27265edaa7b892c0d`). The gemspec floor stays `>= 0.1.315`.

@@ -12,3 +12,6 @@
              variant: :mobile,
              announce: true %>
 <% end %>
+<%= turbo_stream.replace support_ticket_strip_dom_id(@ticket) do %>
+  <%= render "recording_studio_support/staff_messages/ticket_form", ticket: @ticket %>
+<% end %>

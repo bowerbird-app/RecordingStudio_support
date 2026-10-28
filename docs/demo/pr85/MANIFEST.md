@@ -1,19 +1,28 @@
 # PR 85 staff chat header — stills
 
-Dummy at `http://127.0.0.1:3000`. Staff is `admin@admin.com`. Requester is `jordan.lee@example.com`.
+Dummy at `http://127.0.0.1:3000`. Each shot uses Chrome device metrics with `devicePixelRatio` 1. `window.innerWidth` matched the width in the file name.
 
-The panel header is Messages' `right_header` / `right_header_mobile`. The form above the desk is the older ticket form and stays put when a header control saves.
+The title measured is "New card did not stick" (scroll width 178px).
+
+| Width | Title client width | About how much of the title shows |
+|---|---|---|
+| 1440 | 178px | The whole title |
+| 768 | 60px | About 7 characters |
+| 700 | 46px | About 6 characters (`Ne…`) |
+| 640 | 0px | The split header title is squeezed out. The three desktop controls are still the ones on screen, because the chat swap starts below 640. |
 
 | File | Caption |
 |---|---|
-| `staff-desktop-1440.png` | Staff desk, wide window. Conversation "New card did not stick". Header shows Open, Avery Admin, and the people icon. |
-| `staff-status-updated.png` | Same desk after choosing Waiting on customer in the header. The header label updates in place. The older form above the desk still says Open. |
-| `staff-assignee-updated.png` | Header assignee set to Avery Admin. The page stays on the messages URL. |
-| `staff-switched-conversation.png` | Opening the other sidebar row keeps the status, assignee, and people controls. |
-| `staff-split-768.png` | About 768px. Split layout. Assignee label is the first word, Avery. Open, Avery, and the people icon fit in the header. |
-| `staff-700.png` | About 700px. Same three controls. Assignee label is Avery. |
-| `staff-640.png` | Window about 640px. The chat stacks to one column and the header is the Actions menu. |
-| `staff-mobile-375-menu.png` | About 375px with the Actions menu open: status items, Unassigned, Avery Admin, View users. |
-| `staff-users-modal.png` | People in this chat on a seeded ticket. Jordan Lee is Requester. Avery Admin is also Requester because the sample seed grants staff `:admin` on that group, and `group_owner?` treats a direct admin grant as the requester. |
-| `requester-desktop.png` | Signed-in conversation. People icon only. No status or assignee control. |
-| `requester-users-modal.png` | Same people list from the requester page. |
+| `staff-1440-status-open.png` | Status menu open. Waiting on support is checked. |
+| `staff-1440-assignee-open.png` | Assignee menu open at 1440. |
+| `staff-768-status-open.png` | Status menu open at 768. The title is about 7 characters. |
+| `staff-768-assignee-open.png` | Assignee menu open at 768. Avery Admin is checked. |
+| `staff-700-status-open.png` | Status menu open at 700. The assignee pill says Avery. |
+| `staff-700-assignee-open.png` | Assignee menu open at 700. |
+| `staff-700.png` | 700 with the menus closed. Header and the form above the desk both say Waiting on support and Avery Admin. |
+| `staff-640.png` | True 640. Desktop controls, not the Actions menu. The panel title has no room. |
+| `staff-strip-agrees.png` | After choosing Resolved in the header. The form and the header both say Resolved and Avery Admin. |
+| `staff-users-modal.png` | Jordan Lee is Requester. Avery Admin is Support staff. |
+| `requester-users-modal.png` | Same roles on the signed-in conversation. |
+| `requester-desktop.png` | People button only. |
+| `staff-mobile-375-menu.png` | Actions menu at 375 with Status and Assignee labels, and checks, and no scrollbar. |

@@ -65,12 +65,13 @@
           style: :ghost,
           size: :sm,
           placement: :bottom_right,
-          max_height: "16rem",
+          max_height: "none",
           trigger_attributes: {
             title: support_t("messages.actions.actions_menu"),
             aria: { label: support_t("messages.actions.actions_menu") }
           }
         ) do |dropdown| %>
+      <% dropdown.menu_html(tag.p(support_t("messages.actions.status"), class: "px-[var(--dropdown-item-padding-x)] pt-1 text-xs font-semibold text-[var(--surface-muted-content-color)]", role: "presentation")) %>
       <% RecordingStudioSupport::SupportTicket::STATUSES.each do |status| %>
         <% dropdown.menu_html(
              support_ticket_change_button(
@@ -82,6 +83,7 @@
            ) %>
       <% end %>
       <% dropdown.menu_divider %>
+      <% dropdown.menu_html(tag.p(support_t("messages.actions.assignee"), class: "px-[var(--dropdown-item-padding-x)] pt-1 text-xs font-semibold text-[var(--surface-muted-content-color)]", role: "presentation")) %>
       <% dropdown.menu_html(
            support_ticket_change_button(
              support_t("messages.actions.unassigned"),

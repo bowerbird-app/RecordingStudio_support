@@ -3,43 +3,19 @@
 module RecordingStudioSupport
   module TicketPanelMenu
     def support_ticket_change_button(label, ticket, changes, current:)
-      button_to(label, staff_ticket_update_path_for(ticket), support_ticket_change_options(changes, current: current))
+      render "recording_studio_support/staff_messages/ticket_menu_form",
+             ticket: ticket,
+             label: label,
+             changes: changes,
+             current: current
     end
 
     def support_ticket_view_users_menu_button(group_recording)
-      button_tag(
-        support_t("messages.actions.view_users"),
+      render FlatPack::Button::DropdownItem::Component.new(
+        text: support_t("messages.actions.view_users"),
         type: "button",
-        class: support_ticket_menu_button_class(current: false),
-        role: "menuitem",
         data: { modal_id: support_chat_participants_modal_id(group_recording) }
       )
-    end
-
-    def support_ticket_menu_button_class(current:)
-      token = [
-        "flex w-full cursor-pointer items-center gap-[var(--dropdown-item-gap)]",
-        "rounded-[var(--dropdown-item-radius)] px-[var(--dropdown-item-padding-x)]",
-        "py-[var(--dropdown-item-padding-y)] text-left text-sm text-[var(--surface-content-color)]",
-        "hover:bg-[var(--surface-muted-background-color)]"
-      ].join(" ")
-      return token unless current
-
-      "#{token} bg-[var(--surface-muted-background-color)] font-semibold"
-    end
-
-    private
-
-    def support_ticket_change_options(changes, current:)
-      options = {
-        method: :patch,
-        params: { ticket: changes },
-        form: { class: "block w-full", data: { turbo_stream: true, turbo_frame: "_top" } },
-        class: support_ticket_menu_button_class(current: current),
-        role: "menuitem"
-      }
-      options[:aria] = { current: "true" } if current
-      options
     end
   end
 
@@ -76,6 +52,11 @@ module RecordingStudioSupport
       "support-ticket-actions-#{variant}-#{group_recording.id}"
     end
 
+    def support_ticket_strip_dom_id(ticket)
+      group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
+      "support-ticket-strip-#{group&.id}"
+    end
+
     def support_chat_participants_modal_id(group_recording)
       "support-chat-participants-#{group_recording.id}"
     end
@@ -105,11 +86,18 @@ module RecordingStudioSupport
     end
 
     def support_chat_participants(group_recording)
-      actors = RecordingStudioMessages.granted_actors(group_recording)
-      owners, others = actors.partition do |actor|
-        RecordingStudioSupport::Messages.group_owner?(group_recording, actor)
-      end
-      owners.map { |actor| [actor, :requester] } + others.map { |actor| [actor, :staff] }
+      requester = support_ticket_requester(group_recording)
+      actors = Array(RecordingStudioMessages.granted_actors(group_recording))
+      actors.map { |actor| [actor, support_chat_participant_kind(actor, requester)] }
+            .sort_by { |_actor, role| role == :requester ? 0 : 1 }
+    end
+
+    def support_ticket_requester(group_recording)
+      ticket = support_ticket_for_panel(group_recording)
+      return if ticket.blank?
+
+      recording = RecordingStudioSupport::Tickets.recording_for!(ticket)
+      RecordingStudio::Event.where(recording_id: recording.id, action: "created").order(:occurred_at).first&.actor
     end
 
     def support_chat_participant_role(role)
@@ -149,7 +137,23 @@ module RecordingStudioSupport
     def support_ticket_for_panel(group_recording)
       return if group_recording.blank?
 
-      RecordingStudioSupport::Tickets.tickets_by_group_id([group_recording.id])[group_recording.id]
+      @support_tickets_for_panel ||= {}
+      return @support_tickets_for_panel[group_recording.id] if @support_tickets_for_panel.key?(group_recording.id)
+
+      @support_tickets_for_panel[group_recording.id] =
+        RecordingStudioSupport::Tickets.tickets_by_group_id([group_recording.id])[group_recording.id]
+    end
+
+    def support_chat_participant_kind(actor, requester)
+      return :requester if support_same_actor?(actor, requester)
+
+      :staff
+    end
+
+    def support_same_actor?(left, right)
+      return false if left.blank? || right.blank?
+
+      left.instance_of?(right.class) && left.id.to_s == right.id.to_s
     end
   end
 end

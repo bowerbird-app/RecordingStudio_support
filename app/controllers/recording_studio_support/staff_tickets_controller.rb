@@ -29,8 +29,13 @@ module RecordingStudioSupport
     def respond_to_ticket_update(updated)
       respond_to do |format|
         format.turbo_stream
-        format.html { redirect_to staff_messages_return_to(updated), notice: Copy.t("messages.actions.updated") }
+        format.html { redirect_to_ticket_update(updated) }
+        format.any { redirect_to_ticket_update(updated) }
       end
+    end
+
+    def redirect_to_ticket_update(updated)
+      redirect_to staff_messages_return_to(updated), notice: Copy.t("messages.actions.updated")
     end
 
     def read_current_ticket(updated)
