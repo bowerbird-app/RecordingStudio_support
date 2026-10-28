@@ -12,7 +12,6 @@ TEST_ROOT = File.expand_path("test", __dir__)
 ROOT_TEST_EXCLUSIONS = %w[
   test/dummy/**/*_test.rb
   test/recording_studio_declarations_test.rb
-  test/rename_verification_test.rb
 ].freeze
 DUMMY_BUNDLE_CLEARED_ENV = {
   "BUNDLE_APP_CONFIG" => nil,
@@ -51,16 +50,6 @@ Rake::TestTask.new(:test) do |t|
 end
 
 namespace :test do
-  desc "Run rename verification tests to validate gem naming consistency"
-  task :rename_verification do
-    ruby "test/rename_verification_test.rb", verbose: true
-  end
-
-  desc "Run rename verification tests in verbose mode"
-  task :rename_verification_verbose do
-    ruby "test/rename_verification_test.rb", "--verbose", verbose: true
-  end
-
   desc "Run dummy app integration tests under the dummy app bundle"
   task :dummy do
     Dir.chdir(DUMMY_APP_ROOT) do

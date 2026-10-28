@@ -58,6 +58,10 @@ module RecordingStudioSupport
       end
     end
 
+    def assign_actor(actor, &)
+      AssignActor.assign_actor(actor, &)
+    end
+
     def apply_query(relation, query)
       term = query.to_s.strip
       return ordered(relation) if term.blank?
@@ -89,16 +93,6 @@ module RecordingStudioSupport
         recordable_type: SUPPORT_SECTION_TYPE,
         trashed_at: nil
       )
-    end
-
-    def assign_actor(actor)
-      return yield if actor.nil? || !defined?(Current)
-
-      previous = Current.actor
-      Current.actor = actor
-      yield
-    ensure
-      Current.actor = previous if defined?(Current) && !actor.nil?
     end
   end
 end

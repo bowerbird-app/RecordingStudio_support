@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **BREAKING.** `SupportTicket` is a Recording Studio recordable. The `message_group_id` column is gone. Existing ticket rows are deleted. There is no backfill.
 
 ### Changed
+- WAVE 1 cleanup (no product behavior change): untrack `coverage/` and `test/dummy/coverage/`; drop the dummy nested CI workflow, unused `test/dummy/install_page.html`, and the gem-rename suite; strip template `api_key` / `enable_feature_x` / `timeout` config; share `AssignActor` between Pages and Sections; align README install pins with gemspec floors plus dummy-tested tags; bump root lockfile `crass` to `1.0.8`.
 - `RecordingStudioSupport::SupportTicket` declares `recording_studio_recordable` with label "Support ticket", `root: false`, and `allowed_parent_types: ["RecordingStudioMessages::MessageGroup"]`.
 - `Tickets.open!` creates the ticket with `RecordingStudio.record!` (`action: "created"`) under the new MessageGroup. The conversation is that parent recording. One live ticket per thread is an app-level row lock. There is no unique index. A second live ticket raises `Tickets::AlreadyExists`. That sentence is the engine English key `recording_studio.support.messages.already_open`, and a missing key falls back to the English sentence. Dummy `fr.yml` mirrors engine keys for the locales test. This gem does not ship a French catalog.
 - `Tickets.update!` revises the recording (`action: "updated"`) and stores the diff on the event as `metadata["changes"]`.
@@ -21,12 +22,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Removed
 - `message_group_id`, unique index `index_rs_support_tickets_on_message_group_id`, and `SupportTicket#message_group_recording`.
 - Presence and uniqueness validations on `message_group_id`.
+- Template leftovers: `docs/gem_template/`, `enable_feature_x`, `timeout`, `api_key`, and `RECORDING_STUDIO_SUPPORT_API_KEY` on Support configuration. Support is not a keyed external API.
 
 ### Upgrade notes
 - Bump to `0.27.0`.
 - `bin/rails generate recording_studio_support:migrations`, then `bin/rails db:migrate`. The new migration deletes every row in `recording_studio_support_tickets`, then drops `message_group_id` and its unique index. Empty tables are safe. Do not expect old tickets to remain.
 - Add `"RecordingStudioSupport::SupportTicket"` to `config.recordable_types` and run `RecordingStudio.validate_recordable_declarations!`.
 - Read the ticket's conversation with `Tickets.group_recording_for(ticket)` (the parent recording). Do not query `message_group_id`.
+- Drop `config.api_key`, `config.timeout`, `config.enable_feature_x`, and `RECORDING_STUDIO_SUPPORT_API_KEY` if a host still sets them. They were unused template leftovers.
 
 ## [0.26.0] - 2026-10-27
 

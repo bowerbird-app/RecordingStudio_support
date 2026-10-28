@@ -3,8 +3,6 @@
 module RecordingStudioSupport
   class Configuration
     DEFAULTS = {
-      enable_feature_x: false,
-      timeout: 5,
       pages_path: "/admin/support",
       public_pages_path: "/help",
       help_title: "Help",
@@ -23,11 +21,10 @@ module RecordingStudioSupport
       messages_admin_finder: nil
     }.freeze
 
-    attr_accessor :api_key, *DEFAULTS.keys
+    attr_accessor(*DEFAULTS.keys)
     attr_reader :hooks, :layout
 
     def initialize
-      @api_key = ENV.fetch("RECORDING_STUDIO_SUPPORT_API_KEY", nil)
       assign_defaults
       @hooks = RecordingStudio::Hooks.new
     end
@@ -37,7 +34,7 @@ module RecordingStudioSupport
     end
 
     def to_h
-      snapshot = { api_key: api_key, hooks_registered: hook_counts, layout: layout }
+      snapshot = { hooks_registered: hook_counts, layout: layout }
       DEFAULTS.each_key { |key| snapshot[key] = public_send(key) }
       snapshot
     end

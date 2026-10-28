@@ -53,14 +53,8 @@ module RecordingStudioSupport
       recording.reload
     end
 
-    def assign_actor(actor)
-      return yield if actor.nil? || !defined?(Current)
-
-      previous = Current.actor
-      Current.actor = actor
-      yield
-    ensure
-      Current.actor = previous if defined?(Current) && !actor.nil?
+    def assign_actor(actor, &)
+      AssignActor.assign_actor(actor, &)
     end
   end
 end

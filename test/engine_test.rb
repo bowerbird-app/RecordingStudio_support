@@ -35,11 +35,11 @@ class EngineTest < Minitest::Test
       hook_payload = cfg
     end
 
-    xcfg = Struct.new(:recording_studio_support).new({ enable_feature_x: true })
+    xcfg = Struct.new(:recording_studio_support).new({ help_title: "From x config" })
     app_config = Struct.new(:x).new(xcfg)
     app = Struct.new(:config) do
       def config_for(_name)
-        { api_key: "from_yaml", timeout: 12 }
+        { pages_path: "/from-yaml", help_subtitle: "From yaml" }
       end
     end.new(app_config)
 
@@ -47,15 +47,15 @@ class EngineTest < Minitest::Test
 
     assert hook_called
     assert_equal RecordingStudioSupport.configuration, hook_payload
-    assert_equal "from_yaml", RecordingStudioSupport.configuration.api_key
-    assert_equal 12, RecordingStudioSupport.configuration.timeout
-    assert_equal true, RecordingStudioSupport.configuration.enable_feature_x
+    assert_equal "/from-yaml", RecordingStudioSupport.configuration.pages_path
+    assert_equal "From yaml", RecordingStudioSupport.configuration.help_subtitle
+    assert_equal "From x config", RecordingStudioSupport.configuration.help_title
   end
 
   def test_load_config_handles_errors_and_each_pair_fallback
     pair_config = Class.new do
       def each_pair
-        yield(:timeout, 15)
+        yield(:pages_path, "/from-pair")
       end
     end.new
 
@@ -70,7 +70,7 @@ class EngineTest < Minitest::Test
 
     find_initializer("recording_studio_support.load_config").block.call(app)
 
-    assert_equal 15, RecordingStudioSupport.configuration.timeout
+    assert_equal "/from-pair", RecordingStudioSupport.configuration.pages_path
   end
 
   def test_load_config_swallow_each_pair_errors
@@ -84,14 +84,14 @@ class EngineTest < Minitest::Test
     app_config = Struct.new(:x).new(xcfg)
     app = Struct.new(:config) do
       def config_for(_name)
-        { api_key: "ok" }
+        { help_title: "ok" }
       end
     end.new(app_config)
 
     # Should not raise even if xcfg.each_pair fails.
     find_initializer("recording_studio_support.load_config").block.call(app)
 
-    assert_equal "ok", RecordingStudioSupport.configuration.api_key
+    assert_equal "ok", RecordingStudioSupport.configuration.help_title
   end
 
   def test_load_config_is_noop_without_config_sources
@@ -99,9 +99,9 @@ class EngineTest < Minitest::Test
 
     find_initializer("recording_studio_support.load_config").block.call(app)
 
-    assert_nil RecordingStudioSupport.configuration.api_key
-    assert_equal 5, RecordingStudioSupport.configuration.timeout
-    assert_equal false, RecordingStudioSupport.configuration.enable_feature_x
+    assert_equal "/admin/support", RecordingStudioSupport.configuration.pages_path
+    assert_equal "Help", RecordingStudioSupport.configuration.help_title
+    assert_equal "/help", RecordingStudioSupport.configuration.public_pages_path
   end
 
   def test_load_config_ignores_non_enumerable_yaml_and_merge_errors
@@ -111,7 +111,7 @@ class EngineTest < Minitest::Test
       end
     end.new
 
-    xcfg = Struct.new(:recording_studio_support).new({ timeout: 22 })
+    xcfg = Struct.new(:recording_studio_support).new({ pages_path: "/from-x" })
     app_config = Struct.new(:x).new(xcfg)
     app = Struct.new(:config) do
       attr_accessor :yaml
@@ -124,7 +124,7 @@ class EngineTest < Minitest::Test
 
     find_initializer("recording_studio_support.load_config").block.call(app)
 
-    assert_equal 22, RecordingStudioSupport.configuration.timeout
+    assert_equal "/from-x", RecordingStudioSupport.configuration.pages_path
   end
 
   def test_apply_extension_initializers_register_active_support_on_load_callbacks

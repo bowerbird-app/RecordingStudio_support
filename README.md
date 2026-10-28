@@ -6,7 +6,7 @@ Help pages sit in a section under your workspace. Each page has a title and a fo
 
 ## Install
 
-Add the gem next to Recording Studio 6.1, Accessible 0.19.1, Admin 2.7, Publishable 0.12, Flatpack 0.1.319, and the mixin gems Support pages use. GitHub hosting is not a reason to skip the gemspec pins. ViewComponent stays on `>= 4.14, < 5` (this repo locks `4.19.0`).
+Add the gem next to Recording Studio 6.1.0, Accessible 0.19.1, Admin 2.7.0, Attachable 0.15.0, Publishable 0.12, and Flatpack 0.1.319 (`1fcbafe`). Those GitHub tags are the dummy-tested pins in `test/dummy/Gemfile.lock`. The constraint block below is the gemspec floor. GitHub hosting is not a reason to skip the gemspec pins. ViewComponent stays on `>= 4.14, < 5` (this repo locks `4.19.0`).
 
 ```ruby
 # Gemfile
@@ -498,4 +498,4 @@ Seeds three sections: **Billing**, **Developers**, and **Getting started**, each
 
 ## Engine internals
 
-`docs/gem_template/` stays as engine-internal reference from the original addon template. This README is the product.
+This README is the product. The dummy app is a host that proves the gem.
