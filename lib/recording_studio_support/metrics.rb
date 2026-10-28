@@ -22,7 +22,7 @@ module RecordingStudioSupport
     TICKET_GROUPS = %i[status priority].freeze
     RESOLVED = ->(relation) { Tickets.current_relation(relation).where(status: "resolved").where.not(resolved_at: nil) }
     RESOLVE_SECONDS = Arel.sql(
-      "EXTRACT(EPOCH FROM (resolved_at - recording_studio_recordings.created_at))"
+      "EXTRACT(EPOCH FROM (recording_studio_support_tickets.resolved_at - recording_studio_recordings.created_at))"
     )
     AVG_RESOLVE_DESCRIPTION = "Mean seconds from opening to resolution for tickets resolved in each " \
                               "period, by resolved_at. Reopened tickets count from their latest resolution."

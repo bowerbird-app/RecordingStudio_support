@@ -65,4 +65,13 @@ class SupportTicketTest < Minitest::Test
     assert_respond_to RecordingStudioSupport::Tickets, :open!
     assert defined?(RecordingStudioSupport::Tickets::Open)
   end
+
+  def test_current_ticket_join_is_built_when_called
+    source = File.read(File.expand_path("../lib/recording_studio_support/tickets.rb", __dir__))
+
+    assert_includes source, "def current_join_sql"
+    assert_includes source, "quote_table_name"
+    assert_includes source, "recording_studio_trashable_kept_sql"
+    refute_includes source, "CURRENT_JOIN"
+  end
 end

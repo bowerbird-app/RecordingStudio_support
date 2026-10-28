@@ -9,12 +9,6 @@ module RecordingStudioSupport
   module Tickets
     TICKET_TYPE = "RecordingStudioSupport::SupportTicket"
     UNSET = Copy::UNSET
-    CURRENT_JOIN = <<~SQL.squish.freeze
-      INNER JOIN recording_studio_recordings
-        ON recording_studio_recordings.recordable_id = recording_studio_support_tickets.id
-       AND recording_studio_recordings.recordable_type = '#{TICKET_TYPE}'
-       AND recording_studio_recordings.trashed_at IS NULL
-    SQL
 
     class AlreadyExists < StandardError
       def message
@@ -45,7 +39,18 @@ module RecordingStudioSupport
     end
 
     def current_relation(relation)
-      relation.joins(CURRENT_JOIN)
+      relation.joins(current_join_sql)
+    end
+
+    def current_join_sql
+      connection = ActiveRecord::Base.connection
+      recordings = RecordingStudio::Recording.table_name
+      quoted_recordings = connection.quote_table_name(recordings)
+      quoted_tickets = connection.quote_table_name(SupportTicket.table_name)
+      type = connection.quote(TICKET_TYPE)
+      kept = RecordingStudio::Recording.recording_studio_trashable_kept_sql(recordings)
+      "INNER JOIN #{quoted_recordings} ON #{quoted_recordings}.recordable_id = #{quoted_tickets}.id " \
+        "AND #{quoted_recordings}.recordable_type = #{type} AND #{kept}"
     end
 
     def for_message_group_ids(message_group_ids)
