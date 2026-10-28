@@ -323,7 +323,7 @@ RecordingStudioMetrics::Api.register!(api: :operations)
 Support tickets. Each ticket owns a MessageGroup under the Workspace `:support` mount.
 
 ### Added
-- `SupportTicket` model (`subject`, `status`, `priority`, nullable `assignee`, `resolved_at`) with FK `message_group_id` → MessageGroup recording
+- `SupportTicket` model (`subject`, `status`, `priority`, nullable `assignee`, `resolved_at`) with a `message_group_id` uuid. That column was not a foreign key to the MessageGroup recording.
 - `RecordingStudioSupport::Tickets.open!` — creates ticket + MessageGroup + staff grants + initial message in one transaction
 - User desk ticket list / new / show at `/help/messages` (no more one-group-per-user bootstrap)
 - Staff desk ticket status and assignee edits on the ticket only (`PATCH /admin/support/tickets/:id`)
