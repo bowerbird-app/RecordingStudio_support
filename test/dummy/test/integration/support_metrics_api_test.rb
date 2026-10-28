@@ -193,7 +193,9 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
   end
 
   test "avg time to resolve averages open-to-resolved seconds by resolved_at" do
-    RecordingStudioSupport::SupportTicket.delete_all
+    RecordingStudio::Recording.where(
+      recordable_type: RecordingStudioSupport::Tickets::TICKET_TYPE
+    ).update_all(trashed_at: Time.current)
     resolve_after!(Time.utc(2026, 3, 1, 12), 2.hours, :normal)
     resolve_after!(Time.utc(2026, 3, 1, 12), 4.hours, :normal)
     resolve_after!(Time.utc(2026, 1, 1, 12), 10.hours, :high)
