@@ -487,8 +487,8 @@ class RecordingStudioSupportTest < Minitest::Test
     tickets_screen = File.read("#{admin_dir}/open_tickets_screen.rb")
     duration_axis = File.read("#{admin_dir}/duration_axis.rb")
     widgets = File.read("#{admin_dir}/widgets.rb")
+    assert_includes tickets_screen, "Tickets.current"
     assert_includes tickets_screen, 'where(status: "open")'
-    assert_includes tickets_screen, 'order("recording_studio_recordings.created_at ASC")'
     assert_includes duration_axis, '[60, "minutes"]'
     assert_includes duration_axis, "{ x: point_x(point), y: y.nil? ? nil : axis_number(y.to_f / divisor) }"
     assert_includes widgets, "DurationAxis.series"
