@@ -11,6 +11,8 @@ The title measured is "New card did not stick" (scroll width 178px).
 | 700 | 46px | About 6 characters (`Ne…`) |
 | 640 | 0px | The split header title is squeezed out. The three desktop controls are still the ones on screen, because the chat swap starts below 640. |
 
+At 375 the chat panel starts hidden (`display: none`) until the list opens it. The 375 menu shots open that panel, then scroll. Measured with `getBoundingClientRect` while Waiting on support was checked: kebab top 260, right 338, bottom 304, left 294 (44×44); menu top 312, right 338.4, bottom 704, left 126 (212.4×392). The menu is 8px under the kebab and the right edges match. `window.innerWidth` was 375 and `devicePixelRatio` was 1.
+
 | File | Caption |
 |---|---|
 | `staff-1440-status-open.png` | Status menu open. Waiting on support is checked. |
@@ -25,4 +27,6 @@ The title measured is "New card did not stick" (scroll width 178px).
 | `staff-users-modal.png` | Jordan Lee is Requester. Avery Admin is Support staff. |
 | `requester-users-modal.png` | Same roles on the signed-in conversation. |
 | `requester-desktop.png` | People button only. |
-| `staff-mobile-375-menu.png` | Actions menu at 375 with Status and Assignee labels, and checks, and no scrollbar. |
+| `staff-mobile-375-menu.png` | Actions menu at a true 375×812 viewport, `devicePixelRatio` 1. The conversation panel is open and the page is scrolled so the kebab is on screen. The menu sits 8px under the kebab, right edges aligned, and it does not cover the chat title. Check is on Waiting on support. |
+| `staff-mobile-375-menu-customer.png` | Same 375 framing after the status is Waiting on customer. The check moves with the status. |
+| `staff-mobile-375-menu-page.png` | Full page of the Waiting on support menu, so the kebab, the title, and the menu are in one frame. |
