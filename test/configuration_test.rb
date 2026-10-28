@@ -9,9 +9,6 @@ class ConfigurationTest < Minitest::Test
 
   def test_merge_updates_known_attributes
     @configuration.merge!(
-      api_key: "abc123",
-      timeout: 9,
-      enable_feature_x: true,
       pages_path: "/help",
       help_title: "Guides",
       help_subtitle: "Short answers.",
@@ -19,9 +16,6 @@ class ConfigurationTest < Minitest::Test
       admin_help_subtitle: "Staff view of those answers."
     )
 
-    assert_equal "abc123", @configuration.api_key
-    assert_equal 9, @configuration.timeout
-    assert_equal true, @configuration.enable_feature_x
     assert_equal "/help", @configuration.pages_path
     assert_equal "Guides", @configuration.help_title
     assert_equal "Short answers.", @configuration.help_subtitle
@@ -30,10 +24,13 @@ class ConfigurationTest < Minitest::Test
   end
 
   def test_merge_ignores_unknown_keys
-    @configuration.merge!(unknown_key: "ignored", timeout: 7)
+    @configuration.merge!(unknown_key: "ignored", pages_path: "/guides")
 
     refute_respond_to @configuration, :unknown_key
-    assert_equal 7, @configuration.timeout
+    refute_respond_to @configuration, :api_key
+    refute_respond_to @configuration, :enable_feature_x
+    refute_respond_to @configuration, :timeout
+    assert_equal "/guides", @configuration.pages_path
   end
 
   def test_merge_with_non_enumerable_is_noop
@@ -41,21 +38,12 @@ class ConfigurationTest < Minitest::Test
 
     @configuration.merge!(nil)
 
-    assert_nil @configuration.api_key if original[:api_key].nil?
-    assert_equal original[:api_key], @configuration.api_key unless original[:api_key].nil?
-    assert_equal original[:timeout], @configuration.timeout
-    assert_equal original[:enable_feature_x], @configuration.enable_feature_x
+    assert_equal original, @configuration.to_h
   end
 
-  def test_initialize_uses_environment_api_key_and_defaults
-    previous_value = ENV.fetch("RECORDING_STUDIO_SUPPORT_API_KEY", nil)
-    ENV["RECORDING_STUDIO_SUPPORT_API_KEY"] = "env-token"
-
+  def test_initialize_uses_defaults
     configuration = RecordingStudioSupport::Configuration.new
 
-    assert_equal "env-token", configuration.api_key
-    assert_equal false, configuration.enable_feature_x
-    assert_equal 5, configuration.timeout
     assert_equal "/admin/support", configuration.pages_path
     assert_equal "/help", configuration.public_pages_path
     assert_equal "Help", configuration.help_title
@@ -71,8 +59,9 @@ class ConfigurationTest < Minitest::Test
     assert_nil configuration.messages_admin_finder
     assert_nil configuration.layout
     assert_instance_of RecordingStudio::Hooks, configuration.hooks
-  ensure
-    ENV["RECORDING_STUDIO_SUPPORT_API_KEY"] = previous_value
+    refute_includes configuration.to_h.keys, :api_key
+    refute_includes configuration.to_h.keys, :timeout
+    refute_includes configuration.to_h.keys, :enable_feature_x
   end
 
   def test_public_section_and_contact_config_merge
@@ -88,10 +77,10 @@ class ConfigurationTest < Minitest::Test
   end
 
   def test_merge_accepts_string_keys
-    @configuration.merge!("api_key" => "string-key", "timeout" => 12)
+    @configuration.merge!("pages_path" => "/docs", "help_title" => "Docs")
 
-    assert_equal "string-key", @configuration.api_key
-    assert_equal 12, @configuration.timeout
+    assert_equal "/docs", @configuration.pages_path
+    assert_equal "Docs", @configuration.help_title
   end
 
   def test_to_h_reports_registered_hook_counts

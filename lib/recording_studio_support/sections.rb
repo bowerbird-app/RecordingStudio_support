@@ -4,6 +4,8 @@ require_relative "sections/lookups"
 
 module RecordingStudioSupport
   module Sections
+    include AssignActor
+    extend AssignActor
     extend Lookups
 
     module_function
@@ -89,16 +91,6 @@ module RecordingStudioSupport
         recordable_type: SUPPORT_SECTION_TYPE,
         trashed_at: nil
       )
-    end
-
-    def assign_actor(actor)
-      return yield if actor.nil? || !defined?(Current)
-
-      previous = Current.actor
-      Current.actor = actor
-      yield
-    ensure
-      Current.actor = previous if defined?(Current) && !actor.nil?
     end
   end
 end
