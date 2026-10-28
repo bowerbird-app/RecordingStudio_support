@@ -4,8 +4,6 @@ require_relative "sections/lookups"
 
 module RecordingStudioSupport
   module Sections
-    include AssignActor
-    extend AssignActor
     extend Lookups
 
     module_function
@@ -58,6 +56,10 @@ module RecordingStudioSupport
       assign_actor(actor) do
         recording.recording_studio_trashable_trash!(actor: actor || Current.actor)
       end
+    end
+
+    def assign_actor(actor, &block)
+      AssignActor.assign_actor(actor, &block)
     end
 
     def apply_query(relation, query)

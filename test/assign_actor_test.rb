@@ -1,26 +1,17 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "active_support/current_attributes"
+require_relative "dummy/app/models/current"
 
 class AssignActorTest < Minitest::Test
-  FakeCurrent = Class.new do
-    class << self
-      attr_accessor :actor
-    end
-  end
-
   def setup
-    @had_current = Object.const_defined?(:Current)
-    @previous_current = Current if @had_current
-    Object.send(:remove_const, :Current) if @had_current
-    Object.const_set(:Current, FakeCurrent)
-    FakeCurrent.actor = :original
+    @previous_actor = Current.actor
+    Current.actor = :original
   end
 
   def teardown
-    Object.send(:remove_const, :Current) if Object.const_defined?(:Current)
-    Object.const_set(:Current, @previous_current) if @had_current
-    FakeCurrent.actor = nil
+    Current.actor = @previous_actor
   end
 
   def test_nil_actor_yields_without_changing_current
@@ -53,9 +44,20 @@ class AssignActorTest < Minitest::Test
     assert_equal :original, Current.actor
   end
 
-  def test_pages_and_sections_share_the_helper
-    shared = RecordingStudioSupport::AssignActor.instance_method(:assign_actor).source_location
-    assert_equal shared, RecordingStudioSupport::Pages.method(:assign_actor).source_location
-    assert_equal shared, RecordingStudioSupport::Sections.method(:assign_actor).source_location
+  def test_pages_and_sections_keep_public_assign_actor
+    assert_includes RecordingStudioSupport::Pages.public_methods, :assign_actor
+    assert_includes RecordingStudioSupport::Sections.public_methods, :assign_actor
+  end
+
+  def test_pages_and_sections_delegate_to_the_shared_helper
+    RecordingStudioSupport::Pages.assign_actor(:staff) do
+      assert_equal :staff, Current.actor
+    end
+    assert_equal :original, Current.actor
+
+    RecordingStudioSupport::Sections.assign_actor(:staff) do
+      assert_equal :staff, Current.actor
+    end
+    assert_equal :original, Current.actor
   end
 end

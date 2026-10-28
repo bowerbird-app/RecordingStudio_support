@@ -5,8 +5,6 @@ require_relative "pages/counts"
 
 module RecordingStudioSupport
   module Pages
-    include AssignActor
-    extend AssignActor
     extend Lookups
     extend Counts
 
@@ -53,6 +51,10 @@ module RecordingStudioSupport
         recording.move_to!(new_parent: parent_recording, actor: resolved)
       end
       recording.reload
+    end
+
+    def assign_actor(actor, &block)
+      AssignActor.assign_actor(actor, &block)
     end
   end
 end
