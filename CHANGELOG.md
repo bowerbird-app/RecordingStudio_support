@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Development and dummy apps pin Flatpack `0.1.329` (tag `v0.1.329`, commit `3e49ad38b1980add449194d27265edaa7b892c0d`). The gemspec floor stays `>= 0.1.315`.
+
 ## [0.27.0] - 2026-10-27
 
 **BREAKING.** `SupportTicket` is a Recording Studio recordable. The `message_group_id` column is gone. Existing ticket rows are deleted. There is no backfill.

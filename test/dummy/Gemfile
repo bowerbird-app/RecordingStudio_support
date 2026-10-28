@@ -65,8 +65,8 @@ gem "jbuilder"
 gem "tailwindcss-rails"
 
 # FlatPack UI component library [https://github.com/bowerbird-app/flatpack]
-# 0.1.319 is commit 1fcbafe. Tag v0.1.315 is older.
-gem "flat_pack", ">= 0.1.315", github: "bowerbird-app/flatpack", ref: "1fcbafe94f8eb118f0a22182f63f5110fcc97a56"
+# 0.1.329 is tag v0.1.329 (commit 3e49ad3). The gemspec floor stays >= 0.1.315.
+gem "flat_pack", ">= 0.1.315", github: "bowerbird-app/flatpack", ref: "3e49ad38b1980add449194d27265edaa7b892c0d"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"
