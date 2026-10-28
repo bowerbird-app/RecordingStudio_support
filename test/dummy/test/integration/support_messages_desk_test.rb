@@ -148,6 +148,7 @@ class SupportMessagesDeskTest < ActionDispatch::IntegrationTest
     }
 
     assert_redirected_to "/admin/support/messages?group_id=#{group.id}"
+    assert_equal "Ticket updated.", flash[:notice]
     ticket = RecordingStudioSupport::Tickets.find!(ticket.id)
     assert_equal "waiting_on_customer", ticket.status
     assert_equal @staff, ticket.assignee
@@ -267,7 +268,151 @@ class SupportMessagesDeskTest < ActionDispatch::IntegrationTest
     assert_includes source, "Tickets.open!"
   end
 
+  test "staff header actions link rows at the support desk and list people" do
+    sign_in @patron
+    ticket = open_ticket!(@patron, subject: "Header hooks", body: "Header hooks.")
+    group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
+
+    sign_out @patron
+    sign_in @staff
+    get "/admin/support/messages", params: { group_id: group.id }
+
+    assert_response :success
+    desk = "/admin/support/messages?group_id=#{group.id}"
+    assert_select "a[href='#{desk}'][data-turbo-frame='messages-desk-panel']"
+    refute_select "a[href='/recording_studio_messages/message_groups/#{group.id}']"
+    assert_select "[data-flat-pack-chat-panel-part='right-header'] ##{actions_id(group, :desktop)}"
+    assert_select "[data-flat-pack-chat-panel-part='right-header-mobile'] ##{actions_id(group, :mobile)}"
+    assert_select "##{actions_id(group, :desktop)} [aria-current='true']", text: "Open"
+    assert_select "##{actions_id(group, :mobile)} [aria-current='true']", text: "Open"
+    assert_select "[data-modal-id='#{participants_id(group)}']"
+    assert_select "##{participants_id(group)}", text: /#{Regexp.escape(expected_sender_name(@patron))}/
+    assert_select "##{participants_id(group)}", text: /#{Regexp.escape(expected_sender_name(@staff))}/
+    assert_includes response.body, "Requester"
+    assert_includes response.body, "Support staff"
+    assert_includes response.body, "Waiting on customer"
+  end
+
+  test "turbo stream ticket update replaces both headers and saves a new snapshot" do
+    sign_in @patron
+    ticket = open_ticket!(@patron, subject: "Stream status", body: "Stream status.")
+    group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
+
+    sign_out @patron
+    sign_in @staff
+    assert_difference -> { RecordingStudioSupport::SupportTicket.count }, 1 do
+      patch "/admin/support/tickets/#{ticket.id}",
+            params: { ticket: { status: "waiting_on_customer" } },
+            headers: turbo_stream_headers
+    end
+
+    assert_response :success
+    assert_equal "text/vnd.turbo-stream.html", response.media_type
+    assert_select "turbo-stream[action='replace'][target='#{actions_id(group, :desktop)}']"
+    assert_select "turbo-stream[action='replace'][target='#{actions_id(group, :mobile)}']"
+    assert_includes response.body, "Waiting on customer"
+    assert_includes response.body, "Ticket updated."
+    current = RecordingStudioSupport::Tickets.find!(ticket.id)
+    assert_equal "waiting_on_customer", current.status
+    refute_equal ticket.id, current.id
+    assert_includes response.body, "/admin/support/tickets/#{current.id}"
+  end
+
+  test "turbo stream assignee update keeps the current ticket" do
+    sign_in @patron
+    ticket = open_ticket!(@patron, subject: "Stream assignee", body: "Stream assignee.")
+    group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
+
+    sign_out @patron
+    sign_in @staff
+    patch "/admin/support/tickets/#{ticket.id}",
+          params: { ticket: { assignee: "#{@staff.class.name}:#{@staff.id}" } },
+          headers: turbo_stream_headers
+
+    assert_response :success
+    current = RecordingStudioSupport::Tickets.tickets_by_group_id([group.id])[group.id]
+    assert_equal @staff, current.assignee
+    assert_includes response.body, expected_sender_name(@staff)
+    assert_includes response.body, actions_id(group, :desktop)
+    assert_includes response.body, actions_id(group, :mobile)
+  end
+
+  test "non staff cannot patch a ticket" do
+    sign_in @patron
+    ticket = open_ticket!(@patron, subject: "Leave it", body: "Leave it.")
+
+    patch "/admin/support/tickets/#{ticket.id}",
+          params: { ticket: { status: "resolved" } },
+          headers: turbo_stream_headers
+
+    assert_response :forbidden
+    assert_equal "open", RecordingStudioSupport::Tickets.find!(ticket.id).status
+  end
+
+  test "an invalid turbo stream update redirects with the alert" do
+    sign_in @patron
+    ticket = open_ticket!(@patron, subject: "Cannot close yet", body: "Cannot close yet.")
+    group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
+    invalid = RecordingStudioSupport::SupportTicket.new(subject: "")
+    invalid.validate
+    error = ActiveRecord::RecordInvalid.new(invalid)
+
+    sign_out @patron
+    sign_in @staff
+    original = RecordingStudioSupport::Tickets.method(:update!)
+    RecordingStudioSupport::Tickets.define_singleton_method(:update!) { |*| raise error }
+    patch "/admin/support/tickets/#{ticket.id}",
+          params: { ticket: { status: "resolved" } },
+          headers: turbo_stream_headers
+
+    assert_redirected_to "/admin/support/messages?group_id=#{group.id}"
+    assert_equal invalid.errors.full_messages.to_sentence, flash[:alert]
+  ensure
+    restore_tickets_method(:update!, original)
+  end
+
+  test "requester chat shows only the people button" do
+    sign_in @patron
+    ticket = open_ticket!(@patron, subject: "Just us", body: "Just us.")
+    group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
+
+    get "/help/messages/#{ticket.id}"
+
+    assert_response :success
+    assert_select "[data-flat-pack-chat-panel-part='right-header'] [data-modal-id='#{participants_id(group)}']"
+    assert_select "[data-flat-pack-chat-panel-part='right-header-mobile']", count: 0
+    refute_includes response.body, "support-ticket-actions-"
+    refute_includes response.body, "Waiting on customer"
+    refute_includes response.body, "/admin/support/tickets/"
+    assert_select "##{participants_id(group)}", text: /#{Regexp.escape(expected_sender_name(@patron))}/
+    assert_select "##{participants_id(group)}", text: /#{Regexp.escape(expected_sender_name(@staff))}/
+    assert_includes response.body, "Requester"
+    assert_includes response.body, "Support staff"
+  end
+
   private
+
+  def actions_id(group, variant)
+    "support-ticket-actions-#{variant}-#{group.id}"
+  end
+
+  def participants_id(group)
+    "support-chat-participants-#{group.id}"
+  end
+
+  def turbo_stream_headers
+    { "Accept" => "text/vnd.turbo-stream.html" }
+  end
+
+  def expected_sender_name(actor)
+    if actor.respond_to?(:display_name) && actor.display_name.present?
+      actor.display_name.to_s.strip
+    elsif actor.respond_to?(:name) && actor.name.present?
+      actor.name.to_s.strip
+    else
+      actor.email.to_s.split("@").first.to_s.titleize
+    end
+  end
 
   def restore_tickets_method(name, original)
     return unless original

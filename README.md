@@ -19,7 +19,7 @@ gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderab
 gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.12.0"
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"
 gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.4.3"
-gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.9.0"
+gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", ref: "ef00cde8f0b875214e0c1ea2b8f99100614cd224"
 gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.5.0"
 gem "recording_studio_logs", github: "bowerbird-app/RecordingStudio_logs", tag: "v0.5.0"
 gem "recording_studio_views", github: "bowerbird-app/RecordingStudio_views", tag: "v0.8.0"
@@ -54,6 +54,8 @@ gem "recording_studio_views", ">= 0.8.0", "< 0.9"
 gem "recording_studio_notifications", ">= 0.3.1", "< 1"
 gem "recording_studio_notifications_email", "~> 0.3.1"
 ```
+
+Messages is pinned to commit `ef00cde8f0b875214e0c1ea2b8f99100614cd224` so the chat panel can take `messages_panel_right_header`, `messages_panel_right_header_mobile`, and `messages_panel_after`. Move that pin to a Messages release tag once those hooks ship. The gemspec at that commit is `0.9.1`.
 
 Latest tags of Attachable, Logs, Metrics, Moveable, Notifications, Notifications Email, Search, Views, Cache, Users, Root Switchable, Internationalization, API, and Accessible still require `recording_studio` below 6. This repo's Gemfiles load `test/support/widen_recording_studio_requirement.rb` before the gemspec so Bundler can resolve `6.1.0`. That file is not part of the installed gem. A host Gemfile that includes one of those gems has to widen the requirement the same way. Messages `v0.9.0`, Publishable `v0.12.0`, Orderable `v0.4.0`, Trashable `v0.12.0`, Admin `v2.7.0`, and Recording Studio `v6.1.0` already allow `6.1.0`. Orderable `v0.4.0`, Trashable `v0.12.0`, and Moveable `v3.4.3` drop `RecordingStudio::UsesDefaultLayout`, which Recording Studio 6.1 removed. Earlier tags make `CI=true` eager load raise `NameError`. Admin screens need Admin `v2.7.0` because earlier releases still call `recording_studio_page_nav`. Accessible stays on `v0.19.1`: `0.20` and later reject Messages `v0.9.0`'s first-owner `grant_access` (`You can only grant a role you already hold`). Attachable stays on `v0.15.0` and Notifications stays on `v0.7.0`: later releases need schema changes this dummy does not ship. Root Switchable `v0.10.0` drops `anchor_label`; its gemspec still caps Recording Studio below 5, so the widen hook stays.
 
@@ -315,7 +317,7 @@ Opening a ticket runs `Tickets.open!`: a MessageGroup under `:support`, then `Re
 
 The Workspace `:support` mount is **membership locked** (`membership_locked: [:support]`). Ticket panels hide **+ Access** / avatars; Accessible manage/grant/update/revoke on those conversations is denied unless wrapped in `RecordingStudioMessages.allow_membership_change` (Support’s staff sync already does this).
 
-Both desks render `recording_studio_messages/message_groups/desk` only — do not fork Chat::Layout or Chat::Panel. The panel is a Turbo frame; Support prepends Accessible's access button so "+ Access" uses `data-turbo-frame="_top"` and the access page loads in full. Each desk opens with a Flatpack PageTitle (`Messages` for the user desk, `Support messages` for staff). Keep `data-theme="rounded"` on `<html>` and add Tailwind `@source` lines for Messages views.
+Both desks render `recording_studio_messages/message_groups/desk` only — do not fork Chat::Layout or Chat::Panel. Support fills the panel header through Messages' `messages_panel_right_header`, `messages_panel_right_header_mobile`, and `messages_panel_after` hooks (`TicketPanelHelper`, included after the Messages helpers). Staff see status, assignee, and a people button in `right_header`. Below 640px those three sit in one Actions menu in `right_header_mobile`. The signed-in conversation shows the people button only, with no mobile slot, so it stays visible at every width. The people list is a modal rendered once after the panel: the requester and staff who have access, named with `message_sender_name`. Status and assignee save with `Tickets.update!` through the existing `PATCH /admin/support/tickets/:id`. A Turbo Stream response replaces both header sets. The HTML save still redirects. The form above the staff desk stays until it is removed on purpose. Staff sidebar rows link to `/admin/support/messages?group_id=...` inside the panel frame, so switching conversations keeps this header. The panel is a Turbo frame; Support prepends Accessible's access button so "+ Access" uses `data-turbo-frame="_top"` and the access page loads in full. Each desk opens with a Flatpack PageTitle (`Messages` for the user desk, `Support messages` for staff). Keep `data-theme="rounded"` on `<html>` and add Tailwind `@source` lines for Messages views.
 
 `public_contact_href` defaults to `/help/messages`. Logged-out visitors who click Contact hit sign-in.
 
@@ -465,7 +467,7 @@ Dummy kit pins:
 | Accessible | `v0.19.1` |
 | Admin | `v2.7.0` |
 | Attachable | `v0.15.0` |
-| Messages | `v0.9.0` |
+| Messages | `ef00cde8f0b875214e0c1ea2b8f99100614cd224` (`0.9.1`) |
 | Notifications | `v0.7.0` |
 | Notifications Email | `v0.3.4` |
 | Users | `v0.21.0` |

@@ -1,0 +1,14 @@
+<%= turbo_stream.replace support_ticket_actions_dom_id(@group_recording, :desktop) do %>
+  <%= render "recording_studio_support/staff_messages/ticket_actions",
+             group_recording: @group_recording,
+             ticket: @ticket,
+             variant: :desktop,
+             announce: true %>
+<% end %>
+<%= turbo_stream.replace support_ticket_actions_dom_id(@group_recording, :mobile) do %>
+  <%= render "recording_studio_support/staff_messages/ticket_actions",
+             group_recording: @group_recording,
+             ticket: @ticket,
+             variant: :mobile,
+             announce: true %>
+<% end %>
