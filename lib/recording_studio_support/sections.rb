@@ -58,8 +58,8 @@ module RecordingStudioSupport
       end
     end
 
-    def assign_actor(actor, &block)
-      AssignActor.assign_actor(actor, &block)
+    def assign_actor(actor, &)
+      AssignActor.assign_actor(actor, &)
     end
 
     def apply_query(relation, query)

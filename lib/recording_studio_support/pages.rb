@@ -53,8 +53,8 @@ module RecordingStudioSupport
       recording.reload
     end
 
-    def assign_actor(actor, &block)
-      AssignActor.assign_actor(actor, &block)
+    def assign_actor(actor, &)
+      AssignActor.assign_actor(actor, &)
     end
   end
 end
