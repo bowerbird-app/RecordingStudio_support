@@ -58,6 +58,16 @@ class LocalesTest < Minitest::Test
       assert_equal "Sent. We’ll take a look.", Copy.t("messages.sent")
       assert_equal "Open", Copy.t("messages.statuses.open")
       assert_equal "Normal", Copy.t("messages.priorities.normal")
+      assert_equal "This conversation already has a ticket.",
+                   RecordingStudioSupport::Tickets::AlreadyExists.new.message
+    end
+  end
+
+  def test_already_open_uses_english_when_the_locale_has_no_key
+    I18n.available_locales |= [:zz]
+    I18n.with_locale(:zz) do
+      assert_equal "This conversation already has a ticket.",
+                   RecordingStudioSupport::Tickets::AlreadyExists.new.message
     end
   end
 

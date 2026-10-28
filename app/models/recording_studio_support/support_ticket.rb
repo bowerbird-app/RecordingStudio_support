@@ -4,6 +4,10 @@ module RecordingStudioSupport
   class SupportTicket < ApplicationRecord
     self.table_name = "recording_studio_support_tickets"
 
+    recording_studio_recordable label: "Support ticket",
+                                root: false,
+                                allowed_parent_types: ["RecordingStudioMessages::MessageGroup"]
+
     STATUSES = %w[
       open
       waiting_on_customer
@@ -23,19 +27,9 @@ module RecordingStudioSupport
     enum :priority, PRIORITIES.to_h { |priority| [priority.to_sym, priority] },
          validate: true, default: :normal
 
-    validates :message_group_id, presence: true, uniqueness: true
     validates :subject, presence: true
 
     before_validation :sync_resolved_at
-
-    def message_group_recording
-      return if message_group_id.blank?
-
-      RecordingStudio::Recording.unscoped.find_by(
-        id: message_group_id,
-        recordable_type: RecordingStudioMessages::MESSAGE_GROUP_TYPE
-      )
-    end
 
     private
 

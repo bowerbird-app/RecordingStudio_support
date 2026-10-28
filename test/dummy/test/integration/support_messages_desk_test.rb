@@ -89,7 +89,7 @@ class SupportMessagesDeskTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "+ Access"
     assert_includes response.body, "Write a message"
 
-    group = ticket.message_group_recording
+    group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
     assert_difference -> { RecordingStudioMessages.message_recordings(group).count }, +1 do
       post "/recording_studio_messages/message_groups/#{group.id}/messages", params: {
         message: { body: "Still stuck on the quieter crop." },
@@ -128,7 +128,7 @@ class SupportMessagesDeskTest < ActionDispatch::IntegrationTest
   test "staff sees ticket metadata and can update status and assignee" do
     sign_in @patron
     ticket = open_ticket!(@patron, subject: "Need a hand with billing", body: "Need a hand with billing.")
-    group = ticket.message_group_recording
+    group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
 
     sign_out @patron
     sign_in @staff
@@ -148,7 +148,7 @@ class SupportMessagesDeskTest < ActionDispatch::IntegrationTest
     }
 
     assert_redirected_to "/admin/support/messages?group_id=#{group.id}"
-    ticket.reload
+    ticket = RecordingStudioSupport::Tickets.find!(ticket.id)
     assert_equal "waiting_on_customer", ticket.status
     assert_equal @staff, ticket.assignee
 
@@ -161,6 +161,30 @@ class SupportMessagesDeskTest < ActionDispatch::IntegrationTest
 
     assert_equal before + 1, after
     assert_redirected_to "/help/messages/#{ticket.id}"
+  end
+
+  test "a failed ticket update reports the invalid record" do
+    sign_in @patron
+    ticket = open_ticket!(@patron, subject: "Cannot close yet", body: "Cannot close yet.")
+    group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
+    invalid = RecordingStudioSupport::SupportTicket.new(subject: "")
+    invalid.validate
+    error = ActiveRecord::RecordInvalid.new(invalid)
+
+    sign_out @patron
+    sign_in @staff
+    original = RecordingStudioSupport::Tickets.method(:update!)
+    RecordingStudioSupport::Tickets.define_singleton_method(:update!) { |*| raise error }
+    patch "/admin/support/tickets/#{ticket.id}", params: { ticket: { status: "resolved" } }
+
+    assert_redirected_to "/admin/support/messages?group_id=#{group.id}"
+    assert_equal invalid.errors.full_messages.to_sentence, flash[:alert]
+  ensure
+    if original
+      RecordingStudioSupport::Tickets.define_singleton_method(:update!) do |*args, **kwargs, &block|
+        original.call(*args, **kwargs, &block)
+      end
+    end
   end
 
   test "non staff cannot open staff desk" do

@@ -47,21 +47,38 @@ module RecordingStudioSupport
       end
 
       def self.tickets
-        RecordingStudioSupport::SupportTicket.where(status: "open").order(created_at: :asc)
+        RecordingStudioSupport::Tickets.current.where(status: "open")
+                                       .order("recording_studio_recordings.created_at ASC")
       end
 
       def self.wait_label(ticket)
-        created_at = ticket.created_at
+        created_at = opened_at(ticket)
         return Widgets.age_label(nil) if created_at.blank?
 
         Widgets.age_label(Time.current - created_at)
       end
 
       def self.desk_path(ticket)
-        group_id = ticket.message_group_id
+        group_id = desk_group_id(ticket)
         return Queries.staff_messages_path if group_id.blank?
 
         "#{Queries.staff_messages_path}?group_id=#{group_id}"
+      end
+
+      def self.opened_at(ticket)
+        return ticket.created_at unless ticket.respond_to?(:id) && ticket.id.present?
+
+        Tickets.recording_for_snapshot_id(ticket.id)&.created_at ||
+          Tickets.ticket_recordings.find_by(recordable_id: ticket.id)&.created_at ||
+          ticket.created_at
+      end
+
+      def self.desk_group_id(ticket)
+        if ticket.respond_to?(:parent_recording_id) && ticket.parent_recording_id.present?
+          return ticket.parent_recording_id
+        end
+
+        Tickets.group_recording_for(ticket)&.id
       end
     end
   end

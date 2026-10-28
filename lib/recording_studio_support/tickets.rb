@@ -1,11 +1,24 @@
 # frozen_string_literal: true
 
 require_relative "tickets/open"
+require_relative "tickets/update"
 
 module RecordingStudioSupport
   # Support tickets wrap a MessageGroup under the Workspace `:support` mount.
   # Tickets own conversation lifecycle; MessageGroups are created per ticket.
   module Tickets
+    TICKET_TYPE = "RecordingStudioSupport::SupportTicket"
+    UNSET = Copy::UNSET
+
+    class AlreadyExists < StandardError
+      def message
+        Copy.t(
+          "messages.already_open",
+          default: "This conversation already has a ticket."
+        )
+      end
+    end
+
     module_function
 
     def open!(...)
@@ -13,11 +26,84 @@ module RecordingStudioSupport
     end
 
     def find!(id)
-      SupportTicket.find(id)
+      recording = ticket_recordings.find_by(id: id) || recording_for_ticket_id!(id)
+      recording.recordable
+    end
+
+    def update!(...)
+      Update.call(...)
+    end
+
+    def current
+      current_relation(SupportTicket.all)
+    end
+
+    def current_relation(relation)
+      relation.joins(current_join_sql)
+    end
+
+    def current_join_sql
+      connection = ActiveRecord::Base.connection
+      recordings = RecordingStudio::Recording.table_name
+      quoted_recordings = connection.quote_table_name(recordings)
+      quoted_tickets = connection.quote_table_name(SupportTicket.table_name)
+      type = connection.quote(TICKET_TYPE)
+      kept = RecordingStudio::Recording.recording_studio_trashable_kept_sql(recordings)
+      "INNER JOIN #{quoted_recordings} ON #{quoted_recordings}.recordable_id = #{quoted_tickets}.id " \
+        "AND #{quoted_recordings}.recordable_type = #{type} AND #{kept}"
     end
 
     def for_message_group_ids(message_group_ids)
-      SupportTicket.where(message_group_id: Array(message_group_ids)).order(created_at: :desc)
+      ids = Array(message_group_ids).compact
+      return SupportTicket.none if ids.empty?
+
+      SupportTicket.where(id: ticket_recordings.where(parent_recording_id: ids).select(:recordable_id))
+                   .order(created_at: :desc)
+    end
+
+    def tickets_by_group_id(message_group_ids)
+      ids = Array(message_group_ids).compact
+      return {} if ids.empty?
+
+      ticket_recordings.where(parent_recording_id: ids).includes(:recordable).each_with_object({}) do |recording, map|
+        map[recording.parent_recording_id] = recording.recordable
+      end
+    end
+
+    def group_recording_for(ticket)
+      return if ticket.blank?
+      return unless ticket.respond_to?(:id)
+      return if ticket.id.blank?
+
+      recording = ticket_recordings.find_by(recordable_id: ticket.id) || recording_for_snapshot_id(ticket.id)
+      recording&.parent_recording
+    end
+
+    def ticket_recordings
+      RecordingStudio::Recording.where(recordable_type: TICKET_TYPE, trashed_at: nil)
+    end
+
+    def recording_for!(ticket)
+      recording_for_ticket_id!(ticket.id)
+    end
+
+    def recording_for_ticket_id!(id)
+      recording = ticket_recordings.find_by(recordable_id: id)
+      recording ||= recording_for_snapshot_id(id)
+      raise ActiveRecord::RecordNotFound if recording.blank?
+
+      recording
+    end
+
+    def recording_for_snapshot_id(id)
+      event = RecordingStudio::Event.where(recordable_type: TICKET_TYPE, recordable_id: id)
+                                    .or(RecordingStudio::Event.where(previous_recordable_type: TICKET_TYPE,
+                                                                     previous_recordable_id: id))
+                                    .order(occurred_at: :desc)
+                                    .first
+      return if event.blank?
+
+      ticket_recordings.find_by(id: event.recording_id)
     end
 
     def for_actor(actor)

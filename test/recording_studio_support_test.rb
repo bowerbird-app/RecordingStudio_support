@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.26.0", ::RecordingStudioSupport::VERSION
+    assert_equal "0.27.0", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -321,6 +321,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes initializer_source, "config.require_recordable_declarations = true"
     assert_includes initializer_source, '"RecordingStudioSupport::SupportSection"'
     assert_includes initializer_source, '"RecordingStudioSupport::SupportPage"'
+    assert_includes initializer_source, '"RecordingStudioSupport::SupportTicket"'
     assert_includes initializer_source, '"RecordingStudioUser::People"'
     assert_includes initializer_source, '"RecordingStudioUser::Profile"'
     assert_includes initializer_source, '"RecordingStudioAttachable::Attachment"'
@@ -487,7 +488,7 @@ class RecordingStudioSupportTest < Minitest::Test
     duration_axis = File.read("#{admin_dir}/duration_axis.rb")
     widgets = File.read("#{admin_dir}/widgets.rb")
     assert_includes tickets_screen, 'where(status: "open")'
-    assert_includes tickets_screen, "order(created_at: :asc)"
+    assert_includes tickets_screen, 'order("recording_studio_recordings.created_at ASC")'
     assert_includes duration_axis, '[60, "minutes"]'
     assert_includes duration_axis, "{ x: point_x(point), y: y.nil? ? nil : axis_number(y.to_f / divisor) }"
     assert_includes widgets, "DurationAxis.series"

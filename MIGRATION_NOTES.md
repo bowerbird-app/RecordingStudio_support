@@ -1,6 +1,26 @@
 # Upgrade notes
 
 
+## 0.27.0
+
+`SupportTicket` is a recordable child of a MessageGroup recording. This release deletes existing ticket rows and drops `message_group_id`. Tickets are not in use, so there is no backfill.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.27.0`.
+2. Add `"RecordingStudioSupport::SupportTicket"` to `config.recordable_types`.
+3. `bin/rails generate recording_studio_support:migrations`
+4. `bin/rails db:migrate`
+
+The generated migration deletes every `recording_studio_support_tickets` row, then drops `message_group_id` and `index_rs_support_tickets_on_message_group_id`.
+
+### Verify
+
+```bash
+bundle exec rake test
+bundle exec rubocop
+```
+
 ## 0.26.0
 
 Support follows Recording Studio `v6.1.0` layouts. There is no Support database migration.

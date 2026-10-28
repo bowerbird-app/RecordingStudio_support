@@ -33,6 +33,7 @@ en:
         empty_title: No tickets yet
         empty_description: Start one when Help isn’t enough.
         sent: Sent. We’ll take a look.
+        already_open: This conversation already has a ticket.
         new:
           title: New ticket
           subtitle: Tell us what’s up — we’ll take it from there.

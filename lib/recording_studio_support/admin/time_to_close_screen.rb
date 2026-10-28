@@ -56,12 +56,12 @@ module RecordingStudioSupport
       end
 
       def self.tickets
-        RecordingStudioSupport::SupportTicket.where(status: "resolved").where.not(resolved_at: nil)
-                                             .order(resolved_at: :desc)
+        RecordingStudioSupport::Tickets.current.where(status: "resolved").where.not(resolved_at: nil)
+                                       .order(resolved_at: :desc)
       end
 
       def self.closed_in_label(ticket)
-        created_at = ticket.created_at
+        created_at = OpenTicketsScreen.opened_at(ticket)
         resolved_at = ticket.resolved_at
         return Widgets.age_label(nil) if created_at.blank? || resolved_at.blank?
 

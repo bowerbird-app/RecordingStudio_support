@@ -10,6 +10,7 @@ RecordingStudio.configure do |config|
     "RecordingStudioUser::Profile",
     "RecordingStudioSupport::SupportSection",
     "RecordingStudioSupport::SupportPage",
+    "RecordingStudioSupport::SupportTicket",
     "RecordingStudioMessages::MessageMount",
     "RecordingStudioMessages::MessageGroup",
     "RecordingStudioMessages::Message",

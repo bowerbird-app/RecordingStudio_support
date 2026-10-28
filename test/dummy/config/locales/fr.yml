@@ -74,6 +74,7 @@ fr:
         empty_title: Pas encore de ticket
         empty_description: Ouvrez-en un quand l’aide ne suffit pas.
         sent: Envoyé. On regarde ça.
+        already_open: Cette conversation a déjà un ticket.
         new:
           title: Nouveau ticket
           subtitle: Dites-nous ce qui se passe — on s’en occupe.

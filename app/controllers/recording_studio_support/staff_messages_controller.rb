@@ -59,9 +59,7 @@ module RecordingStudioSupport
     end
 
     def load_tickets_for_groups
-      ids = @group_recordings.map(&:id)
-      tickets = RecordingStudioSupport::Tickets.for_message_group_ids(ids)
-      @tickets_by_group_id = tickets.index_by(&:message_group_id)
+      @tickets_by_group_id = RecordingStudioSupport::Tickets.tickets_by_group_id(@group_recordings.map(&:id))
     end
 
     def load_selected_conversation

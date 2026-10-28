@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.27.0] - 2026-10-27
+
+**BREAKING.** `SupportTicket` is a Recording Studio recordable. The `message_group_id` column is gone. Existing ticket rows are deleted. There is no backfill.
+
+### Changed
+- `RecordingStudioSupport::SupportTicket` declares `recording_studio_recordable` with label "Support ticket", `root: false`, and `allowed_parent_types: ["RecordingStudioMessages::MessageGroup"]`.
+- `Tickets.open!` creates the ticket with `RecordingStudio.record!` (`action: "created"`) under the new MessageGroup. The conversation is that parent recording. One live ticket per thread is an app-level row lock. There is no unique index. A second live ticket raises `Tickets::AlreadyExists`. That sentence is the engine English key `recording_studio.support.messages.already_open`, and a missing key falls back to the English sentence. Dummy `fr.yml` mirrors engine keys for the locales test. This gem does not ship a French catalog.
+- `Tickets.update!` revises the recording (`action: "updated"`) and stores the diff on the event as `metadata["changes"]`.
+- Ticket metrics and the open-ticket and time-to-close screens count the current snapshot once. `oldest_open_age` and `avg_time_to_resolve` use the recording's `created_at`.
+- Hosts register `"RecordingStudioSupport::SupportTicket"` in `config.recordable_types`.
+
+### Removed
+- `message_group_id`, unique index `index_rs_support_tickets_on_message_group_id`, and `SupportTicket#message_group_recording`.
+- Presence and uniqueness validations on `message_group_id`.
+
+### Upgrade notes
+- Bump to `0.27.0`.
+- `bin/rails generate recording_studio_support:migrations`, then `bin/rails db:migrate`. The new migration deletes every row in `recording_studio_support_tickets`, then drops `message_group_id` and its unique index. Empty tables are safe. Do not expect old tickets to remain.
+- Add `"RecordingStudioSupport::SupportTicket"` to `config.recordable_types` and run `RecordingStudio.validate_recordable_declarations!`.
+- Read the ticket's conversation with `Tickets.group_recording_for(ticket)` (the parent recording). Do not query `message_group_id`.
+
 ## [0.26.0] - 2026-10-27
 
 Support screens use Recording Studio 6.1's default layout and the 3-tier layout setting.
