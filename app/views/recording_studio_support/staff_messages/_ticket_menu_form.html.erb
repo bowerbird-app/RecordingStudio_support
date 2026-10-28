@@ -6,7 +6,7 @@
 <%= form_with url: staff_ticket_update_path_for(ticket), method: :patch, class: "block w-full",
               data: { turbo_stream: true, turbo_frame: "_top" } do %>
   <% changes.each do |key, value| %>
-    <%= hidden_field_tag "ticket[#{key}]", value %>
+    <%= hidden_field_tag "ticket[#{key}]", value, id: nil %>
   <% end %>
   <%= render FlatPack::Button::DropdownItem::Component.new(**item) %>
 <% end %>

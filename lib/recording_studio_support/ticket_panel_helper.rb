@@ -144,10 +144,11 @@ module RecordingStudioSupport
         RecordingStudioSupport::Tickets.tickets_by_group_id([group_recording.id])[group_recording.id]
     end
 
+    # No ticket means no created event, so the role stays blank.
     def support_chat_participant_kind(actor, requester)
       return :requester if support_same_actor?(actor, requester)
 
-      :staff
+      requester.present? ? :staff : nil
     end
 
     def support_same_actor?(left, right)

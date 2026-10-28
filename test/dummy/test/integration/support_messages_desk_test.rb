@@ -295,6 +295,12 @@ class SupportMessagesDeskTest < ActionDispatch::IntegrationTest
     assert_select "##{actions_id(group, :mobile)} [role='presentation']", text: "Assignee"
     assert_select "##{actions_id(group, :mobile)} [aria-current='true']", text: "Open"
     assert_select "##{strip_id(group)} select[name='ticket[status]'] option[selected][value='open']"
+    assert_unique_dom_ids(
+      "[data-flat-pack-chat-panel-part='right-header']",
+      "[data-flat-pack-chat-panel-part='right-header-mobile']",
+      "##{participants_id(group)}",
+      "##{strip_id(group)}"
+    )
   end
 
   test "turbo stream ticket update replaces both headers and saves a new snapshot" do
@@ -320,6 +326,11 @@ class SupportMessagesDeskTest < ActionDispatch::IntegrationTest
     assert_equal "waiting_on_customer", current.status
     refute_equal ticket.id, current.id
     assert_includes response.body, "/admin/support/tickets/#{current.id}"
+    assert_unique_dom_ids(
+      "turbo-stream[action='replace'][target='#{actions_id(group, :desktop)}']",
+      "turbo-stream[action='replace'][target='#{actions_id(group, :mobile)}']",
+      "turbo-stream[action='replace'][target='#{strip_id(group)}']"
+    )
   end
 
   test "turbo stream assignee update keeps the current ticket" do
@@ -410,6 +421,17 @@ class SupportMessagesDeskTest < ActionDispatch::IntegrationTest
     assert_select "##{strip_id(group)} select[name='ticket[status]'] option[selected][value='waiting_on_customer']"
     assert_select "##{strip_id(group)} form[data-turbo='false']"
     current = RecordingStudioSupport::Tickets.find!(ticket.id)
+    assert_select "##{strip_id(group)} form[action='/admin/support/tickets/#{current.id}']"
+
+    patch "/admin/support/tickets/#{ticket.id}", params: {
+      ticket: { status: "waiting_on_customer", assignee: "" }
+    }
+
+    assert_redirected_to "/admin/support/messages?group_id=#{group.id}"
+    assert_equal "Ticket updated.", flash[:notice]
+    resolved = RecordingStudioSupport::Tickets.find!(ticket.id)
+    assert_equal current.id, resolved.id
+    assert_equal "waiting_on_customer", resolved.status
 
     patch "/admin/support/tickets/#{current.id}", params: {
       ticket: { status: "waiting_on_customer", assignee: "" }
@@ -465,6 +487,24 @@ class SupportMessagesDeskTest < ActionDispatch::IntegrationTest
     assert_select "##{actions_id(group, :mobile)} [aria-current='true']", text: "Unassigned"
   end
 
+  test "a conversation with no ticket does not invent people roles" do
+    sign_in @staff
+    mount = RecordingStudioSupport::Messages.ensure_message_mount(actor: @staff)
+    group = RecordingStudioSupport::Messages::OpenAccessManagement.with do
+      created = RecordingStudioMessages.create_group(mount, title: "No ticket yet", actor: @patron)
+      RecordingStudioSupport::Messages.sync_staff_grants!(group_recording: created, manager_actor: @patron)
+      created
+    end
+
+    get "/admin/support/messages", params: { group_id: group.id }
+
+    assert_response :success
+    assert_select "##{participants_id(group)}", text: /#{Regexp.escape(expected_sender_name(@patron))}/
+    assert_select "##{participants_id(group)}", text: /#{Regexp.escape(expected_sender_name(@staff))}/
+    assert_no_participant_role(group, @patron)
+    assert_no_participant_role(group, @staff)
+  end
+
   test "non staff html patch is forbidden" do
     sign_in @patron
     ticket = open_ticket!(@patron, subject: "Hands off", body: "Hands off.")
@@ -513,6 +553,22 @@ class SupportMessagesDeskTest < ActionDispatch::IntegrationTest
 
   def strip_id(group)
     "support-ticket-strip-#{group.id}"
+  end
+
+  def assert_unique_dom_ids(*selectors)
+    ids = selectors.flat_map { |selector| css_select(selector) }.flat_map do |node|
+      node.css("[id]").map { |element| element["id"] }
+    end
+    duplicates = ids.tally.select { |_id, count| count > 1 }.keys
+    assert_empty duplicates, "duplicate DOM ids: #{duplicates.join(", ")}"
+  end
+
+  def assert_no_participant_role(group, actor)
+    name = expected_sender_name(actor)
+    match = css_select("##{participants_id(group)} li").find { |item| item.text.include?(name) }
+    assert match, "expected #{name} in the people list"
+    refute_includes match.text, "Requester"
+    refute_includes match.text, "Support staff"
   end
 
   def assert_participant_role(group, actor, role)
