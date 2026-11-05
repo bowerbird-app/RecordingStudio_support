@@ -10,6 +10,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Development and dummy apps pin Flatpack `0.1.329` (tag `v0.1.329`, commit `3e49ad38b1980add449194d27265edaa7b892c0d`). The gemspec floor stays `>= 0.1.315`.
 
+## [0.27.1] - 2026-11-05
+
+### Security
+- Development and dummy lockfiles: Rails `8.1.4.1`, rack `3.2.8`, nokogiri `1.19.7`, loofah `2.25.3`, rails-html-sanitizer `1.7.2`. Dummy `net-ssh` stays `7.3.8`. No gemspec floor or cap changes.
+
 ## [0.27.0] - 2026-10-27
 
 **BREAKING.** `SupportTicket` is a Recording Studio recordable. The `message_group_id` column is gone. Existing ticket rows are deleted. There is no backfill.
