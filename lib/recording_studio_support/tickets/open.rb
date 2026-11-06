@@ -38,7 +38,11 @@ module RecordingStudioSupport
 
       def create_group!
         mount = require_mount!
-        Messages::OpenAccessManagement.with { record_group!(mount) }
+        group = Messages::OpenAccessManagement.with(actor: @actor, mount: mount) do
+          RecordingStudioMessages.create_group(mount, title: @subject, actor: @actor)
+        end
+        Messages.sync_staff_grants!(group_recording: group, manager_actor: @actor)
+        group
       end
 
       def require_mount!
@@ -46,12 +50,6 @@ module RecordingStudioSupport
         return mount if mount.present?
 
         raise RecordingStudioMessages::Error, "Support messages are not available"
-      end
-
-      def record_group!(mount)
-        group = RecordingStudioMessages.create_group(mount, title: @subject, actor: @actor)
-        Messages.sync_staff_grants!(group_recording: group, manager_actor: @actor)
-        group
       end
 
       def create_ticket!(group)

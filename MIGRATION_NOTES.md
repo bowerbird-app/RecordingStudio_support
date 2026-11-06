@@ -1,5 +1,22 @@
 # Upgrade notes
 
+## 0.28.0
+
+Ticket open no longer turns off Accessible permission checks on the thread. The requester still gets first-open membership on the new Support conversation. Staff grants and every other recording still go through Accessible.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.28.0`.
+2. `bundle install`.
+
+No Support migration. Do not set `access_management_authorizer` to always-true. Do not move Accessible past `v0.19.1` until Messages grants the first group owner with `bootstrap_owner_access!`.
+
+### Verify
+
+```bash
+bundle exec rake test
+bundle exec rubocop
+```
 
 ## 0.27.0
 
