@@ -3,6 +3,8 @@
 require "test_helper"
 
 class OpenAccessManagementTest < Minitest::Test
+  RecordingStub = Struct.new(:recordable_type, :parent_recording, :parent_recording_id, :id, keyword_init: true)
+
   def setup
     skip "Accessible not loaded" unless defined?(RecordingStudioAccessible)
 
@@ -14,6 +16,21 @@ class OpenAccessManagementTest < Minitest::Test
       false
     end
     reset_open_access!
+    @opener = Object.new
+    @stranger = Object.new
+    @mount = RecordingStub.new(id: 7, recordable_type: "RecordingStudioMessages::MessageMount")
+    @group = RecordingStub.new(
+      id: 11,
+      recordable_type: RecordingStudioMessages::MESSAGE_GROUP_TYPE,
+      parent_recording: @mount,
+      parent_recording_id: @mount.id
+    )
+    @other = RecordingStub.new(
+      id: 99,
+      recordable_type: "Workspace",
+      parent_recording: nil,
+      parent_recording_id: nil
+    )
   end
 
   def teardown
@@ -25,34 +42,65 @@ class OpenAccessManagementTest < Minitest::Test
   end
 
   def test_with_opens_only_on_the_current_thread
-    RecordingStudioSupport::Messages::OpenAccessManagement.with do
+    RecordingStudioSupport::Messages::OpenAccessManagement.with(actor: @opener, mount: @mount) do
       assert RecordingStudioSupport::Messages::OpenAccessManagement.open?
-      assert RecordingStudioSupport::Messages::OpenAccessManagement.authorize(
-        recording: :recording,
-        actor: :actor
-      )
 
       other_thread_open = nil
-      other_thread_authorized = nil
       Thread.new do
         other_thread_open = RecordingStudioSupport::Messages::OpenAccessManagement.open?
-        other_thread_authorized = RecordingStudioSupport::Messages::OpenAccessManagement.authorize(
-          recording: :recording,
-          actor: :actor
-        )
       end.join
 
       refute other_thread_open
-      refute other_thread_authorized
     end
 
     refute RecordingStudioSupport::Messages::OpenAccessManagement.open?
+  end
+
+  def test_authorize_does_not_skip_unrelated_recordings_while_open
+    RecordingStudioSupport::Messages::OpenAccessManagement.with(actor: @opener, mount: @mount) do
+      refute RecordingStudioSupport::Messages::OpenAccessManagement.authorize(
+        recording: @other,
+        actor: @opener
+      )
+      refute RecordingStudioSupport::Messages::OpenAccessManagement.authorize(
+        recording: @group,
+        actor: @stranger
+      )
+    end
+
+    assert_includes @calls, :original
+  end
+
+  def test_authorize_allows_first_owner_grant_on_empty_support_group
+    RecordingStudioAccessible.stub(:access_recordings_for, []) do
+      RecordingStudioSupport::Messages::OpenAccessManagement.with(actor: @opener, mount: @mount) do
+        assert RecordingStudioSupport::Messages::OpenAccessManagement.authorize(
+          recording: @group,
+          actor: @opener
+        )
+      end
+    end
+
+    refute_includes @calls, :original
+  end
+
+  def test_authorize_falls_through_once_the_group_already_has_access
+    existing = [Object.new]
+    RecordingStudioAccessible.stub(:access_recordings_for, existing) do
+      RecordingStudioSupport::Messages::OpenAccessManagement.with(actor: @opener, mount: @mount) do
+        refute RecordingStudioSupport::Messages::OpenAccessManagement.authorize(
+          recording: @group,
+          actor: @opener
+        )
+      end
+    end
+
     assert_includes @calls, :original
   end
 
   def test_nested_with_restores_previous_thread_state
-    RecordingStudioSupport::Messages::OpenAccessManagement.with do
-      RecordingStudioSupport::Messages::OpenAccessManagement.with do
+    RecordingStudioSupport::Messages::OpenAccessManagement.with(actor: @opener, mount: @mount) do
+      RecordingStudioSupport::Messages::OpenAccessManagement.with(actor: @opener, mount: @mount) do
         assert RecordingStudioSupport::Messages::OpenAccessManagement.open?
       end
       assert RecordingStudioSupport::Messages::OpenAccessManagement.open?
@@ -83,6 +131,14 @@ class OpenAccessManagementTest < Minitest::Test
 
     refute authorizer.call(recording: recording, actor: :actor)
     assert_includes @calls, :original
+  end
+
+  def test_source_does_not_return_true_for_any_open_check
+    source = File.read(
+      File.expand_path("../lib/recording_studio_support/messages/open_access_management.rb", __dir__)
+    )
+
+    refute_includes source, "return true if open?"
   end
 
   private

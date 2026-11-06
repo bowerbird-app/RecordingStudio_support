@@ -38,7 +38,7 @@ module RecordingStudioSupport
 
       def create_group!
         mount = require_mount!
-        Messages::OpenAccessManagement.with { record_group!(mount) }
+        Messages::OpenAccessManagement.with(actor: @actor, mount: mount) { record_group!(mount) }
       end
 
       def require_mount!

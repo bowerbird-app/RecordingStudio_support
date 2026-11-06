@@ -74,7 +74,8 @@ class MessagesDeskTest < Minitest::Test
   def test_open_ticket_uses_thread_local_open_access_gate
     source = File.read(File.expand_path("../lib/recording_studio_support/tickets/open.rb", __dir__))
 
-    assert_includes source, "OpenAccessManagement.with"
+    assert_includes source, "OpenAccessManagement.with(actor: @actor, mount: mount)"
     refute_includes source, "configuration.access_management_authorizer = ->(**) { true }"
+    refute_includes source, "return true if open?"
   end
 end
