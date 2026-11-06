@@ -71,10 +71,17 @@ class MessagesDeskTest < Minitest::Test
     assert_includes source, "def recording_studio_accessible_button"
   end
 
-  def test_open_ticket_uses_thread_local_open_access_gate
-    source = File.read(File.expand_path("../lib/recording_studio_support/tickets/open.rb", __dir__))
+  def test_open_ticket_uses_narrow_first_open_access_gate
+    open_source = File.read(File.expand_path("../lib/recording_studio_support/tickets/open.rb", __dir__))
+    gate_source = File.read(
+      File.expand_path("../lib/recording_studio_support/messages/open_access_management.rb", __dir__)
+    )
 
-    assert_includes source, "OpenAccessManagement.with"
-    refute_includes source, "configuration.access_management_authorizer = ->(**) { true }"
+    assert_includes open_source, "OpenAccessManagement.with(actor: @actor, mount: mount)"
+    refute_includes open_source, "configuration.access_management_authorizer = ->(**) { true }"
+    refute_includes gate_source, "return true if open?"
+    assert_includes gate_source, "first_open_membership_grant?"
+    assert_includes open_source, "sync_staff_grants!"
+    assert_includes open_source, "RecordingStudioMessages.create_group"
   end
 end
