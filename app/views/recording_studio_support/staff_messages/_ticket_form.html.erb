@@ -1,4 +1,6 @@
-<%= form_with url: staff_ticket_update_path_for(ticket), method: :patch, scope: :ticket do %>
+<div id="<%= support_ticket_strip_dom_id(ticket) %>">
+<%= form_with url: staff_ticket_update_path_for(ticket), method: :patch, scope: :ticket,
+              data: { turbo: false } do %>
   <div class="flex flex-wrap items-end gap-3">
     <%= render FlatPack::Select::Component.new(
       name: "ticket[status]",
@@ -22,3 +24,4 @@
     ) %>
   </div>
 <% end %>
+</div>

@@ -1,0 +1,102 @@
+<% status_label = support_ticket_action_status_label(ticket.status) %>
+<% assignee_label = support_ticket_assignee_label(ticket.assignee) %>
+<% short_assignee = assignee_label.to_s.split.first %>
+<% assignee_text = if short_assignee == assignee_label
+     assignee_label
+   else
+     tag.span(short_assignee, class: "md:hidden") + tag.span(assignee_label, class: "hidden md:inline")
+   end %>
+<% status_name = support_ticket_field_name("status", status_label) %>
+<% assignee_name = support_ticket_field_name("assignee", assignee_label) %>
+<div id="<%= support_ticket_actions_dom_id(group_recording, variant) %>" class="flex items-center gap-2 whitespace-nowrap p-4">
+  <% if local_assigns[:announce] %>
+    <span class="sr-only" role="status"><%= support_t("messages.actions.updated") %></span>
+  <% end %>
+
+  <% if variant == :desktop %>
+    <%= render FlatPack::Button::Dropdown::Component.new(
+          text: status_label,
+          style: :secondary,
+          size: :sm,
+          placement: :bottom_right,
+          trigger_attributes: { title: status_name, aria: { label: status_name } }
+        ) do |dropdown| %>
+      <% RecordingStudioSupport::SupportTicket::STATUSES.each do |status| %>
+        <% dropdown.menu_html(
+             support_ticket_change_button(
+               support_ticket_action_status_label(status),
+               ticket,
+               { status: status },
+               current: ticket.status.to_s == status.to_s
+             )
+           ) %>
+      <% end %>
+    <% end %>
+
+    <%= render FlatPack::Button::Dropdown::Component.new(
+          text: assignee_text,
+          style: :secondary,
+          size: :sm,
+          placement: :bottom_right,
+          trigger_attributes: { title: assignee_name, aria: { label: assignee_name } }
+        ) do |dropdown| %>
+      <% dropdown.menu_html(
+           support_ticket_change_button(
+             support_t("messages.actions.unassigned"),
+             ticket,
+             { assignee: "" },
+             current: ticket.assignee.blank?
+           )
+         ) %>
+      <% RecordingStudioSupport::Messages.staff_actors.each do |staff| %>
+        <% dropdown.menu_html(support_ticket_assignee_menu_button(ticket, staff)) %>
+      <% end %>
+    <% end %>
+
+    <%= render "recording_studio_support/staff_messages/view_users_button",
+               group_recording: group_recording,
+               padded: false %>
+  <% else %>
+    <%= render FlatPack::Button::Dropdown::Component.new(
+          text: support_t("messages.actions.actions_menu"),
+          icon: "dots",
+          icon_only: true,
+          show_chevron: false,
+          style: :ghost,
+          size: :sm,
+          placement: :bottom_right,
+          max_height: "none",
+          trigger_attributes: {
+            title: support_t("messages.actions.actions_menu"),
+            aria: { label: support_t("messages.actions.actions_menu") }
+          }
+        ) do |dropdown| %>
+      <% dropdown.menu_html(tag.p(support_t("messages.actions.status"), class: "px-[var(--dropdown-item-padding-x)] pt-1 text-xs font-semibold text-[var(--surface-muted-content-color)]", role: "presentation")) %>
+      <% RecordingStudioSupport::SupportTicket::STATUSES.each do |status| %>
+        <% dropdown.menu_html(
+             support_ticket_change_button(
+               support_ticket_action_status_label(status),
+               ticket,
+               { status: status },
+               current: ticket.status.to_s == status.to_s
+             )
+           ) %>
+      <% end %>
+      <% dropdown.menu_divider %>
+      <% dropdown.menu_html(tag.p(support_t("messages.actions.assignee"), class: "px-[var(--dropdown-item-padding-x)] pt-1 text-xs font-semibold text-[var(--surface-muted-content-color)]", role: "presentation")) %>
+      <% dropdown.menu_html(
+           support_ticket_change_button(
+             support_t("messages.actions.unassigned"),
+             ticket,
+             { assignee: "" },
+             current: ticket.assignee.blank?
+           )
+         ) %>
+      <% RecordingStudioSupport::Messages.staff_actors.each do |staff| %>
+        <% dropdown.menu_html(support_ticket_assignee_menu_button(ticket, staff)) %>
+      <% end %>
+      <% dropdown.menu_divider %>
+      <% dropdown.menu_html(support_ticket_view_users_menu_button(group_recording)) %>
+    <% end %>
+  <% end %>
+</div>

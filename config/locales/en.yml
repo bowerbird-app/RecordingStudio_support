@@ -52,3 +52,18 @@ en:
           low: Low
           normal: Normal
           high: High
+        actions:
+          status: Status
+          assignee: Assignee
+          unassigned: Unassigned
+          view_users: View users
+          participants_title: People in this chat
+          requester: Requester
+          staff: Support staff
+          actions_menu: Actions
+          updated: Ticket updated.
+          statuses:
+            open: Open
+            waiting_on_customer: Waiting on customer
+            waiting_on_support: Waiting on support
+            resolved: Resolved

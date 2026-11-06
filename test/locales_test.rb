@@ -57,7 +57,18 @@ class LocalesTest < Minitest::Test
       assert_equal "No tickets yet", Copy.t("messages.empty_title")
       assert_equal "Sent. We’ll take a look.", Copy.t("messages.sent")
       assert_equal "Open", Copy.t("messages.statuses.open")
+      assert_equal "Waiting on you", Copy.t("messages.statuses.waiting_on_customer")
       assert_equal "Normal", Copy.t("messages.priorities.normal")
+      assert_equal "Status", Copy.t("messages.actions.status")
+      assert_equal "Unassigned", Copy.t("messages.actions.unassigned")
+      assert_equal "View users", Copy.t("messages.actions.view_users")
+      assert_equal "People in this chat", Copy.t("messages.actions.participants_title")
+      assert_equal "Requester", Copy.t("messages.actions.requester")
+      assert_equal "Support staff", Copy.t("messages.actions.staff")
+      assert_equal "Actions", Copy.t("messages.actions.actions_menu")
+      assert_equal "Ticket updated.", Copy.t("messages.actions.updated")
+      assert_equal "Waiting on customer", Copy.t("messages.actions.statuses.waiting_on_customer")
+      assert_equal "Waiting on support", Copy.t("messages.actions.statuses.waiting_on_support")
       assert_equal "This conversation already has a ticket.",
                    RecordingStudioSupport::Tickets::AlreadyExists.new.message
     end

@@ -12,7 +12,8 @@ gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_access
 gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.7.0"
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.15.0"
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"
-gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.9.0"
+# Commit pin until Messages ships a tag with the panel header hooks. Re-pin to that tag after it merges.
+gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", ref: "ef00cde8f0b875214e0c1ea2b8f99100614cd224"
 gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.4.3"
 gem "recording_studio_notifications", github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.7.0"
 gem "recording_studio_notifications_email",

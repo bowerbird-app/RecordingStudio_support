@@ -93,6 +93,21 @@ fr:
           low: Basse
           normal: Normale
           high: Haute
+        actions:
+          status: Statut
+          assignee: Assigné
+          unassigned: Non assigné
+          view_users: Voir les personnes
+          participants_title: Personnes dans cette discussion
+          requester: Demandeur
+          staff: Équipe d’assistance
+          actions_menu: Actions
+          updated: Ticket mis à jour.
+          statuses:
+            open: Ouvert
+            waiting_on_customer: En attente du client
+            waiting_on_support: En attente de l’assistance
+            resolved: Résolu
     messages:
       contact:
         title: Contact

@@ -1,0 +1,18 @@
+<% padded = local_assigns.fetch(:padded, true) %>
+<% button = render FlatPack::Button::Component.new(
+     icon: "users",
+     icon_only: true,
+     style: :ghost,
+     size: :sm,
+     type: "button",
+     title: support_t("messages.actions.view_users"),
+     aria: { label: support_t("messages.actions.view_users") },
+     data: { modal_id: support_chat_participants_modal_id(group_recording) }
+   ) %>
+<% if padded %>
+  <div class="flex items-center gap-2 whitespace-nowrap p-4">
+    <%= button %>
+  </div>
+<% else %>
+  <%= button %>
+<% end %>
