@@ -10,6 +10,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Development and dummy apps pin Flatpack `0.1.329` (tag `v0.1.329`, commit `3e49ad38b1980add449194d27265edaa7b892c0d`). The gemspec floor stays `>= 0.1.315`.
 
+## [0.28.0] - 2026-11-06
+
+### Security
+- Ticket open no longer skips every Accessible `access_management_authorizer` check. `OpenAccessManagement.authorize` no longer `return true if open?`. While `Tickets::Open` creates the MessageGroup, only the opener's first-owner `grant_access` on that empty support MessageGroup is allowed. Staff `:edit` grants then run under normal authorization because the opener holds `:admin` on the group. Grants on other recordings, other actors, or groups that already have access still call the host authorizer.
+
+### Upgrade notes
+- Bump to `0.28.0`. No Support migration. No host code change. Requesters can still open their own tickets. Staff screens and other people's tickets stay closed.
+
 ## [0.27.1] - 2026-11-05
 
 ### Security
