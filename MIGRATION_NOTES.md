@@ -1,6 +1,24 @@
 # Upgrade notes
 
 
+## 0.28.0
+
+Ticket open no longer skips Accessible permission checks. `OpenAccessManagement` still wraps `record_group!` so Messages can grant the first owner on a new support MessageGroup. That wrap no longer returns true for every `access_management_authorizer` call.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.28.0`.
+2. `bundle install`.
+
+No Support migration. Requesters can still open tickets. Staff desks and other people's tickets stay forbidden.
+
+### Verify
+
+```bash
+bundle exec rake test
+bundle exec rubocop
+```
+
 ## 0.27.0
 
 `SupportTicket` is a recordable child of a MessageGroup recording. This release deletes existing ticket rows and drops `message_group_id`. Tickets are not in use, so there is no backfill.

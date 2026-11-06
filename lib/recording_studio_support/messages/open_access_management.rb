@@ -1,10 +1,16 @@
 # frozen_string_literal: true
 
+require_relative "open_access_management/first_open_owner_grant"
+
 module RecordingStudioSupport
   module Messages
-    # Thread-local open gate for first-open MessageGroup grants.
+    # Thread-local first-open owner grant for ticket MessageGroups.
     # Accessible's process-global `access_management_authorizer` must not flip for
-    # every Puma thread — only the creating thread may pass while nesting.
+    # every Puma thread — only the creating thread may pass the first-owner grant.
+    #
+    # While open, authorize still runs normal Accessible checks except Messages'
+    # first-owner `grant_access` on an empty MessageGroup under the support mount.
+    # Staff grants then pass because the opener holds `:admin` on that group.
     #
     # Composes under Messages::MembershipLock when that wrap is already installed:
     # MembershipLock → OpenAccess → host. Never wrap MembershipLock as @original
@@ -13,19 +19,19 @@ module RecordingStudioSupport
       THREAD_KEY = :recording_studio_support_open_access_management
 
       class << self
-        def with
+        def with(actor:, mount:)
           return yield unless defined?(RecordingStudioAccessible)
 
           install!
           previous = Thread.current[THREAD_KEY]
-          Thread.current[THREAD_KEY] = true
+          Thread.current[THREAD_KEY] = { actor: actor, mount: mount }
           yield
         ensure
           Thread.current[THREAD_KEY] = previous if defined?(RecordingStudioAccessible)
         end
 
         def open?
-          Thread.current[THREAD_KEY] == true
+          open_context.present?
         end
 
         def install!
@@ -40,12 +46,21 @@ module RecordingStudioSupport
         end
 
         def authorize(recording:, actor: nil, controller: nil, **)
-          return true if open?
+          return true if FirstOpenOwnerGrant.allowed?(
+            recording: recording,
+            actor: actor,
+            context: open_context
+          )
 
           call_original(recording: recording, actor: actor, controller: controller)
         end
 
         private
+
+        def open_context
+          value = Thread.current[THREAD_KEY]
+          value.is_a?(Hash) ? value : nil
+        end
 
         def place_in_authorizer_chain!(configuration, current, callable)
           if current.equal?(callable)
