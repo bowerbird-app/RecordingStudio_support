@@ -1,5 +1,24 @@
 # Upgrade notes
 
+## 0.32.0
+
+Help search uses Flatpack Search `round: true` with no local `--search-*` token overrides.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.32.0`.
+2. Pin `flat_pack` `>= 0.1.345` (tag `v0.1.345`).
+3. Drop host copies of `--search-input-background-color`, `--search-input-border-color`, `--search-padding-y-lg`, `--search-padding-inline-lg`, and `prominent:` on Support search partials.
+
+Search `v0.6.0` `instant_search_field` does not forward `round:`. Instant search on a section show stays on Flatpack’s default corners until Search does. The GET fallback field is round.
+
+### Verify
+
+```bash
+bundle exec rake test
+bundle exec rubocop
+```
+
 ## 0.31.0
 
 Support-team public names now say support inbox or support ticket. There are no aliases. Follow CHANGELOG 0.31.0 for the old-to-new map.

@@ -8,8 +8,8 @@ require_relative "test/support/widen_recording_studio_requirement"
 gemspec
 
 # These gems are not published to RubyGems; resolve the gemspec pins from GitHub.
-# Flatpack 0.1.341 is the Messages 0.17 floor. The gemspec floor stays >= 0.1.331.
-gem "flat_pack", ">= 0.1.331", github: "bowerbird-app/flatpack", tag: "v0.1.341"
+# Flatpack 0.1.345 adds Search round:. The gemspec floor is >= 0.1.345.
+gem "flat_pack", ">= 0.1.345", github: "bowerbird-app/flatpack", tag: "v0.1.345"
 gem "recording_studio", ">= 6.1.0", github: "bowerbird-app/RecordingStudio", tag: "v6.1.0"
 gem "recording_studio_accessible", "~> 0.24", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.24.1"
 gem "recording_studio_admin", "~> 2.0", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.7.0"

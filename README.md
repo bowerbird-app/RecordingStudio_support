@@ -6,7 +6,7 @@ Help pages sit in a section under SupportCenter. Each page has a title and a for
 
 ## Install
 
-Add the gem next to Recording Studio 6.1.0, Accessible 0.24.1, Admin 2.7.0, Attachable 0.15.0, Publishable 0.12, Messages 0.17.0, and Flatpack 0.1.341. Those GitHub tags are the dummy-tested pins in `test/dummy/Gemfile.lock`. The constraint block below is the gemspec floor. GitHub hosting is not a reason to skip the gemspec pins. ViewComponent stays on `>= 4.14, < 5` (this repo locks `4.19.0`).
+Add the gem next to Recording Studio 6.1.0, Accessible 0.24.1, Admin 2.7.0, Attachable 0.15.0, Publishable 0.12, Messages 0.17.0, and Flatpack 0.1.345. Those GitHub tags are the dummy-tested pins in `test/dummy/Gemfile.lock`. The constraint block below is the gemspec floor. GitHub hosting is not a reason to skip the gemspec pins. ViewComponent stays on `>= 4.14, < 5` (this repo locks `4.19.0`).
 
 ```ruby
 # Gemfile
@@ -31,14 +31,14 @@ gem "recording_studio_search", "~> 0.6",
 gem "recording_studio_support", github: "bowerbird-app/RecordingStudio_support"
 # Host-owned auth (not a Support gemspec dependency):
 gem "recording_studio_user", github: "bowerbird-app/RecordingStudio_users", tag: "v0.21.0"
-gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.341"
+gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.345"
 gem "view_component", "4.19.0"
 ```
 
 ```ruby
 # gemspec / host Gemfile constraints
 gem "recording_studio", ">= 6.1.0"
-gem "flat_pack", ">= 0.1.331"
+gem "flat_pack", ">= 0.1.345"
 gem "view_component", ">= 4.14", "< 5"
 gem "recording_studio_accessible", "~> 0.24"
 gem "recording_studio_admin", "~> 2.0"
@@ -255,7 +255,7 @@ Logged-out people can read sections and live pages. Drafts 404.
 
 Public `/help` lists sections. A section show lists `SupportPage.indexable` pages in that section. Do not copy that logic. Public `/help?q=` searches section title and slug via `SupportSection.search` (Recording Studio Search `pg_trgm`) with a GET form. Page search lives on a public section show and filters pages **in that section** via Recording Studio Search trigram on title/body. Typing uses Search Instant UI (`instant_search_field` + Turbo Frame) against the section Instant path; Enter / no-JS still GET `?q=` on the section. The support section show uses the same Instant field against the support Instant path. The Search engine Instant endpoint is mounted for hosts; Support filters it to **live** `SupportPage` rows so drafts do not leak. Search `v0.6.0` inherits the host `ApplicationController`, so hosts that require sign-in there will require it on the engine Instant path too — public `/help` Instant stays on Support’s public Instant controller. Admin support pages and sections table search use the same Search-backed `apply_query` helpers.
 
-Public `/help` and public section show use Flatpack Search at full width (`max_width: :none`, placeholder from `recording_studio.support.help.search_placeholder`, English “Search support”). Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Public `/help` and public section show pass `size: :lg` (Flatpack `0.1.175+`). Public `/help` also raises the `:lg` vertical padding (`prominent: true`). Support search on remaining engine screens keeps the default `:md`. Passing `placeholder:` still overrides the locale.
+Public `/help` and public section show use Flatpack Search at full width (`max_width: :none`, `round: true`, placeholder from `recording_studio.support.help.search_placeholder`, English “Search support”). Public `/help` and public section show pass `size: :lg`. Support search on remaining engine screens keeps the default `:md`. Passing `placeholder:` still overrides the locale. Search `instant_search_field` (Search `v0.6.0`) does not forward `round:` to Flatpack, so Instant search on a section show keeps Flatpack’s default corners until Search does.
 
 **Public `/help` home** sets `content_for :title` to `public_help_title`. The default layout draws that string as the only `h1`. There is no subtitle on this page. Section cards are a Grid (`cols: 3`, `gap: :lg`) of clickable Cards (`background: :default`, `border: :default`, `shadow: :sm`, `hover: :strong`, body `padding: :lg`). Each card shows an optional Heroicons glyph (section `icon` short name via Flatpack `IconComponent`) to the left of the section title and a muted **N article(s)** line (no Badge). Blank icon skips the glyph. Support section and page forms preview the glyph live beside the Icon field. New pages default to the parent section’s icon.
 
@@ -265,7 +265,7 @@ Public **section** show (`/help/sections/:slug`) is its own card stack — not t
 
 1. `flat_pack_page_nav(round: true, style: :default, back_href: /help, back_tooltip: Home)`. No Close
 2. Layout `PageTitle` from `content_for :title` and `content_for :subtitle`
-3. Search Instant field (`instant_search_field`) — `size: :lg`, placeholder `Search in {section}…`, white input tokens as above; results update in Turbo Frame `support_page_search_results`
+3. Search Instant field (`instant_search_field`) — `size: :lg`, placeholder `Search in {section}…`; results update in Turbo Frame `support_page_search_results`. The no-JS fallback Flatpack Search passes `round: true`. Instant search does not, because Search `v0.6.0` does not forward that option.
 4. Flatpack Grid (`cols: 1`, `gap: :lg`) of full-width Cards (`href`, `clickable: true`, `hover: :strong`, `background: :default`, `border: :default`, `shadow: :sm`) — Body padding `:lg`, title, muted plain-text snippet (~120 chars from the body; omitted when blank), Flatpack Timestamp from publish time (`publish_at`, then recording `updated_at`, then page `created_at`)
 5. Optional host contact Card + secondary Button — only when `public_contact_href` is set (inside the Instant results frame so Instant updates keep it in sync), spaced below the article Grid (`mt-10`). The Button uses `data-turbo-frame="_top"` so Messages loads as a full page
 6. Flatpack EmptyState when the query matches nothing or the section has no live pages — search no-results copy is `Try another keyword or {contact link}.` (underlined Flatpack Link inline, also `data-turbo-frame="_top"`; no Button slot, no bottom Card)
@@ -494,7 +494,7 @@ Dummy kit pins:
 | Cache | `v0.5.0` (dummy only; Users 0.21+ / Root Switchable 0.9+ floor) |
 | API | `v0.7.0` (dummy only; not a Support gemspec dependency) |
 | Internationalization | `v0.1.2` (dummy only; not a Support gemspec dependency) |
-| FlatPack | `0.1.341` |
+| FlatPack | `0.1.345` |
 | ViewComponent | `4.19.0` |
 
 ```bash

@@ -37,8 +37,9 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "form[role='search'][class~='w-full']"
     assert_select "input[name='q'][placeholder='Search support']"
     assert_includes response.body, "max-w-none"
-    assert_includes response.body, "search-padding-y-lg"
-    assert_includes response.body, "--search-padding-y-lg: 1.125rem"
+    assert_includes response.body, "fp-search--round"
+    refute_includes response.body, "--search-input-background-color: var(--color-white)"
+    refute_includes response.body, "--search-padding-y-lg: 1.125rem"
     assert_includes response.body, "fp-card-hover-strong"
     refute_includes response.body, "shadow-md"
     assert_includes response.body, "grid-cols-1"
@@ -278,7 +279,8 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "How do I change my password?"
     refute_includes response.body, "Published"
     assert_select "input[name='q'][placeholder=?]", "Search in Getting started…"
-    assert_includes response.body, "search-padding-y-lg"
+    refute_includes response.body, "--search-input-background-color: var(--color-white)"
+    refute_includes response.body, "--search-padding-y-lg: 1.125rem"
     assert_select "a[href=?]", path, text: /How do I sign in?/
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_flatpack_rounded_theme

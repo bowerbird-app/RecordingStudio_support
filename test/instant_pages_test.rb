@@ -18,6 +18,10 @@ class InstantPagesTest < Minitest::Test
     assert_includes search, "RecordingStudioSupport::InstantPages::FRAME_ID"
     assert_includes search, "support_search_routes"
     assert_includes search, 'role: "search"'
+    assert_includes search, "round: true"
+    refute_includes search, "--search-input-background-color"
+    refute_includes search, "--search-input-border-color"
+    refute_includes search, "style:"
     refute_includes search, "pgvector"
     refute_includes search, "embedding"
   end

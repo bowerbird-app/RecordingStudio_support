@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.32.0] - 2026-11-10
+
+Help search uses Flatpack Search as shipped.
+
+### Changed
+- Shared search and page-search partials pass `round: true` to `FlatPack::Search::Component` and drop inline `--search-*` token overrides. Public `/help` no longer has a `prominent` local.
+- Dummy and gemspec Flatpack floor is `>= 0.1.345` (dummy tag `v0.1.345`) so Search `round:` exists.
+
+### Upgrade notes
+- Bump to `0.32.0`.
+- Pin Flatpack `>= 0.1.345` (dummy tag `v0.1.345`).
+- Drop host copies of the old white-input and padding CSS variables on Support search forms.
+
 ## [0.31.0] - 2026-11-10
 
 Support-team names say support inbox or support ticket. No aliases.
@@ -1110,7 +1123,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.31.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.32.0...HEAD
+[0.32.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.31.0...v0.32.0
 [0.31.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.30.0...v0.31.0
 [0.30.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.29.0...v0.30.0
 [0.29.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.28.0...v0.29.0
