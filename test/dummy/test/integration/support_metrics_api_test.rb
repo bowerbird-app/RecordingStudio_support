@@ -22,6 +22,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     @root = RecordingStudio.root_recording_for(@workspace)
     @admin_root = RecordingStudio.root_recording_for(AdminRoot.find_or_create_by!(name: "Admin"))
     grant!(@admin_root, @staff, :admin)
+    record_support_center(@admin_root)
     bootstrap_owner!(@root, @staff)
     grant!(@root, @patron, :edit)
 

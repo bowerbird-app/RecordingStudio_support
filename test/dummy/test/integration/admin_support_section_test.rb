@@ -13,7 +13,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     switch_to_admin_root!
   end
 
-  test "admin support metric widgets read metrics and link to desk or pages" do
+  test "admin support metric widgets read metrics and link to inbox or pages" do
     patron = RecordingStudioUser.create_user!(
       email: "widget-patron-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
@@ -105,7 +105,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_includes response.body, older.subject
     assert_includes response.body, newer.subject
     assert_operator response.body.index(older.subject), :<, response.body.index(newer.subject)
-    assert_includes response.body, RecordingStudioSupport::Admin::OpenTicketsScreen.desk_path(older)
+    assert_includes response.body, RecordingStudioSupport::Admin::OpenTicketsScreen.inbox_path(older)
     refute_includes response.body, "Table data"
 
     resolved = travel_to(Time.utc(2025, 12, 1, 12)) do

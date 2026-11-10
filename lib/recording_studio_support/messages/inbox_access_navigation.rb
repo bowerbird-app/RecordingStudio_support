@@ -2,10 +2,10 @@
 
 module RecordingStudioSupport
   module Messages
-    # The Messages desk panel is a Turbo frame. Accessible's "+ Access" button
+    # The Messages panel is a Turbo frame. Accessible's "+ Access" button
     # lives inside it, so a normal click asks that frame for the access page
     # and Turbo shows "Content missing". Break the button out to the full page.
-    module DeskAccessNavigation
+    module InboxAccessNavigation
       def self.install!
         helper = RecordingStudioAccessible::AvatarsHelper if defined?(RecordingStudioAccessible::AvatarsHelper)
         return unless helper

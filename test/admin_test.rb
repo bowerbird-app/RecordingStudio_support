@@ -191,7 +191,7 @@ class AdminTest < Minitest::Test
     assert_equal :site, RecordingStudioSupport::Admin::Section.blast_radius
   end
 
-  def test_ticket_widgets_read_metrics_and_link_to_desk
+  def test_ticket_widgets_read_metrics_and_link_to_inbox
     context = Object.new
     seen = []
     RecordingStudioMetrics::Admin.stub(:scalar_value, lambda { |identifier, admin_context:, **params|
@@ -275,6 +275,9 @@ class AdminTest < Minitest::Test
 
     assert_equal "open_tickets", screen.key
     assert_equal "Open tickets", screen.title
+    source = File.read(File.expand_path("../lib/recording_studio_support/admin/open_tickets_screen.rb", __dir__))
+    assert_includes source, 'subtitle "Oldest first. Still waiting."'
+    refute_includes source, "age card"
     assert_equal :site, screen.blast_radius
     assert_equal :created_at, screen.table_value.default_sort_key
     assert_equal "asc", screen.table_value.default_direction
@@ -342,13 +345,13 @@ class AdminTest < Minitest::Test
     end
     assert_equal "None", screen.wait_label(Struct.new(:created_at).new(nil))
 
-    desk_older = ticket_shape("ticket-old", "Crop export failed")
-    desk_newer = ticket_shape("ticket-new", "New card did not stick")
+    inbox_older = ticket_shape("ticket-old", "Crop export failed")
+    inbox_newer = ticket_shape("ticket-new", "New card did not stick")
     RecordingStudioSupport::Tickets.stub(:group_recording_for, lambda { |ticket|
       ticket.id == "ticket-old" ? Struct.new(:id).new("group-old") : nil
     }) do
-      assert_equal "/admin/support/messages?group_id=group-old", screen.inbox_path(desk_older)
-      assert_equal "/admin/support/messages", screen.inbox_path(desk_newer)
+      assert_equal "/admin/support/messages?group_id=group-old", screen.inbox_path(inbox_older)
+      assert_equal "/admin/support/messages", screen.inbox_path(inbox_newer)
     end
   end
 

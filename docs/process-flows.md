@@ -25,6 +25,7 @@ AdminRoot (config.parent_root_type, Accessible)
 | Staff gate | Accessible `:edit` on the SupportCenter or its admin root (same bar as `/admin`). Fail closed. |
 | Public | `/help` only. Visitors do not need admin-root access. `/admin/support` is never anonymous. |
 | Customer tickets | Direct Accessible grant on that customer’s MessageGroup only. |
+| Staff ticket controls | Status and assignee sit in the Messages thread header. Accessible `:edit` on the SupportCenter. Customers do not see them. |
 
 Do not invent a second permission system. If a host needs section- or page-scoped authors, **stop and extend Accessible**.
 

@@ -1,8 +1,8 @@
 <% support_page_chrome(
      title: @ticket.subject,
      subtitle: support_ticket_status_label(@ticket),
-     back_href: help_messages_path_for_desk,
-     anchor_href: help_messages_path_for_desk,
+     back_href: help_messages_path_for,
+     anchor_href: help_messages_path_for,
      anchor_tooltip: support_t("messages.new.close")
    ) %>
 
@@ -13,6 +13,6 @@
              message_recordings: @message_recordings,
              current_actor: current_support_actor,
              form_url: support_messages_form_url(@group_recording),
-             return_to: staff_desk_return_to,
+             return_to: staff_inbox_return_to,
              desk_height_class: "h-[calc(100dvh-12rem)]" %>
 </div>

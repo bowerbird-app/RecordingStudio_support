@@ -2,7 +2,8 @@
 
 require_relative "messages/staff"
 require_relative "messages/open_access_management"
-require_relative "messages/desk_access_navigation"
+require_relative "messages/inbox_access_navigation"
+require_relative "messages/panel_header"
 
 module RecordingStudioSupport
   # Support ↔ Messages helpers. Mount parent is SupportCenter, key `:support`.

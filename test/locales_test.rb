@@ -51,7 +51,7 @@ class LocalesTest < Minitest::Test
     end
   end
 
-  def test_ticket_desk_english_copy
+  def test_ticket_inbox_english_copy
     I18n.with_locale(:en) do
       assert_equal "New ticket", Copy.t("messages.new_ticket")
       assert_equal "No tickets yet", Copy.t("messages.empty_title")

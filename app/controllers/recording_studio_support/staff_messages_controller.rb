@@ -7,11 +7,11 @@ module RecordingStudioSupport
     helper RecordingStudioMessages::PanelHelper if defined?(RecordingStudioMessages::PanelHelper)
     helper RecordingStudioMessages::InboxHelper if defined?(RecordingStudioMessages::InboxHelper)
     helper RecordingStudioAccessible::AvatarsHelper if defined?(RecordingStudioAccessible::AvatarsHelper)
-    helper RecordingStudioSupport::MessagesDeskHelper
+    helper RecordingStudioSupport::MessagesInboxHelper
 
     before_action :require_signed_in_actor!
     before_action :require_staff_actor!
-    helper_method :user_desk_return_to
+    helper_method :help_thread_return_to
 
     def show
       @mount_recording = load_mount_recording
@@ -41,7 +41,7 @@ module RecordingStudioSupport
       groups.select { |group| tagged_ids.include?(group.id) }
     end
 
-    def user_desk_return_to
+    def help_thread_return_to
       public_path = RecordingStudioSupport.configuration.public_pages_path.to_s.chomp("/")
       return "#{public_path}/messages" if @ticket.blank?
 

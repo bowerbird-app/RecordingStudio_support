@@ -8,7 +8,7 @@ require_relative "test/support/widen_recording_studio_requirement"
 gemspec
 
 # These gems are not published to RubyGems; resolve the gemspec pins from GitHub.
-# Flatpack 0.1.341 is the Messages 0.14 floor. The gemspec floor stays >= 0.1.331.
+# Flatpack 0.1.341 is the Messages 0.17 floor. The gemspec floor stays >= 0.1.331.
 gem "flat_pack", ">= 0.1.331", github: "bowerbird-app/flatpack", tag: "v0.1.341"
 gem "recording_studio", ">= 6.1.0", github: "bowerbird-app/RecordingStudio", tag: "v6.1.0"
 gem "recording_studio_accessible", "~> 0.24", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.24.1"
@@ -16,7 +16,7 @@ gem "recording_studio_admin", "~> 2.0", github: "bowerbird-app/RecordingStudio_a
 gem "recording_studio_attachable", "~> 0.7", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.15.0"
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"
 gem "recording_studio_logs", ">= 0.4.0", "< 0.6", github: "bowerbird-app/RecordingStudio_logs", tag: "v0.5.0"
-gem "recording_studio_messages", ">= 0.12.0", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.14.0"
+gem "recording_studio_messages", ">= 0.17.0", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.17.0"
 gem "recording_studio_metrics", ">= 0.5.0", "< 0.6", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.5.0"
 gem "recording_studio_moveable", "~> 3.2", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.4.3"
 gem "recording_studio_notifications", ">= 0.3.1", "< 1",

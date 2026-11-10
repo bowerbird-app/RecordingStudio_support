@@ -89,10 +89,10 @@ class SupportMembershipLockTest < ActionDispatch::IntegrationTest
     refute_match(/flat-pack--avatar/i, response.body)
   end
 
-  test "staff desk omits plus access on a ticket conversation" do
+  test "staff inbox omits plus access on a ticket conversation" do
     ticket = RecordingStudioSupport::Tickets.open!(
       actor: @patron,
-      subject: "Staff desk lock",
+      subject: "Staff inbox lock",
       body: "Staff should not see Access either."
     )
     group = RecordingStudioSupport::Tickets.group_recording_for(ticket)

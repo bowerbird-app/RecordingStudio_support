@@ -19,6 +19,7 @@ class SupportTicketUpdateLockTest < ActiveSupport::TestCase
       time_zone: "UTC"
     )
     Current.actor = @staff
+    admin_support_tree(@staff)
   end
 
   teardown do

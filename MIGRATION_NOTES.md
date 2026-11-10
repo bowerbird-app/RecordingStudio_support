@@ -1,5 +1,27 @@
 # Upgrade notes
 
+## 0.29.0
+
+Staff ticket status and assignee live in the conversation header. Messages must be 0.17.0 or newer.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.29.0`.
+2. Pin `recording_studio_messages` `>= 0.17.0` (tag `v0.17.0`).
+3. `bin/rails generate recording_studio_messages:migrations`
+4. `bin/rails db:migrate`
+
+Messages 0.15 added `recording_studio_message_reads`. Skip step 3 if that table is already there. Support has no new tables.
+
+Do not keep a host copy of the old form above the staff inbox. Support renders Status and Assignee through Messages `messages_panel_right_header` and `messages_panel_right_header_mobile`. Hosts that already defined those helpers should call `super` or drop their copy.
+
+### Verify
+
+```bash
+bundle exec rake test
+bundle exec rubocop
+```
+
 ## 0.28.0
 
 Tickets and help sections live under a host-created `SupportCenter`. Ticket threads are tagged MessageGroups. There is no data migration.
