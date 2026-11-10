@@ -48,9 +48,9 @@ module RecordingStudioSupport
 
       def self.inbox_path(ticket)
         group_id = inbox_group_id(ticket)
-        return Queries.staff_messages_path if group_id.blank?
+        return Queries.support_inbox_path if group_id.blank?
 
-        "#{Queries.staff_messages_path}?group_id=#{group_id}"
+        "#{Queries.support_inbox_path}?group_id=#{group_id}"
       end
 
       def self.opened_at(ticket)

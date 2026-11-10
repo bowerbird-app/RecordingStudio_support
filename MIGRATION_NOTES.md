@@ -1,5 +1,23 @@
 # Upgrade notes
 
+## 0.31.0
+
+Support-team public names now say support inbox or support ticket. There are no aliases. Follow CHANGELOG 0.31.0 for the old-to-new map.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.31.0`.
+2. Point the support mount at `support_inbox` and `support_tickets` if the host named the old controllers.
+3. Call `RecordingStudioSupport.support_team_permission` from Trashable and Moveable host hooks.
+4. Update Instant audience to `:support_team`.
+
+### Verify
+
+```bash
+bundle exec rake test
+bundle exec rubocop
+```
+
 ## 0.30.0
 
 Tickets have no person field. Status is open or resolved, in the conversation header as a default Button dropdown. A customer message on a resolved ticket reopens it.
@@ -21,7 +39,7 @@ bundle exec rubocop
 
 ## 0.29.0
 
-Staff ticket status lives in the conversation header. Messages must be 0.17.0 or newer.
+Support ticket status lives in the conversation header. Messages must be 0.17.0 or newer.
 
 ### Host app
 
@@ -32,7 +50,7 @@ Staff ticket status lives in the conversation header. Messages must be 0.17.0 or
 
 Messages 0.15 added `recording_studio_message_reads`. Skip step 3 if that table is already there. Support has no new tables.
 
-Do not keep a host copy of the old form above the staff inbox. Support renders Status through Messages `messages_panel_right_header` and `messages_panel_right_header_mobile`. Hosts that already defined those helpers should call `super` or drop their copy.
+Do not keep a host copy of the old form above the support inbox. Support renders Status through Messages `messages_panel_right_header` and `messages_panel_right_header_mobile`. Hosts that already defined those helpers should call `super` or drop their copy.
 
 ### Verify
 
@@ -53,7 +71,7 @@ Tickets and help sections live under a host-created `SupportCenter`. Ticket thre
 4. Add `"RecordingStudioSupport::SupportCenter"` to `config.recordable_types`.
 5. Record the center during setup. Example: `admin_root.record(RecordingStudioSupport::SupportCenter)`. Look up with `RecordingStudioSupport::SupportCenters.current` / `for_parent`.
 6. Remove `Messages.to(keys: [:support], …)` from Workspace. SupportCenter already enables the `:support` mount.
-7. Remove `config.messages_admin_email` and `config.messages_admin_finder`. Staff is Accessible `:edit` on the SupportCenter or its admin root.
+7. Remove `config.messages_admin_email` and `config.messages_admin_finder`. Support team is Accessible `:edit` on the SupportCenter or its admin root.
 8. `bin/rails generate recording_studio_support:migrations`
 9. `bin/rails db:migrate`
 
@@ -143,7 +161,7 @@ mount RecordingStudioViews::Engine, at: "/recording_studio_views"
 <%= recording_studio_track_views %>
 ```
 
-Views’ default resolver calls public `current_recording`. Staff Support already exposes it. Public articles render on Publishable’s controller, which sets `@parent_recording` / `@recording`. Hosts must implement `current_recording` so those assigns count (a private helper_method is invisible to Views).
+Views’ default resolver calls public `current_recording`. Support already exposes it. Public articles render on Publishable’s controller, which sets `@parent_recording` / `@recording`. Hosts must implement `current_recording` so those assigns count (a private helper_method is invisible to Views).
 
 10. Pin the collector (importmap):
 
@@ -386,7 +404,7 @@ Support tickets. Each ticket owns a MessageGroup under `:support`. Membership on
 
 1. Bump `recording_studio_support` to `0.14.0`. Messages stays on `~> 0.5` (dummy/development pin `v0.5.2`). `bundle install`.
 2. Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate` for `recording_studio_support_tickets`.
-3. Point `/help/messages` at user desk `index` / `new` / `create` / `show` (see installer routes). Contact still defaults to `/help/messages`.
+3. Point `/help/messages` at the customer ticket `index` / `new` / `create` / `show` (see installer routes). Contact still defaults to `/help/messages`.
 4. Existing per-user MessageGroups are not migrated. New conversations open as tickets via `Tickets.open!`.
 5. Enable Messages on Workspace with membership lock:
 
@@ -397,7 +415,7 @@ include RecordingStudio::Capabilities::Messages.to(
 )
 ```
 
-Trusted staff grants use `RecordingStudioMessages.allow_membership_change` (Support’s `sync_staff_grants!` already wraps this). Mount key stays `:support`.
+Trusted support-team grants use `RecordingStudioMessages.allow_membership_change` (Support’s `sync_support_team_grants!` already wraps this). Mount key stays `:support`.
 
 ### Verify
 
@@ -483,7 +501,7 @@ gem "recording_studio_search", "~> 0.6",
 bundle exec rake test:all
 ```
 
-Public section article search (`/help/sections/:slug?q=`), staff section page search, and Admin support pages `search=` should still find pages by title/body. `/help?q=` still filters **sections** by title.
+Public section article search (`/help/sections/:slug?q=`), support team section page search, and Admin support pages `search=` should still find pages by title/body. `/help?q=` still filters **sections** by title.
 
 ## 0.9.4
 
@@ -503,13 +521,13 @@ bundle exec rake test:all
 
 ## 0.9.3
 
-Optional Heroicons `icon` on help pages (articles), defaulting from the parent section on staff forms.
+Optional Heroicons `icon` on help pages (articles), defaulting from the parent section on support forms.
 
 ### Host app
 
 1. Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate`. Adds optional `icon` on `recording_studio_support_pages`.
 2. Existing pages have `icon` nil until an editor saves one (or you re-seed). Blank icons stay blank.
-3. Staff page new/edit keeps Title, Description, and Body up front. Section and Icon sit under collapsed **Advanced settings** after Body (opens if the icon field has errors). New pages start from the selected section’s icon; you can clear or override it. Changing Section updates the icon when it still matches the previous section default. Edit also prefills a blank page icon from the parent section (saving without clearing stores that default).
+3. Support team page new/edit keeps Title, Description, and Body up front. Section and Icon sit under collapsed **Advanced settings** after Body (opens if the icon field has errors). New pages start from the selected section’s icon; you can clear or override it. Changing Section updates the icon when it still matches the previous section default. Edit also prefills a blank page icon from the parent section (saving without clearing stores that default).
 4. Stimulus controller is now `recording-studio-support--icon-preview` (was `section-icon-preview`). Same importmap pin and eager load as 0.9.2 — restart so the renamed file loads.
 
 ### Verify
@@ -526,7 +544,7 @@ Optional Heroicons `icon` on help sections for the public `/help` list.
 
 1. Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate`. Adds optional `icon` on `recording_studio_support_sections`.
 2. Existing sections have `icon` nil until an editor saves one (or you re-seed). Blank icons skip the glyph on `/help`.
-3. Staff paste a [Heroicons](https://heroicons.com/) short name (e.g. `credit-card`) on section new/edit. Flatpack `IconComponent` renders it — no extra Heroicons gem. The form shows a live preview beside the field.
+3. Support team paste a [Heroicons](https://heroicons.com/) short name (e.g. `credit-card`) on section new/edit. Flatpack `IconComponent` renders it — no extra Heroicons gem. The form shows a live preview beside the field.
 4. Pin and eager-load Support Stimulus controllers for the icon preview:
 
 ```ruby
@@ -569,16 +587,16 @@ bundle exec rake test:all
 
 ## 0.9.0
 
-Staff Support is an Admin surface. Public `/help` is unchanged.
+Support is an Admin surface. Public `/help` is unchanged.
 
 ### Host app
 
 1. Remount the Support engine at `/admin/support` **before** `recording_studio_admin_for … at: "/admin"`. Keep Accessible at `/admin/access`.
 2. Set `config.pages_path = "/admin/support"` so Admin New/Edit/Move URLs match.
 3. Redirect `/support` and `/support/*` to `/admin` (or remove the old mount).
-4. Grant Accessible on the **admin root**. Switch to that root before opening `/admin`. Workspace `:edit` is not enough for staff forms.
-5. Open staff work from Admin Support tables. Preview, Publish, trash, and the body editor stay on `/admin/support…`.
-6. Public `/help` stays the visitor surface. Do not browse staff content anonymously.
+4. Grant Accessible on the **admin root**. Switch to that root before opening `/admin`. Workspace `:edit` is not enough for support forms.
+5. Open support team work from Admin Support tables. Preview, Publish, trash, and the body editor stay on `/admin/support…`.
+6. Public `/help` stays the visitor surface. Do not browse support team content anonymously.
 
 ### Verify
 
@@ -598,9 +616,9 @@ Public help section show: no breadcrumb, PageNav Home secondary, interactive art
    - `page_nav_secondary_anchor_icon` → `secondary_anchor_icon`
    - `page_nav_secondary_anchor_tooltip` → `secondary_anchor_tooltip`
    - `page_nav_anchor_url` → `anchor_href` (Flatpack no longer uses `anchor_url`)
-3. Public section show sets the secondary Home slot via `support_public_section_page_nav`. Staff `/support` and public `/help` homepage stay as in 0.8.2 / 0.8.3.
+3. Public section show sets the secondary Home slot via `support_public_section_page_nav`. Support team `/support` and public `/help` homepage stay as in 0.8.2 / 0.8.3.
 4. Public section article cards use `style: :interactive`, Grid `gap: :lg`, Body `padding: :lg`, and a white card background via Flatpack `theme: { background: "var(--color-white)" }`.
-5. Public section Search passes `size: :lg` (shared partial still defaults to `:md` for staff). Rebuild Tailwind after Flatpack `v0.1.177`.
+5. Public section Search passes `size: :lg` (shared partial still defaults to `:md` for the support team). Rebuild Tailwind after Flatpack `v0.1.177`.
 6. If Cards with `hover: :strong` do not change on hover, add Flatpack’s hover tokens in your Tailwind **utilities** layer (dummy `app/assets/tailwind/application.css` has the snippet). Flatpack’s kit rules are in `@layer components`, so Tailwind utilities like `border-[var(--card-border-color)]` currently win.
 
 ### Verify
@@ -632,10 +650,10 @@ Public `/help` home uses a welcoming title, larger search, and interactive secti
 
 1. No migrations or route changes.
 2. Default `public_help_title` is **Hi, how can we help?**. Update your initializer if you still set `"Help"` and want the new words. Breadcrumbs that use `support_public_help_title` inherit the string.
-3. Public `/help` no longer renders `public_help_subtitle`. Staff `/support` still uses `help_subtitle`.
-4. Public `/help` section rows are interactive clickable Cards (`hover: :strong`) with an **N article(s)** line. Staff `/support` still uses `link_list` + count Badge.
+3. Public `/help` no longer renders `public_help_subtitle`. Support team `/support` still uses `help_subtitle`.
+4. Public `/help` section rows are interactive clickable Cards (`hover: :strong`) with an **N article(s)** line. Support team `/support` still uses `link_list` + count Badge.
 5. If you overrode `public_pages/index`, adopt the Card + Grid layout (or keep your override intentionally).
-6. Bump Flatpack to `v0.1.177` (or at least `0.1.175+`) so Search accepts `size:`. Public `/help` uses `size: :lg`. Drop any temporary Search height/type class overrides. Section and staff search stay default `:md`.
+6. Bump Flatpack to `v0.1.177` (or at least `0.1.175+`) so Search accepts `size:`. Public `/help` uses `size: :lg`. Drop any temporary Search height/type class overrides. Section and the support team search stay default `:md`.
 
 ### Verify
 
@@ -653,7 +671,7 @@ Public help section show uses snippet cards and an optional host contact slot.
 2. Public `/help/sections/:slug` no longer lists pages with a Published badge. Cards link to the public article URL.
 3. To show a contact footer on public section pages, set `public_contact_href` (and optionally `public_contact_label`) in `RecordingStudioSupport.configure`. Leave href blank to hide the slot.
 4. Optional: set `public_section_subtitle` to a string or `->(section) { … }` for the topic blurb under the section title. Default is `Find answers in {title}.`
-5. Staff `/support/sections/...` is unchanged.
+5. Support team `/support/sections/...` is unchanged.
 
 ### Verify
 
@@ -663,12 +681,12 @@ bundle exec rake test:all
 
 ## 0.7.4
 
-Staff/admin process flows docs. Support authorize uses the page/section workspace root (or AdminRoot).
+Support team/admin process flows docs. Support authorize uses the page/section workspace root (or AdminRoot).
 
 ### Host app
 
 1. No migrations or route changes.
-2. Accessible grants stay on the **workspace root** (and AdminRoot for staff). Support no longer treats “`:edit` on the switched current root” as enough to mutate another workspace’s page or section by UUID. Unauthorized **edit** / **update** redirects to the show page. Other denied writes show a **No access** page (403).
+2. Accessible grants stay on the **workspace root** (and AdminRoot for the support team). Support no longer treats “`:edit` on the switched current root” as enough to mutate another workspace’s page or section by UUID. Unauthorized **edit** / **update** redirects to the show page. Other denied writes show a **No access** page (403).
 3. Before adding Edit, trash, publish/unpublish, or restore UI, read `docs/process-flows.md`.
 
 ### Verify
@@ -679,18 +697,18 @@ bundle exec rake test:all
 
 ## 0.7.3
 
-Public section URLs use a Support-owned slug. Staff Help hub can create pages and sections.
+Public section URLs use a Support-owned slug. Support team Help hub can create pages and sections.
 
 ### Host app
 
 1. Run `bin/rails generate recording_studio_support:migrations` and `bin/rails db:migrate`. Section titles backfill into `slug`.
 2. Change the public section route to `/help/sections/:slug` (was `:id`). Keep it **before** mounting Publishable at `/`.
-3. Staff `/support` and `/support/sections/:id` stay on recording UUIDs. No staff slug URLs. Those two screens are readable without signing in; write screens stay Accessible `:edit`.
+3. Support team `/support` and `/support/sections/:id` stay on recording UUIDs. No support team slug URLs. Those two screens are readable without signing in; write screens stay Accessible `:edit`.
 4. Expect Accessible `:edit` users to see **New section** / **New page** on `/support`. Viewers and logged-out visitors do not.
 5. Do not add FriendlyId. Page public URLs stay Publishable `/help/:uuid/:slug`.
 6. Hosts can keep Devise `authenticate_user!` on ApplicationController. Support skips it for section index/show only.
 7. Host layouts that load `flat_pack/rich_text` before Tailwind should declare `@layer theme, base, components, utilities` first so TipTap borders keep their width.
-8. Staff show puts Publish, a Live/Draft status button, and icon-only trash in one PageTitle row. There is no live alert banner.
+8. Support show puts Publish, a Live/Draft status button, and icon-only trash in one PageTitle row. There is no live alert banner.
 9. Public articles list Related published pages from the same section when any exist.
 10. Help/support search overrides Flatpack Search tokens for a white field (`--color-white`) with a visible border.
 11. Public articles set `<title>` from the page title and meta description from plain body text (tags stripped, entities decoded).
@@ -705,7 +723,7 @@ bundle exec rake test:all
 
 ## 0.7.0
 
-Help pages live in a section. Staff pick the section by moving the page.
+Help pages live in a section. The support team picks the section by moving the page.
 
 - Recording Studio `~> 4.2` (dummy GitHub tag `v4.2.0`)
 - Accessible `~> 0.6` (dummy GitHub tag `v0.6.1`)
@@ -727,7 +745,7 @@ Help pages live in a section. Staff pick the section by moving the page.
 7. Create pages under a section (`Pages.create!(parent_recording: section, ...)`). Move them with `move_to!`.
 8. Keep one Admin Support section. Open **Support pages** and **Support sections** tables from that hub. Drop See every page and Latest pages. The page-count widget is the total of kept pages. The sections table Count column is the kept-page total for that section (`1` / `2`).
 9. Drop Attachable and Orderable from SupportPage. Pictures go in the body through the Flatpack editor upload. Allow `img` in `Body.sanitize`.
-10. Staff and public section lists show published pages only, with a Published badge. Staff Help home counts published pages.
+10. Support team and public section lists show published pages only, with a Published badge. Support team Help home counts published pages.
 
 Do not add a `section_id` column, nested sections, a gallery on SupportPage, or a second Admin app. Trashing a section cascade-trashes its pages (Trashable subtree). Empty sections trash cleanly.
 
@@ -741,7 +759,7 @@ bundle exec rake test:all
 
 ## 0.6.0
 
-Staff edit help pages from the Admin help-pages table.
+Support team edit help pages from the Admin help-pages table.
 
 ### Host app
 
@@ -749,7 +767,7 @@ Staff edit help pages from the Admin help-pages table.
 2. Open Edit and New from that table. Those buttons still hit the Support page controllers (`/support/new`, `/support/:id/edit`). Do not add a second mutation stack. Writes still go through `record` / `revise`.
 3. Take Edit off owner preview. Workspace `/support` stays for reading and publish preview.
 4. Keep Sign out and Root Switchable off Support and Admin Support screens. Access can stay on Admin.
-5. Staff with Accessible access on the admin root can edit from the table even when the current root is Admin. New pages still belong under a workspace.
+5. The support team with Accessible access on the admin root can edit from the table even when the current root is Admin. New pages still belong under a workspace.
 
 ### Verify
 
@@ -778,10 +796,10 @@ Public help pages through Publishable 0.2.
 3. Register `"RecordingStudioPublishable::Publishable"` next to `"RecordingStudioSupport::SupportPage"`.
 4. Enable Publishable only on Support pages with `.to`. Set `public_layout` to `recording_studio/default_layout` (Publishable's own default is a second shell).
 5. Point `/help` at `RecordingStudioSupport::PublicPagesController.action(:index)`.
-6. Use `SupportPage.indexable` for the public list. Staff still manage pages at `/support`.
+6. Use `SupportPage.indexable` for the public list. Support team still manage pages at `/support`.
 7. Keep writes on `record` / `revise` and Publishable's Update helper. Do not insert Recording rows by hand.
 8. Set help titles on `RecordingStudioSupport.configure` if you do not want the defaults. Support screens keep default-layout back/close only.
-9. Public `/help?q=` searches indexable pages with the same Flatpack Search widget as staff. Do not add Elasticsearch.
+9. Public `/help?q=` searches indexable pages with the same Flatpack Search widget as the support team. Do not add Elasticsearch.
 
 Do not enable Publishable on Folder or Page just because the gem is installed. Do not use `recording_studio_publishable/application`. Do not invent a Support-only public shell.
 

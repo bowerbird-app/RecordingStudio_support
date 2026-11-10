@@ -11,15 +11,15 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
       last_name: "Patron",
       time_zone: "UTC"
     )
-    @staff = RecordingStudioUser.create_user!(
-      email: "ticket-events-staff-#{SecureRandom.hex(4)}@example.com",
+    @support_user = RecordingStudioUser.create_user!(
+      email: "ticket-events-support-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       first_name: "Sam",
-      last_name: "Staff",
+      last_name: "Support team",
       time_zone: "UTC"
     )
-    Current.actor = @staff
-    admin_support_tree(@staff)
+    Current.actor = @support_user
+    admin_support_tree(@support_user)
   end
 
   teardown do
@@ -42,22 +42,22 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
 
     status_recording = nil
     assert_difference -> { RecordingStudioSupport::Tickets.recording_for!(ticket).events.count }, 1 do
-      status_recording = RecordingStudioSupport::Tickets.update!(ticket, actor: @staff, status: :resolved)
+      status_recording = RecordingStudioSupport::Tickets.update!(ticket, actor: @support_user, status: :resolved)
     end
     status_event = latest_event(status_recording)
     assert_equal "updated", status_event.action
-    assert_equal @staff, status_event.actor
+    assert_equal @support_user, status_event.actor
     assert_equal original, status_event.previous_recordable
     assert_equal({ "status" => %w[open resolved] }, status_event.metadata["changes"])
 
     priority_recording = nil
     assert_difference -> { status_recording.events.count }, 1 do
       priority_recording = RecordingStudioSupport::Tickets.update!(
-        status_recording, actor: @staff, priority: :high
+        status_recording, actor: @support_user, priority: :high
       )
     end
     priority_event = latest_event(priority_recording)
-    assert_equal @staff, priority_event.actor
+    assert_equal @support_user, priority_event.actor
     assert_equal status_recording.recordable, priority_event.previous_recordable
     assert_equal({ "priority" => %w[normal high] }, priority_event.metadata["changes"])
   end
@@ -67,7 +67,7 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     recording = RecordingStudioSupport::Tickets.recording_for!(ticket)
 
     assert_no_difference -> { recording.events.count } do
-      RecordingStudioSupport::Tickets.update!(recording, actor: @staff, status: :open, priority: :normal)
+      RecordingStudioSupport::Tickets.update!(recording, actor: @support_user, status: :open, priority: :normal)
     end
   end
 
@@ -78,7 +78,7 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     assert_difference -> { recording.events.count }, 1 do
       recording = RecordingStudioSupport::Tickets.update!(
         recording,
-        actor: @staff,
+        actor: @support_user,
         status: :resolved,
         priority: :high
       )
@@ -97,9 +97,9 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     ticket = open_ticket!
     recording = RecordingStudioSupport::Tickets.recording_for!(ticket)
     first_id = ticket.id
-    second = RecordingStudioSupport::Tickets.update!(recording, actor: @staff, priority: :high)
+    second = RecordingStudioSupport::Tickets.update!(recording, actor: @support_user, priority: :high)
     second_id = second.recordable.id
-    third = RecordingStudioSupport::Tickets.update!(second, actor: @staff, status: :resolved)
+    third = RecordingStudioSupport::Tickets.update!(second, actor: @support_user, status: :resolved)
     current = third.recordable
 
     [recording.id, first_id, second_id, current.id].each do |id|
@@ -115,7 +115,7 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
 
   test "a customer message reopens a resolved ticket through update" do
     ticket = open_ticket!
-    recording = RecordingStudioSupport::Tickets.update!(ticket, actor: @staff, status: :resolved)
+    recording = RecordingStudioSupport::Tickets.update!(ticket, actor: @support_user, status: :resolved)
     group = RecordingStudioSupport::Tickets.group_recording_for(recording.recordable)
     assert_not_nil recording.recordable.resolved_at
 
@@ -134,15 +134,15 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     assert_equal({ "status" => %w[resolved open] }, event.metadata["changes"])
   end
 
-  test "a staff message does not reopen a resolved ticket" do
+  test "a support team message does not reopen a resolved ticket" do
     ticket = open_ticket!
-    RecordingStudioSupport::Tickets.update!(ticket, actor: @staff, status: :resolved)
+    RecordingStudioSupport::Tickets.update!(ticket, actor: @support_user, status: :resolved)
     group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
 
     RecordingStudioMessages.send_message(
       group_recording: group,
       body: "Closing this out.",
-      actor: @staff
+      actor: @support_user
     )
 
     current = RecordingStudioSupport::Tickets.find!(ticket.id)

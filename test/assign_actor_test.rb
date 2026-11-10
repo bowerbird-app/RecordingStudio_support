@@ -25,8 +25,8 @@ class AssignActorTest < Minitest::Test
   end
 
   def test_sets_current_actor_for_the_block_and_restores_after
-    result = RecordingStudioSupport::AssignActor.assign_actor(:staff) do
-      assert_equal :staff, Current.actor
+    result = RecordingStudioSupport::AssignActor.assign_actor(:support_team) do
+      assert_equal :support_team, Current.actor
       :done
     end
 
@@ -36,7 +36,7 @@ class AssignActorTest < Minitest::Test
 
   def test_restores_current_actor_when_the_block_raises
     assert_raises(RuntimeError) do
-      RecordingStudioSupport::AssignActor.assign_actor(:staff) do
+      RecordingStudioSupport::AssignActor.assign_actor(:support_team) do
         raise "boom"
       end
     end
@@ -50,13 +50,13 @@ class AssignActorTest < Minitest::Test
   end
 
   def test_pages_and_sections_delegate_to_the_shared_helper
-    RecordingStudioSupport::Pages.assign_actor(:staff) do
-      assert_equal :staff, Current.actor
+    RecordingStudioSupport::Pages.assign_actor(:support_team) do
+      assert_equal :support_team, Current.actor
     end
     assert_equal :original, Current.actor
 
-    RecordingStudioSupport::Sections.assign_actor(:staff) do
-      assert_equal :staff, Current.actor
+    RecordingStudioSupport::Sections.assign_actor(:support_team) do
+      assert_equal :support_team, Current.actor
     end
     assert_equal :original, Current.actor
   end

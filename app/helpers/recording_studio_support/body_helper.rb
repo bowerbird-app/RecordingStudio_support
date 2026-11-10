@@ -4,7 +4,7 @@ module RecordingStudioSupport
   module BodyHelper
     # Flatpack ContentEditor’s content region is the kit’s long-form TipTap
     # display surface (heading scale, paragraph rhythm, image rules). Public
-    # and staff article bodies reuse that class; they do not mount the editor.
+    # and support-team article bodies reuse that class; they do not mount the editor.
     ARTICLE_BODY_CLASS = "flat-pack-content-editor-content max-w-none"
     ARTICLE_IMAGE_STYLE = "width: 100%; height: auto; display: block; border-radius: var(--radius-md, 1rem);"
     ARTICLE_FIGURE_STYLE = "margin: 1.5rem 0;"

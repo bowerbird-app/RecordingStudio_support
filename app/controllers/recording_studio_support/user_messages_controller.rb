@@ -12,7 +12,7 @@ module RecordingStudioSupport
 
     before_action :require_signed_in_actor!
     before_action :set_ticket, only: :show
-    helper_method :staff_inbox_return_to
+    helper_method :support_inbox_return_to
 
     def index
       @tickets = RecordingStudioSupport::Tickets.for_actor(current_support_actor)
@@ -62,7 +62,7 @@ module RecordingStudioSupport
     end
 
     def sync_ticket_grants!
-      RecordingStudioSupport::Messages.sync_staff_grants!(
+      RecordingStudioSupport::Messages.sync_support_team_grants!(
         group_recording: @group_recording,
         manager_actor: current_support_actor
       )
@@ -82,14 +82,14 @@ module RecordingStudioSupport
 
     def ticket_visible_to_actor?
       RecordingStudioSupport::Messages.group_owner?(@group_recording, current_support_actor) ||
-        RecordingStudioSupport::Messages.staff_actor?(current_support_actor)
+        RecordingStudioSupport::Messages.support_team_actor?(current_support_actor)
     end
 
     def ticket_params
       params.fetch(:ticket, {}).permit(:subject, :body, :priority)
     end
 
-    def staff_inbox_return_to
+    def support_inbox_return_to
       path = RecordingStudioSupport.configuration.pages_path.to_s.chomp("/")
       base = "#{path}/messages"
       return base if @group_recording.blank?

@@ -445,7 +445,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "flat-pack-button-group"
   end
 
-  test "staff can update a section icon" do
+  test "support team can update a section icon" do
     section = seeded_section("Billing")
 
     patch "/admin/support/sections/#{section.id}", params: {
@@ -474,15 +474,15 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_includes AdminRoot.recording_studio_admin_section_keys_for(nil, nil, nil), "support"
   end
 
-  test "staff with admin root access can edit without a workspace grant" do
-    staff = User.create!(
+  test "support team with admin root access can edit without a workspace grant" do
+    editor = User.create!(
       email: "admin-editor-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       password_confirmation: "Password"
     )
     admin_root_recording = RecordingStudio.root_recording_for(AdminRoot.find_by!(name: "Admin"))
-    grant_role!(admin_root_recording, staff, :admin)
-    sign_in staff
+    grant_role!(admin_root_recording, editor, :admin)
+    sign_in editor
     switch_to_admin_root!
 
     recording = seeded_page("How do I change my password?")

@@ -9,7 +9,7 @@ module RecordingStudioSupport
     def show
       @section = @section_recording.recordable
       @query = params[:q].to_s.strip
-      @page_recordings = InstantPages.staff_recordings(@section_recording, query: @query)
+      @page_recordings = InstantPages.support_team_recordings(@section_recording, query: @query)
       render layout: false
     end
 

@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.31.0] - 2026-11-10
+
+Support-team names say support inbox or support ticket. No aliases.
+
+### Changed
+- `StaffMessagesController` is `SupportInboxController`. Views live under `support_inbox/`.
+- `StaffTicketsController` is `SupportTicketsController`.
+- `RecordingStudioSupport.staff_permission` is `support_team_permission`.
+- `Messages.staff_actor?`, `staff_actors`, `sync_staff_grants!`, and the rest of that family are `support_team_*`.
+- API `can_view_as_staff?` / `authorize_staff_view!` are `can_view_as_support_team?` / `authorize_support_team_view!`.
+- Instant search `audience: :staff` is `:support_team`. `Queries.staff_messages_path` is `support_inbox_path`.
+- Route helpers such as `staff_ticket_update_path_for` are `support_ticket_update_path_for`.
+- Product copy and docs use support inbox and support team. They do not use desk.
+
+### Upgrade notes
+- Bump to `0.31.0`.
+- Point host routes at `support_inbox` and `support_tickets` if they named the old controllers.
+- Call `support_team_permission` from Trashable and Moveable host hooks.
+- Replace `staff_*` Messages helpers, API methods, Instant `audience: :staff`, and `staff_ticket_update_path_for`.
+- There are no redirects or aliases.
+
 ## [0.30.0] - 2026-11-10
 
 Tickets have no person field. Status is open or resolved, in the Messages thread header.
@@ -1089,7 +1110,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.30.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.31.0...HEAD
+[0.31.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.30.0...v0.31.0
 [0.30.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.29.0...v0.30.0
 [0.29.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.28.0...v0.29.0
 [0.28.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.27.1...v0.28.0

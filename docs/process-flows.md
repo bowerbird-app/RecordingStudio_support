@@ -1,8 +1,8 @@
-# Support process flows (admin / staff)
+# Support process flows (admin / support team)
 
 How help **pages** and **sections** move through create, edit, publish, trash, and access. Public `/help` is in scope only where it gates drafts.
 
-Staff Support is an **Admin** surface. Accessible on the **SupportCenter** (or its admin-root parent) is the gate. Workspace-only `:edit` does not open `/admin/support`.
+Support is an **Admin** surface. Accessible on the **SupportCenter** (or its admin-root parent) is the gate. Workspace-only `:edit` does not open `/admin/support`.
 
 ## Tree and access
 
@@ -19,13 +19,13 @@ AdminRoot (config.parent_root_type, Accessible)
 
 | Rule | Today |
 | --- | --- |
-| Who “owns” content | Pages and tickets live under **SupportCenter**. Staff who can use Admin may edit that tree. |
+| Who “owns” content | Pages and tickets live under **SupportCenter**. People on the support team who can use Admin may edit that tree. |
 | Per-page / per-section owners | **None.** Accessible is not enabled on `SupportPage` or `SupportSection`. |
 | Move between sections | Changes parent under the **same** SupportCenter. |
-| Staff gate | Accessible `:edit` on the SupportCenter or its admin root (same bar as `/admin`). Fail closed. |
+| Support team gate | Accessible `:edit` on the SupportCenter or its admin root (same bar as `/admin`). Fail closed. |
 | Public | `/help` only. Visitors do not need admin-root access. `/admin/support` is never anonymous. |
 | Customer tickets | Direct Accessible grant on that customer’s MessageGroup only. |
-| Staff ticket controls | Status is a Button dropdown (`open` / `resolved`) in the Messages thread header. Accessible `:edit` on the SupportCenter. Customers do not see it. A customer message on a resolved ticket reopens it. |
+| Support ticket controls | Status is a Button dropdown (`open` / `resolved`) in the Messages thread header. Accessible `:edit` on the SupportCenter. Customers do not see it. A customer message on a resolved ticket reopens it. |
 
 Do not invent a second permission system. If a host needs section- or page-scoped authors, **stop and extend Accessible**.
 
@@ -33,14 +33,14 @@ Do not invent a second permission system. If a host needs section- or page-scope
 
 ## 1. CRUD coverage
 
-### Roles used on staff screens
+### Roles used on support screens
 
 | Role | Meaning in Support |
 | --- | --- |
 | Logged out | Public `/help` only. `/admin/support` asks for sign-in. Old `/support` bookmarks redirect to `/admin`. |
-| Workspace `:view` / `:edit` without AdminRoot | **No** staff Support. `/help` still public. |
-| Accessible `:view` on AdminRoot | Admin hub + staff preview. |
-| Accessible `:edit` (or `:admin`) on AdminRoot | Create / revise / trash / publish dropdown / drafts on staff section show. |
+| Workspace `:view` / `:edit` without AdminRoot | **No** Support. `/help` still public. |
+| Accessible `:view` on AdminRoot | Admin hub + support team preview. |
+| Accessible `:edit` (or `:admin`) on AdminRoot | Create / revise / trash / publish dropdown / drafts on support team section show. |
 
 ### Surface × action × role
 
@@ -62,18 +62,18 @@ Legend: **UI** = button/link on that surface · **URL** = form/route works if yo
 | Action | Admin sections table | `/admin/support/sections/:id` | `/admin/support/sections/new` / `:id/edit` | Gate |
 | --- | --- | --- | --- | --- |
 | Create | UI (New section) | — | URL | Admin `:edit` |
-| Read | — | UI (staff list, including drafts) | — | Admin `:view` |
+| Read | — | UI (support team list, including drafts) | — | Admin `:view` |
 | Edit / revise | UI (Edit → gem form) | — | URL | Admin `:edit` |
 | Trash (cascade pages) | — | — | Route `POST .../trash` | Admin `:edit` |
 | Reorder pages | — | — | — | Orderable domain only; no Support/Admin UI |
 
-Engine root `/admin/support` redirects to `/admin`. Admin tables replace the old staff section-browse hub.
+Engine root `/admin/support` redirects to `/admin`. Admin tables replace the old support team section-browse hub.
 
 ### Gaps (wiring, not domain)
 
-1. **Edit lives in Admin**, not on staff preview (intentional).
-2. **Section trash** is domain + route only — no staff or Admin button.
-3. **Page trash** is on staff preview only — not on Admin tables.
+1. **Edit lives in Admin**, not on support team preview (intentional).
+2. **Section trash** is domain + route only — no support team or Admin button.
+3. **Page trash** is on support team preview only — not on Admin tables.
 4. Admin has no Publish, Preview/Open, Restore, or Reorder actions.
 
 ---
@@ -84,11 +84,11 @@ Engine root `/admin/support` redirects to `/admin`. Admin tables replace the old
 
 | Path | Behavior |
 | --- | --- |
-| Staff preview **QuickActions** | Publishable dropdown on the page. Closed button is Draft, a scheduled date, or Published. Menu: Publish now, Schedule / Change schedule, Unpublish, Preview or View, SEO, Social. Inline publish/unpublish stay on this screen. |
-| Staff **Preview** / **View** | Preview is `/recordings/:id/publishable/preview` (signed-in people who can see the page). View is the public URL. Logged-out visitors get 404 on Preview. |
+| Support preview **QuickActions** | Publishable dropdown on the page. Closed button is Draft, a scheduled date, or Published. Menu: Publish now, Schedule / Change schedule, Unpublish, Preview or View, SEO, Social. Inline publish/unpublish stay on this screen. |
+| Support team **Preview** / **View** | Preview is `/recordings/:id/publishable/preview` (signed-in people who can see the page). View is the public URL. Logged-out visitors get 404 on Preview. |
 | Unpublish | **Unpublish** in QuickActions (inline). Schedule and SEO/Social open Publishable job screens. |
 | Public `/help` | Hide drafts (`indexable` / `public_for_section`). |
-| Staff section show | Kept drafts + status badge; open staff preview. |
+| Support team section show | Kept drafts + status badge; open support team preview. |
 | Admin status column | Badge via `currently_published?`. |
 
 ---
@@ -100,13 +100,13 @@ Engine root `/admin/support` redirects to `/admin`. Admin tables replace the old
 | Gem semver | `VERSION`, CHANGELOG, MIGRATION_NOTES | Shipping the gem — **not** article history |
 | Recording Studio revise | Each edit → new immutable recordable snapshot | **Yes, as history exhaust** |
 | Publishable child | Live slug/status/schedule metadata | No prior-live body restore |
-| Staff / Admin restore UI | **None** | Out of product UI today |
+| Support team / Admin restore UI | **None** | Out of product UI today |
 
 ---
 
 ## 4. Ownership summary (Accessible)
 
-1. Grant AdminRoot access for staff who use `/admin` and `/admin/support`.
+1. Grant AdminRoot access for the support team who use `/admin` and `/admin/support`.
 2. Do not attach Accessible to SupportPage/SupportSection unless product requires page-scoped authors.
 3. Moving a page between sections does not change the workspace bucket.
 4. Controllers fail closed: missing actor or missing AdminRoot grant → **No access** (HTTP 403). Logged-out hits host auth first.
@@ -117,7 +117,7 @@ Engine root `/admin/support` redirects to `/admin`. Admin tables replace the old
 
 Endpoints: [docs/api.md](api.md). Design: [docs/api-plan.md](api-plan.md). Dummy mounts Recording Studio API and registers public page reads plus operations section reads and writes for `support_sections` / `support_pages`.
 
-Accessible is the only access check. Admin is the staff UI. API writes use AdminRoot `:edit` (same as `authorize_support!(:edit)`) on the operations API. Public page reads use `:view` on the workspace that owns the page **or** on the admin root. Operations section and nested-page reads use AdminRoot `:view`. Workspace `:edit` without AdminRoot does not create, revise, trash, or move. Anonymous JSON is out; `/help` stays the public browse.
+Accessible is the only access check. Admin is the support UI. API writes use AdminRoot `:edit` (same as `authorize_support!(:edit)`) on the operations API. Public page reads use `:view` on the workspace that owns the page **or** on the admin root. Operations section and nested-page reads use AdminRoot `:view`. Workspace `:edit` without AdminRoot does not create, revise, trash, or move. Anonymous JSON is out; `/help` stays the public browse.
 
 Article search is list `GET …/support_pages?q=` on public and nested `GET …/support_sections/:parent_id/pages?q=` on operations (`SupportPage.search`). Per-client search rate limit. Instant stays HTML-only. There is no `GET support/search`.
 
@@ -126,7 +126,7 @@ Article search is list `GET …/support_pages?q=` on public and nested `GET …/
 ## Related code
 
 - Models: `app/models/recording_studio_support/support_{page,section}.rb`
-- Staff: `app/controllers/recording_studio_support/{pages,sections}_controller.rb`, views under `app/views/recording_studio_support/`
+- Support team: `app/controllers/recording_studio_support/{pages,sections}_controller.rb`, views under `app/views/recording_studio_support/`
 - Auth: `app/controllers/recording_studio_support/application_controller.rb`
 - Admin: `lib/recording_studio_support/admin/{pages_screen,sections_screen,queries}.rb`
 - Domain: `lib/recording_studio_support/{pages,sections}.rb`

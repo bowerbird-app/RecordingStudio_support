@@ -22,11 +22,11 @@ module RecordingStudioSupport
 
       def authorize_index!
         if Access.operations_api?(context)
-          Access.authorize_staff_view!(context)
+          Access.authorize_support_team_view!(context)
           return
         end
 
-        return if Access.can_view_as_staff?(context)
+        return if Access.can_view_as_support_team?(context)
 
         workspace = context.access_grant.scope_recording
         return if Access.can_view_workspace?(context, workspace)
@@ -114,7 +114,7 @@ module RecordingStudioSupport
       def page_recordings
         center = SupportCenters.current
         relation = Pages.for_root(center, query: search_term)
-        return relation if Access.can_view_as_staff?(context)
+        return relation if Access.can_view_as_support_team?(context)
 
         relation.where(recordable_id: SupportPage.indexable.select(:id))
       end

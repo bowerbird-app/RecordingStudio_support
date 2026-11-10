@@ -2,7 +2,7 @@
 
 module RecordingStudioSupport
   module Messages
-    # After Messages send_message, reopen a resolved ticket when the sender is not staff.
+    # After Messages send_message, reopen a resolved ticket when the sender is not support team.
     module SendMessageReopen
       def send_message(group_recording:, actor:, **)
         recording = super

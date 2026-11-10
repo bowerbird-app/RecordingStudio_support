@@ -221,7 +221,7 @@ class InstallGeneratorTest < Minitest::Test
     assert_includes install_guide, "bin/rails generate recording_studio_trashable:migrations"
     assert_includes install_guide, "bin/rails generate recording_studio_orderable:migrations"
     assert_includes install_guide, "bin/rails db:migrate"
-    assert_includes install_guide, "Staff Support forms"
+    assert_includes install_guide, "Support forms"
     assert_includes install_guide, "section :support"
     assert_includes install_guide, "recording_studio_admin_for"
     assert_includes install_guide, "help_title"
@@ -234,7 +234,7 @@ class InstallGeneratorTest < Minitest::Test
     assert_includes install_guide, "RecordingStudioSearch::Engine"
     assert_includes install_guide, "instant_search"
     assert_includes install_guide, "SupportSection"
-    assert_includes install_guide, "staff_permission"
+    assert_includes install_guide, "support_team_permission"
     assert_includes install_guide, "authorization_resolver"
     assert_includes install_guide, "authorization_hook"
     refute_includes install_guide, "RecordingStudio v3"
@@ -245,7 +245,7 @@ class InstallGeneratorTest < Minitest::Test
         __dir__
       )
     )
-    assert_includes initializer, "RecordingStudioSupport.staff_permission"
+    assert_includes initializer, "RecordingStudioSupport.support_team_permission"
     assert_includes initializer, "authorization_resolver"
     assert_includes initializer, "authorization_hook"
   end

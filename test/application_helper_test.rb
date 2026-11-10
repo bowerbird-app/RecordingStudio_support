@@ -71,7 +71,7 @@ class ApplicationHelperTest < Minitest::Test
     )
   end
 
-  def test_sections_controller_requires_admin_for_staff_browse
+  def test_sections_controller_requires_admin_for_support_browse
     source = File.read(
       File.expand_path("../app/controllers/recording_studio_support/sections_controller.rb", __dir__)
     )

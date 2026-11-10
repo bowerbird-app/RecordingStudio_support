@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module RecordingStudioSupport
-  class StaffMessagesController < ApplicationController
+  class SupportInboxController < ApplicationController
     skip_before_action :require_support_root!, raise: false
 
     helper RecordingStudioMessages::PanelHelper if defined?(RecordingStudioMessages::PanelHelper)
@@ -10,7 +10,7 @@ module RecordingStudioSupport
     helper RecordingStudioSupport::MessagesInboxHelper
 
     before_action :require_signed_in_actor!
-    before_action :require_staff_actor!
+    before_action :require_support_team_actor!
     helper_method :help_thread_return_to
 
     def show
@@ -57,8 +57,8 @@ module RecordingStudioSupport
       head :unauthorized
     end
 
-    def require_staff_actor!
-      return if RecordingStudioSupport::Messages.staff_actor?(current_support_actor)
+    def require_support_team_actor!
+      return if RecordingStudioSupport::Messages.support_team_actor?(current_support_actor)
 
       deny_support_access!
     end
@@ -93,7 +93,7 @@ module RecordingStudioSupport
       return if @group_recording.blank?
 
       owner = group_owner_actor(@group_recording) || current_support_actor
-      RecordingStudioSupport::Messages.sync_staff_grants!(
+      RecordingStudioSupport::Messages.sync_support_team_grants!(
         group_recording: @group_recording,
         manager_actor: owner
       )

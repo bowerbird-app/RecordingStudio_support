@@ -14,7 +14,7 @@ module RecordingStudioSupport
       def call
         recording = target_recording
         if Access.operations_api?(context)
-          Access.authorize_staff_view!(context)
+          Access.authorize_support_team_view!(context)
         else
           Access.authorize_view!(context, recording)
         end
@@ -41,7 +41,7 @@ module RecordingStudioSupport
       end
 
       def hide_draft!(recording)
-        return if Access.can_view_as_staff?(context)
+        return if Access.can_view_as_support_team?(context)
         return unless recording.recordable_type == Api::PAGE_TYPE
         return if recording.recordable.indexable?
 

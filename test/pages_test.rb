@@ -55,11 +55,11 @@ class PagesTest < Minitest::Test
   end
 
   def test_section_and_page_lists_wrap_list_in_card
-    staff_index = File.read(File.expand_path("../app/views/recording_studio_support/sections/index.html.erb", __dir__))
+    engine_index = File.read(File.expand_path("../app/views/recording_studio_support/sections/index.html.erb", __dir__))
     public_index = File.read(
       File.expand_path("../app/views/recording_studio_support/public_pages/index.html.erb", __dir__)
     )
-    staff_show = File.read(File.expand_path("../app/views/recording_studio_support/sections/show.html.erb", __dir__))
+    engine_show = File.read(File.expand_path("../app/views/recording_studio_support/sections/show.html.erb", __dir__))
     public_show = File.read(
       File.expand_path("../app/views/recording_studio_support/public_sections/show.html.erb", __dir__)
     )
@@ -76,35 +76,35 @@ class PagesTest < Minitest::Test
       File.expand_path("../app/views/recording_studio_support/shared/_article_cards.html.erb", __dir__)
     )
 
-    assert_includes staff_index, "support_page_count_badge"
+    assert_includes engine_index, "support_page_count_badge"
     refute_includes public_index, "support_page_count_badge"
     assert_includes public_index, "support_article_count_label"
     assert_includes public_index, "support_section_icon"
     assert_includes public_index, "support_section_icon_name"
     assert_includes public_index, "flex items-start gap-3"
-    [staff_show, public_show].each do |show|
+    [engine_show, public_show].each do |show|
       refute_includes show, "support_page_count_badge"
     end
     refute_includes public_show, "support_published_badge"
-    refute_includes staff_show, "support_published_badge"
+    refute_includes engine_show, "support_published_badge"
     assert_includes helper, "support_page_status_badge"
     assert_includes section_pages, "support_page_search_items"
-    assert_includes staff_show, "can_edit_support_pages?"
-    refute_includes staff_show, "current_support_actor.present?"
+    assert_includes engine_show, "can_edit_support_pages?"
+    refute_includes engine_show, "current_support_actor.present?"
 
-    assert_includes staff_show, 'render "recording_studio_support/shared/page_search"'
-    assert_includes staff_show, "instant_search_section_path"
-    assert_includes staff_show, "InstantPages::FRAME_ID"
+    assert_includes engine_show, 'render "recording_studio_support/shared/page_search"'
+    assert_includes engine_show, "instant_search_section_path"
+    assert_includes engine_show, "InstantPages::FRAME_ID"
     assert_includes public_show, 'render "recording_studio_support/shared/page_search"'
     assert_includes public_show, "support_public_section_instant_search_path"
     assert_includes public_show, "InstantPages::FRAME_ID"
     assert_includes public_show, "article_cards"
 
-    assert_includes staff_index, 'render "recording_studio_support/shared/link_list"'
-    assert_includes staff_show, 'render "recording_studio_support/shared/section_pages"'
+    assert_includes engine_index, 'render "recording_studio_support/shared/link_list"'
+    assert_includes engine_show, 'render "recording_studio_support/shared/section_pages"'
     assert_includes section_pages, 'render "recording_studio_support/shared/link_list"'
 
-    [staff_index, staff_show].each do |view|
+    [engine_index, engine_show].each do |view|
       refute_includes view, "FlatPack::Card::Component"
       refute_includes view, 'text: "Read"'
       refute_includes view, 'text: "Open"'
@@ -178,7 +178,7 @@ class PagesTest < Minitest::Test
     refute_includes list, 'text: "Read"'
     refute_includes list, 'text: "Open"'
 
-    refute_includes staff_index, "square_rows"
+    refute_includes engine_index, "square_rows"
   end
 
   def test_owner_preview_has_no_edit

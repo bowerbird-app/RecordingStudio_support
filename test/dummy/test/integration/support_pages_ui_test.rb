@@ -12,7 +12,7 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     sign_in @user
   end
 
-  test "staff engine root sends people to admin" do
+  test "support team engine root sends people to admin" do
     get "/admin/support"
 
     assert_redirected_to "/admin"
@@ -286,7 +286,7 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_match(%r{\A/rails/active_storage/}, payload["url"])
   end
 
-  test "viewer with workspace view cannot use staff support" do
+  test "viewer with workspace view cannot use support screens" do
     viewer = User.create!(
       email: "viewer-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
@@ -347,7 +347,7 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "How do I change my password?"
   end
 
-  test "workspace editor without admin root cannot use staff support" do
+  test "workspace editor without admin root cannot use support screens" do
     editor = User.create!(
       email: "editor-a-#{SecureRandom.hex(4)}@example.com",
       password: "Password",

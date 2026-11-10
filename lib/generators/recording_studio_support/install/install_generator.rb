@@ -16,7 +16,7 @@ module RecordingStudioSupport
         :mount_path,
         type: :string,
         default: "/admin/support",
-        desc: "Route prefix used when mounting the staff Support screens"
+        desc: "Route prefix used when mounting the Support screens"
       )
 
       def mount_engine

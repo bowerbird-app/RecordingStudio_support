@@ -2,7 +2,7 @@
 
 Installer and agent contract (endpoints, auth, fields, search): **[docs/api.md](api.md)**.
 
-This page is the design for how Recording Studio Support exposes sections and pages on **Recording Studio API**. Access is **Accessible**. Admin is the staff UI, not a second ACL.
+This page is the design for how Recording Studio Support exposes sections and pages on **Recording Studio API**. Access is **Accessible**. Admin is the support UI, not a second ACL.
 
 Public anonymous browse stays `/help`. The JSON API is authenticated (bearer client). Do not add a Support `ApiController`, `user.admin?`, or a Support permission table.
 
@@ -11,7 +11,7 @@ Public anonymous browse stays `/help`. The JSON API is authenticated (bearer cli
 | Question | Answer |
 | --- | --- |
 | Who authorizes? | Recording Studio Accessible only |
-| What is Admin? | Staff screens (`/admin`, `/admin/support`) gated by Accessible on the **admin root** |
+| What is Admin? | Support screens (`/admin`, `/admin/support`) gated by Accessible on the **admin root** |
 | Write gate | `authorized?(actor:, recording: admin_root, role: :edit)` — same as `authorize_support!(:edit)` |
 | Read gate | `authorized?(..., role: :view)` on the **workspace root that owns the section/page**, or on the **admin root** |
 | Tree | Sections and pages still live under the workspace. Accessible is not enabled on `SupportPage` / `SupportSection` |
@@ -33,7 +33,7 @@ Stock API resource create/update authorize `:edit` on the **parent recording** (
 
 Support does **not** gemspec-depend on `recording_studio_api` (same pattern as Moveable). If the constant is missing, Support boots with no JSON routes.
 
-The **host** adds the API gem, runs its install/migrations, mounts the engine, names `:operations`, enables `:accessible` and `:api_access_point` on roots that hold API keys, and provisions clients. Dummy wires this (API `v0.7.0`) and sets Trashable / Moveable host hooks to `staff_permission`.
+The **host** adds the API gem, runs its install/migrations, mounts the engine, names `:operations`, enables `:accessible` and `:api_access_point` on roots that hold API keys, and provisions clients. Dummy wires this (API `v0.7.0`) and sets Trashable / Moveable host hooks to `support_team_permission`.
 
 Support registers Metrics definitions; the host calls `RecordingStudioMetrics::Api.register!(api: :operations)`.
 
@@ -149,14 +149,14 @@ Optional later: Publishable `:publish` on pages, Orderable reorder on a section.
 
 Stock Index/Show stay on public pages if they honor `:view` on workspace **or** admin root. Operations section and nested-page reads require AdminRoot `:view`. Filter:
 
-- AdminRoot `:edit` (or `:view` if we mirror staff preview) — include drafts
+- AdminRoot `:edit` (or `:view` if we mirror the support team preview) — include drafts
 - Workspace `:view` without admin write — live/`indexable` pages only, matching public `/help`
 
 `GET support_pages?q=` stays on the public API. Nested `GET support_sections/:parent_id/pages?q=` is operations-only. Rate limit searches per API client (default 30/minute). Empty `q` is a scoped live list and does not count against that bucket.
 
 Replace Create / Update / Destroy with Support handlers (same intercept on public and operations):
 
-1. Resolve admin root the same way staff UI does (`RecordingStudioAdmin` access recording resolver). Fail closed if missing.
+1. Resolve admin root the same way support UI does (`RecordingStudioAdmin` access recording resolver). Fail closed if missing.
 2. `access_grant.authorize!(recording: admin_root, role: :edit)` — or `RecordingStudioAccessible.authorized?` with the grant actor.
 3. Call `Sections.create!` / `revise!` / `trash!` or `Pages.create!` / `revise!` / `trash!` with `actor: access_grant.actor`.
 4. Sanitize body through `Body.sanitize`. Slug stays Support-owned (`SupportSection.slug_for`).

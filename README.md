@@ -1,8 +1,8 @@
 # Recording Studio Support
 
-Staff write help pages. People help themselves at `/help`. Signed-in users and staff talk in a Support inbox. Tickets and help sections sit under a `SupportCenter` the host records once. Each ticket’s thread is a MessageGroup tagged to that ticket, not a parent.
+The support team writes help pages. People help themselves at `/help`. Signed-in users and the support team talk in a Support inbox. Tickets and help sections sit under a `SupportCenter` the host records once. Each ticket’s thread is a MessageGroup tagged to that ticket, not a parent.
 
-Help pages sit in a section under SupportCenter. Each page has a title and a formatted body. Pictures go in that body. A page can go to trash. Staff pick a section by moving the page. Staff land in **Admin Support** (`/admin`). Write, preview, Publish, and uploads live under `/admin/support`. Access is Admin plus Accessible on the SupportCenter or its admin-root parent — not a workspace `:edit` grant. Logged-out visitors read at `/help` (slug URLs) and live pages under a section. Drafts stay hidden. Signed-in people open `/help/messages`; staff open `/admin/support/messages`. Both screens render the Messages gem chat partial — do not fork Chat::Layout or Chat::Panel. JSON for sections and pages is optional: add Recording Studio API in the **host** (dummy does). Gates stay Accessible. Endpoints: [docs/api.md](docs/api.md).
+Help pages sit in a section under SupportCenter. Each page has a title and a formatted body. Pictures go in that body. A page can go to trash. The support team picks a section by moving the page. The support team lands in **Admin Support** (`/admin`). Write, preview, Publish, and uploads live under `/admin/support`. Access is Admin plus Accessible on the SupportCenter or its admin-root parent — not a workspace `:edit` grant. Logged-out visitors read at `/help` (slug URLs) and live pages under a section. Drafts stay hidden. Signed-in people open `/help/messages`; the support team opens `/admin/support/messages`. Both screens render the Messages gem chat partial — do not fork Chat::Layout or Chat::Panel. JSON for sections and pages is optional: add Recording Studio API in the **host** (dummy does). Gates stay Accessible. Endpoints: [docs/api.md](docs/api.md).
 
 ## Install
 
@@ -55,7 +55,7 @@ gem "recording_studio_notifications", ">= 0.3.1", "< 1"
 gem "recording_studio_notifications_email", "~> 0.3.1"
 ```
 
-Latest tags of Attachable, Logs, Metrics, Moveable, Notifications, Notifications Email, Search, Views, Cache, Users, Root Switchable, Internationalization, and API still require `recording_studio` below 6. This repo's Gemfiles load `test/support/widen_recording_studio_requirement.rb` before the gemspec so Bundler can resolve `6.1.0`. That file is not part of the installed gem. A host Gemfile that includes one of those gems has to widen the requirement the same way. Messages `v0.17.0`, Publishable `v0.13.2`, Orderable `v0.4.0`, Trashable `v0.12.0`, Admin `v2.7.0`, Accessible `v0.24.1`, and Recording Studio `v6.1.0` already allow `6.1.0`. Orderable `v0.4.0`, Trashable `v0.12.0`, and Moveable `v3.4.3` drop `RecordingStudio::UsesDefaultLayout`, which Recording Studio 6.1 removed. Earlier tags make `CI=true` eager load raise `NameError`. Admin screens need Admin `v2.7.0` because earlier releases still call `recording_studio_page_nav`. Accessible `v0.24.1` is the Messages `0.17` floor. Attachable stays on `v0.15.0` and Notifications stays on `v0.7.0`: later releases need schema changes this dummy does not ship. Root Switchable `v0.10.0` drops `anchor_label`; its gemspec still caps Recording Studio below 5, so the widen hook stays. Messages `v0.17.0` adds conversation header hooks. Support uses those for staff Status. Hosts need Messages `>= 0.17.0`.
+Latest tags of Attachable, Logs, Metrics, Moveable, Notifications, Notifications Email, Search, Views, Cache, Users, Root Switchable, Internationalization, and API still require `recording_studio` below 6. This repo's Gemfiles load `test/support/widen_recording_studio_requirement.rb` before the gemspec so Bundler can resolve `6.1.0`. That file is not part of the installed gem. A host Gemfile that includes one of those gems has to widen the requirement the same way. Messages `v0.17.0`, Publishable `v0.13.2`, Orderable `v0.4.0`, Trashable `v0.12.0`, Admin `v2.7.0`, Accessible `v0.24.1`, and Recording Studio `v6.1.0` already allow `6.1.0`. Orderable `v0.4.0`, Trashable `v0.12.0`, and Moveable `v3.4.3` drop `RecordingStudio::UsesDefaultLayout`, which Recording Studio 6.1 removed. Earlier tags make `CI=true` eager load raise `NameError`. Admin screens need Admin `v2.7.0` because earlier releases still call `recording_studio_page_nav`. Accessible `v0.24.1` is the Messages `0.17` floor. Attachable stays on `v0.15.0` and Notifications stays on `v0.7.0`: later releases need schema changes this dummy does not ship. Root Switchable `v0.10.0` drops `anchor_label`; its gemspec still caps Recording Studio below 5, so the widen hook stays. Messages `v0.17.0` adds conversation header hooks. Support uses those for the support team Status. Hosts need Messages `>= 0.17.0`.
 
 Then:
 
@@ -86,15 +86,15 @@ Accessible `v0.24.1` stores roles as strings (`view`, `edit`, `admin`). Run its 
 ```ruby
 RecordingStudioTrashable.configure do |config|
   config.authorization_resolver = lambda do |actor:, recording:, **|
-    RecordingStudioSupport.staff_permission(actor: actor, recording: recording)
+    RecordingStudioSupport.support_team_permission(actor: actor, recording: recording)
   end
 end
 
 RecordingStudio::Moveable.configure do |config|
   config.use_builtin_access = true
   config.authorization_hook = lambda do |actor:, source:, destination:, **|
-    source_ok = RecordingStudioSupport.staff_permission(actor: actor, recording: source)
-    destination_ok = RecordingStudioSupport.staff_permission(actor: actor, recording: destination)
+    source_ok = RecordingStudioSupport.support_team_permission(actor: actor, recording: source)
+    destination_ok = RecordingStudioSupport.support_team_permission(actor: actor, recording: destination)
     next true if source_ok && destination_ok
 
     nil
@@ -102,11 +102,11 @@ RecordingStudio::Moveable.configure do |config|
 end
 ```
 
-Keep Search `default_backend = :pg_trgm`. Do not run `searchable_pgvector` for Support in this phase. `SupportPage` is already declared searchable (title weight A, body weight D). Allowlist only that model for Instant UI (`config.instant_search_models = ["RecordingStudioSupport::SupportPage"]`). Mount `RecordingStudioSearch::Engine` at `/recording_studio_search`, pin `controllers/recording_studio_search`, and `eagerLoadControllersFrom` it. Public section Instant hits `/help/sections/:slug/instant_search` (same trigram, live pages in that section). Staff section Instant hits `/admin/support/sections/:id/instant_search`. `/help?q=` stays a GET form on section titles.
+Keep Search `default_backend = :pg_trgm`. Do not run `searchable_pgvector` for Support in this phase. `SupportPage` is already declared searchable (title weight A, body weight D). Allowlist only that model for Instant UI (`config.instant_search_models = ["RecordingStudioSupport::SupportPage"]`). Mount `RecordingStudioSearch::Engine` at `/recording_studio_search`, pin `controllers/recording_studio_search`, and `eagerLoadControllersFrom` it. Public section Instant hits `/help/sections/:slug/instant_search` (same trigram, live pages in that section). Support team section Instant hits `/admin/support/sections/:id/instant_search`. `/help?q=` stays a GET form on section titles.
 
 Install Active Storage if the host does not already have it. Pictures upload through the Flatpack body editor and sit in the page HTML.
 
-The install generator mounts staff Support screens at `/admin/support`, public help at `/help`, and Publishable at `/`. Old `/support` bookmarks redirect to `/admin`. When an `AdminRoot` model is present, it enables `section :support`.
+The install generator mounts Support screens at `/admin/support`, public help at `/help`, and Publishable at `/`. Old `/support` bookmarks redirect to `/admin`. When an `AdminRoot` model is present, it enables `section :support`.
 
 ## SupportCenter
 
@@ -137,7 +137,7 @@ RecordingStudioSupport::SupportCenters.current!
 
 ## Support pages
 
-Register the type next to your host root and the Publishable child. Dummy uses `Workspace` for product content. Dummy also registers `AdminRoot` for staff admin and `RecordingStudioSupport::SupportCenter` for help and tickets.
+Register the type next to your host root and the Publishable child. Dummy uses `Workspace` for product content. Dummy also registers `AdminRoot` for Admin and `RecordingStudioSupport::SupportCenter` for help and tickets.
 
 ```ruby
 RecordingStudio.configure do |config|
@@ -222,9 +222,9 @@ RecordingStudioPublishable::Services::Publishables::Update.call(
 
 ```
 
-Authenticated screens call the same helpers. Staff access uses `grant_access` / `authorized?` on the **admin root**. Public read uses Publishable `indexable` / `indexable?`. This gem does not invent its own ACL.
+Authenticated screens call the same helpers. Support-team access uses `grant_access` / `authorized?` on the **admin root**. Public read uses Publishable `indexable` / `indexable?`. This gem does not invent its own ACL.
 
-Mount the screens. Public help and staff forms both use Recording Studio's default layout. Mount Support **before** Admin so `/admin/support` is not swallowed by `/admin`:
+Mount the screens. Public help and support forms both use Recording Studio's default layout. Mount Support **before** Admin so `/admin/support` is not swallowed by `/admin`:
 
 ```ruby
 mount RecordingStudioAccessible::Engine, at: "/admin/access"
@@ -245,21 +245,21 @@ get "/support", to: redirect("/admin")
 get "/support/*legacy_support_path", to: redirect("/admin")
 ```
 
-Declare the `/help` and `/help/sections/:slug` routes **before** the Publishable mount. Publishable also claims `/help/:uuid/:slug`, so a later section route never wins. Section URLs use a Support-owned `slug` (from the title). Old UUID bookmarks redirect to the slug URL. Staff forms under `/admin/support/sections/:id` stay on recording UUIDs.
+Declare the `/help` and `/help/sections/:slug` routes **before** the Publishable mount. Publishable also claims `/help/:uuid/:slug`, so a later section route never wins. Section URLs use a Support-owned `slug` (from the title). Old UUID bookmarks redirect to the slug URL. Support forms under `/admin/support/sections/:id` stay on recording UUIDs.
 
-Help page opens are Recording Studio Views raw logs (`RecordingStudioViews::ViewLog`), not extra pages in the tree and not Support’s old `recording_studio_support_page_views` table. Enable `:viewable` on `SupportPage` (Support does this), mount Views, put `<%= recording_studio_track_views %>` in the shared layout **body**, and pin `recording_studio_views/collector`. Implement public `current_recording` (Views’ default resolver) so it returns the help page on staff show and on Publishable’s public renderer (`@parent_recording` / `@recording`). Public visitors need the Accessible `tracking_access_action` Views uses (`:"recording_studio_views.view"` with a public audience). After upgrade, copy leftover Support rows with `bin/rails recording_studio_support:backfill_page_views`. Do not drop the old table in 0.25.0. Schedule Logs jobs (`DailyAggregationJob`, `ReconciliationJob`, `RetentionCleanupJob`, `BackfillJob`) and `RecordingStudioViews::ReceiptCleanupJob`. Optional MaxMind geo follows the Views README.
+Help page opens are Recording Studio Views raw logs (`RecordingStudioViews::ViewLog`), not extra pages in the tree and not Support’s old `recording_studio_support_page_views` table. Enable `:viewable` on `SupportPage` (Support does this), mount Views, put `<%= recording_studio_track_views %>` in the shared layout **body**, and pin `recording_studio_views/collector`. Implement public `current_recording` (Views’ default resolver) so it returns the help page on the support show and on Publishable’s public renderer (`@parent_recording` / `@recording`). Public visitors need the Accessible `tracking_access_action` Views uses (`:"recording_studio_views.view"` with a public audience). After upgrade, copy leftover Support rows with `bin/rails recording_studio_support:backfill_page_views`. Do not drop the old table in 0.25.0. Schedule Logs jobs (`DailyAggregationJob`, `ReconciliationJob`, `RetentionCleanupJob`, `BackfillJob`) and `RecordingStudioViews::ReceiptCleanupJob`. Optional MaxMind geo follows the Views README.
 
 ## Public help
 
 Logged-out people can read sections and live pages. Drafts 404.
 
-Public `/help` lists sections. A section show lists `SupportPage.indexable` pages in that section. Do not copy that logic. Public `/help?q=` searches section title and slug via `SupportSection.search` (Recording Studio Search `pg_trgm`) with a GET form. Page search lives on a public section show and filters pages **in that section** via Recording Studio Search trigram on title/body. Typing uses Search Instant UI (`instant_search_field` + Turbo Frame) against the section Instant path; Enter / no-JS still GET `?q=` on the section. Staff section show uses the same Instant field against the staff Instant path. The Search engine Instant endpoint is mounted for hosts; Support filters it to **live** `SupportPage` rows so drafts do not leak. Search `v0.6.0` inherits the host `ApplicationController`, so hosts that require sign-in there will require it on the engine Instant path too — public `/help` Instant stays on Support’s public Instant controller. Admin support pages and sections table search use the same Search-backed `apply_query` helpers.
+Public `/help` lists sections. A section show lists `SupportPage.indexable` pages in that section. Do not copy that logic. Public `/help?q=` searches section title and slug via `SupportSection.search` (Recording Studio Search `pg_trgm`) with a GET form. Page search lives on a public section show and filters pages **in that section** via Recording Studio Search trigram on title/body. Typing uses Search Instant UI (`instant_search_field` + Turbo Frame) against the section Instant path; Enter / no-JS still GET `?q=` on the section. The support section show uses the same Instant field against the support Instant path. The Search engine Instant endpoint is mounted for hosts; Support filters it to **live** `SupportPage` rows so drafts do not leak. Search `v0.6.0` inherits the host `ApplicationController`, so hosts that require sign-in there will require it on the engine Instant path too — public `/help` Instant stays on Support’s public Instant controller. Admin support pages and sections table search use the same Search-backed `apply_query` helpers.
 
-Public `/help` and public section show use Flatpack Search at full width (`max_width: :none`, placeholder from `recording_studio.support.help.search_placeholder`, English “Search support”). Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Public `/help` and public section show pass `size: :lg` (Flatpack `0.1.175+`). Public `/help` also raises the `:lg` vertical padding (`prominent: true`). Staff search on remaining engine screens keeps the default `:md`. Passing `placeholder:` still overrides the locale.
+Public `/help` and public section show use Flatpack Search at full width (`max_width: :none`, placeholder from `recording_studio.support.help.search_placeholder`, English “Search support”). Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Public `/help` and public section show pass `size: :lg` (Flatpack `0.1.175+`). Public `/help` also raises the `:lg` vertical padding (`prominent: true`). Support search on remaining engine screens keeps the default `:md`. Passing `placeholder:` still overrides the locale.
 
-**Public `/help` home** sets `content_for :title` to `public_help_title`. The default layout draws that string as the only `h1`. There is no subtitle on this page. Section cards are a Grid (`cols: 3`, `gap: :lg`) of clickable Cards (`background: :default`, `border: :default`, `shadow: :sm`, `hover: :strong`, body `padding: :lg`). Each card shows an optional Heroicons glyph (section `icon` short name via Flatpack `IconComponent`) to the left of the section title and a muted **N article(s)** line (no Badge). Blank icon skips the glyph. Staff section and page forms preview the glyph live beside the Icon field. New pages default to the parent section’s icon.
+**Public `/help` home** sets `content_for :title` to `public_help_title`. The default layout draws that string as the only `h1`. There is no subtitle on this page. Section cards are a Grid (`cols: 3`, `gap: :lg`) of clickable Cards (`background: :default`, `border: :default`, `shadow: :sm`, `hover: :strong`, body `padding: :lg`). Each card shows an optional Heroicons glyph (section `icon` short name via Flatpack `IconComponent`) to the left of the section title and a muted **N article(s)** line (no Badge). Blank icon skips the glyph. Support section and page forms preview the glyph live beside the Icon field. New pages default to the parent section’s icon.
 
-**Staff hub** is Admin Support tables at `/admin`, not a `/support` list. Engine `/admin/support` redirects there. Write, preview, Publish, and trash stay under `/admin/support…`.
+**Admin Support** is tables at `/admin`, not a `/support` list. Engine `/admin/support` redirects there. Write, preview, Publish, and trash stay under `/admin/support…`.
 
 Public **section** show (`/help/sections/:slug`) is its own card stack — not the home `link_list` shape:
 
@@ -288,7 +288,7 @@ Interactive + `hover: :strong` needs a host Tailwind utilities-layer override fo
 
 No Published badge on public section cards (implied by indexable). Drafts stay off public `/help` lists. No Read / Open buttons. Public help uses `recording_studio/default_layout`. Point Publishable `public_layout` at that layout. Do not use `recording_studio_publishable/application`. Core puts `data-theme="rounded"` on `<html>`. Load `flat_pack/variables`, `flat_pack/application`, and `flat_pack/rich_text` before the Tailwind sheet. Declare `@layer theme, base, components, utilities` before those sheets so TipTap borders survive Tailwind preflight.
 
-Help titles come from `RecordingStudioSupport.configure`. Staff engine defaults stay “Help” / “Find an answer.” The Admin Support hub title (`admin_help_title`) defaults to **Support**. Public default title is **Hi, how can we help?** (`public_help_subtitle` remains configurable but the shipped `/help` home does not render it). Admin section default subtitle is “Pages people use when they get stuck.” Section blurbs and the optional contact slot are host-configurable:
+Help titles come from `RecordingStudioSupport.configure`. Support team engine defaults stay “Help” / “Find an answer.” The Admin Support hub title (`admin_help_title`) defaults to **Support**. Public default title is **Hi, how can we help?** (`public_help_subtitle` remains configurable but the shipped `/help` home does not render it). Admin section default subtitle is “Pages people use when they get stuck.” Section blurbs and the optional contact slot are host-configurable:
 
 ```ruby
 RecordingStudioSupport.configure do |config|
@@ -321,17 +321,17 @@ Tickets own the conversation lifecycle. Each ticket is recorded under SupportCen
 |---|---|---|
 | User list | `GET /help/messages` | Signed-in user (auth required) |
 | User new | `GET /help/messages/new` + `POST /help/messages` | Signed-in user |
-| User show | `GET /help/messages/:id` | Ticket owner (or staff) |
-| Staff inbox | `GET /admin/support/messages` | Signed-in staff with Accessible `:edit` on SupportCenter |
-| Staff ticket | `PATCH /admin/support/tickets/:id` | Same staff gate (status) |
+| User show | `GET /help/messages/:id` | Ticket owner (or the support team) |
+| Support inbox | `GET /admin/support/messages` | A signed-in person on the support team with Accessible `:edit` on SupportCenter |
+| Support ticket | `PATCH /admin/support/tickets/:id` | Same support-team gate (status) |
 
-Staff is whoever Accessible grants `:edit` (or `:admin`) on the SupportCenter, its parent, or its admin root. There is no `User.admin` path, `messages_admin_email`, or `messages_admin_finder`. Customers get a direct grant on their MessageGroup only. They never need access to the admin root. Staff Status sits in that thread's Messages header (`messages_panel_right_header` and `messages_panel_right_header_mobile`). A default Button dropdown shows the current status and saves on pick. It does not sit above the inbox. The hooks stay empty for customers and for groups that are not tagged `support_ticket` on the `:support` mount. PATCH still hits `/admin/support/tickets/:id` and answers Turbo Stream so the thread stays open.
+The support team is whoever Accessible grants `:edit` (or `:admin`) on the SupportCenter, its parent, or its admin root. There is no `User.admin` path, `messages_admin_email`, or `messages_admin_finder`. Customers get a direct grant on their MessageGroup only. They never need access to the admin root. Support-team Status sits in that thread's Messages header (`messages_panel_right_header` and `messages_panel_right_header_mobile`). A default Button dropdown shows the current status and saves on pick. It does not sit above the inbox. The hooks stay empty for customers and for groups that are not tagged `support_ticket` on the `:support` mount. PATCH still hits `/admin/support/tickets/:id` and answers Turbo Stream so the thread stays open.
 
-Opening a ticket runs `Tickets.open!`: record the ticket under SupportCenter, create the tagged group, grant the requester, sync staff via Accessible, then post the first message. One live tagged group per ticket is the current product. Find the thread with `Tickets.group_recording_for(ticket)` (tag lookup). A second live group for the same ticket raises `Tickets::AlreadyExists` ("This conversation already has a ticket."). Users list tickets they own. Staff edit status and priority with `Tickets.update!`. That locks the ticket recording, reloads the current recordable, and revises it. One `updated` event stores the diff in `metadata["changes"]` (for example `{"status" => ["open", "resolved"]}`). A nil actor is stored on that event when Recording Studio `require_actor` is off. When `require_actor` is on, the write raises `RecordingStudio::ActorRequired`. `Tickets.open!` rejects a blank actor itself. Hosts that set `config.authorize_write` must allow these ticket creates and updates. Support does not set that hook. A nil hook allows the write. The ticket URL keeps the id it was opened with. `Tickets.find!` resolves a recording id or an older snapshot id to the current ticket, and raises `ActiveRecord::RecordNotFound` once the recording is trashed. Status values: `open` or `resolved`. A customer message on a resolved ticket reopens it through `Tickets.update!`; a staff reply does not. Priority: `low`, `normal`, `high`.
+Opening a ticket runs `Tickets.open!`: record the ticket under SupportCenter, create the tagged group, grant the requester, sync the support team via Accessible, then post the first message. One live tagged group per ticket is the current product. Find the thread with `Tickets.group_recording_for(ticket)` (tag lookup). A second live group for the same ticket raises `Tickets::AlreadyExists` ("This conversation already has a ticket."). Users list tickets they own. The support team edits status and priority with `Tickets.update!`. That locks the ticket recording, reloads the current recordable, and revises it. One `updated` event stores the diff in `metadata["changes"]` (for example `{"status" => ["open", "resolved"]}`). A nil actor is stored on that event when Recording Studio `require_actor` is off. When `require_actor` is on, the write raises `RecordingStudio::ActorRequired`. `Tickets.open!` rejects a blank actor itself. Hosts that set `config.authorize_write` must allow these ticket creates and updates. Support does not set that hook. A nil hook allows the write. The ticket URL keeps the id it was opened with. `Tickets.find!` resolves a recording id or an older snapshot id to the current ticket, and raises `ActiveRecord::RecordNotFound` once the recording is trashed. Status values: `open` or `resolved`. A customer message on a resolved ticket reopens it through `Tickets.update!`; a support-team reply does not. Priority: `low`, `normal`, `high`.
 
-The SupportCenter `:support` mount is **membership locked** (`membership_locked: [:support]`). Ticket panels hide **+ Access** / avatars; Accessible manage/grant/update/revoke on those conversations is denied unless wrapped in `RecordingStudioMessages.allow_membership_change` (Support’s staff sync already does this).
+The SupportCenter `:support` mount is **membership locked** (`membership_locked: [:support]`). Ticket panels hide **+ Access** / avatars; Accessible manage/grant/update/revoke on those conversations is denied unless wrapped in `RecordingStudioMessages.allow_membership_change` (Support’s support-team sync already does this).
 
-Both screens render `recording_studio_messages/message_groups/desk` only. Do not fork Flatpack Chat::Layout or Chat::Panel. Support prepends Messages `PanelHelper` so staff ticket controls fill the 0.17 header slots. The panel is a Turbo frame. Support prepends Accessible's access button so "+ Access" uses `data-turbo-frame="_top"` and the access page loads in full. Each screen opens with a Flatpack PageTitle (`Messages` for the customer list, `Support messages` for staff). Keep `data-theme="rounded"` on `<html>` and add Tailwind `@source` lines for Messages views.
+Both screens render `recording_studio_messages/message_groups/desk` only. Do not fork Flatpack Chat::Layout or Chat::Panel. Support prepends Messages `PanelHelper` so support ticket controls fill the 0.17 header slots. The panel is a Turbo frame. Support prepends Accessible's access button so "+ Access" uses `data-turbo-frame="_top"` and the access page loads in full. Each screen opens with a Flatpack PageTitle (`Messages` for the customer list, `Support messages` for the support team). Keep `data-theme="rounded"` on `<html>` and add Tailwind `@source` lines for Messages views.
 
 `public_contact_href` defaults to `/help/messages`. Logged-out visitors who click Contact hit sign-in.
 
@@ -339,13 +339,13 @@ When `public_section_subtitle` is blank or the callable returns blank, the secti
 
 Public show is Publishable's published route (`/help/:uuid/:slug`). Header order is Flatpack Badge (section title, stock `size: :lg`, wrapped in `w-fit` so it stays an inline chip) → larger centered `PageTitle` (`--page-title-h1-size: var(--text-5xl)`, `class: "text-center"`; wrapped to cancel stock `mb-6`) whose subtitle is the calendar day via `support_page_updated_on` (not the page `description`, and not relative “N ago”). Long-form body renders through `FlatPack::Content::Component` (`class: "mt-8 mb-8 pb-8"`) so article type uses the kit 18px reading scale. `support_page_body_html` still sanitizes and remaps images, lists, and tips inside that wrapper. Inline pictures are lifted out of wrapping `<p>` tags into full-width `<figure>` / `<img>`. Body `ol`/`ul` render through Flatpack `List` with dense spacing and prose-tight list rows (Flatpack `List::Item` padding is skipped so steps are not spaced like interactive nav); wrap tip copy in `blockquote` so nested lists still go through Flatpack (tip text uses the same surface content color as the article). The document `<title>` is the page title. Meta description prefers the page `description` when set; otherwise plain text from the body (HTML stripped, entities decoded, max 160 characters). There is no Related list. PageNav backs to the section (or `/help`) and offers Home to `/help` (no Close). No live banner, no sign-in alert, no Edit, trash, or Access. Do not wrap the title stack or body in an extra card.
 
-Staff preview unpublished pages on the authenticated show at `/admin/support/:id`. That is the same staff screen, not a second preview app. Staff show keeps Publishable QuickActions (Draft, a scheduled date, or Published) and an icon-only trash control in the PageTitle row. Publish now, Schedule, Unpublish, Preview or View, SEO, and Social live in that menu. It does not show a Pictures gallery.
+Support preview unpublished pages on the authenticated show at `/admin/support/:id`. That is the same support team screen, not a second preview app. Support show keeps Publishable QuickActions (Draft, a scheduled date, or Published) and an icon-only trash control in the PageTitle row. Publish now, Schedule, Unpublish, Preview or View, SEO, and Social live in that menu. It does not show a Pictures gallery.
 
-The body editor is Flatpack `TextArea` with `rich_text: true`, `preset: :content`, and `uploads: { url: uploads_path }`. That upload endpoint is the same contract as ContentEditor (`upload_url` posts a file and returns `{ "url": "..." }`). `Body.sanitize` keeps `img` (`src`, `alt`). Staff forms also take an optional plain **Description** summary above Body.
+The body editor is Flatpack `TextArea` with `rich_text: true`, `preset: :content`, and `uploads: { url: uploads_path }`. That upload endpoint is the same contract as ContentEditor (`upload_url` posts a file and returns `{ "url": "..." }`). `Body.sanitize` keeps `img` (`src`, `alt`). Support forms also take an optional plain **Description** summary above Body.
 
 ## Admin Support
 
-Staff operations live on an **admin root**, not `user.admin?`. Grant Accessible access on that root. Enable the Support section:
+Support operations live on an **admin root**, not `user.admin?`. Grant Accessible access on that root. Enable the Support section:
 
 ```ruby
 class AdminRoot < ApplicationRecord
@@ -365,7 +365,7 @@ recording_studio_admin_for :admin, at: "/admin", root_section: :support
 
 RecordingStudioAccessible.bootstrap_owner_access!(
   recording: RecordingStudio.root_recording_for(admin_root),
-  actor: first_staff_user
+  actor: first_support_user
 )
 ```
 
@@ -381,7 +381,7 @@ Full contract for hosts and AI agents: **[docs/api.md](docs/api.md)** (auth, fie
 
 Public keeps only `GET support_pages` and `GET support_pages/:id`. Those use `:view` on the workspace that owns the page, or on the admin root. Admin-root readers see drafts. Workspace-only readers see live/`indexable` pages, matching `/help`.
 
-Section list/show and nested section-page reads live on `/recording_studio_api/apis/operations/v1/…` and authorize Accessible `:view` on the **admin root** (`can_view_as_staff?`). Writes (`create` / `update` / trash / move / publish / unpublish) stay on operations and still need AdminRoot `:edit` — the same bar as `authorize_support!(:edit)`. A public token is rejected there. An operations actor without AdminRoot `:edit` is `403` on writes.
+Section list/show and nested section-page reads live on `/recording_studio_api/apis/operations/v1/…` and authorize Accessible `:view` on the **admin root** (`can_view_as_support_team?`). Writes (`create` / `update` / trash / move / publish / unpublish) stay on operations and still need AdminRoot `:edit` — the same bar as `authorize_support!(:edit)`. A public token is rejected there. An operations actor without AdminRoot `:edit` is `403` on writes.
 
 Bearer token: public `POST /recording_studio_api/oauth/token`; operations `POST /recording_studio_api/apis/operations/oauth/token` (`client_credentials`), then `Authorization: Bearer …`.
 
@@ -415,7 +415,7 @@ Support registers those metrics with Recording Studio Metrics. The host exposes 
 RecordingStudioMetrics::Api.register!(api: :operations)
 ```
 
-Staff with AdminRoot `:view` can read them. A public token or a non-admin operations token is denied. `support_pages.total` counts live page recordings (`Admin::Queries.kept_page_recordings`), not SupportPage snapshots. Ticket metrics count the current snapshot of each ticket recording (joined to `recording_studio_support_tickets` on `recordable_id`, type `RecordingStudioSupport::SupportTicket`, `trashed_at` null). A revised ticket counts once. `support_tickets.oldest_open_age` is the age in seconds of the oldest open ticket, from the recording's `created_at` (`value` omitted when there are none). `support_tickets.opened` buckets that same open time. Results use the Metrics cache (default 5 minutes), so the age can lag by up to that TTL.
+The support team with AdminRoot `:view` can read them. A public token or a non-admin operations token is denied. `support_pages.total` counts live page recordings (`Admin::Queries.kept_page_recordings`), not SupportPage snapshots. Ticket metrics count the current snapshot of each ticket recording (joined to `recording_studio_support_tickets` on `recordable_id`, type `RecordingStudioSupport::SupportTicket`, `trashed_at` null). A revised ticket counts once. `support_tickets.oldest_open_age` is the age in seconds of the oldest open ticket, from the recording's `created_at` (`value` omitted when there are none). `support_tickets.opened` buckets that same open time. Results use the Metrics cache (default 5 minutes), so the age can lag by up to that TTL.
 
 `group_by` (Metrics 0.3): `support_tickets.open` accepts `group_by=priority`; `support_tickets.opened` accepts `group_by=status` or `group_by=priority` with `from`/`to`/`interval`. Groups with fewer than 5 tickets fold into `other`, so groups plus `other` equal the total. `oldest_open_age`, `by_status` and `by_priority` take no `group_by`. There are no metric filters (Support has no ticket list endpoint whose filters they could mirror). The catalog lists `group_by`, `min_group_size`, `date_range`, `timezone` and `freshness` for each metric.
 
@@ -439,7 +439,7 @@ bin/rails generate recording_studio_api:migrations
 bin/rails db:migrate
 ```
 
-Enable `:api_access_point` (with `:accessible`) on roots that hold API keys. Dummy does this on `Workspace` and `AdminRoot`. Mount the engine. Provision two clients if you want the same split dummy uses: admin-root `:edit` for staff writes, workspace `:view` for read-only help.
+Enable `:api_access_point` (with `:accessible`) on roots that hold API keys. Dummy does this on `Workspace` and `AdminRoot`. Mount the engine. Provision two clients if you want the same split dummy uses: admin-root `:edit` for support-team writes, workspace `:view` for read-only help.
 
 Details: [docs/api.md](docs/api.md).
 
@@ -457,7 +457,7 @@ Hosts own other languages. Copy `recording_studio.support.*` into `config/locale
 
 `public_help_title`, `public_help_subtitle`, `public_contact_label`, `public_section_subtitle`, and Search `placeholder:` still override the locale when the host sets custom text. A host that leaves the English default follows I18n.
 
-Help article titles and bodies, section names, and other staff-written database content are data. This gem does not translate them. Staff Admin Support screens stay English.
+Help article titles and bodies, section names, and other support-written database content are data. This gem does not translate them. Admin Support screens stay English.
 
 ## Dummy host
 
@@ -465,7 +465,7 @@ Help article titles and bodies, section names, and other staff-written database 
 
 Dummy credentials (`test/dummy/config/credentials.yml.enc`) are encrypted with the shared RecordingStudio_* development master key. Set `RAILS_MASTER_KEY` or put that key in `test/dummy/config/master.key` (gitignored). Keep the encrypted file; do not generate a per-repo dummy key.
 
-Dummy help pages, public and staff, use `recording_studio_layout`. A nil setting selects `recording_studio/default_layout`. Dummy still overrides that layout file so `<html>` gets `lang` and Flatpack copy data, the body calls `recording_studio_track_views`, and the top nav's right slot includes the language selector. Flatpack stylesheets load before Tailwind. Support screens and Admin Support screens keep that chrome only. Dummy does not inject Sign out or Root Switchable into the top nav (including dummy host pages, `/admin/support`, `/help`, and `/admin`). Access can stay on Admin. Do not put a login button there. Sign-in uses the Users gem (`recording_studio_user` `v0.21.0`): email at `/users/sign_in`, password at `/users/sign_in/password`, layout `recording_studio_user/auth` with `html data-theme="rounded"`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`, `preset: :content`, image upload). Dummy Stimulus registers `flat-pack--tiptap` on first paint. The dummy switches English and French with Recording Studio Internationalization. Article titles and seeded bodies stay in the language they were written.
+Public and support help pages use `recording_studio_layout`. A nil setting selects `recording_studio/default_layout`. Dummy still overrides that layout file so `<html>` gets `lang` and Flatpack copy data, the body calls `recording_studio_track_views`, and the top nav's right slot includes the language selector. Flatpack stylesheets load before Tailwind. Support screens and Admin Support screens keep that chrome only. Dummy does not inject Sign out or Root Switchable into the top nav (including dummy host pages, `/admin/support`, `/help`, and `/admin`). Access can stay on Admin. Do not put a login button there. Sign-in uses the Users gem (`recording_studio_user` `v0.21.0`): email at `/users/sign_in`, password at `/users/sign_in/password`, layout `recording_studio_user/auth` with `html data-theme="rounded"`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`, `preset: :content`, image upload). Dummy Stimulus registers `flat-pack--tiptap` on first paint. The dummy switches English and French with Recording Studio Internationalization. Article titles and seeded bodies stay in the language they were written.
 
 | Field    | Value           |
 |----------|-----------------|
@@ -503,7 +503,7 @@ bin/rails db:setup
 bin/dev
 ```
 
-Then open `/help` without signing in. Search the lists with `?q=`. Switch English/French with the compact language control in PageNav. Sign-in for Admin and staff forms is Users gem two-step login. Dummy uses Flatpack's built-in `rounded` theme on `<html data-theme="rounded">` for Users auth, public help, staff forms, and Admin. For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root. Edit, Move, and New live on the Admin tables. Forms and preview open under `/admin/support`. Old `/support` links redirect to `/admin`.
+Then open `/help` without signing in. Search the lists with `?q=`. Switch English/French with the compact language control in PageNav. Sign-in for Admin and support forms is Users gem two-step login. Dummy uses Flatpack's built-in `rounded` theme on `<html data-theme="rounded">` for Users auth, public help, support forms, and Admin. For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root. Edit, Move, and New live on the Admin tables. Forms and preview open under `/admin/support`. Old `/support` links redirect to `/admin`.
 
 Seeds three sections: **Billing**, **Developers**, and **Getting started**, each with a Heroicons icon (`credit-card`, `code-bracket`, `rocket-launch`). Live articles inherit that section icon by default, include a short `description`, multi-section HTML bodies, and inline images where helpful (**How do I sign in?** and **How do I update payment details?**). **How do I change my password?** stays a draft under Getting started. Billing and Developers keep multiple/live pages for section lists.
 

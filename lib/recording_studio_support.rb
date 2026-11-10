@@ -48,7 +48,7 @@ module RecordingStudioSupport
       configuration.parent_root_type.to_s
     end
 
-    def staff_permission(actor:, recording:)
+    def support_team_permission(actor:, recording:)
       return unless Api.support_type?(recording&.recordable_type)
       return unless Api::Access.admin_root_edit?(actor)
 

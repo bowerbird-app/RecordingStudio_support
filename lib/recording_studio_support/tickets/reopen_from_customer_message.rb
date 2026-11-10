@@ -15,7 +15,7 @@ module RecordingStudioSupport
 
       def call
         return if @group_recording.blank? || @actor.blank?
-        return if Messages.staff_actor?(@actor)
+        return if Messages.support_team_actor?(@actor)
 
         ticket = Tickets.tickets_by_group_id([@group_recording.id])[@group_recording.id]
         return if ticket.blank?

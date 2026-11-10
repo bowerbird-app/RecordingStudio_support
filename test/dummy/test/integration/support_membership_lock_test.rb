@@ -8,8 +8,8 @@ class SupportMembershipLockTest < ActionDispatch::IntegrationTest
 
   setup do
     load Rails.root.join("db/seeds.rb")
-    @staff = User.find_by!(email: "admin@admin.com")
-    @staff.update!(admin: true) unless @staff.admin?
+    @support_user = User.find_by!(email: "admin@admin.com")
+    @support_user.update!(admin: true) unless @support_user.admin?
 
     @patron = RecordingStudioUser.create_user!(
       email: "lock-patron-#{SecureRandom.hex(4)}@example.com",
@@ -36,7 +36,7 @@ class SupportMembershipLockTest < ActionDispatch::IntegrationTest
     assert RecordingStudioMessages.membership_locked?(mount)
   end
 
-  test "ticket open and staff sync succeed under the lock" do
+  test "ticket open and the support team sync succeed under the lock" do
     ticket = RecordingStudioSupport::Tickets.open!(
       actor: @patron,
       subject: "Lock proof",
@@ -46,13 +46,13 @@ class SupportMembershipLockTest < ActionDispatch::IntegrationTest
 
     assert RecordingStudioMessages.membership_locked_for_group?(group)
     assert RecordingStudioSupport::Messages.group_owner?(group, @patron)
-    assert RecordingStudioSupport::Messages.staff_has_edit?(group, @staff)
+    assert RecordingStudioSupport::Messages.support_team_has_edit?(group, @support_user)
 
-    RecordingStudioSupport::Messages.sync_staff_grants!(
+    RecordingStudioSupport::Messages.sync_support_team_grants!(
       group_recording: group,
       manager_actor: @patron
     )
-    assert RecordingStudioSupport::Messages.staff_has_edit?(group, @staff)
+    assert RecordingStudioSupport::Messages.support_team_has_edit?(group, @support_user)
   end
 
   test "manage grant without bypass is denied on a ticket group" do
@@ -89,15 +89,15 @@ class SupportMembershipLockTest < ActionDispatch::IntegrationTest
     refute_match(/flat-pack--avatar/i, response.body)
   end
 
-  test "staff inbox omits plus access on a ticket conversation" do
+  test "support inbox omits plus access on a ticket conversation" do
     ticket = RecordingStudioSupport::Tickets.open!(
       actor: @patron,
-      subject: "Staff inbox lock",
-      body: "Staff should not see Access either."
+      subject: "Support inbox lock",
+      body: "Support team should not see Access either."
     )
     group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
 
-    sign_in @staff
+    sign_in @support_user
     get "/admin/support/messages", params: { group_id: group.id }
 
     assert_response :success

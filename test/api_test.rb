@@ -34,8 +34,6 @@ class ApiTest < Minitest::Test
     assert_includes access, "authorize_edit!"
     pages = File.read(File.expand_path("../lib/recording_studio_support/pages.rb", __dir__))
     assert_includes pages, "recording.move_to!(new_parent: parent_recording, actor: resolved)"
-    refute_includes pages, "staff_move!"
-    refute File.exist?(File.expand_path("../lib/recording_studio_support/mixin_staff_access.rb", __dir__))
     refute_includes create, "Recording.create!"
     refute_includes update, "Recording.create!"
     refute_includes destroy, "recording.destroy!"
@@ -76,7 +74,6 @@ class ApiTest < Minitest::Test
     refute File.exist?(File.expand_path("../lib/recording_studio_support/api/controller_ext.rb", __dir__))
     refute File.exist?(File.expand_path("../lib/recording_studio_support/api/search_limit.rb", __dir__))
     refute_includes registration, "register_endpoint"
-    refute_includes engine, "MixinStaffAccess"
     assert_includes registration, "ADMIN_NESTED_PAGE_OPERATIONS = (READ_OPERATIONS + WRITE_OPERATIONS)"
     assert_includes registration, "ADMIN_PAGE_OPERATIONS = (READ_OPERATIONS + WRITE_OPERATIONS)"
     assert_includes registration, "operations: ADMIN_PAGE_OPERATIONS"

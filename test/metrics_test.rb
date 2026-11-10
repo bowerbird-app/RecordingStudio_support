@@ -3,7 +3,7 @@
 require "test_helper"
 
 class MetricsTest < Minitest::Test
-  def test_metrics_register_with_operations_expose_and_staff_view
+  def test_metrics_register_with_operations_expose_and_support_team_view
     metrics = File.read(File.expand_path("../lib/recording_studio_support/metrics.rb", __dir__))
     engine = File.read(File.expand_path("../lib/recording_studio_support/engine.rb", __dir__))
     prepares = File.read(File.expand_path("../lib/recording_studio_support/engine/runtime_prepares.rb", __dir__))

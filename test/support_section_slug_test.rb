@@ -3,7 +3,7 @@
 require "test_helper"
 
 class SupportSectionSlugTest < Minitest::Test
-  def test_staff_show_uses_publishable_quick_actions
+  def test_engine_show_uses_publishable_quick_actions
     show = File.read(File.expand_path("../app/views/recording_studio_support/pages/show.html.erb", __dir__))
 
     assert_includes show, "RecordingStudioPublishable::QuickActions::Component"
