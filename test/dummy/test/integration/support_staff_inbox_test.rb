@@ -140,7 +140,10 @@ class SupportStaffInboxTest < ActionDispatch::IntegrationTest
     assert_select "#support-ticket-controls-#{recording_id}"
     assert_select "#support-ticket-controls-mobile-#{recording_id}"
     assert_select '[data-flat-pack-chat-panel-part="right-header"] #support-ticket-controls-%s' % recording_id
+    assert_select '[data-flat-pack-chat-panel-part="right-header"] .w-56'
+    assert_select '[data-flat-pack-chat-panel-part="right-header"] .w-40'
     assert_select '[data-flat-pack-chat-panel-part="right-header-mobile"] #support-ticket-controls-mobile-%s' % recording_id
+    assert_select '[data-flat-pack-chat-panel-part="right-header-mobile"] .w-24'
     assert_select "#support-ticket-status-#{ticket.id} option[value='open'][selected]"
     assert_select "#support-ticket-assignee-#{ticket.id} option[value='']", text: "Unassigned"
     assert_select "#support-ticket-mobile-status-#{ticket.id}"

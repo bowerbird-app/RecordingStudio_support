@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Staff change ticket status and assignee on the open thread, not on a form above the inbox.
 
 ### Added
-- Staff ticket Status and Assignee in the Messages conversation header (`messages_panel_right_header` and `messages_panel_right_header_mobile`). Compact unlabeled selects, short widths, save on change. Shown only on the `:support` mount, only for groups tagged `support_ticket`, and only for actors with Accessible staff access on the SupportCenter. Customers and other groups get nothing. Turbo Stream keeps the thread open.
+- Staff ticket Status and Assignee in the Messages conversation header (`messages_panel_right_header` and `messages_panel_right_header_mobile`). Compact unlabeled selects, save on change. Desktop widths fit the full status and assignee values. Shown only on the `:support` mount, only for groups tagged `support_ticket`, and only for actors with Accessible staff access on the SupportCenter. Customers and other groups get nothing. Turbo Stream keeps the thread open.
 
 ### Changed
 - Dummy Messages pin is `v0.17.0`. Gemspec floor is `recording_studio_messages >= 0.17.0`.

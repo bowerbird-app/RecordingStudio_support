@@ -1,7 +1,8 @@
 <% mobile = local_assigns.fetch(:mobile, false) %>
 <% html_id = support_ticket_controls_id(ticket, mobile: mobile) %>
 <% field_prefix = mobile ? "support-ticket-mobile" : "support-ticket" %>
-<% field_width = mobile ? "w-24" : "w-32" %>
+<% status_width = mobile ? "w-24" : "w-56" %>
+<% assignee_width = mobile ? "w-24" : "w-40" %>
 
 <%= tag.div id: html_id do %>
   <%= form_with url: staff_ticket_update_path_for(ticket),
@@ -13,7 +14,7 @@
                   onchange: "this.requestSubmit()"
                 } do %>
     <div class="flex items-center gap-1.5">
-      <div class="<%= field_width %> shrink-0">
+      <div class="<%= status_width %> shrink-0">
         <%= render FlatPack::Select::Component.new(
           name: "ticket[status]",
           id: "#{field_prefix}-status-#{ticket.id}",
@@ -26,7 +27,7 @@
         ) %>
       </div>
 
-      <div class="<%= field_width %> shrink-0">
+      <div class="<%= assignee_width %> shrink-0">
         <%= render FlatPack::Select::Component.new(
           name: "ticket[assignee]",
           id: "#{field_prefix}-assignee-#{ticket.id}",
