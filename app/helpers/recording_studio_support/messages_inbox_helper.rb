@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module RecordingStudioSupport
-  module MessagesInboxHelper # rubocop:disable Metrics/ModuleLength -- inbox paths and the ticket thread bar stay together
+  module MessagesInboxHelper # rubocop:disable Metrics/ModuleLength -- inbox paths and ticket header hooks stay together
     def support_messages_form_url(group_recording)
       return if group_recording.blank?
 
@@ -112,11 +112,12 @@ module RecordingStudioSupport
       options
     end
 
-    def support_ticket_thread_bar(group_recording, actor:, mount:)
-      ticket = staff_support_ticket_for_header(group_recording, actor: actor, mount: mount)
-      return if ticket.blank?
+    def messages_panel_right_header(group_recording, actor:, mount:)
+      render_support_ticket_controls(group_recording, actor: actor, mount: mount, mobile: false)
+    end
 
-      render "recording_studio_support/staff_messages/ticket_controls", ticket: ticket
+    def messages_panel_right_header_mobile(group_recording, actor:, mount:)
+      render_support_ticket_controls(group_recording, actor: actor, mount: mount, mobile: true)
     end
 
     def staff_support_ticket_for_header(group_recording, actor:, mount:)
@@ -127,8 +128,9 @@ module RecordingStudioSupport
       RecordingStudioSupport::Tickets.tickets_by_group_id([group_recording.id])[group_recording.id]
     end
 
-    def support_ticket_controls_id(ticket)
-      "support-ticket-controls-#{RecordingStudioSupport::Tickets.recording_for!(ticket).id}"
+    def support_ticket_controls_id(ticket, mobile: false)
+      recording_id = RecordingStudioSupport::Tickets.recording_for!(ticket).id
+      mobile ? "support-ticket-controls-mobile-#{recording_id}" : "support-ticket-controls-#{recording_id}"
     end
 
     private
@@ -140,6 +142,15 @@ module RecordingStudioSupport
 
     def staff_inbox_group_href(group_recording)
       "#{RecordingStudioSupport.configuration.pages_path.to_s.chomp('/')}/messages?group_id=#{group_recording.id}"
+    end
+
+    def render_support_ticket_controls(group_recording, actor:, mount:, mobile:)
+      ticket = staff_support_ticket_for_header(group_recording, actor: actor, mount: mount)
+      return if ticket.blank?
+
+      render "recording_studio_support/staff_messages/ticket_controls",
+             ticket: ticket,
+             mobile: mobile
     end
   end
 end

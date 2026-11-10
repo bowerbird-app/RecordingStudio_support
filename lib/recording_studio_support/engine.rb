@@ -132,7 +132,6 @@ module RecordingStudioSupport
         RecordingStudioSupport::Api.register!
         RecordingStudioSupport::Messages::InboxAccessNavigation.install!
         RecordingStudioSupport::Messages::PanelHeader.install!
-        RecordingStudioSupport::Messages::PanelOverride.install!
       end
     end
   end

@@ -137,12 +137,18 @@ class SupportStaffInboxTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Need a hand with billing."
-    assert_select ".flat-pack--chat-panel #support-ticket-controls-#{recording_id}"
-    refute_select '[data-flat-pack-chat-panel-part="right-header"]'
-    refute_select '[data-flat-pack-chat-panel-part="right-header-mobile"]'
+    assert_select "#support-ticket-controls-#{recording_id}"
+    assert_select "#support-ticket-controls-mobile-#{recording_id}"
+    assert_select '[data-flat-pack-chat-panel-part="right-header"] #support-ticket-controls-%s' % recording_id
+    assert_select '[data-flat-pack-chat-panel-part="right-header-mobile"] #support-ticket-controls-mobile-%s' % recording_id
     assert_select "#support-ticket-status-#{ticket.id} option[value='open'][selected]"
     assert_select "#support-ticket-assignee-#{ticket.id} option[value='']", text: "Unassigned"
+    assert_select "#support-ticket-mobile-status-#{ticket.id}"
+    assert_select "#support-ticket-mobile-assignee-#{ticket.id}"
+    refute_select "#support-ticket-controls-#{recording_id} label"
+    refute_select "#support-ticket-controls-mobile-#{recording_id} label"
     refute_select "#support-ticket-controls-#{recording_id} button"
+    refute_select "#support-ticket-controls-mobile-#{recording_id} button"
     refute_select ".flex.w-full.flex-col.gap-4 > form"
     assert_flatpack_rounded_theme
 
@@ -167,6 +173,7 @@ class SupportStaffInboxTest < ActionDispatch::IntegrationTest
     ticket = RecordingStudioSupport::Tickets.find!(ticket.id)
     assert_equal "waiting_on_support", ticket.status
     assert_includes response.body, "support-ticket-controls-#{recording_id}"
+    assert_includes response.body, "support-ticket-controls-mobile-#{recording_id}"
 
     before = RecordingStudioMessages.message_recordings(group).count
     post "/recording_studio_messages/message_groups/#{group.id}/messages", params: {
