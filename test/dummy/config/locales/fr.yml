@@ -86,8 +86,6 @@ fr:
           close: Fermer
         statuses:
           open: Ouvert
-          waiting_on_customer: En attente de vous
-          waiting_on_support: En attente de nous
           resolved: Résolu
         priorities:
           low: Basse

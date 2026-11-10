@@ -2,6 +2,7 @@
 
 require_relative "tickets/open"
 require_relative "tickets/update"
+require_relative "tickets/reopen_from_customer_message"
 
 module RecordingStudioSupport
   # Support tickets live under SupportCenter. The conversation is a tagged

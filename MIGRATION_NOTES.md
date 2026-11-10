@@ -2,7 +2,7 @@
 
 ## 0.30.0
 
-Tickets have no person field. Status stays in the conversation header as a default Button dropdown.
+Tickets have no person field. Status is open or resolved, in the conversation header as a default Button dropdown. A customer message on a resolved ticket reopens it.
 
 ### Host app
 
@@ -10,7 +10,7 @@ Tickets have no person field. Status stays in the conversation header as a defau
 2. `bin/rails generate recording_studio_support:migrations`
 3. `bin/rails db:migrate`
 
-If the host already copied `*_create_recording_studio_support_tickets.rb`, replace that file with this gem's create_table and migrate a fresh table. Existing ticket rows are not kept. There is no backfill.
+If the host already copied `*_create_recording_studio_support_tickets.rb`, replace that file with this gem's create_table and migrate a fresh table. Existing ticket rows are not kept. There is no backfill for assignee or for `waiting_on_customer` / `waiting_on_support`.
 
 ### Verify
 

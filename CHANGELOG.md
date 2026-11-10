@@ -9,13 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.30.0] - 2026-11-10
 
-Tickets have no person field. Status stays in the Messages thread header.
+Tickets have no person field. Status is open or resolved, in the Messages thread header.
+
+### Added
+- A customer message on a resolved ticket reopens it through `Tickets.update!` (usual `updated` event). Staff replies do not.
 
 ### Changed
 - Staff Status in the Messages header is a default Flatpack Button dropdown sized to the label (`messages_panel_right_header` and `messages_panel_right_header_mobile`). The trigger shows the current status. The menu PATCHes `/admin/support/tickets/:id` with Turbo Stream, same staff gate as before.
+- Ticket status is `open` or `resolved`. `resolved_at` still stamps on resolve and clears on reopen.
 
 ### Removed
 - Ticket assignee (`assignee_type` / `assignee_id`, the assignee index, `Tickets.update!` assignee, the header picker, Admin Unassigned widget and filter, and `support_tickets.unassigned_open`)
+- `waiting_on_customer` and `waiting_on_support`
 
 ### Upgrade notes
 - Bump to `0.30.0`.

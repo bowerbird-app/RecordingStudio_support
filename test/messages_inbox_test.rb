@@ -93,6 +93,11 @@ class MessagesInboxTest < Minitest::Test
     refute_includes helper, "support_ticket_thread_bar"
     refute_includes engine, "PanelOverride"
     assert_includes engine, "PanelHeader.install!"
+    runtime = File.read(File.expand_path("../lib/recording_studio_support/engine/runtime_prepares.rb", __dir__))
+    reopen = File.read(File.expand_path("../lib/recording_studio_support/messages/send_message_reopen.rb", __dir__))
+    assert_includes runtime, "SendMessageReopen.install!"
+    assert_includes reopen, "Tickets::ReopenFromCustomerMessage.call"
+    assert_includes reopen, "singleton_class.prepend"
     refute File.exist?(File.expand_path("../lib/recording_studio_support/messages/panel_override.rb", __dir__))
     refute File.exist?(
       File.expand_path(

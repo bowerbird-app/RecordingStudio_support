@@ -110,8 +110,6 @@ module RecordingStudioSupport
     def support_ticket_status_label_for(status)
       {
         "open" => "Open",
-        "waiting_on_customer" => "Waiting on customer",
-        "waiting_on_support" => "Waiting on support",
         "resolved" => "Resolved"
       }.fetch(status.to_s, status.to_s.humanize)
     end

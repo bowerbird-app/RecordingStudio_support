@@ -10,8 +10,6 @@ module RecordingStudioSupport
 
     STATUSES = %w[
       open
-      waiting_on_customer
-      waiting_on_support
       resolved
     ].freeze
 

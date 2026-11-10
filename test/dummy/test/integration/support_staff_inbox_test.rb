@@ -147,10 +147,12 @@ class SupportStaffInboxTest < ActionDispatch::IntegrationTest
     refute_select '[data-flat-pack-chat-panel-part="right-header-mobile"] .w-24'
     assert_select "#support-ticket-status-#{ticket.id}[data-fp-style='default']", text: /Open/
     assert_select "#support-ticket-mobile-status-#{ticket.id}[data-fp-style='default']", text: /Open/
-    assert_select "#support-ticket-controls-#{recording_id} [role='menuitem']", text: "Waiting on customer"
-    assert_select "#support-ticket-controls-#{recording_id} [role='menuitem']", text: "Waiting on support"
+    assert_select "#support-ticket-controls-#{recording_id} [role='menuitem']", text: "Open"
     assert_select "#support-ticket-controls-#{recording_id} [role='menuitem']", text: "Resolved"
-    assert_select "#support-ticket-controls-#{recording_id} form[data-turbo-stream='true'] input[name='ticket[status]'][value='waiting_on_customer']"
+    refute_includes response.body, "Waiting on customer"
+    refute_includes response.body, "waiting_on_customer"
+    refute_includes response.body, "waiting_on_support"
+    assert_select "#support-ticket-controls-#{recording_id} form[data-turbo-stream='true'] input[name='ticket[status]'][value='resolved']"
     refute_select "#support-ticket-controls-#{recording_id} label"
     refute_select "#support-ticket-controls-mobile-#{recording_id} label"
     refute_select "#support-ticket-controls-#{recording_id} select"
@@ -158,21 +160,23 @@ class SupportStaffInboxTest < ActionDispatch::IntegrationTest
     assert_flatpack_rounded_theme
 
     patch "/admin/support/tickets/#{ticket.id}", params: {
-      ticket: { status: "waiting_on_customer" }
+      ticket: { status: "resolved" }
     }
 
     assert_redirected_to "/admin/support/messages?group_id=#{group.id}"
     ticket = RecordingStudioSupport::Tickets.find!(ticket.id)
-    assert_equal "waiting_on_customer", ticket.status
+    assert_equal "resolved", ticket.status
+    assert_not_nil ticket.resolved_at
 
     patch "/admin/support/tickets/#{ticket.id}",
-          params: { ticket: { status: "waiting_on_support" } },
+          params: { ticket: { status: "open" } },
           as: :turbo_stream
 
     assert_response :success
     assert_equal Mime[:turbo_stream], response.media_type
     ticket = RecordingStudioSupport::Tickets.find!(ticket.id)
-    assert_equal "waiting_on_support", ticket.status
+    assert_equal "open", ticket.status
+    assert_nil ticket.resolved_at
     assert_includes response.body, "support-ticket-controls-#{recording_id}"
     assert_includes response.body, "support-ticket-controls-mobile-#{recording_id}"
 

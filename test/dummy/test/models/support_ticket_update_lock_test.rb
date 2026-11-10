@@ -36,11 +36,11 @@ class SupportTicketUpdateLockTest < ActiveSupport::TestCase
     stale = RecordingStudio::Recording.find(recording.id)
     stale.recordable
 
-    RecordingStudioSupport::Tickets.update!(recording, actor: @staff, status: :waiting_on_customer)
+    RecordingStudioSupport::Tickets.update!(recording, actor: @staff, status: :resolved)
     revised = RecordingStudioSupport::Tickets.update!(stale, actor: @staff, priority: :high)
     current = revised.recordable
 
-    assert_equal "waiting_on_customer", current.status
+    assert_equal "resolved", current.status
     assert_equal "high", current.priority
     assert_equal ["priority"], revised.events.order(occurred_at: :desc).first.metadata["changes"].keys
   end

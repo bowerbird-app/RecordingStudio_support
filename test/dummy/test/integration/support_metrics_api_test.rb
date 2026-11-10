@@ -363,13 +363,12 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
       )
     end
     travel_to Time.utc(2026, 3, 12, 12) do
-      waiting = RecordingStudioSupport::Tickets.open!(
+      RecordingStudioSupport::Tickets.open!(
         actor: @patron,
-        subject: "March waiting #{SecureRandom.hex(4)}",
+        subject: "March still open #{SecureRandom.hex(4)}",
         body: "Need a reply.",
         priority: :low
       )
-      revise_support_ticket!(waiting, status: :waiting_on_customer)
       resolved = RecordingStudioSupport::Tickets.open!(
         actor: @patron,
         subject: "March resolved #{SecureRandom.hex(4)}",
