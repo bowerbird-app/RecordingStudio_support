@@ -7,8 +7,8 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
   PUBLIC_ROOT = "/recording_studio_api/api/v1"
 
   setup do
-    @staff = User.create!(
-      email: "metrics-staff-#{SecureRandom.hex(4)}@example.com",
+    @support_user = User.create!(
+      email: "metrics-support-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       password_confirmation: "Password"
     )
@@ -17,35 +17,35 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
       password: "Password",
       password_confirmation: "Password"
     )
-    Current.actor = @staff
+    Current.actor = @support_user
     @workspace = Workspace.create!(name: "Metrics #{SecureRandom.hex(4)}")
     @root = RecordingStudio.root_recording_for(@workspace)
     @admin_root = RecordingStudio.root_recording_for(AdminRoot.find_or_create_by!(name: "Admin"))
-    grant!(@admin_root, @staff, :admin)
+    grant!(@admin_root, @support_user, :admin)
     record_support_center(@admin_root)
-    bootstrap_owner!(@root, @staff)
+    bootstrap_owner!(@root, @support_user)
     grant!(@root, @patron, :edit)
 
     seed_tickets!
     seed_pages!
 
-    @staff_operations_token = provision_token(
+    @support_operations_token = provision_token(
       access_point: @admin_root,
-      actor: @staff,
+      actor: @support_user,
       role: :edit,
-      name: "Staff operations metrics #{SecureRandom.hex(4)}",
+      name: "Support operations metrics #{SecureRandom.hex(4)}",
       api: :operations
     )
     @workspace_operations_token = provision_token(
       access_point: @root,
-      actor: @staff,
+      actor: @support_user,
       role: :edit,
       name: "Workspace operations metrics #{SecureRandom.hex(4)}",
       api: :operations
     )
     @public_token = provision_token(
       access_point: @root,
-      actor: @staff,
+      actor: @support_user,
       role: :view,
       name: "Public metrics #{SecureRandom.hex(4)}"
     )
@@ -56,15 +56,15 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     Current.actor = nil
   end
 
-  test "operations staff token reads support ticket and page metrics" do
+  test "operations support team token reads support ticket and page metrics" do
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/open",
-        headers: auth(@staff_operations_token),
+        headers: auth(@support_operations_token),
         as: :json
     assert_response :success
     assert_equal current_tickets.open.count, response.parsed_body.fetch("value")
 
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/by_status",
-        headers: auth(@staff_operations_token),
+        headers: auth(@support_operations_token),
         as: :json
     assert_response :success
     status_counts = breakdown_counts(response.parsed_body)
@@ -73,7 +73,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     end
 
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/by_priority",
-        headers: auth(@staff_operations_token),
+        headers: auth(@support_operations_token),
         as: :json
     assert_response :success
     priority_counts = breakdown_counts(response.parsed_body)
@@ -83,7 +83,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
 
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/opened",
         params: { interval: "month" },
-        headers: auth(@staff_operations_token),
+        headers: auth(@support_operations_token),
         as: :json
     assert_response :success
     opened = timeseries_counts(response.parsed_body)
@@ -94,19 +94,19 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
 
     live_pages = RecordingStudioSupport::Admin::Queries.kept_page_recordings.count
     get "#{OPERATIONS_ROOT}/metrics/support_pages/total",
-        headers: auth(@staff_operations_token),
+        headers: auth(@support_operations_token),
         as: :json
     assert_response :success
     assert_equal live_pages, response.parsed_body.fetch("value")
     assert_operator RecordingStudioSupport::SupportPage.count, :>, live_pages
   end
 
-  test "operations staff token reads support queue metrics" do
+  test "operations support team token reads support queue metrics" do
     open_tickets = current_tickets.open
 
     travel_to Time.utc(2026, 4, 1, 12) do
       get "#{OPERATIONS_ROOT}/metrics/support_tickets/oldest_open_age",
-          headers: auth(@staff_operations_token),
+          headers: auth(@support_operations_token),
           as: :json
       assert_response :success
       expected = (Time.current - open_tickets.minimum(:created_at)).to_i
@@ -120,7 +120,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     current_tickets.open.find_each { |ticket| revise_support_ticket!(ticket, status: :resolved) }
 
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/oldest_open_age",
-        headers: auth(@staff_operations_token),
+        headers: auth(@support_operations_token),
         as: :json
     assert_response :success
     assert_equal "seconds", response.parsed_body.fetch("unit")
@@ -132,7 +132,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
 
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/open",
         params: { group_by: "priority" },
-        headers: auth(@staff_operations_token),
+        headers: auth(@support_operations_token),
         as: :json
     assert_response :success
     body = response.parsed_body
@@ -156,7 +156,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     %w[status priority].each do |field|
       get "#{OPERATIONS_ROOT}/metrics/support_tickets/opened",
           params: { interval: "month", group_by: field, from: "2026-02-01", to: "2026-04-01" },
-          headers: auth(@staff_operations_token),
+          headers: auth(@support_operations_token),
           as: :json
       assert_response :success
       body = response.parsed_body
@@ -190,7 +190,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
 
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/avg_time_to_resolve",
         params: { interval: "month", from: "2026-02-01", to: "2026-04-01" },
-        headers: auth(@staff_operations_token), as: :json
+        headers: auth(@support_operations_token), as: :json
     assert_response :success
     body = response.parsed_body
     assert_equal "seconds", body.fetch("unit")
@@ -202,13 +202,13 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
 
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/avg_time_to_resolve",
         params: { interval: "month", from: "2026-02-01", to: "2026-04-01", group_by: "priority" },
-        headers: auth(@staff_operations_token), as: :json
+        headers: auth(@support_operations_token), as: :json
     assert_response :success
     assert_equal "priority", response.parsed_body.fetch("group_by")
 
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/avg_time_to_resolve",
         params: { interval: "month", group_by: "subject" },
-        headers: auth(@staff_operations_token), as: :json
+        headers: auth(@support_operations_token), as: :json
     assert_response :unprocessable_entity
   end
 
@@ -220,7 +220,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
 
     get "#{OPERATIONS_ROOT}/metrics/support_page_views/over_time",
         params: { interval: "day", from: "2025-03-05T00:00:00Z", to: "2025-03-07T00:00:00Z", timezone: "UTC" },
-        headers: auth(@staff_operations_token), as: :json
+        headers: auth(@support_operations_token), as: :json
     assert_response :success
     body = response.parsed_body
     assert_equal "views", body.fetch("unit")
@@ -231,26 +231,26 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
 
     get "#{OPERATIONS_ROOT}/metrics/support_page_views/over_time",
         params: { interval: "day", group_by: "actor_id" },
-        headers: auth(@staff_operations_token), as: :json
+        headers: auth(@support_operations_token), as: :json
     assert_response :unprocessable_entity
   end
 
   test "group_by rejects unsupported and non-groupable metrics" do
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/open",
         params: { group_by: "subject" },
-        headers: auth(@staff_operations_token),
+        headers: auth(@support_operations_token),
         as: :json
     assert_response :unprocessable_entity
 
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/oldest_open_age",
         params: { group_by: "priority" },
-        headers: auth(@staff_operations_token),
+        headers: auth(@support_operations_token),
         as: :json
     assert_response :unprocessable_entity
   end
 
   test "catalog lists group_by, date range and freshness for ticket metrics" do
-    get "#{OPERATIONS_ROOT}/metrics", headers: auth(@staff_operations_token), as: :json
+    get "#{OPERATIONS_ROOT}/metrics", headers: auth(@support_operations_token), as: :json
     assert_response :success
     catalog = response.parsed_body.fetch("metrics").index_by { |row| row.fetch("identifier") }
 
@@ -278,7 +278,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
   end
 
   test "metrics index lists support ticket and page metrics" do
-    get "#{OPERATIONS_ROOT}/metrics", headers: auth(@staff_operations_token), as: :json
+    get "#{OPERATIONS_ROOT}/metrics", headers: auth(@support_operations_token), as: :json
 
     assert_response :success
     identifiers = response.parsed_body.fetch("metrics").map { |row| row.fetch("identifier") }
@@ -395,15 +395,15 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
       recording: edited,
       title: "#{edited.recordable.title} v2",
       body: "Second snapshot",
-      actor: @staff
+      actor: @support_user
     )
     RecordingStudioSupport::Pages.revise!(
       recording: edited,
       title: "#{edited.recordable.title} v3",
       body: "Third snapshot",
-      actor: @staff
+      actor: @support_user
     )
-    RecordingStudioSupport::Pages.trash!(recording: trashed, actor: @staff)
+    RecordingStudioSupport::Pages.trash!(recording: trashed, actor: @support_user)
 
     @live_page = live
   end

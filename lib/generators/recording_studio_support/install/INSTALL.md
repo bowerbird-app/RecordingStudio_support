@@ -2,7 +2,7 @@
 
 RecordingStudioSupport has been installed successfully!
 
-Staff Support forms are mounted at /admin/support.
+Support forms are mounted at /admin/support.
 Public help is at /help. Both use Recording Studio's default layout.
 Put Flatpack's rounded theme on html: `<html data-theme="rounded">`.
 Old /support bookmarks redirect to /admin.
@@ -14,9 +14,9 @@ Setup:
 1. Set config.parent_root_type before models load (default AdminRoot)
 2. Record a SupportCenter under that root. Example: admin_root.record(RecordingStudioSupport::SupportCenter)
 3. Enable `section :support` on your admin root
-4. Grant staff Accessible :edit on the SupportCenter or its admin root
+4. Grant support team Accessible :edit on the SupportCenter or its admin root
 
-Staff UI:
+Support UI:
 1. Sign in, switch to the admin root, then visit http://localhost:3000/admin
 2. Open Support pages or Support sections. New, Edit, and preview stay under /admin/support
 3. Publish a page from the page's Publish screen

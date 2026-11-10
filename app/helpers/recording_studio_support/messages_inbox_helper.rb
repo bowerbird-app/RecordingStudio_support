@@ -23,7 +23,7 @@ module RecordingStudioSupport
 
     def messages_inbox_href(group_recording, inbox: nil)
       return my_messages_href(group_recording) if inbox == :my_messages && respond_to?(:my_messages_href)
-      return staff_inbox_group_href(group_recording) if staff_inbox_request?
+      return support_inbox_group_href(group_recording) if support_inbox_request?
 
       ticket = RecordingStudioSupport::Tickets.tickets_by_group_id([group_recording.id])[group_recording.id]
       return help_message_path_for(ticket) if ticket
@@ -63,7 +63,7 @@ module RecordingStudioSupport
       "#{help_messages_path_for}/#{ticket.id}"
     end
 
-    def staff_ticket_update_path_for(ticket)
+    def support_ticket_update_path_for(ticket)
       path = RecordingStudioSupport.configuration.pages_path.to_s.chomp("/")
       "#{path}/tickets/#{ticket.id}"
     end
@@ -98,7 +98,7 @@ module RecordingStudioSupport
     def support_ticket_status_action(ticket, label:, status:)
       button_to(
         label,
-        staff_ticket_update_path_for(ticket),
+        support_ticket_update_path_for(ticket),
         method: :patch,
         params: { ticket: { status: status } },
         form: { class: "w-full", data: { turbo: true, turbo_stream: true } },
@@ -126,10 +126,10 @@ module RecordingStudioSupport
       render_support_ticket_controls(group_recording, actor: actor, mount: mount, mobile: true)
     end
 
-    def staff_support_ticket_for_header(group_recording, actor:, mount:)
+    def support_ticket_for_header(group_recording, actor:, mount:)
       return if group_recording.blank? || actor.blank? || mount.blank?
       return unless mount.recordable&.key.to_s == RecordingStudioSupport::Messages::SUPPORT_MOUNT_KEY.to_s
-      return unless RecordingStudioSupport::Messages.staff_actor?(actor)
+      return unless RecordingStudioSupport::Messages.support_team_actor?(actor)
 
       RecordingStudioSupport::Tickets.tickets_by_group_id([group_recording.id])[group_recording.id]
     end
@@ -141,20 +141,20 @@ module RecordingStudioSupport
 
     private
 
-    def staff_inbox_request?
-      staff_path = RecordingStudioSupport.configuration.pages_path.to_s.chomp("/")
-      request.path.to_s.start_with?(staff_path)
+    def support_inbox_request?
+      inbox_mount_path = RecordingStudioSupport.configuration.pages_path.to_s.chomp("/")
+      request.path.to_s.start_with?(inbox_mount_path)
     end
 
-    def staff_inbox_group_href(group_recording)
+    def support_inbox_group_href(group_recording)
       "#{RecordingStudioSupport.configuration.pages_path.to_s.chomp('/')}/messages?group_id=#{group_recording.id}"
     end
 
     def render_support_ticket_controls(group_recording, actor:, mount:, mobile:)
-      ticket = staff_support_ticket_for_header(group_recording, actor: actor, mount: mount)
+      ticket = support_ticket_for_header(group_recording, actor: actor, mount: mount)
       return if ticket.blank?
 
-      render "recording_studio_support/staff_messages/ticket_controls",
+      render "recording_studio_support/support_inbox/ticket_controls",
              ticket: ticket,
              mobile: mobile
     end

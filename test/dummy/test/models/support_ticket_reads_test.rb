@@ -20,16 +20,16 @@ class SupportTicketReadsTest < ActiveSupport::TestCase
       last_name: "Patron",
       time_zone: "UTC"
     )
-    @staff = RecordingStudioUser.create_user!(
-      email: "ticket-reads-staff-#{SecureRandom.hex(4)}@example.com",
+    @support_user = RecordingStudioUser.create_user!(
+      email: "ticket-reads-support-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       first_name: "Sam",
-      last_name: "Staff",
+      last_name: "Support team",
       time_zone: "UTC"
     )
-    Current.actor = @staff
+    Current.actor = @support_user
     admin_root = RecordingStudio.root_recording_for(AdminRoot.find_or_create_by!(name: "Admin"))
-    grant_admin!(admin_root, @staff)
+    grant_admin!(admin_root, @support_user)
     record_support_center(admin_root)
     RecordingStudio::Recording.where(recordable_type: RecordingStudioSupport::Tickets::TICKET_TYPE)
                               .update_all(trashed_at: Time.current)
@@ -52,13 +52,13 @@ class SupportTicketReadsTest < ActiveSupport::TestCase
     recording = RecordingStudioSupport::Tickets.recording_for!(ticket)
 
     travel_to(opened_at + 1.hour) do
-      recording = RecordingStudioSupport::Tickets.update!(recording, actor: @staff, priority: :high)
+      recording = RecordingStudioSupport::Tickets.update!(recording, actor: @support_user, priority: :high)
     end
     travel_to(opened_at + 2.hours) do
-      recording = RecordingStudioSupport::Tickets.update!(recording, actor: @staff, priority: :normal)
+      recording = RecordingStudioSupport::Tickets.update!(recording, actor: @support_user, priority: :normal)
     end
     travel_to(opened_at + 3.hours) do
-      recording = RecordingStudioSupport::Tickets.update!(recording, actor: @staff, priority: :low)
+      recording = RecordingStudioSupport::Tickets.update!(recording, actor: @support_user, priority: :low)
     end
 
     assert_equal 4, RecordingStudioSupport::SupportTicket.where(subject: ticket.subject).count
@@ -76,7 +76,7 @@ class SupportTicketReadsTest < ActiveSupport::TestCase
     end
 
     travel_to(opened_at + 4.hours) do
-      RecordingStudioSupport::Tickets.update!(recording, actor: @staff, status: :resolved)
+      RecordingStudioSupport::Tickets.update!(recording, actor: @support_user, status: :resolved)
     end
 
     assert_operator RecordingStudioSupport::SupportTicket.where(status: "open").count, :>=, 1
@@ -105,7 +105,7 @@ class SupportTicketReadsTest < ActiveSupport::TestCase
     newer = travel_to(Time.utc(2026, 4, 2, 11)) { open_ticket!("Newer queue") }
     older_recording = RecordingStudioSupport::Tickets.recording_for!(older)
     travel_to(Time.utc(2026, 4, 2, 15)) do
-      RecordingStudioSupport::Tickets.update!(older_recording, actor: @staff, priority: :high)
+      RecordingStudioSupport::Tickets.update!(older_recording, actor: @support_user, priority: :high)
     end
 
     assert_equal [older.subject, newer.subject], open_subjects
@@ -133,7 +133,7 @@ class SupportTicketReadsTest < ActiveSupport::TestCase
   end
 
   def metric_context
-    @metric_context ||= Struct.new(:actor, :blast_radius, :timezone).new(@staff, :site, "UTC")
+    @metric_context ||= Struct.new(:actor, :blast_radius, :timezone).new(@support_user, :site, "UTC")
   end
 
   def metric_value(identifier)

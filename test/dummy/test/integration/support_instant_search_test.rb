@@ -100,7 +100,7 @@ class SupportInstantSearchTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "How do I sign in?"
   end
 
-  test "staff instant search includes drafts in the section" do
+  test "support team instant search includes drafts in the section" do
     sign_in @user
     section = seeded_section("Getting started")
 
@@ -112,7 +112,7 @@ class SupportInstantSearchTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "Where is my invoice?"
   end
 
-  test "logged out visitors cannot use staff instant search" do
+  test "logged out visitors cannot use support team instant search" do
     section = seeded_section("Getting started")
 
     get "/admin/support/sections/#{section.id}/instant_search", params: { q: "sign" }

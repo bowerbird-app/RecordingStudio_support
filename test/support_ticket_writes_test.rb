@@ -53,7 +53,7 @@ class SupportTicketWritesTest < Minitest::Test
       # old_ticket.delete
       # SupportTicket.delete_all
       note = "\#{ticket.id}"
-      Tickets.update!(ticket, actor: staff)
+      Tickets.update!(ticket, actor: teammate)
     RUBY
 
     assert_empty offenders_in([["sample.rb", snippet]])

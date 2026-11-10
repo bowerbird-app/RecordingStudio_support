@@ -28,8 +28,8 @@ module RecordingStudioSupport
       end
     end
 
-    def staff_recordings(section_recording, query:)
-      matched = hits(query: query, section_recording: section_recording, audience: :staff)
+    def support_team_recordings(section_recording, query:)
+      matched = hits(query: query, section_recording: section_recording, audience: :support_team)
       page_ids = matched.unscope(:order).reselect(:id)
       Pages.kept_pages_for_section(section_recording)
            .where(recordable_id: page_ids)

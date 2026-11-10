@@ -7,8 +7,8 @@ class SupportApiTest < ActionDispatch::IntegrationTest
   OPERATIONS_ROOT = "/recording_studio_api/apis/operations/v1"
 
   setup do
-    @staff = User.create!(
-      email: "api-staff-#{SecureRandom.hex(4)}@example.com",
+    @support_user = User.create!(
+      email: "api-support-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       password_confirmation: "Password"
     )
@@ -17,12 +17,12 @@ class SupportApiTest < ActionDispatch::IntegrationTest
       password: "Password",
       password_confirmation: "Password"
     )
-    Current.actor = @staff
+    Current.actor = @support_user
     @workspace = Workspace.create!(name: "API #{SecureRandom.hex(4)}")
     @root = RecordingStudio.root_recording_for(@workspace)
     @admin_root = RecordingStudio.root_recording_for(AdminRoot.find_or_create_by!(name: "Admin"))
-    grant!(@admin_root, @staff, :admin)
-    bootstrap_owner!(@root, @staff)
+    grant!(@admin_root, @support_user, :admin)
+    bootstrap_owner!(@root, @support_user)
     grant!(@root, @workspace_user, :edit)
 
     @section = record_support_section(@root, title: "API section #{SecureRandom.hex(4)}")
@@ -31,37 +31,37 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     publish!(@live, slug: "live-api-#{SecureRandom.hex(4)}", status: "published")
     publish!(@draft, slug: "draft-api-#{SecureRandom.hex(4)}", status: "draft")
 
-    @staff_public_token = provision_token(
+    @support_public_token = provision_token(
       access_point: @root,
-      actor: @staff,
+      actor: @support_user,
       role: :edit,
-      name: "Staff public #{SecureRandom.hex(4)}",
+      name: "Support team public #{SecureRandom.hex(4)}",
       admin_root_recording: @admin_root
     )
     @editor_operations_token = provision_token(
       access_point: @admin_root,
-      actor: @staff,
+      actor: @support_user,
       role: :edit,
-      name: "Staff operations #{SecureRandom.hex(4)}",
+      name: "Support operations #{SecureRandom.hex(4)}",
       api: :operations
     )
     @viewer_operations_token = provision_token(
       access_point: @admin_root,
-      actor: @staff,
+      actor: @support_user,
       role: :view,
       name: "Viewer operations #{SecureRandom.hex(4)}",
       api: :operations
     )
     @workspace_operations_token = provision_token(
       access_point: @root,
-      actor: @staff,
+      actor: @support_user,
       role: :edit,
       name: "Workspace operations #{SecureRandom.hex(4)}",
       api: :operations
     )
     @workspace_token = provision_token(
       access_point: @root,
-      actor: @staff,
+      actor: @support_user,
       role: :view,
       name: "Workspace #{SecureRandom.hex(4)}"
     )
@@ -96,69 +96,69 @@ class SupportApiTest < ActionDispatch::IntegrationTest
 
   test "public writes and move are not found or unsupported" do
     post "#{PUBLIC_ROOT}/support_sections",
-         headers: auth(@staff_public_token),
+         headers: auth(@support_public_token),
          params: { title: "Nope", parent_id: @root.id },
          as: :json
     assert_public_write_unavailable
 
     patch "#{PUBLIC_ROOT}/support_sections/#{@section.id}",
-          headers: auth(@staff_public_token),
+          headers: auth(@support_public_token),
           params: { title: "Nope" },
           as: :json
     assert_public_write_unavailable
 
     delete "#{PUBLIC_ROOT}/support_sections/#{@section.id}",
-           headers: auth(@staff_public_token),
+           headers: auth(@support_public_token),
            as: :json
     assert_public_write_unavailable
 
     post "#{PUBLIC_ROOT}/support_sections/#{@section.id}/pages",
-         headers: auth(@staff_public_token),
+         headers: auth(@support_public_token),
          params: { title: "Nope" },
          as: :json
     assert_public_write_unavailable
 
     patch "#{PUBLIC_ROOT}/support_sections/#{@section.id}/pages/#{@live.id}",
-          headers: auth(@staff_public_token),
+          headers: auth(@support_public_token),
           params: { title: "Nope" },
           as: :json
     assert_public_write_unavailable
 
     delete "#{PUBLIC_ROOT}/support_sections/#{@section.id}/pages/#{@live.id}",
-           headers: auth(@staff_public_token),
+           headers: auth(@support_public_token),
            as: :json
     assert_public_write_unavailable
 
     post "#{PUBLIC_ROOT}/support_pages",
-         headers: auth(@staff_public_token),
+         headers: auth(@support_public_token),
          params: { title: "Nope", parent_id: @section.id },
          as: :json
     assert_public_write_unavailable
 
     patch "#{PUBLIC_ROOT}/support_pages/#{@live.id}",
-          headers: auth(@staff_public_token),
+          headers: auth(@support_public_token),
           params: { title: "Nope" },
           as: :json
     assert_public_write_unavailable
 
     delete "#{PUBLIC_ROOT}/support_pages/#{@live.id}",
-           headers: auth(@staff_public_token),
+           headers: auth(@support_public_token),
            as: :json
     assert_public_write_unavailable
 
     post "#{PUBLIC_ROOT}/support_pages/#{@live.id}/actions/move",
-         headers: auth(@staff_public_token),
+         headers: auth(@support_public_token),
          params: { parent_id: @section.id },
          as: :json
     assert_public_write_unavailable
 
     post "#{PUBLIC_ROOT}/support_pages/#{@live.id}/actions/publish",
-         headers: auth(@staff_public_token),
+         headers: auth(@support_public_token),
          as: :json
     assert_public_write_unavailable
 
     post "#{PUBLIC_ROOT}/support_pages/#{@live.id}/actions/unpublish",
-         headers: auth(@staff_public_token),
+         headers: auth(@support_public_token),
          as: :json
     assert_public_write_unavailable
   end
@@ -219,8 +219,8 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal "Revised collection", response.parsed_body.fetch("title")
 
-    destination = record_as_staff { record_support_section(@root, title: "Move dest #{SecureRandom.hex(4)}") }
-    alias_dest = record_as_staff { record_support_section(@root, title: "Alias dest #{SecureRandom.hex(4)}") }
+    destination = record_as_support_team { record_support_section(@root, title: "Move dest #{SecureRandom.hex(4)}") }
+    alias_dest = record_as_support_team { record_support_section(@root, title: "Alias dest #{SecureRandom.hex(4)}") }
     post "#{OPERATIONS_ROOT}/support_pages/#{page_id}/actions/move",
          headers: auth(@editor_operations_token),
          params: { destination_id: destination.id },
@@ -298,10 +298,10 @@ class SupportApiTest < ActionDispatch::IntegrationTest
   end
 
   test "section create rejects a trashed workspace parent" do
-    trashed = record_as_staff do
+    trashed = record_as_support_team do
       workspace = Workspace.create!(name: "Trashed #{SecureRandom.hex(4)}")
       root = RecordingStudio.root_recording_for(workspace)
-      bootstrap_owner!(root, @staff)
+      bootstrap_owner!(root, @support_user)
       root.update!(trashed_at: Time.current)
       root
     end
@@ -316,7 +316,7 @@ class SupportApiTest < ActionDispatch::IntegrationTest
 
   test "public token is rejected on the operations API" do
     post "#{OPERATIONS_ROOT}/support_sections",
-         headers: auth(@staff_public_token),
+         headers: auth(@support_public_token),
          params: { title: "Nope", parent_id: @root.id },
          as: :json
 
@@ -419,25 +419,25 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
-  test "operations staff without workspace grant can move and trash through mixins" do
-    ops_staff = User.create!(
+  test "operations support team without workspace grant can move and trash through mixins" do
+    ops_support_user = User.create!(
       email: "ops-only-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       password_confirmation: "Password"
     )
-    grant!(@admin_root, ops_staff, :edit)
-    refute RecordingStudioAccessible.authorized?(actor: ops_staff, recording: @root, role: :edit)
+    grant!(@admin_root, ops_support_user, :edit)
+    refute RecordingStudioAccessible.authorized?(actor: ops_support_user, recording: @root, role: :edit)
 
     token = provision_token(
       access_point: @admin_root,
-      actor: @staff,
+      actor: @support_user,
       role: :edit,
       name: "Ops only #{SecureRandom.hex(4)}",
       api: :operations
     )
 
-    page = record_as_staff { record_support_page(@root, @section, title: "Ops move #{SecureRandom.hex(4)}", body: "Body") }
-    destination = record_as_staff { record_support_section(@root, title: "Ops dest #{SecureRandom.hex(4)}") }
+    page = record_as_support_team { record_support_page(@root, @section, title: "Ops move #{SecureRandom.hex(4)}", body: "Body") }
+    destination = record_as_support_team { record_support_section(@root, title: "Ops dest #{SecureRandom.hex(4)}") }
     events_before = RecordingStudio::Event.where(recording_id: page.id).count
 
     post "#{OPERATIONS_ROOT}/support_pages/#{page.id}/actions/move",
@@ -534,15 +534,15 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     refute_includes response.parsed_body.fetch("records").map { |record| record.fetch("id") }, page_id
   end
 
-  test "public index and show still work for staff and workspace tokens" do
-    get "#{PUBLIC_ROOT}/support_pages", headers: auth(@staff_public_token), as: :json
+  test "public index and show still work for the support team and workspace tokens" do
+    get "#{PUBLIC_ROOT}/support_pages", headers: auth(@support_public_token), as: :json
 
     assert_response :success
     titles = response.parsed_body.fetch("records").map { |record| record.fetch("title") }
     assert_includes titles, @live.recordable.title
     assert_includes titles, @draft.recordable.title
 
-    get "#{PUBLIC_ROOT}/support_pages/#{@draft.id}", headers: auth(@staff_public_token), as: :json
+    get "#{PUBLIC_ROOT}/support_pages/#{@draft.id}", headers: auth(@support_public_token), as: :json
 
     assert_response :success
     assert_equal @draft.recordable.title, response.parsed_body.fetch("title")
@@ -650,7 +650,7 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal @draft.recordable.title, response.parsed_body.fetch("title")
 
-    get "#{OPERATIONS_ROOT}/support_sections", headers: auth(@staff_public_token), as: :json
+    get "#{OPERATIONS_ROOT}/support_sections", headers: auth(@support_public_token), as: :json
 
     assert_includes [401, 403], response.status, response.body
   end
@@ -666,21 +666,21 @@ class SupportApiTest < ActionDispatch::IntegrationTest
 
   test "q searches nested section pages and the pages collection" do
     token = "Zephyr#{SecureRandom.hex(4)}"
-    live_hit, draft_hit, miss = record_as_staff do
+    live_hit, draft_hit, miss = record_as_support_team do
       [
         record_support_page(@root, @section, title: "#{token} live receipt", body: "Body"),
         record_support_page(@root, @section, title: "#{token} draft receipt", body: "Body"),
         record_support_page(@root, @section, title: "Unrelated #{SecureRandom.hex(4)}", body: "Body")
       ]
     end
-    record_as_staff do
+    record_as_support_team do
       publish!(live_hit, slug: "live-#{token}", status: "published")
       publish!(draft_hit, slug: "draft-#{token}", status: "draft")
       publish!(miss, slug: "miss-#{token}", status: "published")
     end
 
     get "#{PUBLIC_ROOT}/support_pages",
-        headers: auth(@staff_public_token),
+        headers: auth(@support_public_token),
         params: { q: token },
         as: :json
 
@@ -728,9 +728,9 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     { "Authorization" => "Bearer #{token}", "Accept" => "application/json" }
   end
 
-  def record_as_staff
+  def record_as_support_team
     previous = Current.actor
-    Current.actor = @staff
+    Current.actor = @support_user
     yield
   ensure
     Current.actor = previous
@@ -777,7 +777,7 @@ class SupportApiTest < ActionDispatch::IntegrationTest
   def publish!(page_recording, slug:, status:)
     result = RecordingStudioPublishable::Services::Publishables::Update.call(
       parent_recording: page_recording,
-      actor: @staff,
+      actor: @support_user,
       attributes: { slug: slug, status: status }
     )
     raise result.error if result.failure?

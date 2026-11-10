@@ -1,6 +1,6 @@
 <%= turbo_stream.replace support_ticket_controls_id(@ticket, mobile: false),
-                         partial: "recording_studio_support/staff_messages/ticket_controls",
+                         partial: "recording_studio_support/support_inbox/ticket_controls",
                          locals: { ticket: @ticket, mobile: false } %>
 <%= turbo_stream.replace support_ticket_controls_id(@ticket, mobile: true),
-                         partial: "recording_studio_support/staff_messages/ticket_controls",
+                         partial: "recording_studio_support/support_inbox/ticket_controls",
                          locals: { ticket: @ticket, mobile: true } %>

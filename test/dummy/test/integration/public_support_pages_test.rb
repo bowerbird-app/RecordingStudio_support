@@ -450,7 +450,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "Studio Workspace"
   end
 
-  test "logged out visitors cannot preview staff pages" do
+  test "logged out visitors cannot preview support team pages" do
     recording = seeded_page("How do I change my password?")
 
     get "/admin/support/#{recording.id}"
@@ -469,7 +469,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_redirected_to "/admin"
   end
 
-  test "logged out visitors are asked to sign in for staff support" do
+  test "logged out visitors are asked to sign in for support screens" do
     get "/admin/support/new"
 
     assert_response :redirect

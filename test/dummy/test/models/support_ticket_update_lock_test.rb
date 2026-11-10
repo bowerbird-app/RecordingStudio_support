@@ -11,15 +11,15 @@ class SupportTicketUpdateLockTest < ActiveSupport::TestCase
       last_name: "Patron",
       time_zone: "UTC"
     )
-    @staff = RecordingStudioUser.create_user!(
-      email: "ticket-lock-staff-#{SecureRandom.hex(4)}@example.com",
+    @support_user = RecordingStudioUser.create_user!(
+      email: "ticket-lock-support-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       first_name: "Sam",
-      last_name: "Staff",
+      last_name: "Support team",
       time_zone: "UTC"
     )
-    Current.actor = @staff
-    admin_support_tree(@staff)
+    Current.actor = @support_user
+    admin_support_tree(@support_user)
   end
 
   teardown do
@@ -36,8 +36,8 @@ class SupportTicketUpdateLockTest < ActiveSupport::TestCase
     stale = RecordingStudio::Recording.find(recording.id)
     stale.recordable
 
-    RecordingStudioSupport::Tickets.update!(recording, actor: @staff, status: :resolved)
-    revised = RecordingStudioSupport::Tickets.update!(stale, actor: @staff, priority: :high)
+    RecordingStudioSupport::Tickets.update!(recording, actor: @support_user, status: :resolved)
+    revised = RecordingStudioSupport::Tickets.update!(stale, actor: @support_user, priority: :high)
     current = revised.recordable
 
     assert_equal "resolved", current.status

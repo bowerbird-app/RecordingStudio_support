@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.30.0", ::RecordingStudioSupport::VERSION
+    assert_equal "0.31.0", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -115,7 +115,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_views", tag: "v0.8.0"'
 
     dummy_hooks = File.read(File.expand_path("dummy/config/initializers/recording_studio_support.rb", __dir__))
-    assert_includes dummy_hooks, "RecordingStudioSupport.staff_permission"
+    assert_includes dummy_hooks, "RecordingStudioSupport.support_team_permission"
     assert_includes dummy_hooks, "authorization_resolver"
     assert_includes dummy_hooks, "authorization_hook"
     assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.341"'

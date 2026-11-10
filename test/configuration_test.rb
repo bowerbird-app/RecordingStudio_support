@@ -13,14 +13,14 @@ class ConfigurationTest < Minitest::Test
       help_title: "Guides",
       help_subtitle: "Short answers.",
       admin_help_title: "Guides",
-      admin_help_subtitle: "Staff view of those answers."
+      admin_help_subtitle: "Support-team view of those answers."
     )
 
     assert_equal "/help", @configuration.pages_path
     assert_equal "Guides", @configuration.help_title
     assert_equal "Short answers.", @configuration.help_subtitle
     assert_equal "Guides", @configuration.admin_help_title
-    assert_equal "Staff view of those answers.", @configuration.admin_help_subtitle
+    assert_equal "Support-team view of those answers.", @configuration.admin_help_subtitle
   end
 
   def test_merge_ignores_unknown_keys

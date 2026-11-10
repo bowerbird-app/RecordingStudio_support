@@ -51,7 +51,7 @@ module RecordingStudioSupport
         authorized_on_admin_root?(context, :edit)
       end
 
-      def can_view_as_staff?(context)
+      def can_view_as_support_team?(context)
         authorized_on_admin_root?(context, :view)
       end
 
@@ -69,7 +69,7 @@ module RecordingStudioSupport
       end
 
       def can_view_recording?(context, recording)
-        return true if can_view_as_staff?(context)
+        return true if can_view_as_support_team?(context)
         return true if can_view_workspace?(context, context.access_grant&.scope_recording)
 
         can_view_workspace?(context, recording&.root_recording)
@@ -87,8 +87,8 @@ module RecordingStudioSupport
         deny!
       end
 
-      def authorize_staff_view!(context)
-        return if can_view_as_staff?(context)
+      def authorize_support_team_view!(context)
+        return if can_view_as_support_team?(context)
 
         deny!
       end

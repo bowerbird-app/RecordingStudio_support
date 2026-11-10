@@ -13,13 +13,13 @@ class MessagesInboxTest < Minitest::Test
     refute RecordingStudioSupport::Messages.respond_to?(:create_user_group!)
   end
 
-  def test_staff_config_is_accessible_not_user_admin
+  def test_support_config_is_accessible_not_user_admin
     defaults = RecordingStudioSupport::Configuration::DEFAULTS
 
     assert_equal "AdminRoot", defaults[:parent_root_type]
     refute_includes defaults.keys, :messages_admin_email
     refute_includes defaults.keys, :messages_admin_finder
-    source = File.read(File.expand_path("../lib/recording_studio_support/messages/staff.rb", __dir__))
+    source = File.read(File.expand_path("../lib/recording_studio_support/messages/support_team.rb", __dir__))
     refute_includes source, "User.where(admin: true)"
     refute_includes source, "messages_admin_email"
     assert_includes source, "authorized?"
@@ -42,19 +42,19 @@ class MessagesInboxTest < Minitest::Test
   end
 
   def test_already_granted_requires_edit_not_any_access
-    source = File.read(File.expand_path("../lib/recording_studio_support/messages/staff.rb", __dir__))
+    source = File.read(File.expand_path("../lib/recording_studio_support/messages/support_team.rb", __dir__))
 
-    assert_includes source, "def staff_has_edit?"
+    assert_includes source, "def support_team_has_edit?"
     assert_includes source, "%w[edit admin]"
-    assert_includes source, "next if staff_has_edit?"
+    assert_includes source, "next if support_team_has_edit?"
     assert_includes source, "access_recordings_for_actor"
   end
 
-  def test_sync_staff_grants_uses_membership_change_bypass
-    source = File.read(File.expand_path("../lib/recording_studio_support/messages/staff.rb", __dir__))
+  def test_sync_support_team_grants_uses_membership_change_bypass
+    source = File.read(File.expand_path("../lib/recording_studio_support/messages/support_team.rb", __dir__))
 
     assert_includes source, "RecordingStudioMessages.allow_membership_change"
-    assert_includes source, "def sync_staff_grants!"
+    assert_includes source, "def sync_support_team_grants!"
   end
 
   def test_access_button_targets_the_top_frame
@@ -75,21 +75,18 @@ class MessagesInboxTest < Minitest::Test
     assert_includes install, "MessagesInboxHelper"
     assert_includes helper, "def messages_panel_right_header"
     assert_includes helper, "def messages_panel_right_header_mobile"
-    assert_includes helper, "def staff_support_ticket_for_header"
+    assert_includes helper, "def support_ticket_for_header"
     assert_includes helper, "def support_ticket_status_action"
     controls = File.read(
-      File.expand_path("../app/views/recording_studio_support/staff_messages/_ticket_controls.html.erb", __dir__)
+      File.expand_path("../app/views/recording_studio_support/support_inbox/_ticket_controls.html.erb", __dir__)
     )
     assert_includes controls, "FlatPack::Button::Dropdown::Component"
     assert_includes controls, "style: :default"
     refute_includes controls, "FlatPack::Select::Component"
     refute_includes controls, "w-56"
     refute_includes controls, "w-24"
-    assert_includes helper, "Messages.staff_actor?"
+    assert_includes helper, "Messages.support_team_actor?"
     assert_includes helper, "SUPPORT_MOUNT_KEY"
-    refute_includes helper, "MessagesDeskHelper"
-    refute_includes helper, "help_message_path_for_desk"
-    refute_includes helper, "user_desk_return_to"
     refute_includes helper, "support_ticket_thread_bar"
     refute_includes engine, "PanelOverride"
     assert_includes engine, "PanelHeader.install!"

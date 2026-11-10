@@ -104,7 +104,7 @@ class MetricsAccessTest < Minitest::Test
     refute access_called
   end
 
-  def test_staff_create_move_and_write_keep_access_resolver
+  def test_support_create_move_and_write_keep_access_resolver
     site_recording = Object.new
     access_recording = Object.new
     actor = Object.new
@@ -121,7 +121,7 @@ class MetricsAccessTest < Minitest::Test
         seen << [recording, role]
         true
       }) do
-        assert RecordingStudioSupport::Api::Access.can_view_as_staff?(context_for(actor))
+        assert RecordingStudioSupport::Api::Access.can_view_as_support_team?(context_for(actor))
         assert RecordingStudioSupport::Api::Access.can_edit?(context_for(actor))
         assert RecordingStudioSupport::Api::Access.admin_root_edit?(actor)
       end
@@ -141,7 +141,7 @@ class MetricsAccessTest < Minitest::Test
       assert_match "nil controller", error.message
 
       assert_raises(NoMethodError) do
-        RecordingStudioSupport::Api::Access.can_view_as_staff?(context_for(actor))
+        RecordingStudioSupport::Api::Access.can_view_as_support_team?(context_for(actor))
       end
     end
   end

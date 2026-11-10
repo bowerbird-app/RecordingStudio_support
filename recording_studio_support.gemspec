@@ -8,8 +8,8 @@ Gem::Specification.new do |spec|
   spec.authors     = ["Bowerbird"]
   spec.homepage    = "https://github.com/bowerbird-app/RecordingStudio_support"
   spec.summary     = "Self-serve support pages and signed-in tickets for Recording Studio hosts"
-  spec.description = "Staff write help pages under a SupportCenter. People help themselves at /help. " \
-                     "Signed-in users and staff talk on tagged ticket threads under the support mount."
+  spec.description = "The support team writes help pages under a SupportCenter. People help themselves at /help. " \
+                     "Signed-in users and the support team talk on tagged ticket threads under the support mount."
   spec.license     = "MIT"
   spec.required_ruby_version = ">= 3.3.0"
 

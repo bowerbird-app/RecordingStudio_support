@@ -348,13 +348,13 @@ begin
     seo_description: "Open your developer settings. The key is on that page."
   )
 
-  share_sample_ticket = lambda do |group, owner, staff|
-    next if RecordingStudioSupport::Messages.staff_has_edit?(group, staff)
+  share_sample_ticket = lambda do |group, owner, teammate|
+    next if RecordingStudioSupport::Messages.support_team_has_edit?(group, teammate)
 
     RecordingStudioMessages.allow_membership_change do
       result = RecordingStudioAccessible.grant_access(
         recording: group,
-        actor: staff,
+        actor: teammate,
         role: :edit,
         manager_actor: owner
       )
@@ -424,7 +424,7 @@ puts "Seeded: Help sections Billing, Developers, Getting started"
 puts "Seeded: Support pages 'How do I sign in?' (live) and 'How do I change my password?' (draft) under Getting started"
 puts "Seeded: Billing pages 'How do I update payment details?' and 'Where is my invoice?' (both live)"
 puts "Seeded: Admin root with owner access for admin@admin.com"
-puts "Seeded: jordan.lee@example.com / Password with two support tickets and staff replies"
+puts "Seeded: jordan.lee@example.com / Password with two support tickets and support-team replies"
 
 if defined?(RecordingStudioApi)
   provision_support_api_client = lambda do |name:, access_point:, role:, api: :public|

@@ -2,10 +2,10 @@
 
 ## Architecture
 
-- This repository is Recording Studio Support: staff write help pages, people help themselves.
+- This repository is Recording Studio Support: the support team writes help pages, people help themselves.
 - Preserve engine namespace isolation under `RecordingStudioSupport`.
 - The public README is the product. The dummy app is a host that proves the gem.
-- Keep changes small and scoped. Support pages opt into Trashable, Moveable, and Publishable. Pictures live in the page body. Admin Support is the staff hub; forms and preview live under `/admin/support`. Public `/help` is the visitor surface. Tickets and API do not.
+- Keep changes small and scoped. Support pages opt into Trashable, Moveable, and Publishable. Pictures live in the page body. Admin Support is the support team hub; forms and preview live under `/admin/support`. Public `/help` is the visitor surface. Tickets and API do not.
 
 ## UI Conventions
 

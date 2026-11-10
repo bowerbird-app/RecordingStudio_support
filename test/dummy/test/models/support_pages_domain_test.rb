@@ -23,19 +23,19 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
     recording = RecordingStudioSupport::Pages.create!(
       parent_recording: @section_recording,
       title: "Office hours",
-      description: "When the desk is open.",
+      description: "When the office is open.",
       icon: "clock",
       body: "Tuesday mornings.",
       actor: @user
     )
     original_id = recording.recordable_id
-    assert_equal "When the desk is open.", recording.recordable.description
+    assert_equal "When the office is open.", recording.recordable.description
     assert_equal "clock", recording.recordable.icon
 
     RecordingStudioSupport::Pages.revise!(
       recording: recording,
       title: "Office hours",
-      description: "Wednesday desk hours.",
+      description: "Wednesday office hours.",
       icon: "calendar-days",
       body: "Wednesday mornings.",
       actor: @user
@@ -44,7 +44,7 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
     recording.reload
     assert_not_equal original_id, recording.recordable_id
     assert_equal "Wednesday mornings.", recording.recordable.body
-    assert_equal "Wednesday desk hours.", recording.recordable.description
+    assert_equal "Wednesday office hours.", recording.recordable.description
     assert_equal "calendar-days", recording.recordable.icon
     assert_equal @section_recording, recording.parent_recording
   end
@@ -138,7 +138,7 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
     recording = RecordingStudioSupport::Pages.create!(
       parent_recording: @section_recording,
       title: "Office Wi-Fi",
-      body: "Ask the front desk.",
+      body: "Ask at reception.",
       actor: @user
     )
 
@@ -215,16 +215,16 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
       section_recording: @section_recording,
       audience: :public
     ).map(&:id)
-    staff_ids = RecordingStudioSupport::InstantPages.hits(
+    support_team_ids = RecordingStudioSupport::InstantPages.hits(
       query: token,
       section_recording: @section_recording,
-      audience: :staff
+      audience: :support_team
     ).map(&:id)
 
     assert_equal [live.recordable.id], public_ids
-    assert_includes staff_ids, live.recordable.id
-    assert_includes staff_ids, draft.recordable.id
-    refute_includes staff_ids, stray.recordable.id
+    assert_includes support_team_ids, live.recordable.id
+    assert_includes support_team_ids, draft.recordable.id
+    refute_includes support_team_ids, stray.recordable.id
     assert_empty RecordingStudioSupport::InstantPages.live_only(draft.recordable.class.where(id: draft.recordable_id))
   end
 

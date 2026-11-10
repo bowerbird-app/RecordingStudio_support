@@ -60,7 +60,7 @@ module RecordingStudioSupport
         "/admin/screens/support_sections"
       end
 
-      def staff_messages_path
+      def support_inbox_path
         "#{pages_prefix}/messages"
       end
 

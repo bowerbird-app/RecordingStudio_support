@@ -55,7 +55,7 @@ class SupportTicketTest < Minitest::Test
       File.expand_path("../lib/recording_studio_support/tickets/reopen_from_customer_message.rb", __dir__)
     )
     assert_includes reopen, "Tickets.update!"
-    assert_includes reopen, "Messages.staff_actor?"
+    assert_includes reopen, "Messages.support_team_actor?"
     assert_includes reopen, 'status.to_s == "resolved"'
   end
 

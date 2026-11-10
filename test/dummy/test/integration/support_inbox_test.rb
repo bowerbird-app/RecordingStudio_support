@@ -3,14 +3,14 @@
 require "test_helper"
 require "devise/test/integration_helpers"
 
-class SupportStaffInboxTest < ActionDispatch::IntegrationTest
+class SupportInboxTest < ActionDispatch::IntegrationTest
   include Devise::Test::IntegrationHelpers
   include ActionMailer::TestHelper
 
   setup do
     load Rails.root.join("db/seeds.rb")
-    @staff = User.find_by!(email: "admin@admin.com")
-    @staff.update!(admin: true) unless @staff.admin?
+    @support_user = User.find_by!(email: "admin@admin.com")
+    @support_user.update!(admin: true) unless @support_user.admin?
 
     @patron = RecordingStudioUser.create_user!(
       email: "patron-#{SecureRandom.hex(4)}@example.com",
@@ -125,14 +125,14 @@ class SupportStaffInboxTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
-  test "staff sees ticket controls in the thread header and can update status" do
+  test "support team sees ticket controls in the thread header and can update status" do
     sign_in @patron
     ticket = open_ticket!(@patron, subject: "Need a hand with billing", body: "Need a hand with billing.")
     group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
     recording_id = RecordingStudioSupport::Tickets.recording_for!(ticket).id
 
     sign_out @patron
-    sign_in @staff
+    sign_in @support_user
     get "/admin/support/messages", params: { group_id: group.id }
 
     assert_response :success
@@ -215,7 +215,7 @@ class SupportStaffInboxTest < ActionDispatch::IntegrationTest
     error = ActiveRecord::RecordInvalid.new(invalid)
 
     sign_out @patron
-    sign_in @staff
+    sign_in @support_user
     original = RecordingStudioSupport::Tickets.method(:update!)
     RecordingStudioSupport::Tickets.define_singleton_method(:update!) { |*| raise error }
     patch "/admin/support/tickets/#{ticket.id}", params: { ticket: { status: "resolved" } }
@@ -226,7 +226,7 @@ class SupportStaffInboxTest < ActionDispatch::IntegrationTest
     restore_tickets_method(:update!, original)
   end
 
-  test "customer thread does not show staff ticket controls" do
+  test "customer thread does not show support ticket controls" do
     sign_in @patron
     ticket = open_ticket!(@patron, subject: "Mine", body: "Private note")
     recording_id = RecordingStudioSupport::Tickets.recording_for!(ticket).id
@@ -238,16 +238,16 @@ class SupportStaffInboxTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "ticket[status]"
   end
 
-  test "untagged support group does not show staff ticket controls" do
-    sign_in @staff
-    mount = RecordingStudioSupport::Messages.ensure_message_mount(actor: @staff)
-    group = RecordingStudioSupport::Messages::OpenAccessManagement.with(actor: @staff, mount: mount) do
-      RecordingStudioMessages.create_group(mount, title: "Not a ticket", actor: @staff)
+  test "untagged support group does not show support ticket controls" do
+    sign_in @support_user
+    mount = RecordingStudioSupport::Messages.ensure_message_mount(actor: @support_user)
+    group = RecordingStudioSupport::Messages::OpenAccessManagement.with(actor: @support_user, mount: mount) do
+      RecordingStudioMessages.create_group(mount, title: "Not a ticket", actor: @support_user)
     end
     RecordingStudioMessages.send_message(
       group_recording: group,
       body: "This is not a ticket thread.",
-      actor: @staff
+      actor: @support_user
     )
 
     get "/recording_studio_messages/message_groups/#{group.id}",
@@ -259,7 +259,7 @@ class SupportStaffInboxTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "ticket[status]"
   end
 
-  test "non staff cannot open staff inbox" do
+  test "someone outside the support team cannot open support inbox" do
     sign_in @patron
 
     get "/admin/support/messages"
@@ -267,7 +267,7 @@ class SupportStaffInboxTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
-  test "staff screens use Accessible edit on the support center" do
+  test "support screens use Accessible edit on the support center" do
     other = RecordingStudioUser.create_user!(
       email: "other-admin-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
@@ -277,8 +277,8 @@ class SupportStaffInboxTest < ActionDispatch::IntegrationTest
     )
     other.update!(admin: true) if other.respond_to?(:admin=)
 
-    assert RecordingStudioSupport::Messages.staff_actor?(@staff)
-    refute RecordingStudioSupport::Messages.staff_actor?(other)
+    assert RecordingStudioSupport::Messages.support_team_actor?(@support_user)
+    refute RecordingStudioSupport::Messages.support_team_actor?(other)
 
     sign_in other
     get "/admin/support/messages"
@@ -296,7 +296,7 @@ class SupportStaffInboxTest < ActionDispatch::IntegrationTest
     assert_select "a[href='/help/messages']", text: /Contact support/
   end
 
-  test "send notifies staff in app and by email" do
+  test "send notifies the support team in app and by email" do
     sign_in @patron
 
     assert_difference -> { RecordingStudioNotifications::Notification.count }, +2 do

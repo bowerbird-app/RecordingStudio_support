@@ -114,7 +114,7 @@ class AdminTest < Minitest::Test
     assert_equal "/admin/screens/support_pages", RecordingStudioSupport::Admin::Queries.admin_pages_screen_path
     assert_equal "/admin/screens/support_sections", RecordingStudioSupport::Admin::Queries.admin_sections_screen_path
     assert_equal "/admin/screens/open_tickets", RecordingStudioSupport::Admin::OpenTicketsScreen.path
-    assert_equal "/admin/support/messages", RecordingStudioSupport::Admin::Queries.staff_messages_path
+    assert_equal "/admin/support/messages", RecordingStudioSupport::Admin::Queries.support_inbox_path
   end
 
   def test_queries_label_published_and_draft_pages
@@ -437,10 +437,10 @@ class AdminTest < Minitest::Test
     previous_title = RecordingStudioSupport.configuration.admin_help_title
     previous_subtitle = RecordingStudioSupport.configuration.admin_help_subtitle
     RecordingStudioSupport.configuration.admin_help_title = "Guides"
-    RecordingStudioSupport.configuration.admin_help_subtitle = "Staff view of those answers."
+    RecordingStudioSupport.configuration.admin_help_subtitle = "Support-team view of those answers."
 
     assert_equal "Guides", resolve_admin_copy(RecordingStudioSupport::Admin::Section.title)
-    assert_equal "Staff view of those answers.",
+    assert_equal "Support-team view of those answers.",
                  resolve_admin_copy(RecordingStudioSupport::Admin::Section.subtitle)
   ensure
     RecordingStudioSupport.configuration.admin_help_title = previous_title

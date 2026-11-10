@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 RecordingStudioSupport::Engine.routes.draw do
-  resource :messages, only: :show, controller: "staff_messages"
-  resources :tickets, only: :update, controller: "staff_tickets"
+  resource :messages, only: :show, controller: "support_inbox"
+  resources :tickets, only: :update, controller: "support_tickets"
 
   resources :sections, only: %i[index show new create edit update] do
     member do

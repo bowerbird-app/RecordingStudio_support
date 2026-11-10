@@ -8,7 +8,7 @@ class SupportCenterTreeTest < ActionDispatch::IntegrationTest
 
   setup do
     load Rails.root.join("db/seeds.rb")
-    @staff = User.find_by!(email: "admin@admin.com")
+    @support_user = User.find_by!(email: "admin@admin.com")
     @patron = RecordingStudioUser.create_user!(
       email: "center-patron-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
@@ -73,13 +73,13 @@ class SupportCenterTreeTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
-  test "non staff get forbidden on staff screens" do
+  test "someone outside the support team gets forbidden on support screens" do
     sign_in @patron
     get "/admin/support/messages"
     assert_response :forbidden
   end
 
-  test "staff access comes from accessible grants not user admin" do
+  test "support-team access comes from accessible grants not user admin" do
     granted = User.find_by!(email: "admin@admin.com")
     admin_flagged = RecordingStudioUser.create_user!(
       email: "flagged-#{SecureRandom.hex(4)}@example.com",
@@ -90,9 +90,9 @@ class SupportCenterTreeTest < ActionDispatch::IntegrationTest
     )
     admin_flagged.update!(admin: true) if admin_flagged.respond_to?(:admin=)
 
-    assert RecordingStudioSupport::Messages.staff_actor?(granted)
-    refute RecordingStudioSupport::Messages.staff_actor?(admin_flagged)
-    refute RecordingStudioSupport::Messages.staff_actor?(@patron)
+    assert RecordingStudioSupport::Messages.support_team_actor?(granted)
+    refute RecordingStudioSupport::Messages.support_team_actor?(admin_flagged)
+    refute RecordingStudioSupport::Messages.support_team_actor?(@patron)
 
     sign_in admin_flagged
     get "/admin/support/messages"

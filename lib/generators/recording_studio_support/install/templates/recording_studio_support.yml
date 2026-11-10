@@ -1,5 +1,5 @@
 # Optional environment-specific Support settings.
-# Prefer RecordingStudioSupport.configure for pages_path, copy, and staff settings.
+# Prefer RecordingStudioSupport.configure for pages_path, copy, and support settings.
 # Support is not a keyed external API.
 development: {}
 production: {}

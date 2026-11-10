@@ -159,9 +159,9 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert_includes card_bodies, "That card is the default now. The next invoice uses it."
     invoice_group = RecordingStudioSupport::Tickets.group_recording_for(invoice)
     card_group = RecordingStudioSupport::Tickets.group_recording_for(card)
-    assert RecordingStudioSupport::Messages.staff_has_edit?(invoice_group, admin)
+    assert RecordingStudioSupport::Messages.support_team_has_edit?(invoice_group, admin)
     assert RecordingStudioSupport::Messages.group_owner?(invoice_group, customer)
-    assert RecordingStudioSupport::Messages.staff_has_edit?(card_group, admin)
+    assert RecordingStudioSupport::Messages.support_team_has_edit?(card_group, admin)
     assert RecordingStudioSupport::Messages.group_owner?(card_group, customer)
 
     assert_no_difference -> { User.count } do

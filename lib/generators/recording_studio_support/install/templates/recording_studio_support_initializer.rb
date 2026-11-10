@@ -18,15 +18,15 @@ end
 # Host-owned. Support does not set these. nil falls through to Accessible :edit.
 RecordingStudioTrashable.configure do |config|
   config.authorization_resolver = lambda do |actor:, recording:, **|
-    RecordingStudioSupport.staff_permission(actor: actor, recording: recording)
+    RecordingStudioSupport.support_team_permission(actor: actor, recording: recording)
   end
 end
 
 RecordingStudio::Moveable.configure do |config|
   config.use_builtin_access = true
   config.authorization_hook = lambda do |actor:, source:, destination:, **|
-    source_ok = RecordingStudioSupport.staff_permission(actor: actor, recording: source)
-    destination_ok = RecordingStudioSupport.staff_permission(actor: actor, recording: destination)
+    source_ok = RecordingStudioSupport.support_team_permission(actor: actor, recording: source)
+    destination_ok = RecordingStudioSupport.support_team_permission(actor: actor, recording: destination)
     next true if source_ok && destination_ok
 
     nil

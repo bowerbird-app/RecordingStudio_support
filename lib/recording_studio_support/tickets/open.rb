@@ -3,7 +3,7 @@
 module RecordingStudioSupport
   module Tickets
     # Opens a support ticket under SupportCenter, then a tagged MessageGroup,
-    # staff grants, and the first message — one transaction.
+    # support-team grants, and the first message — one transaction.
     class Open
       def self.call(...)
         new(...).call
@@ -60,7 +60,7 @@ module RecordingStudioSupport
               tags: { Tickets::TAG_KEY => ticket_recording }
             )
           end
-          Messages.sync_staff_grants!(group_recording: group, manager_actor: @actor)
+          Messages.sync_support_team_grants!(group_recording: group, manager_actor: @actor)
           group
         end
       end
@@ -88,11 +88,11 @@ module RecordingStudioSupport
           group_recording: group,
           body: @body,
           actor: @actor,
-          url: @url.presence || default_staff_url(group)
+          url: @url.presence || default_support_inbox_url(group)
         )
       end
 
-      def default_staff_url(group)
+      def default_support_inbox_url(group)
         path = RecordingStudioSupport.configuration.pages_path.to_s.chomp("/")
         "#{path}/messages?group_id=#{group.id}"
       end
