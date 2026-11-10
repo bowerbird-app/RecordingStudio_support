@@ -1,8 +1,27 @@
 # Upgrade notes
 
+## 0.30.0
+
+Tickets have no person field. Status stays in the conversation header.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.30.0`.
+2. `bin/rails generate recording_studio_support:migrations`
+3. `bin/rails db:migrate`
+
+If the host already copied `*_create_recording_studio_support_tickets.rb`, replace that file with this gem's create_table and migrate a fresh table. Existing ticket rows are not kept. There is no backfill.
+
+### Verify
+
+```bash
+bundle exec rake test
+bundle exec rubocop
+```
+
 ## 0.29.0
 
-Staff ticket status and assignee live in the conversation header. Messages must be 0.17.0 or newer.
+Staff ticket status lives in the conversation header. Messages must be 0.17.0 or newer.
 
 ### Host app
 
@@ -13,7 +32,7 @@ Staff ticket status and assignee live in the conversation header. Messages must 
 
 Messages 0.15 added `recording_studio_message_reads`. Skip step 3 if that table is already there. Support has no new tables.
 
-Do not keep a host copy of the old form above the staff inbox. Support renders Status and Assignee through Messages `messages_panel_right_header` and `messages_panel_right_header_mobile`. Hosts that already defined those helpers should call `super` or drop their copy.
+Do not keep a host copy of the old form above the staff inbox. Support renders Status through Messages `messages_panel_right_header` and `messages_panel_right_header_mobile`. Hosts that already defined those helpers should call `super` or drop their copy.
 
 ### Verify
 

@@ -5,7 +5,6 @@ require "test_helper"
 class SupportTicketReadsTest < ActiveSupport::TestCase
   TICKET_METRICS = %w[
     support_tickets.open
-    support_tickets.unassigned_open
     support_tickets.oldest_open_age
     support_tickets.by_status
     support_tickets.by_priority
@@ -56,7 +55,7 @@ class SupportTicketReadsTest < ActiveSupport::TestCase
       recording = RecordingStudioSupport::Tickets.update!(recording, actor: @staff, priority: :high)
     end
     travel_to(opened_at + 2.hours) do
-      recording = RecordingStudioSupport::Tickets.update!(recording, actor: @staff, assignee: @staff)
+      recording = RecordingStudioSupport::Tickets.update!(recording, actor: @staff, priority: :normal)
     end
     travel_to(opened_at + 3.hours) do
       recording = RecordingStudioSupport::Tickets.update!(recording, actor: @staff, priority: :low)
@@ -67,14 +66,12 @@ class SupportTicketReadsTest < ActiveSupport::TestCase
 
     travel_to(opened_at + 5.hours) do
       assert_equal 1, metric_value("support_tickets.open")
-      assert_equal 0, metric_value("support_tickets.unassigned_open")
       assert_in_delta 5.hours.to_i, metric_value("support_tickets.oldest_open_age"), 2
       assert_equal 1, breakdown_value("support_tickets.by_status", "open")
       assert_equal 1, breakdown_value("support_tickets.by_priority", "low")
       assert_equal 1, series_value("support_tickets.opened", "2026-03-01")
       assert_equal 1, RecordingStudioSupport::Admin::OpenTicketsScreen.tickets.count
       assert_equal 0, RecordingStudioSupport::Admin::TimeToCloseScreen.tickets.count
-      assert_equal 0, RecordingStudioSupport::Admin::Widgets::UNASSIGNED_OPEN.resolve(metric_context).value
       assert_equal "5h", RecordingStudioSupport::Admin::Widgets::OLDEST_OPEN_AGE.resolve(metric_context).value
     end
 

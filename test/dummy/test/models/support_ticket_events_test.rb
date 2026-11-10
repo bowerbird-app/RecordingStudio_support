@@ -36,7 +36,7 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     assert_equal ticket, event.recordable
   end
 
-  test "status priority and assignee changes record an updated event with the diff" do
+  test "status and priority changes record an updated event with the diff" do
     ticket = open_ticket!
     original = ticket
 
@@ -60,17 +60,6 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     assert_equal @staff, priority_event.actor
     assert_equal status_recording.recordable, priority_event.previous_recordable
     assert_equal({ "priority" => %w[normal high] }, priority_event.metadata["changes"])
-
-    assignee_recording = nil
-    assert_difference -> { priority_recording.events.count }, 1 do
-      assignee_recording = RecordingStudioSupport::Tickets.update!(
-        priority_recording, actor: @patron, assignee: @staff
-      )
-    end
-    assignee_event = latest_event(assignee_recording)
-    assert_equal @patron, assignee_event.actor
-    assert_equal priority_recording.recordable, assignee_event.previous_recordable
-    assert_equal({ "assignee" => [nil, "#{@staff.class.name}:#{@staff.id}"] }, assignee_event.metadata["changes"])
   end
 
   test "an unchanged update does not record an event" do
@@ -91,16 +80,14 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
         recording,
         actor: @staff,
         status: :resolved,
-        priority: :high,
-        assignee: @staff
+        priority: :high
       )
     end
 
     assert_equal(
       {
         "status" => %w[open resolved],
-        "priority" => %w[normal high],
-        "assignee" => [nil, "#{@staff.class.name}:#{@staff.id}"]
+        "priority" => %w[normal high]
       },
       latest_event(recording).metadata["changes"]
     )

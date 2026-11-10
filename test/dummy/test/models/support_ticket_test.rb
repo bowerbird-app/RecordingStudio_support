@@ -29,7 +29,6 @@ class SupportTicketModelTest < ActiveSupport::TestCase
     assert_equal "Crop export failed", ticket.subject
     assert_equal "high", ticket.priority
     assert_equal "open", ticket.status
-    assert_nil ticket.assignee
     assert_nil ticket.resolved_at
 
     group = RecordingStudioSupport::Tickets.group_recording_for(ticket)

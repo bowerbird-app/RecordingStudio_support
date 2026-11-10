@@ -95,23 +95,6 @@ module RecordingStudioSupport
       SupportTicket::PRIORITIES.map { |priority| [support_ticket_priority_label(priority), priority] }
     end
 
-    def support_ticket_assignee_value(assignee)
-      return "" if assignee.blank?
-
-      "#{assignee.class.name}:#{assignee.id}"
-    end
-
-    def support_ticket_assignee_options(selected: nil)
-      options = [["Unassigned", ""]]
-      RecordingStudioSupport::Messages.staff_actors.each do |staff|
-        options << [message_sender_name(staff), support_ticket_assignee_value(staff)]
-      end
-      if selected.present? && options.none? { |(_, value)| value == support_ticket_assignee_value(selected) }
-        options << [message_sender_name(selected), support_ticket_assignee_value(selected)]
-      end
-      options
-    end
-
     def messages_panel_right_header(group_recording, actor:, mount:)
       render_support_ticket_controls(group_recording, actor: actor, mount: mount, mobile: false)
     end

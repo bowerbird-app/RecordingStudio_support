@@ -8,6 +8,8 @@ class SupportTicketMigrationTest < ActiveSupport::TestCase
     assert connection.column_exists?(:recording_studio_support_tickets, :subject)
     assert connection.column_exists?(:recording_studio_support_tickets, :status)
     assert connection.column_exists?(:recording_studio_support_tickets, :priority)
+    names = connection.columns(:recording_studio_support_tickets).map(&:name)
+    assert_equal %w[created_at id priority resolved_at status subject updated_at], names.sort
   end
 
   test "support centers table exists" do

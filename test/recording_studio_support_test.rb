@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.29.0", ::RecordingStudioSupport::VERSION
+    assert_equal "0.30.0", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -497,7 +497,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes duration_axis, '[60, "minutes"]'
     assert_includes duration_axis, "{ x: point_x(point), y: y.nil? ? nil : axis_number(y.to_f / divisor) }"
     assert_includes widgets, "DurationAxis.series"
-    assert_includes widgets, "OpenTicketsScreen.unassigned_path"
+    refute_includes widgets, "unassigned"
     assert_includes widgets, "{ xaxis: { labels: { show: false } } }"
     close_screen = File.read("#{admin_dir}/time_to_close_screen.rb")
     views_screen = File.read("#{admin_dir}/help_page_views_screen.rb")

@@ -103,14 +103,6 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
 
   test "operations staff token reads support queue metrics" do
     open_tickets = current_tickets.open
-    get "#{OPERATIONS_ROOT}/metrics/support_tickets/unassigned_open",
-        headers: auth(@staff_operations_token),
-        as: :json
-    assert_response :success
-    assert_equal open_tickets.where(assignee_id: nil).count, response.parsed_body.fetch("value")
-    assert_equal "count", response.parsed_body.fetch("unit")
-    assert_operator response.parsed_body.fetch("value"), :>=, 1
-    assert_operator response.parsed_body.fetch("value"), :<, open_tickets.count
 
     travel_to Time.utc(2026, 4, 1, 12) do
       get "#{OPERATIONS_ROOT}/metrics/support_tickets/oldest_open_age",
@@ -124,7 +116,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "oldest open age has no value and unassigned open is zero without open tickets" do
+  test "oldest open age has no value without open tickets" do
     current_tickets.open.find_each { |ticket| revise_support_ticket!(ticket, status: :resolved) }
 
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/oldest_open_age",
@@ -133,38 +125,29 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_equal "seconds", response.parsed_body.fetch("unit")
     refute response.parsed_body.key?("value"), "no open tickets means no age value"
+  end
 
-    get "#{OPERATIONS_ROOT}/metrics/support_tickets/unassigned_open",
+  test "open groups by priority and folds small groups into other" do
+    seed_high_priority_queue!
+
+    get "#{OPERATIONS_ROOT}/metrics/support_tickets/open",
+        params: { group_by: "priority" },
         headers: auth(@staff_operations_token),
         as: :json
     assert_response :success
-    assert_equal 0, response.parsed_body.fetch("value")
-  end
+    body = response.parsed_body
+    relation = current_tickets.open
+    counts = relation.group(:priority).count
 
-  test "open and unassigned open group by priority and fold small groups into other" do
-    seed_high_priority_queue!
-
-    %w[open unassigned_open].each do |name|
-      get "#{OPERATIONS_ROOT}/metrics/support_tickets/#{name}",
-          params: { group_by: "priority" },
-          headers: auth(@staff_operations_token),
-          as: :json
-      assert_response :success
-      body = response.parsed_body
-      relation = current_tickets.open
-      relation = relation.where(assignee_id: nil) if name == "unassigned_open"
-      counts = relation.group(:priority).count
-
-      assert_equal "priority", body.fetch("group_by")
-      assert_equal relation.count, body.fetch("value")
-      groups = body.fetch("groups").to_h { |row| [row.fetch("key"), row.fetch("value")] }
-      assert_equal counts["high"], groups["high"]
-      counts.each { |key, count| assert_not groups.key?(key) if count < 5 }
-      assert_equal body.fetch("value"), groups.values.sum + body.dig("other", "value").to_i
-      small = counts.values.select { |count| count < 5 }
-      assert_equal small.sum, body.dig("other", "value").to_i
-      assert_operator small.size, :>=, 1
-    end
+    assert_equal "priority", body.fetch("group_by")
+    assert_equal relation.count, body.fetch("value")
+    groups = body.fetch("groups").to_h { |row| [row.fetch("key"), row.fetch("value")] }
+    assert_equal counts["high"], groups["high"]
+    counts.each { |key, count| assert_not groups.key?(key) if count < 5 }
+    assert_equal body.fetch("value"), groups.values.sum + body.dig("other", "value").to_i
+    small = counts.values.select { |count| count < 5 }
+    assert_equal small.sum, body.dig("other", "value").to_i
+    assert_operator small.size, :>=, 1
   end
 
   test "opened time series groups by status and priority with other fold" do
@@ -224,7 +207,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     assert_equal "priority", response.parsed_body.fetch("group_by")
 
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/avg_time_to_resolve",
-        params: { interval: "month", group_by: "assignee_id" },
+        params: { interval: "month", group_by: "subject" },
         headers: auth(@staff_operations_token), as: :json
     assert_response :unprocessable_entity
   end
@@ -254,7 +237,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
 
   test "group_by rejects unsupported and non-groupable metrics" do
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/open",
-        params: { group_by: "assignee_id" },
+        params: { group_by: "subject" },
         headers: auth(@staff_operations_token),
         as: :json
     assert_response :unprocessable_entity
@@ -272,7 +255,6 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     catalog = response.parsed_body.fetch("metrics").index_by { |row| row.fetch("identifier") }
 
     assert_equal %w[priority], catalog.dig("support_tickets.open", "group_by")
-    assert_equal %w[priority], catalog.dig("support_tickets.unassigned_open", "group_by")
     assert_equal %w[status priority], catalog.dig("support_tickets.opened", "group_by")
     assert_equal %w[priority], catalog.dig("support_tickets.avg_time_to_resolve", "group_by")
     assert_equal "seconds", catalog.dig("support_tickets.avg_time_to_resolve", "unit")
@@ -302,7 +284,6 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     identifiers = response.parsed_body.fetch("metrics").map { |row| row.fetch("identifier") }
     %w[
       support_tickets.open
-      support_tickets.unassigned_open
       support_tickets.oldest_open_age
       support_tickets.by_status
       support_tickets.by_priority
@@ -314,12 +295,10 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
   end
 
   test "non-admin operations token is denied support metrics" do
-    %w[unassigned_open oldest_open_age].each do |name|
-      get "#{OPERATIONS_ROOT}/metrics/support_tickets/#{name}",
-          headers: auth(@workspace_operations_token),
-          as: :json
-      assert_response :forbidden
-    end
+    get "#{OPERATIONS_ROOT}/metrics/support_tickets/oldest_open_age",
+        headers: auth(@workspace_operations_token),
+        as: :json
+    assert_response :forbidden
 
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/open",
         headers: auth(@workspace_operations_token),
@@ -340,7 +319,6 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     assert_response :success
     identifiers = response.parsed_body.fetch("metrics").map { |row| row.fetch("identifier") }
     refute_includes identifiers, "support_tickets.open"
-    refute_includes identifiers, "support_tickets.unassigned_open"
     refute_includes identifiers, "support_tickets.oldest_open_age"
     refute_includes identifiers, "support_pages.total"
     refute_includes identifiers, "support_page_views.over_time"
@@ -399,13 +377,12 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
         priority: :normal
       )
       revise_support_ticket!(resolved, status: :resolved)
-      assigned = RecordingStudioSupport::Tickets.open!(
+      RecordingStudioSupport::Tickets.open!(
         actor: @patron,
-        subject: "March assigned #{SecureRandom.hex(4)}",
+        subject: "March extra #{SecureRandom.hex(4)}",
         body: "On it.",
         priority: :normal
       )
-      revise_support_ticket!(assigned, assignee: @staff)
     end
   end
 

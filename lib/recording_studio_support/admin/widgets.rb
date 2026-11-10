@@ -54,18 +54,6 @@ module RecordingStudioSupport
         hide_period
       end
 
-      UNASSIGNED_OPEN = RecordingStudioAdmin::Widget.new("widgets.support.unassigned_open") do
-        type :number
-        title "Unassigned tickets"
-        info "Open tickets with nobody on them yet."
-        hide_change
-        hide_period
-        blast_radius :site
-        value { |context| Widgets.metric_value("support_tickets.unassigned_open", context) }
-        link_to { OpenTicketsScreen.unassigned_path }
-        link_label "Unassigned"
-      end
-
       OLDEST_OPEN_AGE = RecordingStudioAdmin::Widget.new("widgets.support.oldest_open_age") do
         type :number
         title "Oldest open ticket"
@@ -110,7 +98,6 @@ module RecordingStudioSupport
 
       ALL = [
         PAGE_COUNT,
-        UNASSIGNED_OPEN,
         OLDEST_OPEN_AGE,
         AVG_TIME_TO_RESOLVE,
         PAGE_VIEWS

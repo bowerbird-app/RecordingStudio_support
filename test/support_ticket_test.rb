@@ -17,7 +17,7 @@ class SupportTicketTest < Minitest::Test
     assert_includes source, "high"
   end
 
-  def test_model_is_a_message_group_recordable_with_optional_assignee
+  def test_model_is_a_support_center_recordable
     source = File.read(
       File.expand_path("../app/models/recording_studio_support/support_ticket.rb", __dir__)
     )
@@ -25,7 +25,6 @@ class SupportTicketTest < Minitest::Test
     assert_includes source, 'label: "Support ticket"'
     assert_includes source, "root: false"
     assert_includes source, 'allowed_parent_types: ["RecordingStudioSupport::SupportCenter"]'
-    assert_includes source, "belongs_to :assignee, polymorphic: true, optional: true"
     assert_includes source, "validates :subject, presence: true"
     assert_includes source, "def sync_resolved_at"
     refute_includes source, "message_group_id"

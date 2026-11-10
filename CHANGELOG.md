@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.30.0] - 2026-11-10
+
+Tickets have no person field. Status stays in the Messages thread header.
+
+### Removed
+- Ticket assignee (`assignee_type` / `assignee_id`, the assignee index, `Tickets.update!` assignee, the header picker, Admin Unassigned widget and filter, and `support_tickets.unassigned_open`)
+
+### Upgrade notes
+- Bump to `0.30.0`.
+- `bin/rails generate recording_studio_support:migrations`, then `bin/rails db:migrate`. Replace a copied ticket `create_table` that still has assignee columns. There is no backfill.
+
 ## [0.29.0] - 2026-11-10
 
 Staff change ticket status and assignee on the open thread, not on a form above the inbox.
@@ -1070,7 +1081,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.29.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.30.0...HEAD
+[0.30.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.29.0...v0.30.0
 [0.29.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.28.0...v0.29.0
 [0.28.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.27.1...v0.28.0
 [0.27.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.27.0...v0.27.1
