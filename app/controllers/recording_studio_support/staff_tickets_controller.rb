@@ -40,26 +40,8 @@ module RecordingStudioSupport
     end
 
     def ticket_changes
-      changes = status_and_priority_changes
-      changes[:assignee] = resolve_assignee(ticket_params[:assignee]) if ticket_params.key?(:assignee)
-      changes
-    end
-
-    def status_and_priority_changes
       attrs = params.fetch(:ticket, {}).permit(:status, :priority).to_h.compact_blank.stringify_keys
       attrs.slice("status", "priority").symbolize_keys
-    end
-
-    def ticket_params
-      params.fetch(:ticket, {})
-    end
-
-    def resolve_assignee(raw)
-      return if raw.blank?
-
-      RecordingStudioSupport::Messages.staff_actors.find do |actor|
-        "#{actor.class.name}:#{actor.id}" == raw.to_s
-      end
     end
 
     def update_error_message(record)

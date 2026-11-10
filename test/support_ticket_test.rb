@@ -9,15 +9,16 @@ class SupportTicketTest < Minitest::Test
     )
 
     assert_includes source, "open"
-    assert_includes source, "waiting_on_customer"
-    assert_includes source, "waiting_on_support"
+    refute_includes source, "waiting_on_customer"
+    refute_includes source, "waiting_on_support"
     assert_includes source, "resolved"
+    assert_match(/STATUSES = %w\[\s*open\s*resolved\s*\]/m, source)
     assert_includes source, "low"
     assert_includes source, "normal"
     assert_includes source, "high"
   end
 
-  def test_model_is_a_message_group_recordable_with_optional_assignee
+  def test_model_is_a_support_center_recordable
     source = File.read(
       File.expand_path("../app/models/recording_studio_support/support_ticket.rb", __dir__)
     )
@@ -25,7 +26,6 @@ class SupportTicketTest < Minitest::Test
     assert_includes source, 'label: "Support ticket"'
     assert_includes source, "root: false"
     assert_includes source, 'allowed_parent_types: ["RecordingStudioSupport::SupportCenter"]'
-    assert_includes source, "belongs_to :assignee, polymorphic: true, optional: true"
     assert_includes source, "validates :subject, presence: true"
     assert_includes source, "def sync_resolved_at"
     refute_includes source, "message_group_id"
@@ -50,6 +50,13 @@ class SupportTicketTest < Minitest::Test
   def test_tickets_module_exposes_open
     assert_respond_to RecordingStudioSupport::Tickets, :open!
     assert defined?(RecordingStudioSupport::Tickets::Open)
+    assert defined?(RecordingStudioSupport::Tickets::ReopenFromCustomerMessage)
+    reopen = File.read(
+      File.expand_path("../lib/recording_studio_support/tickets/reopen_from_customer_message.rb", __dir__)
+    )
+    assert_includes reopen, "Tickets.update!"
+    assert_includes reopen, "Messages.staff_actor?"
+    assert_includes reopen, 'status.to_s == "resolved"'
   end
 
   def test_current_ticket_join_is_built_when_called

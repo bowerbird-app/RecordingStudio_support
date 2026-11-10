@@ -32,17 +32,8 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
       body: "Done."
     )
     revise_support_ticket!(closed, status: :resolved)
-    unassigned = RecordingStudioSupport::Tickets.current.open.where(assignee_id: nil).count
-    assert_operator unassigned, :>=, 1
-
-    get "/admin/sections/support/widgets/widgets.support.unassigned_open"
-
-    assert_response :success
-    assert_includes response.body, "Unassigned tickets"
-    assert_includes response.body, unassigned.to_s
-    assert_includes response.body, "/admin/screens/open_tickets?assignee=Unassigned"
-    refute_includes response.body, "status=resolved"
-    refute_includes response.body, "recordable"
+    open_count = RecordingStudioSupport::Tickets.current.open.count
+    assert_operator open_count, :>=, 1
 
     get "/admin/sections/support/widgets/widgets.support.oldest_open_age"
 
@@ -121,11 +112,6 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     refute_includes response.body, resolved.subject
-
-    get "/admin/screens/open_tickets/table", params: { assignee: "Unassigned" }
-
-    assert_response :success
-    assert_includes response.body, older.subject
   end
 
   test "time to close and help page views screens show a chart and table" do
@@ -293,7 +279,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "/admin/screens/open_tickets"
     assert_includes response.body, "/admin/screens/time_to_close"
     assert_includes response.body, "/admin/screens/help_page_views"
-    assert_includes response.body, "Unassigned tickets"
+    refute_includes response.body, "Unassigned tickets"
     assert_includes response.body, "Oldest open ticket"
     assert_select "a[href='/admin/screens/support_pages'][data-fp-style='ghost']"
     refute_select "a[href='/admin/screens/support_pages'][data-fp-style='primary']"

@@ -35,7 +35,6 @@ module RecordingStudioSupport
            style: :secondary
 
       widget "widgets.support.page_count"
-      widget "widgets.support.unassigned_open"
       widget "widgets.support.oldest_open_age"
       widget "widgets.support.avg_time_to_resolve"
       widget "widgets.support.page_views"

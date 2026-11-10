@@ -97,9 +97,8 @@ Public `support_sections` list/show and nested section-pages are not registered 
 | `POST` | `/recording_studio_api/apis/operations/v1/support_pages/:id/actions/unpublish` | AdminRoot `:edit` | Uses Publishable `unpublish`; response matches Publishable snapshot JSON |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics` | AdminRoot `:view` | Host-registered Metrics index. Includes Support ticket and page metrics |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/open` | AdminRoot `:view` | Open tickets |
-| `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/unassigned_open` | AdminRoot `:view` | Open tickets with no assignee |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/oldest_open_age` | AdminRoot `:view` | Age in seconds of the oldest open ticket (`value` omitted when there are none) |
-| `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/by_status` | AdminRoot `:view` | Tickets by status |
+| `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/by_status` | AdminRoot `:view` | Tickets by status (`open` or `resolved`) |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/by_priority` | AdminRoot `:view` | Tickets by priority |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/opened` | AdminRoot `:view` | Tickets opened, bucketed by the recording's `created_at` |
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_tickets/avg_time_to_resolve` | AdminRoot `:view` | Mean seconds from the recording's `created_at` to `resolved_at` |
@@ -107,7 +106,7 @@ Public `support_sections` list/show and nested section-pages are not registered 
 | `GET` | `/recording_studio_api/apis/operations/v1/metrics/support_page_views/over_time` | AdminRoot `:view` | Page views (Views raw logs for Support pages) by `created_at` |
 
 
-`group_by` (Metrics 0.3): `support_tickets.open` and `support_tickets.unassigned_open` accept `group_by=priority`; `support_tickets.opened` accepts `group_by=status` or `group_by=priority` with `from`/`to`/`interval`. Groups with fewer than 5 tickets fold into `other`, so groups plus `other` equal the total. `oldest_open_age`, `by_status` and `by_priority` take no `group_by`. There is no assignee grouping and no metric filters (Support has no ticket list endpoint whose filters they could mirror). The catalog lists `group_by`, `min_group_size`, `date_range`, `timezone` and `freshness` for each metric.
+`group_by` (Metrics 0.3): `support_tickets.open` accepts `group_by=priority`; `support_tickets.opened` accepts `group_by=status` or `group_by=priority` with `from`/`to`/`interval`. Groups with fewer than 5 tickets fold into `other`, so groups plus `other` equal the total. `oldest_open_age`, `by_status` and `by_priority` take no `group_by`. There are no metric filters (Support has no ticket list endpoint whose filters they could mirror). The catalog lists `group_by`, `min_group_size`, `date_range`, `timezone` and `freshness` for each metric.
 
 Ticket metrics count the current snapshot once. The scope joins `RecordingStudio::Recording` on `recordable_id` where `recordable_type` is `RecordingStudioSupport::SupportTicket` and `trashed_at` is null. `opened`, `oldest_open_age`, and `avg_time_to_resolve` use the recording's `created_at` (when the ticket was opened), not a later snapshot's `created_at`. Identifiers, response shape, `blast_radius`, and `api_authorize` are unchanged. `avg_time_to_resolve` accepts `group_by=priority`.
 

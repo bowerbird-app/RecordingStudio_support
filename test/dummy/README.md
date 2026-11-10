@@ -64,7 +64,7 @@ OTP is off (`otp_enabled = false`). OmniAuth Continue-with buttons appear only w
 - `/` - dummy host home page
 - `/help` - public help sections (no sign-in). Switch English/French from the PageNav language selector
 - `/help/messages` - signed-in tickets and messages
-- `/admin/support/messages` - staff inbox. Status and assignee sit in the open thread header, not above the list
+- `/admin/support/messages` - staff inbox. Status is an Open/Resolved Button dropdown in the open thread header, not above the list
 - `/help/sections/:slug` - published pages in a section (declare this before the Publishable mount; UUID bookmarks redirect). Typing filters articles in a Turbo Frame via Instant Search (`/help/sections/:slug/instant_search`)
 - `/recording_studio_search/instant_search` - Search Instant engine (live `SupportPage` only)
 - `/help/:uuid/:slug` - public help page through Publishable

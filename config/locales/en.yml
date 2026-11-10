@@ -45,8 +45,6 @@ en:
           close: Close
         statuses:
           open: Open
-          waiting_on_customer: Waiting on you
-          waiting_on_support: Waiting on us
           resolved: Resolved
         priorities:
           low: Low

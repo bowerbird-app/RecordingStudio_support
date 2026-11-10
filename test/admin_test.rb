@@ -177,14 +177,13 @@ class AdminTest < Minitest::Test
     end
     refute defined?(RecordingStudioSupport::Admin::Widgets::SECTIONS)
     refute defined?(RecordingStudioSupport::Admin::Widgets::RECENT_PAGES)
-    assert_equal 11, called.size
+    assert_equal 10, called.size
   end
 
   def test_section_includes_metric_widgets
     keys = RecordingStudioSupport::Admin::Section.widget_keys
 
     assert_includes keys, "widgets.support.page_count"
-    assert_includes keys, "widgets.support.unassigned_open"
     assert_includes keys, "widgets.support.oldest_open_age"
     assert_includes keys, "widgets.support.avg_time_to_resolve"
     assert_includes keys, "widgets.support.page_views"
@@ -198,21 +197,15 @@ class AdminTest < Minitest::Test
       seen << { identifier: identifier, context: admin_context, params: params }
       identifier == "support_tickets.oldest_open_age" ? 90_000 : 4
     }) do
-      unassigned = RecordingStudioSupport::Admin::Widgets::UNASSIGNED_OPEN
       oldest = RecordingStudioSupport::Admin::Widgets::OLDEST_OPEN_AGE
 
-      assert_equal :number, unassigned.type
-      assert_equal "Unassigned tickets", unassigned.title
-      assert_equal 4, unassigned.value.call(context)
-      assert_equal "Unassigned", unassigned.link_label
-      assert_equal "/admin/screens/open_tickets?assignee=Unassigned", unassigned.link_to.call(context)
       assert_equal "1d 1h", oldest.value.call(context)
       assert_equal "Open tickets", oldest.link_label
       assert_equal "/admin/screens/open_tickets", oldest.link_to.call(context)
     end
 
     assert_equal(
-      %w[support_tickets.unassigned_open support_tickets.oldest_open_age],
+      %w[support_tickets.oldest_open_age],
       seen.map { |row| row[:identifier] }
     )
     seen.each do |row|
@@ -283,8 +276,7 @@ class AdminTest < Minitest::Test
     assert_equal "asc", screen.table_value.default_direction
     assert_includes screen.table_value.columns.map(&:key), :waiting
     assert_includes screen.table_value.actions.map(&:name), :inbox
-    assert_includes screen.table_value.filters.map(&:key), :assignee
-    assert_equal "/admin/screens/open_tickets?assignee=Unassigned", screen.unassigned_path
+    assert_empty screen.table_value.filters.map(&:key)
   end
 
   def test_time_to_close_and_help_page_views_screens

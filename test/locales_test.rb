@@ -57,6 +57,7 @@ class LocalesTest < Minitest::Test
       assert_equal "No tickets yet", Copy.t("messages.empty_title")
       assert_equal "Sent. We’ll take a look.", Copy.t("messages.sent")
       assert_equal "Open", Copy.t("messages.statuses.open")
+      assert_equal "Resolved", Copy.t("messages.statuses.resolved")
       assert_equal "Normal", Copy.t("messages.priorities.normal")
       assert_equal "This conversation already has a ticket.",
                    RecordingStudioSupport::Tickets::AlreadyExists.new.message

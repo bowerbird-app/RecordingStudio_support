@@ -125,7 +125,7 @@ class SupportStaffInboxTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
-  test "staff sees ticket controls in the thread header and can update status and assignee" do
+  test "staff sees ticket controls in the thread header and can update status" do
     sign_in @patron
     ticket = open_ticket!(@patron, subject: "Need a hand with billing", body: "Need a hand with billing.")
     group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
@@ -140,41 +140,43 @@ class SupportStaffInboxTest < ActionDispatch::IntegrationTest
     assert_select "#support-ticket-controls-#{recording_id}"
     assert_select "#support-ticket-controls-mobile-#{recording_id}"
     assert_select '[data-flat-pack-chat-panel-part="right-header"] #support-ticket-controls-%s' % recording_id
-    assert_select '[data-flat-pack-chat-panel-part="right-header"] .w-56'
-    assert_select '[data-flat-pack-chat-panel-part="right-header"] .w-40'
+    assert_select '[data-flat-pack-chat-panel-part="right-header"] .fp-button-dropdown'
     assert_select '[data-flat-pack-chat-panel-part="right-header-mobile"] #support-ticket-controls-mobile-%s' % recording_id
-    assert_select '[data-flat-pack-chat-panel-part="right-header-mobile"] .w-24'
-    assert_select "#support-ticket-status-#{ticket.id} option[value='open'][selected]"
-    assert_select "#support-ticket-assignee-#{ticket.id} option[value='']", text: "Unassigned"
-    assert_select "#support-ticket-mobile-status-#{ticket.id}"
-    assert_select "#support-ticket-mobile-assignee-#{ticket.id}"
+    assert_select '[data-flat-pack-chat-panel-part="right-header-mobile"] .fp-button-dropdown'
+    refute_select '[data-flat-pack-chat-panel-part="right-header"] .w-56'
+    refute_select '[data-flat-pack-chat-panel-part="right-header-mobile"] .w-24'
+    assert_select "#support-ticket-status-#{ticket.id}[data-fp-style='default']", text: /Open/
+    assert_select "#support-ticket-mobile-status-#{ticket.id}[data-fp-style='default']", text: /Open/
+    assert_select "#support-ticket-controls-#{recording_id} [role='menuitem']", text: "Open"
+    assert_select "#support-ticket-controls-#{recording_id} [role='menuitem']", text: "Resolved"
+    refute_includes response.body, "Waiting on customer"
+    refute_includes response.body, "waiting_on_customer"
+    refute_includes response.body, "waiting_on_support"
+    assert_select "#support-ticket-controls-#{recording_id} form[data-turbo-stream='true'] input[name='ticket[status]'][value='resolved']"
     refute_select "#support-ticket-controls-#{recording_id} label"
     refute_select "#support-ticket-controls-mobile-#{recording_id} label"
-    refute_select "#support-ticket-controls-#{recording_id} button"
-    refute_select "#support-ticket-controls-mobile-#{recording_id} button"
+    refute_select "#support-ticket-controls-#{recording_id} select"
     refute_select ".flex.w-full.flex-col.gap-4 > form"
     assert_flatpack_rounded_theme
 
     patch "/admin/support/tickets/#{ticket.id}", params: {
-      ticket: {
-        status: "waiting_on_customer",
-        assignee: "#{@staff.class.name}:#{@staff.id}"
-      }
+      ticket: { status: "resolved" }
     }
 
     assert_redirected_to "/admin/support/messages?group_id=#{group.id}"
     ticket = RecordingStudioSupport::Tickets.find!(ticket.id)
-    assert_equal "waiting_on_customer", ticket.status
-    assert_equal @staff, ticket.assignee
+    assert_equal "resolved", ticket.status
+    assert_not_nil ticket.resolved_at
 
     patch "/admin/support/tickets/#{ticket.id}",
-          params: { ticket: { status: "waiting_on_support" } },
+          params: { ticket: { status: "open" } },
           as: :turbo_stream
 
     assert_response :success
     assert_equal Mime[:turbo_stream], response.media_type
     ticket = RecordingStudioSupport::Tickets.find!(ticket.id)
-    assert_equal "waiting_on_support", ticket.status
+    assert_equal "open", ticket.status
+    assert_nil ticket.resolved_at
     assert_includes response.body, "support-ticket-controls-#{recording_id}"
     assert_includes response.body, "support-ticket-controls-mobile-#{recording_id}"
 
@@ -233,7 +235,7 @@ class SupportStaffInboxTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "#support-ticket-controls-#{recording_id}", count: 0
-    refute_includes response.body, "ticket[assignee]"
+    refute_includes response.body, "ticket[status]"
   end
 
   test "untagged support group does not show staff ticket controls" do
@@ -254,7 +256,7 @@ class SupportStaffInboxTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_includes response.body, "Not a ticket"
     assert_select "[id^='support-ticket-controls']", count: 0
-    refute_includes response.body, "ticket[assignee]"
+    refute_includes response.body, "ticket[status]"
   end
 
   test "non staff cannot open staff inbox" do

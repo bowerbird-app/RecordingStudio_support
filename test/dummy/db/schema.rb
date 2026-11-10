@@ -534,12 +534,9 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_220000) do
     t.string "status", default: "open", null: false
     t.string "priority", default: "normal", null: false
     t.string "subject", null: false
-    t.string "assignee_type"
-    t.uuid "assignee_id"
     t.datetime "resolved_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["assignee_type", "assignee_id"], name: "index_rs_support_tickets_on_assignee"
     t.index ["status"], name: "index_rs_support_tickets_on_status"
   end
 

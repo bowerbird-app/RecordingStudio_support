@@ -76,6 +76,15 @@ class MessagesInboxTest < Minitest::Test
     assert_includes helper, "def messages_panel_right_header"
     assert_includes helper, "def messages_panel_right_header_mobile"
     assert_includes helper, "def staff_support_ticket_for_header"
+    assert_includes helper, "def support_ticket_status_action"
+    controls = File.read(
+      File.expand_path("../app/views/recording_studio_support/staff_messages/_ticket_controls.html.erb", __dir__)
+    )
+    assert_includes controls, "FlatPack::Button::Dropdown::Component"
+    assert_includes controls, "style: :default"
+    refute_includes controls, "FlatPack::Select::Component"
+    refute_includes controls, "w-56"
+    refute_includes controls, "w-24"
     assert_includes helper, "Messages.staff_actor?"
     assert_includes helper, "SUPPORT_MOUNT_KEY"
     refute_includes helper, "MessagesDeskHelper"
@@ -84,6 +93,11 @@ class MessagesInboxTest < Minitest::Test
     refute_includes helper, "support_ticket_thread_bar"
     refute_includes engine, "PanelOverride"
     assert_includes engine, "PanelHeader.install!"
+    runtime = File.read(File.expand_path("../lib/recording_studio_support/engine/runtime_prepares.rb", __dir__))
+    reopen = File.read(File.expand_path("../lib/recording_studio_support/messages/send_message_reopen.rb", __dir__))
+    assert_includes runtime, "SendMessageReopen.install!"
+    assert_includes reopen, "Tickets::ReopenFromCustomerMessage.call"
+    assert_includes reopen, "singleton_class.prepend"
     refute File.exist?(File.expand_path("../lib/recording_studio_support/messages/panel_override.rb", __dir__))
     refute File.exist?(
       File.expand_path(

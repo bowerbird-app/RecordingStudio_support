@@ -10,8 +10,6 @@ module RecordingStudioSupport
 
     STATUSES = %w[
       open
-      waiting_on_customer
-      waiting_on_support
       resolved
     ].freeze
 
@@ -20,8 +18,6 @@ module RecordingStudioSupport
       normal
       high
     ].freeze
-
-    belongs_to :assignee, polymorphic: true, optional: true
 
     enum :status, STATUSES.to_h { |status| [status.to_sym, status] }, validate: true
     enum :priority, PRIORITIES.to_h { |priority| [priority.to_sym, priority] },

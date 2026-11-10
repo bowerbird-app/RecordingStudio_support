@@ -2,6 +2,19 @@
 
 module RecordingStudioSupport
   module MessagesInboxHelper # rubocop:disable Metrics/ModuleLength -- inbox paths and ticket header hooks stay together
+    STATUS_MENU_ITEM_CLASSES = [
+      "flex items-center gap-[var(--dropdown-item-gap)]",
+      "w-full",
+      "px-[var(--dropdown-item-padding-x)] py-[var(--dropdown-item-padding-y)]",
+      "text-sm text-left",
+      "rounded-[var(--dropdown-item-radius)]",
+      "text-[var(--surface-content-color)]",
+      "hover:bg-[var(--surface-muted-background-color)]",
+      "cursor-pointer",
+      "transition-colors duration-base",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+    ].join(" ").freeze
+
     def support_messages_form_url(group_recording)
       return if group_recording.blank?
 
@@ -82,34 +95,27 @@ module RecordingStudioSupport
       SupportTicket::STATUSES.map { |status| [support_ticket_status_label_for(status), status] }
     end
 
+    def support_ticket_status_action(ticket, label:, status:)
+      button_to(
+        label,
+        staff_ticket_update_path_for(ticket),
+        method: :patch,
+        params: { ticket: { status: status } },
+        form: { class: "w-full", data: { turbo: true, turbo_stream: true } },
+        class: STATUS_MENU_ITEM_CLASSES,
+        role: "menuitem"
+      )
+    end
+
     def support_ticket_status_label_for(status)
       {
         "open" => "Open",
-        "waiting_on_customer" => "Waiting on customer",
-        "waiting_on_support" => "Waiting on support",
         "resolved" => "Resolved"
       }.fetch(status.to_s, status.to_s.humanize)
     end
 
     def support_ticket_priority_options
       SupportTicket::PRIORITIES.map { |priority| [support_ticket_priority_label(priority), priority] }
-    end
-
-    def support_ticket_assignee_value(assignee)
-      return "" if assignee.blank?
-
-      "#{assignee.class.name}:#{assignee.id}"
-    end
-
-    def support_ticket_assignee_options(selected: nil)
-      options = [["Unassigned", ""]]
-      RecordingStudioSupport::Messages.staff_actors.each do |staff|
-        options << [message_sender_name(staff), support_ticket_assignee_value(staff)]
-      end
-      if selected.present? && options.none? { |(_, value)| value == support_ticket_assignee_value(selected) }
-        options << [message_sender_name(selected), support_ticket_assignee_value(selected)]
-      end
-      options
     end
 
     def messages_panel_right_header(group_recording, actor:, mount:)

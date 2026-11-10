@@ -29,7 +29,6 @@ class SupportTicketModelTest < ActiveSupport::TestCase
     assert_equal "Crop export failed", ticket.subject
     assert_equal "high", ticket.priority
     assert_equal "open", ticket.status
-    assert_nil ticket.assignee
     assert_nil ticket.resolved_at
 
     group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
@@ -66,8 +65,16 @@ class SupportTicketModelTest < ActiveSupport::TestCase
     ticket = revise_support_ticket!(ticket, status: :resolved)
     assert_not_nil ticket.resolved_at
 
-    ticket = revise_support_ticket!(ticket, status: :waiting_on_support)
+    ticket = revise_support_ticket!(ticket, status: :open)
     assert_nil ticket.resolved_at
+  end
+
+  test "status is open or resolved" do
+    ticket = RecordingStudioSupport::SupportTicket.new(subject: "Crop export failed", status: "waiting_on_customer")
+
+    refute ticket.valid?
+    assert_includes ticket.errors[:status], "is not included in the list"
+    assert_equal %w[open resolved], RecordingStudioSupport::SupportTicket::STATUSES
   end
 
   test "subject is required" do

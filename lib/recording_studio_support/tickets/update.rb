@@ -8,12 +8,11 @@ module RecordingStudioSupport
         new(...).call
       end
 
-      def initialize(ticket_or_recording, actor:, status: UNSET, priority: UNSET, assignee: UNSET)
+      def initialize(ticket_or_recording, actor:, status: UNSET, priority: UNSET)
         @ticket_or_recording = ticket_or_recording
         @actor = actor
         @status = status
         @priority = priority
-        @assignee = assignee
       end
 
       def call
@@ -40,7 +39,6 @@ module RecordingStudioSupport
         attributes = {}
         assign_change(changes, attributes, "status", current.status, @status)
         assign_change(changes, attributes, "priority", current.priority, @priority)
-        assign_assignee(changes, attributes, current)
         [changes, attributes]
       end
 
@@ -50,20 +48,6 @@ module RecordingStudioSupport
 
         changes[name] = [current_value.to_s, next_value.to_s]
         attributes[name.to_sym] = next_value
-      end
-
-      def assign_assignee(changes, attributes, current)
-        return unless Copy.provided?(@assignee)
-        return if assignee_key(@assignee) == assignee_key(current.assignee)
-
-        changes["assignee"] = [assignee_key(current.assignee), assignee_key(@assignee)]
-        attributes[:assignee] = @assignee
-      end
-
-      def assignee_key(assignee)
-        return if assignee.blank?
-
-        "#{assignee.class.name}:#{assignee.id}"
       end
 
       def revise(recording, changes, attributes)
