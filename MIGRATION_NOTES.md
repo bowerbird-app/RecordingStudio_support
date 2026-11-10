@@ -9,6 +9,7 @@ Help search uses Flatpack Search `round: true` with no local `--search-*` token 
 1. Bump `recording_studio_support` to `0.32.0`.
 2. Pin `flat_pack` `>= 0.1.345` (tag `v0.1.345`).
 3. Drop host copies of `--search-input-background-color`, `--search-input-border-color`, `--search-padding-y-lg`, `--search-padding-inline-lg`, and `prominent:` on Support search partials.
+4. Remove a copied language switch from the host default layout if that host followed dummy. Help pages still have one title and body. Locale files and `html lang` stay.
 
 Search `v0.6.0` `instant_search_field` does not forward `round:`. Instant search on a section show stays on Flatpack’s default corners until Search does. The GET fallback field is round.
 

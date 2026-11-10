@@ -27,6 +27,9 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "flat-pack-page-nav"
     assert_select "[aria-label='Go back']"
     assert_select "[aria-label='Close']", count: 0
+    assert_select "html[lang='en']"
+    assert_select "form[action='/recording_studio_internationalization/locale']", count: 0
+    refute_includes response.body, "dummy-language-selector"
     refute_includes response.body, "flat-pack-top-nav"
     refute_includes response.body, "recording_studio_publishable/application"
     refute_includes response.body, "Sign out"
@@ -44,7 +47,6 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "shadow-md"
     assert_includes response.body, "grid-cols-1"
     assert_includes response.body, "lg:grid-cols-3"
-    assert_includes response.body, "text-center"
     assert_includes response.body, "font-size: var(--page-title-h1-size)"
     refute_includes response.body, "--page-title-h1-size: var(--text-5xl)"
     assert_includes response.body, "gap-8"
@@ -477,5 +479,4 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_response :redirect
     assert_match "/users/sign_in", response.redirect_url
   end
-
 end

@@ -453,7 +453,7 @@ t("recording_studio.support.contact.label")
 t("recording_studio.support.messages.title")
 ```
 
-Hosts own other languages. Copy `recording_studio.support.*` into `config/locales/<locale>.yml` and list that locale in `config.i18n.available_locales`. Do not add `RecordingStudio_Internationalization` as a dependency of this gem — it is optional on the host (the dummy uses it to switch English/French).
+Hosts own other languages. Copy `recording_studio.support.*` into `config/locales/<locale>.yml` and list that locale in `config.i18n.available_locales`. Do not add `RecordingStudio_Internationalization` as a dependency of this gem. Dummy still loads it so locale files can be proven. Help chrome has no language switch, because a page has one title and body.
 
 `public_help_title`, `public_help_subtitle`, `public_contact_label`, `public_section_subtitle`, and Search `placeholder:` still override the locale when the host sets custom text. A host that leaves the English default follows I18n.
 
@@ -465,7 +465,7 @@ Help article titles and bodies, section names, and other support-written databas
 
 Dummy credentials (`test/dummy/config/credentials.yml.enc`) are encrypted with the shared RecordingStudio_* development master key. Set `RAILS_MASTER_KEY` or put that key in `test/dummy/config/master.key` (gitignored). Keep the encrypted file; do not generate a per-repo dummy key.
 
-Public and support help pages use `recording_studio_layout`. A nil setting selects `recording_studio/default_layout`. Dummy still overrides that layout file so `<html>` gets `lang` and Flatpack copy data, the body calls `recording_studio_track_views`, and the top nav's right slot includes the language selector. Flatpack stylesheets load before Tailwind. Support screens and Admin Support screens keep that chrome only. Dummy does not inject Sign out or Root Switchable into the top nav (including dummy host pages, `/admin/support`, `/help`, and `/admin`). Access can stay on Admin. Do not put a login button there. Sign-in uses the Users gem (`recording_studio_user` `v0.21.0`): email at `/users/sign_in`, password at `/users/sign_in/password`, layout `recording_studio_user/auth` with `html data-theme="rounded"`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`, `preset: :content`, image upload). Dummy Stimulus registers `flat-pack--tiptap` on first paint. The dummy switches English and French with Recording Studio Internationalization. Article titles and seeded bodies stay in the language they were written.
+Public and support help pages use `recording_studio_layout`. A nil setting selects `recording_studio/default_layout`. Dummy still overrides that layout file so `<html>` gets `lang` and Flatpack copy data, and the body calls `recording_studio_track_views`. Flatpack stylesheets load before Tailwind. Support screens and Admin Support screens keep that chrome only. Dummy does not inject Sign out, Root Switchable, or a language switch into the top nav (including dummy host pages, `/admin/support`, `/help`, and `/admin`). Access can stay on Admin. Do not put a login button there. Sign-in uses the Users gem (`recording_studio_user` `v0.21.0`): email at `/users/sign_in`, password at `/users/sign_in/password`, layout `recording_studio_user/auth` with `html data-theme="rounded"`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`, `preset: :content`, image upload). Dummy Stimulus registers `flat-pack--tiptap` on first paint. Article titles and seeded bodies stay in the language they were written. Chrome copy follows I18n when the host locale is set.
 
 | Field    | Value           |
 |----------|-----------------|
@@ -503,7 +503,7 @@ bin/rails db:setup
 bin/dev
 ```
 
-Then open `/help` without signing in. Search the lists with `?q=`. Switch English/French with the compact language control in PageNav. Sign-in for Admin and support forms is Users gem two-step login. Dummy uses Flatpack's built-in `rounded` theme on `<html data-theme="rounded">` for Users auth, public help, support forms, and Admin. For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root. Edit, Move, and New live on the Admin tables. Forms and preview open under `/admin/support`. Old `/support` links redirect to `/admin`.
+Then open `/help` without signing in. Search the lists with `?q=`. Sign-in for Admin and support forms is Users gem two-step login. Dummy uses Flatpack's built-in `rounded` theme on `<html data-theme="rounded">` for Users auth, public help, support forms, and Admin. For `/admin`, pick **Admin** in the top workspace control first — Recording Studio Admin checks that the current root is the admin root. Edit, Move, and New live on the Admin tables. Forms and preview open under `/admin/support`. Old `/support` links redirect to `/admin`.
 
 Seeds three sections: **Billing**, **Developers**, and **Getting started**, each with a Heroicons icon (`credit-card`, `code-bracket`, `rocket-launch`). Live articles inherit that section icon by default, include a short `description`, multi-section HTML bodies, and inline images where helpful (**How do I sign in?** and **How do I update payment details?**). **How do I change my password?** stays a draft under Getting started. Billing and Developers keep multiple/live pages for section lists.
 

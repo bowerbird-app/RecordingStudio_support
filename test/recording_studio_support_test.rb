@@ -195,7 +195,12 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes controller_source, "recording_studio_user/auth"
     refute_includes controller_source, "flat_pack_sidebar"
     assert_includes default_layout, "dummy_document_attributes"
-    assert_includes default_layout, "dummy_language_selector"
+    refute_includes default_layout, "dummy_language_selector"
+    helper_source = File.read(File.expand_path("dummy/app/helpers/dummy_layout_helper.rb", __dir__))
+    refute_includes helper_source, "dummy_language_selector"
+    refute File.exist?(
+      File.expand_path("dummy/app/javascript/controllers/dummy_language_selector_controller.js", __dir__)
+    )
     assert_includes default_layout, "@layer theme, base, components, utilities"
     assert_includes default_layout, 'stylesheet_link_tag "flat_pack/variables"'
     assert_includes default_layout, 'stylesheet_link_tag "flat_pack/application"'
@@ -283,6 +288,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes controllers_js, 'eagerLoadControllersFrom("controllers/recording_studio_support"'
     assert_includes importmap, "controllers/recording_studio_search"
     assert_includes controllers_js, 'eagerLoadControllersFrom("controllers/recording_studio_search"'
+    refute_includes controllers_js, "dummy_language_selector"
   end
 
   def test_dummy_default_layout_head_does_not_inject_host_chrome

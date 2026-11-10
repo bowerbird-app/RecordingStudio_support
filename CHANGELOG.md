@@ -14,11 +14,13 @@ Help search uses Flatpack Search as shipped.
 ### Changed
 - Shared search and page-search partials pass `round: true` to `FlatPack::Search::Component` and drop inline `--search-*` token overrides. Public `/help` no longer has a `prominent` local.
 - Dummy and gemspec Flatpack floor is `>= 0.1.345` (dummy tag `v0.1.345`) so Search `round:` exists.
+- Dummy help chrome no longer shows a language switch. Support pages have one title and body, so a switch implied versions that do not exist. Locale files and `html lang` stay.
 
 ### Upgrade notes
 - Bump to `0.32.0`.
 - Pin Flatpack `>= 0.1.345` (dummy tag `v0.1.345`).
 - Drop host copies of the old white-input and padding CSS variables on Support search forms.
+- Remove a copied `dummy_language_selector` from the host default layout if that host followed dummy.
 
 ## [0.31.0] - 2026-11-10
 
