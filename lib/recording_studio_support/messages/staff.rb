@@ -82,12 +82,15 @@ module RecordingStudioSupport
       return [] if recording.blank?
 
       RecordingStudioAccessible.access_recordings_for(recording).filter_map do |access_recording|
-        actor = access_recording.recordable&.actor
-        next if actor.blank?
-        next unless staff_role?(access_recording.recordable&.role)
-
-        actor
+        staff_actor_from(access_recording)
       end
+    end
+
+    def staff_actor_from(access_recording)
+      recordable = access_recording.recordable
+      return unless staff_role?(recordable&.role)
+
+      recordable.actor
     end
 
     def staff_role?(role)

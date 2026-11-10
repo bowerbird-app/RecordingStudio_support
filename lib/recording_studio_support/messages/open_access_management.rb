@@ -13,6 +13,7 @@ module RecordingStudioSupport
     # Composes under Messages::MembershipLock when that wrap is already installed:
     # MembershipLock → OpenAccess → host. Never wrap MembershipLock as @original
     # (that recurses when MembershipLock re-installs on to_prepare).
+    # rubocop:disable Metrics/ModuleLength -- first-open RoleCeiling wrap stays next to the authorizer chain
     module OpenAccessManagement
       THREAD_KEY = :recording_studio_support_open_access_management
       MESSAGE_GROUP_TYPE = "RecordingStudioMessages::MessageGroup"
@@ -28,7 +29,7 @@ module RecordingStudioSupport
         end
       end
 
-      class << self
+      class << self # rubocop:disable Metrics/ClassLength -- MembershipLock insert and heal stay together
         def with(actor:, mount:)
           return yield unless defined?(RecordingStudioAccessible)
 
@@ -175,5 +176,6 @@ module RecordingStudioSupport
         end
       end
     end
+    # rubocop:enable Metrics/ModuleLength
   end
 end

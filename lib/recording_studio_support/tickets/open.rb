@@ -47,7 +47,7 @@ module RecordingStudioSupport
         ).recording
       end
 
-      def create_group!(ticket_recording)
+      def create_group!(ticket_recording) # rubocop:disable Metrics/MethodLength -- lock, tag, grant, return group
         mount = require_mount!
         ticket_recording.with_lock do
           raise Tickets::AlreadyExists if tagged_group_exists?(mount, ticket_recording)

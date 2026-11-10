@@ -6,7 +6,7 @@ require_relative "tickets/update"
 module RecordingStudioSupport
   # Support tickets live under SupportCenter. The conversation is a tagged
   # MessageGroup on the :support mount, not a parent.
-  module Tickets
+  module Tickets # rubocop:disable Metrics/ModuleLength -- public ticket API and tag lookups stay together
     TICKET_TYPE = "RecordingStudioSupport::SupportTicket"
     TAG_KEY = "support_ticket"
     UNSET = Copy::UNSET
@@ -123,7 +123,7 @@ module RecordingStudioSupport
       for_message_group_ids(group_ids)
     end
 
-    def viewable_group_recording_ids(actor)
+    def viewable_group_recording_ids(actor) # rubocop:disable Metrics/MethodLength -- mount then tag filter
       mount = Messages.ensure_message_mount(actor: actor)
       return [] if mount.blank?
 

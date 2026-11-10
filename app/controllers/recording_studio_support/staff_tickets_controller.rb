@@ -56,8 +56,7 @@ module RecordingStudioSupport
       record.errors.full_messages.to_sentence.presence || "Could not update."
     end
 
-    def staff_messages_return_to(recording = nil)
-      recording ||= RecordingStudioSupport::Tickets.recording_for!(@ticket)
+    def staff_messages_return_to(_recording = nil)
       path = RecordingStudioSupport.configuration.pages_path.to_s.chomp("/")
       group = RecordingStudioSupport::Tickets.group_recording_for(@ticket)
       "#{path}/messages?group_id=#{group&.id}"

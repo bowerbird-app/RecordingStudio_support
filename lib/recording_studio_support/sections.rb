@@ -29,7 +29,7 @@ module RecordingStudioSupport
       )
     end
 
-    def create!(root_recording:, title:, icon: nil, actor: nil)
+    def create!(root_recording:, title:, icon: nil, actor: nil) # rubocop:disable Metrics/MethodLength -- record under SupportCenter
       center = parent_center_for(root_recording)
       raise ArgumentError, "Help sections belong under Support." if center.blank?
 
