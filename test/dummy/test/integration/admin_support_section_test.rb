@@ -13,7 +13,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     switch_to_admin_root!
   end
 
-  test "admin support metric widgets read metrics and link to desk or pages" do
+  test "admin support metric widgets read metrics and link to inbox or pages" do
     patron = RecordingStudioUser.create_user!(
       email: "widget-patron-#{SecureRandom.hex(4)}@example.com",
       password: "Password",

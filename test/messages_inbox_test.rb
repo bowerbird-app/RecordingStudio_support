@@ -2,7 +2,7 @@
 
 require "test_helper"
 
-class MessagesDeskTest < Minitest::Test
+class MessagesInboxTest < Minitest::Test
   def test_support_mount_key
     assert_equal :support, RecordingStudioSupport::Messages::SUPPORT_MOUNT_KEY
   end
@@ -59,7 +59,7 @@ class MessagesDeskTest < Minitest::Test
 
   def test_access_button_targets_the_top_frame
     source = File.read(
-      File.expand_path("../lib/recording_studio_support/messages/desk_access_navigation.rb", __dir__)
+      File.expand_path("../lib/recording_studio_support/messages/inbox_access_navigation.rb", __dir__)
     )
 
     assert_includes source, "turbo_frame: \"_top\""
@@ -70,18 +70,26 @@ class MessagesDeskTest < Minitest::Test
     install = File.read(File.expand_path("../lib/recording_studio_support/messages/panel_header.rb", __dir__))
     helper = File.read(File.expand_path("../app/helpers/recording_studio_support/messages_inbox_helper.rb", __dir__))
     engine = File.read(File.expand_path("../lib/recording_studio_support/engine.rb", __dir__))
+    panel = File.read(
+      File.expand_path(
+        "../app/views/overrides/recording_studio_messages/message_groups/_panel.html.erb",
+        __dir__
+      )
+    )
 
     assert_includes install, "RecordingStudioMessages::PanelHelper"
     assert_includes install, "MessagesInboxHelper"
-    assert_includes helper, "def messages_panel_right_header"
-    assert_includes helper, "def messages_panel_right_header_mobile"
+    assert_includes helper, "def support_ticket_thread_bar"
     assert_includes helper, "def staff_support_ticket_for_header"
     assert_includes helper, "Messages.staff_actor?"
     assert_includes helper, "SUPPORT_MOUNT_KEY"
     refute_includes helper, "MessagesDeskHelper"
     refute_includes helper, "help_message_path_for_desk"
     refute_includes helper, "user_desk_return_to"
+    refute_includes helper, "def messages_panel_right_header"
     assert_includes engine, "PanelHeader.install!"
+    assert_includes engine, "PanelOverride.install!"
+    assert_includes panel, "support_ticket_thread_bar"
   end
 
   def test_open_ticket_uses_narrow_first_open_access_gate

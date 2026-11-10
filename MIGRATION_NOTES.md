@@ -2,7 +2,7 @@
 
 ## 0.29.0
 
-Staff ticket status and assignee live in the conversation header. Messages must be 0.17.0 or newer.
+Staff ticket status and assignee live under the thread title. Messages must be 0.17.0 or newer.
 
 ### Host app
 
@@ -13,7 +13,7 @@ Staff ticket status and assignee live in the conversation header. Messages must 
 
 Messages 0.15 added `recording_studio_message_reads`. Skip step 3 if that table is already there. Support has no new tables.
 
-Do not keep a host copy of the old form above the staff inbox. Support renders Status and Assignee through Messages `messages_panel_right_header` and `messages_panel_right_header_mobile`.
+Do not keep a host copy of the old form above the staff inbox. Support overlays Messages `_panel.html.erb` so Status and Assignee sit under the title. Leave `messages_panel_right_header` and `messages_panel_right_header_mobile` empty unless the host has its own header actions.
 
 ### Verify
 

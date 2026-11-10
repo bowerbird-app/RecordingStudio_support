@@ -12,7 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Staff change ticket status and assignee on the open thread, not on a form above the inbox.
 
 ### Added
-- Staff ticket Status and Assignee controls in the Messages conversation header (`messages_panel_right_header` and `messages_panel_right_header_mobile`). Shown only on the `:support` mount, only for groups tagged `support_ticket`, and only for actors with Accessible staff access on the SupportCenter. Customers and other groups get nothing. Save uses Turbo Stream so the thread stays open.
+- Staff ticket Status and Assignee sit on their own row under the thread title. Shown only on the `:support` mount, only for groups tagged `support_ticket`, and only for actors with Accessible staff access on the SupportCenter. Customers and other groups get nothing. A change saves on select (Turbo Stream). There is no Save button. The Messages right-header slots stay empty so the title is not squeezed.
 
 ### Changed
 - Dummy Messages pin is `v0.17.0`. Gemspec floor is `recording_studio_messages >= 0.17.0`.
@@ -21,12 +21,12 @@ Staff change ticket status and assignee on the open thread, not on a form above 
 
 ### Removed
 - The Status and Assignee form above the staff inbox.
-- Leftover "desk" names: `MessagesDeskHelper`, `desk_group_id`, `desk_path`, `user_desk_return_to`, and `help_message_path_for_desk`.
+- Leftover "desk" names: `MessagesDeskHelper`, `desk_group_id`, `desk_path`, `user_desk_return_to`, `help_message_path_for_desk`, `DeskAccessNavigation`, `SupportMessagesDeskTest`, and `MessagesDeskTest`.
 
 ### Upgrade notes
 - Bump to `0.29.0`. Pin Messages `>= 0.17.0` (dummy `v0.17.0`).
 - Run `bin/rails generate recording_studio_messages:migrations` and `bin/rails db:migrate` if the host does not already have `recording_studio_message_reads` (Messages 0.15).
-- Override nothing for the header. Support prepends the hooks onto Messages `PanelHelper`. Hosts that already defined those helpers should call `super` or drop their copy.
+- Leave Messages `messages_panel_right_header` empty unless the host has its own header actions. Support overlays Messages `_panel.html.erb` so ticket fields sit under the title.
 
 ## [0.28.0] - 2026-11-09
 

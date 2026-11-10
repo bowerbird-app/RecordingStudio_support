@@ -1,9 +1,7 @@
-<% mobile = local_assigns.fetch(:mobile, false) %>
-<% html_id = support_ticket_controls_id(ticket, mobile: mobile) %>
-<% field_prefix = mobile ? "support-ticket-mobile" : "support-ticket" %>
-<% field_width = mobile ? "w-28" : "w-40" %>
+<% html_id = support_ticket_controls_id(ticket) %>
 
-<%= tag.div id: html_id do %>
+<%= tag.div id: html_id,
+            class: "flex-shrink-0 border-b border-[var(--chat-header-border-color)] bg-[var(--chat-header-background-color)] px-4 py-2" do %>
   <%= form_with url: staff_ticket_update_path_for(ticket),
                 method: :patch,
                 scope: :ticket,
@@ -12,41 +10,30 @@
                   data: { turbo: true, turbo_stream: true },
                   onchange: "this.requestSubmit()"
                 } do %>
-    <div class="flex items-center gap-2">
-      <div class="<%= field_width %> shrink-0">
+    <div class="flex min-w-0 items-end gap-3">
+      <div class="min-w-0 flex-1">
         <%= render FlatPack::Select::Component.new(
           name: "ticket[status]",
-          id: "#{field_prefix}-status-#{ticket.id}",
-          label: (mobile ? nil : "Status"),
+          id: "support-ticket-status-#{ticket.id}",
+          label: "Status",
           options: support_ticket_status_options,
           value: ticket.status,
           placeholder: nil,
-          chrome: :cell,
-          aria: { label: "Status" }
+          chrome: :cell
         ) %>
       </div>
 
-      <div class="<%= field_width %> shrink-0">
+      <div class="min-w-0 flex-1">
         <%= render FlatPack::Select::Component.new(
           name: "ticket[assignee]",
-          id: "#{field_prefix}-assignee-#{ticket.id}",
-          label: (mobile ? nil : "Assignee"),
+          id: "support-ticket-assignee-#{ticket.id}",
+          label: "Assignee",
           options: support_ticket_assignee_options(selected: ticket.assignee),
           value: support_ticket_assignee_value(ticket.assignee),
           placeholder: nil,
-          chrome: :cell,
-          aria: { label: "Assignee" }
+          chrome: :cell
         ) %>
       </div>
-
-      <% unless mobile %>
-        <%= render FlatPack::Button::Component.new(
-          text: "Save",
-          style: :ghost,
-          size: :sm,
-          type: :submit
-        ) %>
-      <% end %>
     </div>
   <% end %>
 <% end %>
