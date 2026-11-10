@@ -10,7 +10,7 @@ This Rails app exists to prove Recording Studio Support in a real host. It is no
 - Support screens mounted at `/admin/support` (Admin-gated forms and preview). Old `/support` redirects to `/admin`
 - Public help at `/help` for logged-out visitors (default-layout chrome, interactive Flatpack Cards with optional Heroicons icon + **N article(s)** line, then published pages)
 - Admin Support section mounted at `/admin` on an admin root (switch to **Admin** in the top control first — Admin 2.0 gates staff screens on that root)
-- Recording Studio API mounted at `/recording_studio_api` with `api_access_point` on `Workspace` and `AdminRoot`, plus a named `:operations` API. Seeds a public workspace-only client (`:view`) and operations clients on **AdminRoot** (help records stay under Workspace)
+- Recording Studio API mounted at `/recording_studio_api` with `api_access_point` on `Workspace` and `AdminRoot`, plus a named `:operations` API. Seeds a public workspace-only client (`:view`) and operations clients on **AdminRoot** (help records live under SupportCenter)
 - Support pages opt into Trashable, Moveable, and Publishable. Dummy Folder and Page do not.
 - Recording Studio default layout via `recording_studio_layout` (nil falls through to `recording_studio/default_layout`). Dummy's layout override sets `<html>` `data-theme="rounded"`, `lang`, and kit copy data. Back and close use `flat_pack_page_nav`. A compact language selector sits in the top nav's right slot (English/French via Recording Studio Internationalization). No Sign out or workspace switcher in that nav. Flatpack CSS loads before Tailwind. Users auth also puts `rounded` on `<html>`.
 - Root Switchable stays installed for workspace switching via its own routes, not PageNav chrome
@@ -63,7 +63,7 @@ OTP is off (`otp_enabled = false`). OmniAuth Continue-with buttons appear only w
 
 - `/` - dummy host home page
 - `/help` - public help sections (no sign-in). Switch English/French from the PageNav language selector
-- `/help/messages` - signed-in messages desk
+- `/help/messages` - signed-in tickets and messages
 - `/help/sections/:slug` - published pages in a section (declare this before the Publishable mount; UUID bookmarks redirect). Typing filters articles in a Turbo Frame via Instant Search (`/help/sections/:slug/instant_search`)
 - `/recording_studio_search/instant_search` - Search Instant engine (live `SupportPage` only)
 - `/help/:uuid/:slug` - public help page through Publishable
@@ -89,6 +89,6 @@ OTP is off (`otp_enabled = false`). OmniAuth Continue-with buttons appear only w
 
 Use this app to click through public help, Admin Support, and staff forms under `/admin/support`. Bearer clients can hit `/recording_studio_api/api/v1/support_pages` with the same Accessible rules as staff. If a layout, route, asset source, or Recording Studio initializer change breaks here, the gem likely needs adjustment before reuse.
 
-Seeds three sections under Studio Workspace: **Billing**, **Developers**, and **Getting started**. Live pages carry a short `description` summary. **How do I sign in?** is a live article with headings, a list, and an inline photograph (`public/how-to-sign-in.jpg`, Wikimedia Commons CC0 laptop keyboard). **How do I update payment details?** is a longer Billing article with ordered card-field steps, tip blockquote (same text color as the article), and a parked credit-card form JPEG at `public/how-to-update-payment.jpg` (seed serves that file; it does not fetch the web). **How do I change my password?** stays a draft under Getting started. Billing also has **Where is my invoice?**; Developers has one live page. Admin sections table Count is `2` on Getting started and Billing, and `1` on Developers. Public Help lists show published counts/pages only; staff section show under `/admin/support/sections/:id` lists drafts too. A few page reads are logged as support events.
+Seeds a SupportCenter under Admin, then three sections: **Billing**, **Developers**, and **Getting started**. Live pages carry a short `description` summary. **How do I sign in?** is a live article with headings, a list, and an inline photograph (`public/how-to-sign-in.jpg`, Wikimedia Commons CC0 laptop keyboard). **How do I update payment details?** is a longer Billing article with ordered card-field steps, tip blockquote (same text color as the article), and a parked credit-card form JPEG at `public/how-to-update-payment.jpg` (seed serves that file; it does not fetch the web). **How do I change my password?** stays a draft under Getting started. Billing also has **Where is my invoice?**; Developers has one live page. Admin sections table Count is `2` on Getting started and Billing, and `1` on Developers. Public Help lists show published counts/pages only; staff section show under `/admin/support/sections/:id` lists drafts too. A few page reads are logged as support events.
 
 Public and staff help use Recording Studio's shared default layout with dummy's html rounded theme. Sign-in uses the Users gem auth layout. Both put `rounded` on `<html>`.

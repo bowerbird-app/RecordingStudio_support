@@ -2,30 +2,46 @@
 
 module RecordingStudioSupport
   module Messages
-    # Thread-local open gate for first-open MessageGroup grants.
-    # Accessible's process-global `access_management_authorizer` must not flip for
-    # every Puma thread — only the creating thread may pass while nesting.
+    # Narrow first-open grant for a Support ticket conversation.
+    #
+    # Messages create_group grants the opener :admin with grant_access.
+    # Accessible 0.24 also checks RoleCeiling (the manager must already hold
+    # the role). This wrap allows only the opener, on an empty MessageGroup
+    # under the Support mount, while with is active. Every other Accessible
+    # check still uses the inner authorizer and RoleCeiling.
     #
     # Composes under Messages::MembershipLock when that wrap is already installed:
     # MembershipLock → OpenAccess → host. Never wrap MembershipLock as @original
     # (that recurses when MembershipLock re-installs on to_prepare).
     module OpenAccessManagement
       THREAD_KEY = :recording_studio_support_open_access_management
+      MESSAGE_GROUP_TYPE = "RecordingStudioMessages::MessageGroup"
+
+      module RoleCeilingFirstOpen
+        def allowed?(recording:, manager:, role:)
+          return true if OpenAccessManagement.first_open_membership_grant?(
+            recording: recording,
+            actor: manager
+          )
+
+          super
+        end
+      end
 
       class << self
-        def with
+        def with(actor:, mount:)
           return yield unless defined?(RecordingStudioAccessible)
 
           install!
           previous = Thread.current[THREAD_KEY]
-          Thread.current[THREAD_KEY] = true
+          Thread.current[THREAD_KEY] = { actor: actor, mount: mount }
           yield
         ensure
           Thread.current[THREAD_KEY] = previous if defined?(RecordingStudioAccessible)
         end
 
         def open?
-          Thread.current[THREAD_KEY] == true
+          opening_actor.present? && opening_mount.present?
         end
 
         def install!
@@ -37,15 +53,62 @@ module RecordingStudioSupport
             configuration.access_management_authorizer,
             authorizer_callable
           )
+          wrap_role_ceiling!
         end
 
         def authorize(recording:, actor: nil, controller: nil, **)
-          return true if open?
+          return true if first_open_membership_grant?(recording: recording, actor: actor)
 
           call_original(recording: recording, actor: actor, controller: controller)
         end
 
+        def first_open_membership_grant?(recording:, actor:)
+          opener = opening_actor
+          mount = opening_mount
+          return false unless opener && mount && actor && recording
+          return false unless Messages.same_actor?(opener, actor)
+          return false unless empty_support_group?(recording, mount)
+
+          true
+        end
+
         private
+
+        def wrap_role_ceiling!
+          return if @role_ceiling_wrapped
+          return unless defined?(RecordingStudioAccessible::RoleCeiling)
+
+          RecordingStudioAccessible::RoleCeiling.singleton_class.prepend(RoleCeilingFirstOpen)
+          @role_ceiling_wrapped = true
+        end
+
+        def empty_support_group?(recording, mount)
+          return false unless recording.respond_to?(:recordable_type)
+          return false unless recording.recordable_type == MESSAGE_GROUP_TYPE
+          return false unless recording.respond_to?(:parent_recording_id)
+          return false unless recording.parent_recording_id == mount.id
+          return false if existing_direct_access?(recording)
+
+          true
+        end
+
+        def existing_direct_access?(recording)
+          RecordingStudioAccessible.access_recordings_for(recording).any?
+        rescue StandardError
+          true
+        end
+
+        def opening_state
+          Thread.current[THREAD_KEY]
+        end
+
+        def opening_actor
+          opening_state.is_a?(Hash) ? opening_state[:actor] : nil
+        end
+
+        def opening_mount
+          opening_state.is_a?(Hash) ? opening_state[:mount] : nil
+        end
 
         def place_in_authorizer_chain!(configuration, current, callable)
           if current.equal?(callable)
@@ -79,8 +142,6 @@ module RecordingStudioSupport
           lock.instance_variable_set(:@membership_lock_inner, authorizer_callable)
         end
 
-        # Recover when we became outermost over MembershipLock (lazy install before
-        # this composition fix, or a host that swapped the authorizer).
         def heal_if_wrapping_membership_lock!(configuration)
           return unless defined?(RecordingStudioMessages::MembershipLock)
 

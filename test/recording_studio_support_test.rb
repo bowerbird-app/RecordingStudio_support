@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.27.1", ::RecordingStudioSupport::VERSION
+    assert_equal "0.28.0", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -23,26 +23,26 @@ class RecordingStudioSupportTest < Minitest::Test
     gemspec = File.read(File.expand_path("../recording_studio_support.gemspec", __dir__))
 
     assert_includes gemspec, 'spec.add_dependency "recording_studio", ">= 6.1.0"'
-    assert_includes gemspec, 'spec.add_dependency "flat_pack", ">= 0.1.315"'
+    assert_includes gemspec, 'spec.add_dependency "flat_pack", ">= 0.1.331"'
     assert_includes gemspec, 'spec.add_dependency "view_component", ">= 4.14", "< 5"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_accessible", "~> 0.11"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_accessible", "~> 0.24"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_admin", "~> 2.0"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_attachable", "~> 0.7"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_messages", "~> 0.5"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_messages", ">= 0.12.0"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_metrics", ">= 0.5.0", "< 1.0"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_notifications", ">= 0.3.1", "< 1"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_notifications_email", "~> 0.3.1"'
 
     notifications = Gem::Dependency.new("recording_studio_notifications", ">= 0.3.1", "< 1")
-    messages = Gem::Dependency.new("recording_studio_messages", "~> 0.5")
+    messages = Gem::Dependency.new("recording_studio_messages", ">= 0.12.0")
 
     assert notifications.requirement.satisfied_by?(Gem::Version.new("0.3.1"))
     assert notifications.requirement.satisfied_by?(Gem::Version.new("0.4.0"))
     assert notifications.requirement.satisfied_by?(Gem::Version.new("0.5.0"))
     refute notifications.requirement.satisfied_by?(Gem::Version.new("1.0.0"))
-    assert messages.requirement.satisfied_by?(Gem::Version.new("0.5.0"))
-    assert messages.requirement.satisfied_by?(Gem::Version.new("0.5.1"))
-    refute messages.requirement.satisfied_by?(Gem::Version.new("0.4.6"))
+    assert messages.requirement.satisfied_by?(Gem::Version.new("0.12.0"))
+    assert messages.requirement.satisfied_by?(Gem::Version.new("0.14.0"))
+    refute messages.requirement.satisfied_by?(Gem::Version.new("0.11.2"))
     assert_includes gemspec, 'spec.add_dependency "recording_studio_trashable", "~> 0.9"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_orderable", "~> 0.2"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_publishable", "~> 0.4"'
@@ -93,19 +93,19 @@ class RecordingStudioSupportTest < Minitest::Test
     gemfile = File.read(File.expand_path("dummy/Gemfile", __dir__))
 
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v6.1.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.19.1"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.24.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.7.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.15.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_cache", tag: "v0.5.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_users", tag: "v0.21.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.12.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.4.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.12.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.13.2"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_search", tag: "v0.6.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.4.3"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_root_switchable", tag: "v0.10.0"'
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_messages", tag: "v0.9.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_messages", tag: "v0.14.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.7.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.4"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_Internationalization", tag: "v0.1.2"'
@@ -118,7 +118,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes dummy_hooks, "RecordingStudioSupport.staff_permission"
     assert_includes dummy_hooks, "authorization_resolver"
     assert_includes dummy_hooks, "authorization_hook"
-    assert_includes gemfile, 'github: "bowerbird-app/flatpack", ref: "3e49ad38b1980add449194d27265edaa7b892c0d"'
+    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.341"'
     assert_includes gemfile, 'gem "view_component", "4.19.0"'
     refute_includes gemfile, "recording_studio/v3.0.0"
     refute_includes gemfile, 'tag: "v0.6.1"'
@@ -144,7 +144,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes source, 'self.table_name = "recording_studio_support_sections"'
     assert_includes source, 'label: "Help section"'
     assert_includes source, "root: false"
-    assert_includes source, 'allowed_parent_types: ["Workspace"]'
+    assert_includes source, 'allowed_parent_types: ["RecordingStudioSupport::SupportCenter"]'
     assert_includes source, "RecordingStudio::Capabilities::Trashable.to"
     assert_includes source, "RecordingStudio::Capabilities::Orderable.to"
     assert_includes source, 'allows: ["RecordingStudioSupport::SupportPage"]'
@@ -321,6 +321,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes initializer_source, "config.require_recordable_declarations = true"
     assert_includes initializer_source, '"RecordingStudioSupport::SupportSection"'
     assert_includes initializer_source, '"RecordingStudioSupport::SupportPage"'
+    assert_includes initializer_source, '"RecordingStudioSupport::SupportCenter"'
     assert_includes initializer_source, '"RecordingStudioSupport::SupportTicket"'
     assert_includes initializer_source, '"RecordingStudioUser::People"'
     assert_includes initializer_source, '"RecordingStudioUser::Profile"'
@@ -364,8 +365,10 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "Recording Studio Support"
     assert_includes readme, "v6.1.0"
     assert_includes readme, "v0.15.0"
-    assert_includes readme, "v0.19.1"
-    assert_includes readme, "0.1.329"
+    assert_includes readme, "v0.24.1"
+    assert_includes readme, "0.1.341"
+    assert_includes readme, "SupportCenter"
+    assert_includes readme, "parent_root_type"
     assert_includes readme, "v0.21.0"
     assert_includes readme, "Support page"
     assert_includes readme, "SupportSection"

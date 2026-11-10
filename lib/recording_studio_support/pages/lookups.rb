@@ -4,10 +4,10 @@ module RecordingStudioSupport
   module Pages
     module Lookups
       def for_root(root_recording, query: nil)
-        workspace = Sections.parent_root_for(root_recording)
-        return RecordingStudio::Recording.none unless workspace
+        center = Sections.parent_center_for(root_recording)
+        return RecordingStudio::Recording.none unless center
 
-        apply_query(kept_pages(workspace), query).preload(:recordable)
+        apply_query(kept_pages_for_center(center), query).preload(:recordable)
       end
 
       def for_section(section_recording, query: nil)
@@ -36,8 +36,8 @@ module RecordingStudioSupport
       end
 
       def find_for_root!(root_recording:, id:)
-        workspace = Sections.parent_root_for(root_recording)
-        kept_pages(workspace).includes(:recordable).find(id)
+        center = Sections.parent_center_for(root_recording)
+        kept_pages_for_center(center).includes(:recordable).find(id)
       end
 
       def find_kept!(id:)
@@ -54,10 +54,10 @@ module RecordingStudioSupport
       end
 
       def default_section_for(root_recording)
-        workspace = Sections.parent_root_for(root_recording)
-        return unless workspace
+        center = Sections.parent_center_for(root_recording) || SupportCenters.current
+        return unless center
 
-        Sections.for_root(workspace).first
+        Sections.for_root(center).first
       end
 
       def section_for(recording)
@@ -78,6 +78,17 @@ module RecordingStudioSupport
       def kept_pages(root_recording)
         RecordingStudio::Recording.where(
           root_recording_id: root_recording.id,
+          recordable_type: SUPPORT_PAGE_TYPE,
+          trashed_at: nil
+        )
+      end
+
+      def kept_pages_for_center(center_recording)
+        return RecordingStudio::Recording.none unless center_recording
+
+        section_ids = Sections.kept_sections(center_recording).select(:id)
+        RecordingStudio::Recording.where(
+          parent_recording_id: section_ids,
           recordable_type: SUPPORT_PAGE_TYPE,
           trashed_at: nil
         )

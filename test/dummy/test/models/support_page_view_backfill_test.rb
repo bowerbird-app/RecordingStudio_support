@@ -27,7 +27,7 @@ class SupportPageViewBackfillTest < ActiveSupport::TestCase
     copied = RecordingStudioViews::ViewLog.find(page_view.id)
     assert_equal 1, result.copied
     assert_equal @page.id, copied.recording_id
-    assert_equal @root.id, copied.root_recording_id
+    assert_equal @page.root_recording_id, copied.root_recording_id
     assert_equal "RecordingStudioSupport::SupportPage", copied.resource_type
     assert_equal "User", copied.actor_type
     assert_equal @user.id.to_s, copied.actor_id

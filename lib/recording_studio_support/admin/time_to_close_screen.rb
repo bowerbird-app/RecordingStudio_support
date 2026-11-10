@@ -11,7 +11,7 @@ module RecordingStudioSupport
 
       SUBJECT_VALUE = ->(row, _context) { row.subject }
       CLOSED_IN_VALUE = ->(row, _context) { closed_in_label(row) }
-      DESK_URL = ->(row, _context) { OpenTicketsScreen.desk_path(row) }
+      INBOX_URL = ->(row, _context) { OpenTicketsScreen.inbox_path(row) }
 
       query do |_context|
         tickets
@@ -46,7 +46,7 @@ module RecordingStudioSupport
         column :subject, title: "Subject", sortable: false, value: SUBJECT_VALUE
         column :closed_in, title: "Closed in", sortable: false, value: CLOSED_IN_VALUE
         column :resolved_at, title: "Closed"
-        action :desk, text: "Desk", icon: "chat-bubble-left-right", url: DESK_URL
+        action :inbox, text: "Open", icon: "chat-bubble-left-right", url: INBOX_URL
         paginate per_page: 25
         default_sort :resolved_at, direction: :desc
       end

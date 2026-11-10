@@ -29,6 +29,9 @@ class SupportTicketReadsTest < ActiveSupport::TestCase
       time_zone: "UTC"
     )
     Current.actor = @staff
+    admin_root = RecordingStudio.root_recording_for(AdminRoot.find_or_create_by!(name: "Admin"))
+    grant_admin!(admin_root, @staff)
+    record_support_center(admin_root)
     RecordingStudio::Recording.where(recordable_type: RecordingStudioSupport::Tickets::TICKET_TYPE)
                               .update_all(trashed_at: Time.current)
   end

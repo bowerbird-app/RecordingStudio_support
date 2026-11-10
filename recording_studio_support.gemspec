@@ -7,9 +7,9 @@ Gem::Specification.new do |spec|
   spec.version     = RecordingStudioSupport::VERSION
   spec.authors     = ["Bowerbird"]
   spec.homepage    = "https://github.com/bowerbird-app/RecordingStudio_support"
-  spec.summary     = "Self-serve support pages and a signed-in messages desk for Recording Studio hosts"
-  spec.description = "Staff write help pages under a workspace. People help themselves at /help. " \
-                     "Signed-in users and staff talk on a Messages desk under the support mount."
+  spec.summary     = "Self-serve support pages and signed-in tickets for Recording Studio hosts"
+  spec.description = "Staff write help pages under a SupportCenter. People help themselves at /help. " \
+                     "Signed-in users and staff talk on tagged ticket threads under the support mount."
   spec.license     = "MIT"
   spec.required_ruby_version = ">= 3.3.0"
 
@@ -22,13 +22,13 @@ Gem::Specification.new do |spec|
     Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
   end
 
-  spec.add_dependency "flat_pack", ">= 0.1.315"
+  spec.add_dependency "flat_pack", ">= 0.1.331"
   spec.add_dependency "rails", "~> 8.1.0"
   spec.add_dependency "recording_studio", ">= 6.1.0"
-  spec.add_dependency "recording_studio_accessible", "~> 0.11"
+  spec.add_dependency "recording_studio_accessible", "~> 0.24"
   spec.add_dependency "recording_studio_admin", "~> 2.0"
   spec.add_dependency "recording_studio_attachable", "~> 0.7"
-  spec.add_dependency "recording_studio_messages", "~> 0.5"
+  spec.add_dependency "recording_studio_messages", ">= 0.12.0"
   spec.add_dependency "recording_studio_metrics", ">= 0.5.0", "< 1.0"
   spec.add_dependency "recording_studio_moveable", "~> 3.2"
   spec.add_dependency "recording_studio_notifications", ">= 0.3.1", "< 1"

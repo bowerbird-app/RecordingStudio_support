@@ -6,7 +6,7 @@ module RecordingStudioSupport
 
     recording_studio_recordable label: "Support ticket",
                                 root: false,
-                                allowed_parent_types: ["RecordingStudioMessages::MessageGroup"]
+                                allowed_parent_types: ["RecordingStudioSupport::SupportCenter"]
 
     STATUSES = %w[
       open

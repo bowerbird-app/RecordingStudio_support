@@ -14,11 +14,8 @@ module RecordingStudioSupport
       public_section_subtitle: nil,
       public_contact_href: "/help/messages",
       public_contact_label: "Contact support",
-      # Staff set for the support messages desk. When set to an email string,
-      # only that user is staff. When blank, `messages_admin_finder` runs
-      # (default: all User rows with admin: true).
-      messages_admin_email: nil,
-      messages_admin_finder: nil
+      # Parent root for SupportCenter. Set this before models load.
+      parent_root_type: "AdminRoot"
     }.freeze
 
     attr_accessor(*DEFAULTS.keys)

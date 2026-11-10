@@ -166,7 +166,7 @@ class SupportApiTest < ActionDispatch::IntegrationTest
   test "operations editor token can write sections nested pages and pages including move" do
     post "#{OPERATIONS_ROOT}/support_sections",
          headers: auth(@editor_operations_token),
-         params: { title: "Created section #{SecureRandom.hex(4)}", parent_id: @root.id, icon: "sparkles" },
+         params: { title: "Created section #{SecureRandom.hex(4)}", parent_id: @admin_root.id, icon: "sparkles" },
          as: :json
 
     assert_response :created
@@ -765,23 +765,13 @@ class SupportApiTest < ActionDispatch::IntegrationTest
       recording: recording,
       actor: actor
     )
-    raise result.error if result.failure?
+    return if result.success? || already_granted?(result)
+
+    raise result.error
   end
 
   def grant!(recording, actor, role)
-    return if RecordingStudioAccessible.authorized?(actor: actor, recording: recording, role: role)
-
-    original = RecordingStudioAccessible.configuration.access_management_authorizer
-    RecordingStudioAccessible.configuration.access_management_authorizer = ->(**) { true }
-    result = RecordingStudioAccessible.grant_access(
-      recording: recording,
-      actor: actor,
-      role: role,
-      manager_actor: @staff
-    )
-    raise result.error if result.failure?
-  ensure
-    RecordingStudioAccessible.configuration.access_management_authorizer = original
+    grant_role!(recording, actor, role)
   end
 
   def publish!(page_recording, slug:, status:)

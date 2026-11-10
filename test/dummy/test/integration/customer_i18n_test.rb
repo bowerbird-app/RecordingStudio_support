@@ -72,7 +72,7 @@ class CustomerI18nTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "Updated "
     refute_includes response.body, "Contact support"
 
-    sign_in @user
+    sign_in User.find_by!(email: "jordan.lee@example.com")
     get "/help/messages"
 
     assert_response :success

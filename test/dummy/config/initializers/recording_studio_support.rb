@@ -15,8 +15,9 @@ RecordingStudioSupport.configure do |config|
       "Payments, invoices, and plan changes."
     end
   end
-  # Default public_contact_href is /help/messages (signed-in desk).
-  # Staff set: leave messages_admin_email blank so all User.where(admin: true) are staff.
+  # Default public_contact_href is /help/messages.
+  # Set parent_root_type before models load. Default is AdminRoot.
+  config.parent_root_type = "AdminRoot"
 end
 
 # Host-owned. Support does not set Trashable or Moveable config at boot.

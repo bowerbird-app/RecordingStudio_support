@@ -11,10 +11,10 @@ module RecordingStudioSupport
     SUPPORT_SECTION_TYPE = "RecordingStudioSupport::SupportSection"
 
     def for_root(root_recording, query: nil)
-      workspace = parent_root_for(root_recording)
-      return RecordingStudio::Recording.none unless workspace
+      center = parent_center_for(root_recording)
+      return RecordingStudio::Recording.none unless center
 
-      relation = kept_sections(workspace)
+      relation = kept_sections(center)
       apply_query(relation, query).preload(:recordable)
     end
 
@@ -30,11 +30,14 @@ module RecordingStudioSupport
     end
 
     def create!(root_recording:, title:, icon: nil, actor: nil)
-      workspace = parent_root_for(root_recording)
-      raise ArgumentError, "Help sections belong under a workspace." if workspace.blank?
+      center = parent_center_for(root_recording)
+      raise ArgumentError, "Help sections belong under Support." if center.blank?
 
       assign_actor(actor) do
-        workspace.record(SupportSection) do |section|
+        (center.root_recording || center).record(
+          SupportSection,
+          parent_recording: center
+        ) do |section|
           section.title = title.to_s.strip
           section.slug = SupportSection.slug_for(title)
           section.icon = icon
@@ -86,13 +89,20 @@ module RecordingStudioSupport
         "AND #{table}.recordable_type = #{type}"
     end
 
-    def kept_sections(root_recording)
+    def kept_sections(center_recording)
       RecordingStudio::Recording.where(
-        root_recording_id: root_recording.id,
-        parent_recording_id: root_recording.id,
+        parent_recording_id: center_recording.id,
         recordable_type: SUPPORT_SECTION_TYPE,
         trashed_at: nil
       )
+    end
+
+    def parent_center_for(root_recording)
+      return if root_recording.blank?
+      return root_recording if root_recording.recordable_type == SupportCenters::TYPE
+      return SupportCenters.for_parent(root_recording) if allowed_parent_root?(root_recording)
+
+      nil
     end
   end
 end

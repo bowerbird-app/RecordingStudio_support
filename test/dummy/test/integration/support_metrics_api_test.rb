@@ -509,22 +509,12 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
       recording: recording,
       actor: actor
     )
-    raise result.error if result.failure?
+    return if result.success? || already_granted?(result)
+
+    raise result.error
   end
 
   def grant!(recording, actor, role)
-    return if RecordingStudioAccessible.authorized?(actor: actor, recording: recording, role: role)
-
-    original = RecordingStudioAccessible.configuration.access_management_authorizer
-    RecordingStudioAccessible.configuration.access_management_authorizer = ->(**) { true }
-    result = RecordingStudioAccessible.grant_access(
-      recording: recording,
-      actor: actor,
-      role: role,
-      manager_actor: @staff
-    )
-    raise result.error if result.failure?
-  ensure
-    RecordingStudioAccessible.configuration.access_management_authorizer = original
+    grant_role!(recording, actor, role)
   end
 end

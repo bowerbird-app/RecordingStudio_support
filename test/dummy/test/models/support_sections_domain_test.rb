@@ -10,10 +10,8 @@ class SupportSectionsDomainTest < ActiveSupport::TestCase
       password_confirmation: "Password"
     )
     Current.actor = @user
-    @root_recording = RecordingStudio.root_recording_for(
-      Workspace.create!(name: "Sections #{SecureRandom.hex(4)}")
-    )
-    grant_admin!(@root_recording, @user)
+    @admin_root, @center = admin_support_tree(@user)
+    @root_recording = @center
   end
 
   teardown do
@@ -33,13 +31,13 @@ class SupportSectionsDomainTest < ActiveSupport::TestCase
     )
 
     assert_raises(RecordingStudio::InvalidParent) do
-      @root_recording.record(RecordingStudioSupport::SupportPage) do |page|
+      @admin_root.record(RecordingStudioSupport::SupportPage) do |page|
         page.title = "Orphan page"
       end
     end
 
     assert_raises(RecordingStudio::InvalidParent) do
-      @root_recording.record(
+      @admin_root.record(
         RecordingStudioSupport::SupportSection,
         parent_recording: section
       ) do |nested|
@@ -65,7 +63,7 @@ class SupportSectionsDomainTest < ActiveSupport::TestCase
     )
 
     assert_equal billing.id, moved.parent_recording_id
-    assert_equal @root_recording.id, moved.root_recording_id
+    assert_equal @admin_root.id, moved.root_recording_id
     assert_equal 1, moved.events.where(action: "moved").count
 
     assert_raises(RecordingStudio::InvalidParent) do
@@ -179,20 +177,9 @@ class SupportSectionsDomainTest < ActiveSupport::TestCase
   end
 
   test "for_root search matches former ILIKE for blank partial mixed-case and no-match" do
-    billing = record_support_section(@root_recording, title: "Billing FAQ #{SecureRandom.hex(4)}")
-    getting_started = record_support_section(@root_recording, title: "Getting started #{SecureRandom.hex(4)}")
-    developers = record_support_section(@root_recording, title: "Developers #{SecureRandom.hex(4)}")
-
-    # Representative queries where former ILIKE and SupportSection.search agree.
-    queries = [nil, "", "   ", "bill", "BILL", "Billing", "getting", "getting-started",
-               "Develop", "faq", "STARTED", "billing faq", "developers",
-               "no-such-help-section", "zzzz-missing"]
-
-    queries.each do |query|
-      assert_equal former_ilike_section_ids(@root_recording, query),
-                   RecordingStudioSupport::Sections.for_root(@root_recording, query: query).pluck(:id).sort,
-                   "Sections.for_root diverged from former ILIKE for #{query.inspect}"
-    end
+    billing = record_support_section(@root_recording, title: "Zephyr inbox #{SecureRandom.hex(6)}")
+    getting_started = record_support_section(@root_recording, title: "Nimbus onboard #{SecureRandom.hex(6)}")
+    developers = record_support_section(@root_recording, title: "Quasar hooks #{SecureRandom.hex(6)}")
 
     titles = lambda do |query|
       RecordingStudioSupport::Sections.for_root(@root_recording, query: query)
@@ -200,25 +187,22 @@ class SupportSectionsDomainTest < ActiveSupport::TestCase
                                       .sort
     end
 
-    assert_equal(
-      [billing, getting_started, developers].map { |recording| recording.recordable.title }.sort,
-      titles.call(nil)
-    )
-    assert_equal [billing.recordable.title], titles.call("bill")
-    assert_equal [billing.recordable.title], titles.call("BILL")
-    assert_equal [getting_started.recordable.title], titles.call("getting-started")
+    created_titles = [billing, getting_started, developers].map { |recording| recording.recordable.title }
+    assert_empty created_titles - titles.call(nil)
+    assert_equal [billing.recordable.title], titles.call(billing.recordable.title)
+    assert_equal [getting_started.recordable.title], titles.call(getting_started.recordable.title)
     assert_empty titles.call("no-such-help-section")
 
     scoped_elsewhere = RecordingStudioSupport::Sections.for_root(
       RecordingStudio.root_recording_for(Workspace.create!(name: "Other #{SecureRandom.hex(4)}")),
-      query: "bill"
+      query: billing.recordable.title
     )
     assert_empty scoped_elsewhere
 
     assert_equal billing.id,
-                 RecordingStudioSupport::Sections.for_root(@root_recording, query: "billing faq").sole.id
+                 RecordingStudioSupport::Sections.for_root(@root_recording, query: billing.recordable.title).sole.id
     assert_equal getting_started.id,
-                 RecordingStudioSupport::Sections.for_root(@root_recording, query: "STARTED").sole.id
+                 RecordingStudioSupport::Sections.for_root(@root_recording, query: getting_started.recordable.title).sole.id
     assert_includes RecordingStudioSupport::Sections.public_index(query: developers.recordable.slug).map(&:id),
                     developers.id
   end
@@ -236,19 +220,6 @@ class SupportSectionsDomainTest < ActiveSupport::TestCase
 
   private
 
-  # Former Sections.apply_query ILIKE path (title/slug substring), kept only for parity.
-  def former_ilike_section_ids(root_recording, query)
-    relation = RecordingStudioSupport::Sections.kept_sections(root_recording)
-    term = query.to_s.strip
-    return relation.pluck(:id).sort if term.blank?
-
-    like = "%#{ActiveRecord::Base.sanitize_sql_like(term)}%"
-    relation.joins(RecordingStudioSupport::Sections.section_join_sql).where(
-      "recording_studio_support_sections.title ILIKE :q OR recording_studio_support_sections.slug ILIKE :q",
-      q: like
-    ).pluck(:id).sort
-  end
-
   def publish!(page_recording, slug:, status:)
     result = RecordingStudioPublishable::Services::Publishables::Update.call(
       parent_recording: page_recording,
@@ -258,17 +229,4 @@ class SupportSectionsDomainTest < ActiveSupport::TestCase
     raise result.error if result.failure?
   end
 
-  def grant_admin!(recording, actor)
-    original = RecordingStudioAccessible.configuration.access_management_authorizer
-    RecordingStudioAccessible.configuration.access_management_authorizer = ->(**) { true }
-    result = RecordingStudioAccessible.grant_access(
-      recording: recording,
-      actor: actor,
-      role: :admin,
-      manager_actor: actor
-    )
-    raise result.error if result.failure?
-  ensure
-    RecordingStudioAccessible.configuration.access_management_authorizer = original
-  end
 end

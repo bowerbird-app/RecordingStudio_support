@@ -10,10 +10,8 @@ class TrashableSiblingParityTest < ActiveSupport::TestCase
       password_confirmation: "Password"
     )
     Current.actor = @user
-    @root_recording = RecordingStudio.root_recording_for(
-      Workspace.create!(name: "Trashable parity #{SecureRandom.hex(4)}")
-    )
-    grant_admin!(@root_recording, @user)
+    @admin_root, @center = admin_support_tree(@user)
+    @root_recording = @admin_root
   end
 
   teardown do
@@ -31,15 +29,14 @@ class TrashableSiblingParityTest < ActiveSupport::TestCase
     other_section.recording_studio_trashable_trash!(actor: @user)
 
     page_ids = RecordingStudioSupport::Pages.kept_pages(@root_recording).pluck(:id)
-    section_ids = RecordingStudioSupport::Sections.kept_sections(@root_recording).pluck(:id)
+    section_ids = RecordingStudioSupport::Sections.kept_sections(@center).pluck(:id)
     main_page_ids = RecordingStudio::Recording.where(
       root_recording_id: @root_recording.id,
       recordable_type: RecordingStudioSupport::Pages::SUPPORT_PAGE_TYPE,
       trashed_at: nil
     ).pluck(:id)
     main_section_ids = RecordingStudio::Recording.where(
-      root_recording_id: @root_recording.id,
-      parent_recording_id: @root_recording.id,
+      parent_recording_id: @center.id,
       recordable_type: RecordingStudioSupport::Sections::SUPPORT_SECTION_TYPE,
       trashed_at: nil
     ).pluck(:id)
@@ -56,7 +53,7 @@ class TrashableSiblingParityTest < ActiveSupport::TestCase
   end
 
   test "kept_sections Sections.kept and admin queries keep additive trashed_at in to_sql" do
-    assert_additive_trashed_at_sql!(RecordingStudioSupport::Sections.kept_sections(@root_recording).to_sql,
+    assert_additive_trashed_at_sql!(RecordingStudioSupport::Sections.kept_sections(@center).to_sql,
                                     label: "kept_sections")
     assert_additive_trashed_at_sql!(RecordingStudioSupport::Sections.kept.to_sql, label: "Sections.kept")
     assert_additive_trashed_at_sql!(
@@ -113,16 +110,17 @@ class TrashableSiblingParityTest < ActiveSupport::TestCase
   end
 
   test "api workspace lookup rejects trashed roots with main additive filter" do
-    assert_equal @root_recording.id,
-                 RecordingStudioSupport::Api::Lookup.workspace!(id: @root_recording.id).id
+    assert_equal @center.id, RecordingStudioSupport::Api::Lookup.workspace!(id: @center.id).id
 
-    RecordingStudioTrashable.void_recording!(@root_recording, time: Time.current)
-    assert @root_recording.reload.recording_studio_trashable_trashed?
+    RecordingStudioTrashable.void_recording!(@center, time: Time.current)
+    assert @center.reload.recording_studio_trashable_trashed?
 
     error = assert_raises(RecordingStudioApi::NotFoundError) do
-      RecordingStudioSupport::Api::Lookup.workspace!(id: @root_recording.id)
+      RecordingStudioSupport::Api::Lookup.workspace!(id: @center.id)
     end
     assert_equal "Parent resource was not found", error.message
+  ensure
+    @center = record_support_center(@admin_root)
   end
 
   test "admin kept page recordings exclude trashed rows" do
@@ -145,7 +143,7 @@ class TrashableSiblingParityTest < ActiveSupport::TestCase
     install_recording_default_scope!
 
     kept_pages = RecordingStudioSupport::Pages.kept_pages(@root_recording)
-    kept_sections = RecordingStudioSupport::Sections.kept_sections(@root_recording)
+    kept_sections = RecordingStudioSupport::Sections.kept_sections(@center)
     sections_kept = RecordingStudioSupport::Sections.kept
     admin_pages = RecordingStudioSupport::Admin::Queries.kept_page_recordings
 
@@ -164,8 +162,7 @@ class TrashableSiblingParityTest < ActiveSupport::TestCase
     ).pluck(:id)
     support_ids = kept_pages.pluck(:id)
     section_main_ids = RecordingStudio::Recording.where(
-      root_recording_id: @root_recording.id,
-      parent_recording_id: @root_recording.id,
+      parent_recording_id: @center.id,
       recordable_type: RecordingStudioSupport::Sections::SUPPORT_SECTION_TYPE,
       trashed_at: nil
     ).pluck(:id)
@@ -221,17 +218,4 @@ class TrashableSiblingParityTest < ActiveSupport::TestCase
     @default_scope_installed = false
   end
 
-  def grant_admin!(recording, actor)
-    original = RecordingStudioAccessible.configuration.access_management_authorizer
-    RecordingStudioAccessible.configuration.access_management_authorizer = ->(**) { true }
-    result = RecordingStudioAccessible.grant_access(
-      recording: recording,
-      actor: actor,
-      role: :admin,
-      manager_actor: actor
-    )
-    raise result.error if result.failure?
-  ensure
-    RecordingStudioAccessible.configuration.access_management_authorizer = original
-  end
 end

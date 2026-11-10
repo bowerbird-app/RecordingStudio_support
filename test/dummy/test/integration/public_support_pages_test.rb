@@ -46,7 +46,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "text-center"
     assert_includes response.body, "font-size: var(--page-title-h1-size)"
     refute_includes response.body, "--page-title-h1-size: var(--text-5xl)"
-    assert_includes response.body, "gap-6"
+    assert_includes response.body, "gap-8"
     assert_includes response.body, "card-padding-lg"
     assert_select "ul[role='list']", count: 0
     refute_includes response.body, "chevron-right"
@@ -143,8 +143,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     path = current.recordable.published_url
     assert path.present?
 
-    root = RecordingStudio.root_recording_for(Workspace.find_by!(name: "Studio Workspace"))
-    root.revise(current) do |page|
+    current.root_recording.revise(current) do |page|
       page.description = nil
       page.body = "<p>Pay &amp; save the card. &lt;Keep receipts&gt;.</p>"
     end

@@ -1,5 +1,29 @@
 # Upgrade notes
 
+## 0.28.0
+
+Tickets and help sections live under a host-created `SupportCenter`. Ticket threads are tagged MessageGroups. There is no data migration.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.28.0`.
+2. Pin `recording_studio_messages` `>= 0.12.0` (tag `v0.14.0`) and `recording_studio_accessible` `~> 0.24` (tag `v0.24.1`). Dummy Flatpack is `v0.1.341`.
+3. Set `config.parent_root_type` before models load if the parent is not `AdminRoot`.
+4. Add `"RecordingStudioSupport::SupportCenter"` to `config.recordable_types`.
+5. Record the center during setup. Example: `admin_root.record(RecordingStudioSupport::SupportCenter)`. Look up with `RecordingStudioSupport::SupportCenters.current` / `for_parent`.
+6. Remove `Messages.to(keys: [:support], …)` from Workspace. SupportCenter already enables the `:support` mount.
+7. Remove `config.messages_admin_email` and `config.messages_admin_finder`. Staff is Accessible `:edit` on the SupportCenter or its admin root.
+8. `bin/rails generate recording_studio_support:migrations`
+9. `bin/rails db:migrate`
+
+If the host already copied `*_create_recording_studio_support_tickets.rb` with `message_group_id`, replace that file with this gem's create_table (no `message_group_id`) and migrate a fresh table. Existing ticket rows are not kept. There is no backfill. The 0.27 drop-column migration is gone from the generator.
+
+### Verify
+
+```bash
+bundle exec rake test
+bundle exec rubocop
+```
 
 ## 0.27.0
 

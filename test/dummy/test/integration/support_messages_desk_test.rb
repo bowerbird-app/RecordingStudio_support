@@ -206,30 +206,23 @@ class SupportMessagesDeskTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
-  test "messages admin email limits the staff set" do
-    other_admin = RecordingStudioUser.create_user!(
+  test "staff screens use Accessible edit on the support center" do
+    other = RecordingStudioUser.create_user!(
       email: "other-admin-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       first_name: "Other",
       last_name: "Admin",
       time_zone: "UTC"
     )
-    other_admin.update!(admin: true)
+    other.update!(admin: true) if other.respond_to?(:admin=)
 
-    previous = RecordingStudioSupport.configuration.messages_admin_email
-    RecordingStudioSupport.configuration.messages_admin_email = @staff.email
+    assert RecordingStudioSupport::Messages.staff_actor?(@staff)
+    refute RecordingStudioSupport::Messages.staff_actor?(other)
 
-    begin
-      assert RecordingStudioSupport::Messages.staff_actor?(@staff)
-      refute RecordingStudioSupport::Messages.staff_actor?(other_admin)
+    sign_in other
+    get "/admin/support/messages"
 
-      sign_in other_admin
-      get "/admin/support/messages"
-
-      assert_response :forbidden
-    ensure
-      RecordingStudioSupport.configuration.messages_admin_email = previous
-    end
+    assert_response :forbidden
   end
 
   test "public contact href defaults to help messages" do
@@ -245,7 +238,7 @@ class SupportMessagesDeskTest < ActionDispatch::IntegrationTest
   test "send notifies staff in app and by email" do
     sign_in @patron
 
-    assert_difference -> { RecordingStudioNotifications::Notification.count }, +1 do
+    assert_difference -> { RecordingStudioNotifications::Notification.count }, +2 do
       assert_emails 1 do
         open_ticket!(@patron, subject: "Ping the desk", body: "Ping the desk.")
       end

@@ -59,7 +59,8 @@ module RecordingStudioSupport
     def staff_messages_return_to(recording = nil)
       recording ||= RecordingStudioSupport::Tickets.recording_for!(@ticket)
       path = RecordingStudioSupport.configuration.pages_path.to_s.chomp("/")
-      "#{path}/messages?group_id=#{recording.parent_recording_id}"
+      group = RecordingStudioSupport::Tickets.group_recording_for(@ticket)
+      "#{path}/messages?group_id=#{group&.id}"
     end
 
     def require_signed_in_actor!

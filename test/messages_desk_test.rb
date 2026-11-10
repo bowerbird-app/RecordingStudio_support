@@ -3,18 +3,6 @@
 require "test_helper"
 
 class MessagesDeskTest < Minitest::Test
-  def setup
-    @previous_email = RecordingStudioSupport.configuration.messages_admin_email
-    @previous_finder = RecordingStudioSupport.configuration.messages_admin_finder
-    RecordingStudioSupport.configuration.messages_admin_email = nil
-    RecordingStudioSupport.configuration.messages_admin_finder = nil
-  end
-
-  def teardown
-    RecordingStudioSupport.configuration.messages_admin_email = @previous_email
-    RecordingStudioSupport.configuration.messages_admin_finder = @previous_finder
-  end
-
   def test_support_mount_key
     assert_equal :support, RecordingStudioSupport::Messages::SUPPORT_MOUNT_KEY
   end
@@ -25,9 +13,16 @@ class MessagesDeskTest < Minitest::Test
     refute RecordingStudioSupport::Messages.respond_to?(:create_user_group!)
   end
 
-  def test_messages_admin_email_is_the_staff_config_key
-    assert_includes RecordingStudioSupport::Configuration::DEFAULTS.keys, :messages_admin_email
-    assert_nil RecordingStudioSupport::Configuration::DEFAULTS[:messages_admin_email]
+  def test_staff_config_is_accessible_not_user_admin
+    defaults = RecordingStudioSupport::Configuration::DEFAULTS
+
+    assert_equal "AdminRoot", defaults[:parent_root_type]
+    refute_includes defaults.keys, :messages_admin_email
+    refute_includes defaults.keys, :messages_admin_finder
+    source = File.read(File.expand_path("../lib/recording_studio_support/messages/staff.rb", __dir__))
+    refute_includes source, "User.where(admin: true)"
+    refute_includes source, "messages_admin_email"
+    assert_includes source, "authorized?"
   end
 
   def test_public_contact_href_defaults_to_help_messages
@@ -71,10 +66,18 @@ class MessagesDeskTest < Minitest::Test
     assert_includes source, "def recording_studio_accessible_button"
   end
 
-  def test_open_ticket_uses_thread_local_open_access_gate
-    source = File.read(File.expand_path("../lib/recording_studio_support/tickets/open.rb", __dir__))
+  def test_open_ticket_uses_narrow_first_open_access_gate
+    open_source = File.read(File.expand_path("../lib/recording_studio_support/tickets/open.rb", __dir__))
+    gate_source = File.read(
+      File.expand_path("../lib/recording_studio_support/messages/open_access_management.rb", __dir__)
+    )
 
-    assert_includes source, "OpenAccessManagement.with"
-    refute_includes source, "configuration.access_management_authorizer = ->(**) { true }"
+    assert_includes open_source, "OpenAccessManagement.with(actor: @actor, mount: mount)"
+    refute_includes open_source, "configuration.access_management_authorizer = ->(**) { true }"
+    refute_includes gate_source, "return true if open?"
+    assert_includes gate_source, "first_open_membership_grant?"
+    assert_includes gate_source, "wrap_role_ceiling!"
+    assert_includes gate_source, "RoleCeilingFirstOpen"
+    assert_includes open_source, "tags: { Tickets::TAG_KEY => ticket_recording }"
   end
 end

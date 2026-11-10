@@ -465,17 +465,4 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     }
   end
 
-  def grant_role!(recording, actor, role)
-    original = RecordingStudioAccessible.configuration.access_management_authorizer
-    RecordingStudioAccessible.configuration.access_management_authorizer = ->(**) { true }
-    result = RecordingStudioAccessible.grant_access(
-      recording: recording,
-      actor: actor,
-      role: role,
-      manager_actor: actor
-    )
-    raise result.error if result.failure?
-  ensure
-    RecordingStudioAccessible.configuration.access_management_authorizer = original
-  end
 end

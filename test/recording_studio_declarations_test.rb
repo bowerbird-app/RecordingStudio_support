@@ -15,10 +15,12 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     assert_equal %w[Workspace Folder], RecordingStudio.allowed_parent_types_for(Page)
     assert_equal ["RecordingStudioSupport::SupportSection"],
                  RecordingStudio.allowed_parent_types_for("RecordingStudioSupport::SupportPage")
-    assert_equal ["Workspace"],
+    assert_equal ["RecordingStudioSupport::SupportCenter"],
                  RecordingStudio.allowed_parent_types_for("RecordingStudioSupport::SupportSection")
+    assert_equal [RecordingStudioSupport.parent_root_type],
+                 RecordingStudio.allowed_parent_types_for("RecordingStudioSupport::SupportCenter")
     assert_equal "Support page", RecordingStudio.recordable_type_label("RecordingStudioSupport::SupportPage")
-    assert_equal ["RecordingStudioMessages::MessageGroup"],
+    assert_equal ["RecordingStudioSupport::SupportCenter"],
                  RecordingStudio.allowed_parent_types_for("RecordingStudioSupport::SupportTicket")
     assert_equal "Support ticket", RecordingStudio.recordable_type_label("RecordingStudioSupport::SupportTicket")
     assert_includes RecordingStudio.configuration.recordable_types, "RecordingStudioSupport::SupportTicket"
@@ -95,27 +97,34 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     assert_equal "Page cannot be recorded under Page", error.message
   end
 
-  test "support section can be recorded under the host workspace root" do
-    root_recording = RecordingStudio.root_recording_for(Workspace.create!(name: unique_name("Support Workspace")))
+  test "support section can be recorded under a support center" do
+    admin_root = RecordingStudio.root_recording_for(AdminRoot.create!(name: unique_name("Support Admin")))
+    center = admin_root.record(RecordingStudioSupport::SupportCenter)
 
     assert RecordingStudio.parent_allowed?(
       child_type: "RecordingStudioSupport::SupportSection",
-      parent_recording: root_recording
+      parent_recording: center
     )
 
-    recording = root_recording.record(RecordingStudioSupport::SupportSection) do |section|
+    recording = admin_root.record(
+      RecordingStudioSupport::SupportSection,
+      parent_recording: center
+    ) do |section|
       section.title = unique_name("Getting started")
     end
 
-    assert_equal root_recording, recording.parent_recording
-    assert_equal root_recording, recording.root_recording
+    assert_equal center, recording.parent_recording
+    assert_equal admin_root, recording.root_recording
     assert_kind_of RecordingStudioSupport::SupportSection, recording.recordable
     assert_equal "recording_studio_support_sections", recording.recordable.class.table_name
   end
 
   test "support page can be recorded under a support section" do
-    root_recording = RecordingStudio.root_recording_for(Workspace.create!(name: unique_name("Support Workspace")))
-    section_recording = root_recording.record(RecordingStudioSupport::SupportSection) do |section|
+    root_recording, center = support_tree
+    section_recording = root_recording.record(
+      RecordingStudioSupport::SupportSection,
+      parent_recording: center
+    ) do |section|
       section.title = unique_name("Getting started")
     end
 
@@ -138,38 +147,34 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     assert_equal "recording_studio_support_pages", recording.recordable.class.table_name
   end
 
-  test "support ticket can be recorded under a message group" do
-    root_recording = RecordingStudio.root_recording_for(Workspace.create!(name: unique_name("Ticket Workspace")))
-    mount = root_recording.ensure_message_mount(:support)
-    group = RecordingStudio.record!(
-      action: "created",
-      recordable: RecordingStudioMessages::MessageGroup.new(title: unique_name("Ticket thread")),
-      root_recording: root_recording,
-      parent_recording: mount
-    ).recording
+  test "support ticket can be recorded under a support center" do
+    root_recording, center = support_tree
 
     assert RecordingStudio.parent_allowed?(
       child_type: "RecordingStudioSupport::SupportTicket",
-      parent_recording: group
+      parent_recording: center
     )
 
     event = RecordingStudio.record!(
       action: "created",
       recordable: RecordingStudioSupport::SupportTicket.new(subject: "Crop export failed", status: :open),
       root_recording: root_recording,
-      parent_recording: group
+      parent_recording: center
     )
 
     assert_equal "created", event.action
-    assert_equal group, event.recording.parent_recording
+    assert_equal center, event.recording.parent_recording
     assert_equal root_recording, event.recording.root_recording
     assert_equal "Crop export failed", event.recording.recordable.subject
     assert_equal "recording_studio_support_tickets", event.recording.recordable.class.table_name
   end
 
   test "support ticket cannot be recorded under another parent" do
-    root_recording = RecordingStudio.root_recording_for(Workspace.create!(name: unique_name("Ticket Parent Workspace")))
-    section = root_recording.record(RecordingStudioSupport::SupportSection) do |record|
+    root_recording, center = support_tree
+    section = root_recording.record(
+      RecordingStudioSupport::SupportSection,
+      parent_recording: center
+    ) do |record|
       record.title = unique_name("Not a thread")
     end
 
@@ -215,6 +220,31 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     end
   end
 
+  test "parent_root_type can be a non-default root" do
+    original = RecordingStudioSupport.configuration.parent_root_type
+    RecordingStudioSupport.configuration.parent_root_type = "Workspace"
+    RecordingStudioSupport::SupportCenter.recording_studio_recordable(
+      label: "Support",
+      root: false,
+      allowed_parent_types: [RecordingStudioSupport.parent_root_type]
+    )
+    workspace_root = RecordingStudio.root_recording_for(Workspace.create!(name: unique_name("Alt Parent")))
+
+    assert_equal ["Workspace"],
+                 RecordingStudio.allowed_parent_types_for("RecordingStudioSupport::SupportCenter")
+    assert RecordingStudio.parent_allowed?(
+      child_type: "RecordingStudioSupport::SupportCenter",
+      parent_recording: workspace_root
+    )
+  ensure
+    RecordingStudioSupport.configuration.parent_root_type = original
+    RecordingStudioSupport::SupportCenter.recording_studio_recordable(
+      label: "Support",
+      root: false,
+      allowed_parent_types: [original]
+    )
+  end
+
   test "support page cannot be recorded under a workspace" do
     workspace = Workspace.create!(name: unique_name("Support Parent Workspace"))
     root_recording = RecordingStudio.root_recording_for(workspace)
@@ -234,9 +264,11 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
   end
 
   test "support section cannot nest under another support section" do
-    workspace = Workspace.create!(name: unique_name("Nested Section Workspace"))
-    root_recording = RecordingStudio.root_recording_for(workspace)
-    section_recording = root_recording.record(RecordingStudioSupport::SupportSection) do |section|
+    root_recording, center = support_tree
+    section_recording = root_recording.record(
+      RecordingStudioSupport::SupportSection,
+      parent_recording: center
+    ) do |section|
       section.title = unique_name("Getting started")
     end
 
@@ -261,8 +293,11 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
   end
 
   test "support page revise creates a new snapshot" do
-    root_recording = RecordingStudio.root_recording_for(Workspace.create!(name: unique_name("Revise Workspace")))
-    section_recording = root_recording.record(RecordingStudioSupport::SupportSection) do |section|
+    root_recording, center = support_tree
+    section_recording = root_recording.record(
+      RecordingStudioSupport::SupportSection,
+      parent_recording: center
+    ) do |section|
       section.title = unique_name("Getting started")
     end
     recording = root_recording.record(
@@ -285,9 +320,10 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     assert_equal 1, recording.events.where(action: "viewed").count
   end
 
-  test "accessible is enabled on workspace and admin root" do
+  test "accessible is enabled on workspace admin root and support center" do
     assert RecordingStudio.capability_enabled?(:accessible, for: "Workspace")
     assert RecordingStudio.capability_enabled?(:accessible, for: "AdminRoot")
+    assert RecordingStudio.capability_enabled?(:accessible, for: "RecordingStudioSupport::SupportCenter")
     refute RecordingStudio.capability_enabled?(:accessible, for: "Folder")
     refute RecordingStudio.capability_enabled?(:accessible, for: "Page")
     refute RecordingStudio.capability_enabled?(:accessible, for: "RecordingStudioSupport::SupportPage")
@@ -345,5 +381,11 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
 
   def unique_name(prefix)
     "#{prefix} #{SecureRandom.hex(4)}"
+  end
+
+  def support_tree
+    root_recording = RecordingStudio.root_recording_for(AdminRoot.create!(name: unique_name("Support Admin")))
+    center = root_recording.record(RecordingStudioSupport::SupportCenter)
+    [root_recording, center]
   end
 end
