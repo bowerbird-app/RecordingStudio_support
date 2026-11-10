@@ -2,14 +2,14 @@
      title: support_t("messages.title"),
      subtitle: support_t("messages.subtitle")
    ) %>
-<% register_page_nav support_t("messages.new_ticket"), new_help_message_path_for_desk, role: :primary %>
+<% register_page_nav support_t("messages.new_ticket"), new_help_message_path_for, role: :primary %>
 
 <div class="flex w-full flex-col gap-6">
   <% if @tickets.any? %>
     <%= render "recording_studio_support/shared/link_list", items: @tickets.map { |ticket|
       {
         title: ticket.subject,
-        href: help_message_path_for_desk(ticket),
+        href: help_message_path_for(ticket),
         meta: support_ticket_status_badge(ticket)
       }
     } %>
@@ -23,7 +23,7 @@
           text: support_t("messages.new_ticket"),
           style: :primary,
           size: :md,
-          href: new_help_message_path_for_desk
+          href: new_help_message_path_for
         ) %>
       <% end %>
     <% end %>

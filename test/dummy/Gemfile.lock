@@ -92,10 +92,10 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_messages.git
-  revision: d529a973f71f3e2cc394dc0599eff829360156f6
-  tag: v0.14.0
+  revision: 72f713df3af31fc3cd232b6e608876b76b00b0f3
+  tag: v0.17.0
   specs:
-    recording_studio_messages (0.14.0)
+    recording_studio_messages (0.17.0)
       flat_pack (>= 0.1.331)
       rails (~> 8.1.0)
       recording_studio (>= 6.1.0)
@@ -252,14 +252,14 @@ GIT
 PATH
   remote: ../..
   specs:
-    recording_studio_support (0.28.0)
+    recording_studio_support (0.29.0)
       flat_pack (>= 0.1.331)
       rails (~> 8.1.0)
       recording_studio (>= 6.1.0)
       recording_studio_accessible (~> 0.24)
       recording_studio_admin (~> 2.0)
       recording_studio_attachable (~> 0.7)
-      recording_studio_messages (>= 0.12.0)
+      recording_studio_messages (>= 0.17.0)
       recording_studio_metrics (>= 0.5.0, < 1.0)
       recording_studio_moveable (~> 3.2)
       recording_studio_notifications (>= 0.3.1, < 1)
@@ -956,7 +956,7 @@ CHECKSUMS
   recording_studio_icons (0.1.1)
   recording_studio_internationalization (0.1.2)
   recording_studio_logs (0.5.0)
-  recording_studio_messages (0.14.0)
+  recording_studio_messages (0.17.0)
   recording_studio_metrics (0.5.0)
   recording_studio_moveable (3.4.0)
   recording_studio_notifications (0.7.0)
@@ -965,7 +965,7 @@ CHECKSUMS
   recording_studio_publishable (0.13.2)
   recording_studio_root_switchable (0.10.0)
   recording_studio_search (0.6.0)
-  recording_studio_support (0.28.0)
+  recording_studio_support (0.29.0)
   recording_studio_trashable (0.12.0)
   recording_studio_user (0.21.0)
   recording_studio_views (0.8.0)

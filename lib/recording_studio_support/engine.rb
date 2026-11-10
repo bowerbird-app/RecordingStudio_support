@@ -131,6 +131,7 @@ module RecordingStudioSupport
       config.to_prepare do
         RecordingStudioSupport::Api.register!
         RecordingStudioSupport::Messages::DeskAccessNavigation.install!
+        RecordingStudioSupport::Messages::PanelHeader.install!
       end
     end
   end

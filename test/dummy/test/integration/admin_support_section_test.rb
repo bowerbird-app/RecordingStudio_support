@@ -105,7 +105,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_includes response.body, older.subject
     assert_includes response.body, newer.subject
     assert_operator response.body.index(older.subject), :<, response.body.index(newer.subject)
-    assert_includes response.body, RecordingStudioSupport::Admin::OpenTicketsScreen.desk_path(older)
+    assert_includes response.body, RecordingStudioSupport::Admin::OpenTicketsScreen.inbox_path(older)
     refute_includes response.body, "Table data"
 
     resolved = travel_to(Time.utc(2025, 12, 1, 12)) do

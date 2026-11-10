@@ -4,16 +4,12 @@
    ) %>
 
 <div class="flex w-full flex-col gap-4">
-  <% if @ticket %>
-    <%= render "recording_studio_support/staff_messages/ticket_form", ticket: @ticket %>
-  <% end %>
-
   <%= render "recording_studio_messages/message_groups/desk",
              group_recordings: @group_recordings,
              group_recording: @group_recording,
              message_recordings: @message_recordings,
              current_actor: current_support_actor,
              form_url: support_messages_form_url(@group_recording),
-             return_to: user_desk_return_to,
-             desk_height_class: "h-[calc(100dvh-14rem)]" %>
+             return_to: help_thread_return_to,
+             desk_height_class: "h-[calc(100dvh-12rem)]" %>
 </div>

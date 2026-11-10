@@ -34,6 +34,7 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert connection.table_exists?(:recording_studio_views_view_receipts)
     assert connection.table_exists?(:recording_studio_views_daily_view_summaries)
     assert connection.table_exists?(:recording_studio_logs_aggregation_runs)
+    assert connection.table_exists?(:recording_studio_message_reads)
     assert connection.table_exists?(:admin_roots)
     assert connection.column_exists?(:recording_studio_support_pages, :title)
     assert connection.column_exists?(:recording_studio_support_pages, :body)
@@ -153,7 +154,7 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     invoice_bodies = message_bodies(invoice)
     card_bodies = message_bodies(card)
     assert_includes invoice_bodies, "I paid last Tuesday. Billing still has no PDF."
-    assert_includes invoice_bodies, "It's there now. Open Billing, then Invoices, and grab the top PDF."
+    assert_includes invoice_bodies, "It is there now. Open Billing, then Invoices, and grab the top PDF."
     assert_includes card_bodies, "I saved a new card. The next charge still used the old one."
     assert_includes card_bodies, "That card is the default now. The next invoice uses it."
     invoice_group = RecordingStudioSupport::Tickets.group_recording_for(invoice)

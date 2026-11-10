@@ -65,7 +65,7 @@ SAMPLE_SUPPORT_TICKETS = [
   {
     subject: "Where did my invoice go?",
     body: "I paid last Tuesday. Billing still has no PDF.",
-    reply: "It's there now. Open Billing, then Invoices, and grab the top PDF.",
+    reply: "It is there now. Open Billing, then Invoices, and grab the top PDF.",
     priority: :normal
   },
   {

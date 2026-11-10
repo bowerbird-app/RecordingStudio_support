@@ -6,7 +6,7 @@ module RecordingStudioSupport
       key "open_tickets"
       icon :inbox
       title "Open tickets"
-      subtitle "Oldest first. Same open queue as the age card."
+      subtitle "Oldest first. Still waiting."
       blast_radius :site
 
       SUBJECT_VALUE = ->(row, _context) { row.subject }
@@ -65,10 +65,6 @@ module RecordingStudioSupport
         "#{Queries.staff_messages_path}?group_id=#{group_id}"
       end
 
-      def self.desk_path(ticket)
-        inbox_path(ticket)
-      end
-
       def self.opened_at(ticket)
         return ticket.created_at unless ticket.respond_to?(:id) && ticket.id.present?
 
@@ -79,10 +75,6 @@ module RecordingStudioSupport
 
       def self.inbox_group_id(ticket)
         Tickets.group_recording_for(ticket)&.id
-      end
-
-      def self.desk_group_id(ticket)
-        inbox_group_id(ticket)
       end
     end
   end

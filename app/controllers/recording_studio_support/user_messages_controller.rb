@@ -7,11 +7,12 @@ module RecordingStudioSupport
     helper RecordingStudioMessages::PanelHelper if defined?(RecordingStudioMessages::PanelHelper)
     helper RecordingStudioMessages::InboxHelper if defined?(RecordingStudioMessages::InboxHelper)
     helper RecordingStudioAccessible::AvatarsHelper if defined?(RecordingStudioAccessible::AvatarsHelper)
-    helper RecordingStudioSupport::MessagesDeskHelper
+    helper RecordingStudioSupport::MessagesInboxHelper
+    include RecordingStudioSupport::MessagesInboxHelper
 
     before_action :require_signed_in_actor!
     before_action :set_ticket, only: :show
-    helper_method :staff_desk_return_to
+    helper_method :staff_inbox_return_to
 
     def index
       @tickets = RecordingStudioSupport::Tickets.for_actor(current_support_actor)
@@ -36,7 +37,7 @@ module RecordingStudioSupport
       return deny_support_access! unless ticket_visible_to_actor?
 
       sync_ticket_grants!
-      load_ticket_desk!
+      load_ticket_thread!
     end
 
     private
@@ -67,7 +68,7 @@ module RecordingStudioSupport
       )
     end
 
-    def load_ticket_desk!
+    def load_ticket_thread!
       @mount_recording = @group_recording.parent_recording
       @group_recordings = [@group_recording]
       @message_recordings = RecordingStudioMessages.message_recordings(@group_recording)
@@ -88,12 +89,7 @@ module RecordingStudioSupport
       params.fetch(:ticket, {}).permit(:subject, :body, :priority)
     end
 
-    def help_message_path_for(ticket)
-      public_path = RecordingStudioSupport.configuration.public_pages_path.to_s.chomp("/")
-      "#{public_path}/messages/#{ticket.id}"
-    end
-
-    def staff_desk_return_to
+    def staff_inbox_return_to
       path = RecordingStudioSupport.configuration.pages_path.to_s.chomp("/")
       base = "#{path}/messages"
       return base if @group_recording.blank?

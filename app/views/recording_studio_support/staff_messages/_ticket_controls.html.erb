@@ -1,0 +1,52 @@
+<% mobile = local_assigns.fetch(:mobile, false) %>
+<% html_id = support_ticket_controls_id(ticket, mobile: mobile) %>
+<% field_prefix = mobile ? "support-ticket-mobile" : "support-ticket" %>
+<% field_width = mobile ? "w-28" : "w-40" %>
+
+<%= tag.div id: html_id do %>
+  <%= form_with url: staff_ticket_update_path_for(ticket),
+                method: :patch,
+                scope: :ticket,
+                html: {
+                  id: "#{html_id}-form",
+                  data: { turbo: true, turbo_stream: true },
+                  onchange: "this.requestSubmit()"
+                } do %>
+    <div class="flex items-center gap-2">
+      <div class="<%= field_width %> shrink-0">
+        <%= render FlatPack::Select::Component.new(
+          name: "ticket[status]",
+          id: "#{field_prefix}-status-#{ticket.id}",
+          label: (mobile ? nil : "Status"),
+          options: support_ticket_status_options,
+          value: ticket.status,
+          placeholder: nil,
+          chrome: :cell,
+          aria: { label: "Status" }
+        ) %>
+      </div>
+
+      <div class="<%= field_width %> shrink-0">
+        <%= render FlatPack::Select::Component.new(
+          name: "ticket[assignee]",
+          id: "#{field_prefix}-assignee-#{ticket.id}",
+          label: (mobile ? nil : "Assignee"),
+          options: support_ticket_assignee_options(selected: ticket.assignee),
+          value: support_ticket_assignee_value(ticket.assignee),
+          placeholder: nil,
+          chrome: :cell,
+          aria: { label: "Assignee" }
+        ) %>
+      </div>
+
+      <% unless mobile %>
+        <%= render FlatPack::Button::Component.new(
+          text: "Save",
+          style: :ghost,
+          size: :sm,
+          type: :submit
+        ) %>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>

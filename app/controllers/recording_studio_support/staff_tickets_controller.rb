@@ -4,6 +4,9 @@ module RecordingStudioSupport
   class StaffTicketsController < ApplicationController
     skip_before_action :require_support_root!, raise: false
 
+    helper RecordingStudioSupport::MessagesInboxHelper
+    include RecordingStudioSupport::MessagesInboxHelper
+
     before_action :require_signed_in_actor!
     before_action :require_staff_actor!
     before_action :set_ticket
@@ -15,13 +18,20 @@ module RecordingStudioSupport
         actor: current_support_actor,
         **ticket_changes
       )
-
-      redirect_to staff_messages_return_to(recording), notice: "Ticket updated."
+      @ticket = RecordingStudioSupport::Tickets.find!(@ticket.id)
+      respond_after_update
     rescue ActiveRecord::RecordInvalid => e
-      redirect_to staff_messages_return_to(recording), alert: update_error_message(e.record)
+      redirect_to staff_messages_return_to, alert: update_error_message(e.record)
     end
 
     private
+
+    def respond_after_update
+      respond_to do |format|
+        format.turbo_stream
+        format.html { redirect_to staff_messages_return_to, notice: "Ticket updated." }
+      end
+    end
 
     def set_ticket
       @ticket = RecordingStudioSupport::Tickets.find!(params[:id])
@@ -56,7 +66,7 @@ module RecordingStudioSupport
       record.errors.full_messages.to_sentence.presence || "Could not update."
     end
 
-    def staff_messages_return_to(_recording = nil)
+    def staff_messages_return_to
       path = RecordingStudioSupport.configuration.pages_path.to_s.chomp("/")
       group = RecordingStudioSupport::Tickets.group_recording_for(@ticket)
       "#{path}/messages?group_id=#{group&.id}"

@@ -37,7 +37,7 @@ class SupportMessagesDeskTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "messages-desk-panel"
   end
 
-  test "logged out desks redirect to sign in" do
+  test "logged out inboxes redirect to sign in" do
     get "/help/messages"
 
     assert_redirected_to new_user_session_path
@@ -125,10 +125,11 @@ class SupportMessagesDeskTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
-  test "staff sees ticket metadata and can update status and assignee" do
+  test "staff sees ticket controls in the thread header and can update status and assignee" do
     sign_in @patron
     ticket = open_ticket!(@patron, subject: "Need a hand with billing", body: "Need a hand with billing.")
     group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
+    recording_id = RecordingStudioSupport::Tickets.recording_for!(ticket).id
 
     sign_out @patron
     sign_in @staff
@@ -136,8 +137,13 @@ class SupportMessagesDeskTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_includes response.body, "Need a hand with billing."
-    assert_includes response.body, "Status"
-    assert_includes response.body, "Assignee"
+    assert_select "#support-ticket-controls-#{recording_id}"
+    assert_select "#support-ticket-controls-mobile-#{recording_id}"
+    assert_select '[data-flat-pack-chat-panel-part="right-header"] #support-ticket-controls-%s' % recording_id
+    assert_select '[data-flat-pack-chat-panel-part="right-header-mobile"] #support-ticket-controls-mobile-%s' % recording_id
+    assert_select "#support-ticket-status-#{ticket.id} option[value='open'][selected]"
+    assert_select "#support-ticket-assignee-#{ticket.id} option[value='']", text: "Unassigned"
+    refute_select ".flex.w-full.flex-col.gap-4 > form"
     assert_flatpack_rounded_theme
 
     patch "/admin/support/tickets/#{ticket.id}", params: {
@@ -151,6 +157,17 @@ class SupportMessagesDeskTest < ActionDispatch::IntegrationTest
     ticket = RecordingStudioSupport::Tickets.find!(ticket.id)
     assert_equal "waiting_on_customer", ticket.status
     assert_equal @staff, ticket.assignee
+
+    patch "/admin/support/tickets/#{ticket.id}",
+          params: { ticket: { status: "waiting_on_support" } },
+          as: :turbo_stream
+
+    assert_response :success
+    assert_equal Mime[:turbo_stream], response.media_type
+    ticket = RecordingStudioSupport::Tickets.find!(ticket.id)
+    assert_equal "waiting_on_support", ticket.status
+    assert_includes response.body, "support-ticket-controls-#{recording_id}"
+    assert_includes response.body, "support-ticket-controls-mobile-#{recording_id}"
 
     before = RecordingStudioMessages.message_recordings(group).count
     post "/recording_studio_messages/message_groups/#{group.id}/messages", params: {
@@ -198,7 +215,41 @@ class SupportMessagesDeskTest < ActionDispatch::IntegrationTest
     restore_tickets_method(:update!, original)
   end
 
-  test "non staff cannot open staff desk" do
+  test "customer thread does not show staff ticket controls" do
+    sign_in @patron
+    ticket = open_ticket!(@patron, subject: "Mine", body: "Private note")
+    recording_id = RecordingStudioSupport::Tickets.recording_for!(ticket).id
+
+    get "/help/messages/#{ticket.id}"
+
+    assert_response :success
+    assert_select "#support-ticket-controls-#{recording_id}", count: 0
+    assert_select "#support-ticket-controls-mobile-#{recording_id}", count: 0
+    refute_includes response.body, "ticket[assignee]"
+  end
+
+  test "untagged support group does not show staff ticket controls" do
+    sign_in @staff
+    mount = RecordingStudioSupport::Messages.ensure_message_mount(actor: @staff)
+    group = RecordingStudioSupport::Messages::OpenAccessManagement.with(actor: @staff, mount: mount) do
+      RecordingStudioMessages.create_group(mount, title: "Not a ticket", actor: @staff)
+    end
+    RecordingStudioMessages.send_message(
+      group_recording: group,
+      body: "This is not a ticket thread.",
+      actor: @staff
+    )
+
+    get "/recording_studio_messages/message_groups/#{group.id}",
+        headers: { "Turbo-Frame" => "messages-desk-panel" }
+
+    assert_response :success
+    assert_includes response.body, "Not a ticket"
+    assert_select "[id^='support-ticket-controls']", count: 0
+    refute_includes response.body, "ticket[assignee]"
+  end
+
+  test "non staff cannot open staff inbox" do
     sign_in @patron
 
     get "/admin/support/messages"
