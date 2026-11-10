@@ -7,11 +7,7 @@
 <%= form_with url: results_url, method: :get, html: {
       role: "search",
       class: "w-full",
-      data: { turbo_frame: RecordingStudioSupport::InstantPages::FRAME_ID },
-      style: [
-        "--search-input-background-color: var(--color-white)",
-        "--search-input-border-color: var(--surface-border-color)"
-      ].join("; ")
+      data: { turbo_frame: RecordingStudioSupport::InstantPages::FRAME_ID }
     } do %>
   <% if search %>
     <%= search.instant_search_field(
@@ -29,7 +25,8 @@
       value: query,
       placeholder: placeholder,
       max_width: :none,
-      size: size
+      size: size,
+      round: true
     ) %>
   <% end %>
 <% end %>

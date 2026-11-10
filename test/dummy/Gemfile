@@ -65,8 +65,8 @@ gem "jbuilder"
 gem "tailwindcss-rails"
 
 # FlatPack UI component library [https://github.com/bowerbird-app/flatpack]
-# 0.1.341 is the Messages 0.17 floor. The gemspec floor stays >= 0.1.331.
-gem "flat_pack", ">= 0.1.331", github: "bowerbird-app/flatpack", tag: "v0.1.341"
+# 0.1.345 adds Search round:. The gemspec floor is >= 0.1.345.
+gem "flat_pack", ">= 0.1.345", github: "bowerbird-app/flatpack", tag: "v0.1.345"
 
 # Use Active Model has_secure_password [https://guides.rubyonrails.org/active_model_basics.html#securepassword]
 # gem "bcrypt", "~> 3.1.7"

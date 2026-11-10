@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.31.0", ::RecordingStudioSupport::VERSION
+    assert_equal "0.32.0", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -23,7 +23,7 @@ class RecordingStudioSupportTest < Minitest::Test
     gemspec = File.read(File.expand_path("../recording_studio_support.gemspec", __dir__))
 
     assert_includes gemspec, 'spec.add_dependency "recording_studio", ">= 6.1.0"'
-    assert_includes gemspec, 'spec.add_dependency "flat_pack", ">= 0.1.331"'
+    assert_includes gemspec, 'spec.add_dependency "flat_pack", ">= 0.1.345"'
     assert_includes gemspec, 'spec.add_dependency "view_component", ">= 4.14", "< 5"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_accessible", "~> 0.24"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_admin", "~> 2.0"'
@@ -118,7 +118,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes dummy_hooks, "RecordingStudioSupport.support_team_permission"
     assert_includes dummy_hooks, "authorization_resolver"
     assert_includes dummy_hooks, "authorization_hook"
-    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.341"'
+    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.345"'
     assert_includes gemfile, 'gem "view_component", "4.19.0"'
     refute_includes gemfile, "recording_studio/v3.0.0"
     refute_includes gemfile, 'tag: "v0.6.1"'
@@ -195,7 +195,12 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes controller_source, "recording_studio_user/auth"
     refute_includes controller_source, "flat_pack_sidebar"
     assert_includes default_layout, "dummy_document_attributes"
-    assert_includes default_layout, "dummy_language_selector"
+    refute_includes default_layout, "dummy_language_selector"
+    helper_source = File.read(File.expand_path("dummy/app/helpers/dummy_layout_helper.rb", __dir__))
+    refute_includes helper_source, "dummy_language_selector"
+    refute File.exist?(
+      File.expand_path("dummy/app/javascript/controllers/dummy_language_selector_controller.js", __dir__)
+    )
     assert_includes default_layout, "@layer theme, base, components, utilities"
     assert_includes default_layout, 'stylesheet_link_tag "flat_pack/variables"'
     assert_includes default_layout, 'stylesheet_link_tag "flat_pack/application"'
@@ -283,6 +288,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes controllers_js, 'eagerLoadControllersFrom("controllers/recording_studio_support"'
     assert_includes importmap, "controllers/recording_studio_search"
     assert_includes controllers_js, 'eagerLoadControllersFrom("controllers/recording_studio_search"'
+    refute_includes controllers_js, "dummy_language_selector"
   end
 
   def test_dummy_default_layout_head_does_not_inject_host_chrome
@@ -366,7 +372,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "v6.1.0"
     assert_includes readme, "v0.15.0"
     assert_includes readme, "v0.24.1"
-    assert_includes readme, "0.1.341"
+    assert_includes readme, "0.1.345"
     assert_includes readme, "SupportCenter"
     assert_includes readme, "v0.17.0"
     assert_includes readme, "messages_panel_right_header"

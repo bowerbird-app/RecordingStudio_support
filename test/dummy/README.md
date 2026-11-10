@@ -12,7 +12,7 @@ This Rails app exists to prove Recording Studio Support in a real host. It is no
 - Admin Support section mounted at `/admin` on an admin root (switch to **Admin** in the top control first — Admin 2.0 gates support screens on that root)
 - Recording Studio API mounted at `/recording_studio_api` with `api_access_point` on `Workspace` and `AdminRoot`, plus a named `:operations` API. Seeds a public workspace-only client (`:view`) and operations clients on **AdminRoot** (help records live under SupportCenter)
 - Support pages opt into Trashable, Moveable, and Publishable. Dummy Folder and Page do not.
-- Recording Studio default layout via `recording_studio_layout` (nil falls through to `recording_studio/default_layout`). Dummy's layout override sets `<html>` `data-theme="rounded"`, `lang`, and kit copy data. Back and close use `flat_pack_page_nav`. A compact language selector sits in the top nav's right slot (English/French via Recording Studio Internationalization). No Sign out or workspace switcher in that nav. Flatpack CSS loads before Tailwind. Users auth also puts `rounded` on `<html>`.
+- Recording Studio default layout via `recording_studio_layout` (nil falls through to `recording_studio/default_layout`). Dummy's layout override sets `<html>` `data-theme="rounded"`, `lang`, and kit copy data. Back and close use `flat_pack_page_nav`. No language switch, Sign out, or workspace switcher in that nav. Flatpack CSS loads before Tailwind. Users auth also puts `rounded` on `<html>`.
 - Root Switchable stays installed for workspace switching via its own routes, not PageNav chrome
 - Mounted `RecordingStudio::Engine` route behavior inside a host app
 
@@ -43,9 +43,9 @@ Auth uses `layouts/recording_studio_user/auth` with `html data-theme="rounded"`.
 
 ## Layouts and assets
 
-Authenticated pages call `recording_studio_layout`. A nil setting renders `recording_studio/default_layout`. That layout owns back/close chrome and Flatpack flash alerts. Dummy overrides the layout file so `<html>` gets `data-theme="rounded"`, `lang`, and Flatpack copy data. Core `v6.1.0` already sets the theme on `<html>`. The override adds the language selector, view tracking, and the content-editor sheet. Do not invent a custom theme or a sidebar shell. A compact `recording_studio_language_selector` sits in the top nav right slot (English/French).
+Authenticated pages call `recording_studio_layout`. A nil setting renders `recording_studio/default_layout`. That layout owns back/close chrome and Flatpack flash alerts. Dummy overrides the layout file so `<html>` gets `data-theme="rounded"`, `lang`, and Flatpack copy data. Core `v6.1.0` already sets the theme on `<html>`. The override adds view tracking and the content-editor sheet. Do not invent a custom theme or a sidebar shell.
 
-Public and support help use the same default layout. Do not use Publishable's application layout or invent a Support-only public shell. Support and Admin Support screens are back/close only. Sign out and the workspace switcher stay off PageNav, including dummy host pages, `/admin/support`, `/help`, and `/admin`. Access can stay on Admin. Do not put a login button in that chrome. Switch language from PageNav; article titles stay in the language they were written.
+Public and support help use the same default layout. Do not use Publishable's application layout or invent a Support-only public shell. Support and Admin Support screens are back/close only. Sign out, the workspace switcher, and a language switch stay off PageNav, including dummy host pages, `/admin/support`, `/help`, and `/admin`. Access can stay on Admin. Do not put a login button in that chrome. Article titles stay in the language they were written. Chrome copy follows the host locale.
 
 Users gem sign-in and sign-up use `layouts/recording_studio_user/auth`. That layout loads Tailwind, Flatpack stylesheets (`flat_pack/variables`, `flat_pack/application`, `flat_pack/rich_text`), and Importmap JS (`@hotwired/turbo-rails`). Host `layouts/application` is not in the auth stack.
 
@@ -62,7 +62,7 @@ OTP is off (`otp_enabled = false`). OmniAuth Continue-with buttons appear only w
 ## Useful Routes
 
 - `/` - dummy host home page
-- `/help` - public help sections (no sign-in). Switch English/French from the PageNav language selector
+- `/help` - public help sections (no sign-in)
 - `/help/messages` - signed-in tickets and messages
 - `/admin/support/messages` - support inbox. Status is an Open/Resolved Button dropdown in the open thread header, not above the list
 - `/help/sections/:slug` - published pages in a section (declare this before the Publishable mount; UUID bookmarks redirect). Typing filters articles in a Turbo Frame via Instant Search (`/help/sections/:slug/instant_search`)

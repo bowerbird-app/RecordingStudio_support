@@ -11,16 +11,14 @@ class CustomerI18nTest < ActionDispatch::IntegrationTest
     @user = User.find_by!(email: "admin@admin.com")
   end
 
-  test "language selector sits in the dummy top nav" do
+  test "help chrome has no language switch and keeps document lang" do
     get "/help"
 
     assert_response :success
-    assert_select "form[action='/recording_studio_internationalization/locale']"
-    assert_includes response.body, "English"
-    assert_includes response.body, "Français"
     assert_select "html[lang='en']"
-    assert_select ".dummy-language-selector"
-    assert_select ".fp-top-nav__right .dummy-language-selector"
+    assert_select "form[action='/recording_studio_internationalization/locale']", count: 0
+    refute_includes response.body, "dummy-language-selector"
+    refute_includes response.body, "Français"
   end
 
   test "help home article and messages stay English until the host locale changes" do
@@ -56,6 +54,7 @@ class CustomerI18nTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "html[lang='fr']"
+    assert_select "form[action='/recording_studio_internationalization/locale']", count: 0
     assert_includes response.body, "Salut, comment peut-on aider ?"
     assert_select "input[name='q'][placeholder='Rechercher dans l’aide']"
     assert_includes response.body, "1 article"

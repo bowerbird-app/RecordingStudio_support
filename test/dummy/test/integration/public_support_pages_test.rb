@@ -27,6 +27,9 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "flat-pack-page-nav"
     assert_select "[aria-label='Go back']"
     assert_select "[aria-label='Close']", count: 0
+    assert_select "html[lang='en']"
+    assert_select "form[action='/recording_studio_internationalization/locale']", count: 0
+    refute_includes response.body, "dummy-language-selector"
     refute_includes response.body, "flat-pack-top-nav"
     refute_includes response.body, "recording_studio_publishable/application"
     refute_includes response.body, "Sign out"
@@ -37,13 +40,13 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_select "form[role='search'][class~='w-full']"
     assert_select "input[name='q'][placeholder='Search support']"
     assert_includes response.body, "max-w-none"
-    assert_includes response.body, "search-padding-y-lg"
-    assert_includes response.body, "--search-padding-y-lg: 1.125rem"
+    assert_includes response.body, "fp-search--round"
+    refute_includes response.body, "--search-input-background-color: var(--color-white)"
+    refute_includes response.body, "--search-padding-y-lg: 1.125rem"
     assert_includes response.body, "fp-card-hover-strong"
     refute_includes response.body, "shadow-md"
     assert_includes response.body, "grid-cols-1"
     assert_includes response.body, "lg:grid-cols-3"
-    assert_includes response.body, "text-center"
     assert_includes response.body, "font-size: var(--page-title-h1-size)"
     refute_includes response.body, "--page-title-h1-size: var(--text-5xl)"
     assert_includes response.body, "gap-8"
@@ -278,7 +281,8 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "How do I change my password?"
     refute_includes response.body, "Published"
     assert_select "input[name='q'][placeholder=?]", "Search in Getting started…"
-    assert_includes response.body, "search-padding-y-lg"
+    refute_includes response.body, "--search-input-background-color: var(--color-white)"
+    refute_includes response.body, "--search-padding-y-lg: 1.125rem"
     assert_select "a[href=?]", path, text: /How do I sign in?/
     assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_flatpack_rounded_theme
@@ -475,5 +479,4 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_response :redirect
     assert_match "/users/sign_in", response.redirect_url
   end
-
 end
