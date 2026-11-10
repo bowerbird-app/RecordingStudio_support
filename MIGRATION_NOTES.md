@@ -2,7 +2,7 @@
 
 ## 0.30.0
 
-Tickets have no person field. Status stays in the conversation header.
+Tickets have no person field. Status stays in the conversation header as a default Button dropdown.
 
 ### Host app
 

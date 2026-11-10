@@ -140,15 +140,20 @@ class SupportStaffInboxTest < ActionDispatch::IntegrationTest
     assert_select "#support-ticket-controls-#{recording_id}"
     assert_select "#support-ticket-controls-mobile-#{recording_id}"
     assert_select '[data-flat-pack-chat-panel-part="right-header"] #support-ticket-controls-%s' % recording_id
-    assert_select '[data-flat-pack-chat-panel-part="right-header"] .w-56'
+    assert_select '[data-flat-pack-chat-panel-part="right-header"] .fp-button-dropdown'
     assert_select '[data-flat-pack-chat-panel-part="right-header-mobile"] #support-ticket-controls-mobile-%s' % recording_id
-    assert_select '[data-flat-pack-chat-panel-part="right-header-mobile"] .w-24'
-    assert_select "#support-ticket-status-#{ticket.id} option[value='open'][selected]"
-    assert_select "#support-ticket-mobile-status-#{ticket.id}"
+    assert_select '[data-flat-pack-chat-panel-part="right-header-mobile"] .fp-button-dropdown'
+    refute_select '[data-flat-pack-chat-panel-part="right-header"] .w-56'
+    refute_select '[data-flat-pack-chat-panel-part="right-header-mobile"] .w-24'
+    assert_select "#support-ticket-status-#{ticket.id}[data-fp-style='default']", text: /Open/
+    assert_select "#support-ticket-mobile-status-#{ticket.id}[data-fp-style='default']", text: /Open/
+    assert_select "#support-ticket-controls-#{recording_id} [role='menuitem']", text: "Waiting on customer"
+    assert_select "#support-ticket-controls-#{recording_id} [role='menuitem']", text: "Waiting on support"
+    assert_select "#support-ticket-controls-#{recording_id} [role='menuitem']", text: "Resolved"
+    assert_select "#support-ticket-controls-#{recording_id} form[data-turbo-stream='true'] input[name='ticket[status]'][value='waiting_on_customer']"
     refute_select "#support-ticket-controls-#{recording_id} label"
     refute_select "#support-ticket-controls-mobile-#{recording_id} label"
-    refute_select "#support-ticket-controls-#{recording_id} button"
-    refute_select "#support-ticket-controls-mobile-#{recording_id} button"
+    refute_select "#support-ticket-controls-#{recording_id} select"
     refute_select ".flex.w-full.flex-col.gap-4 > form"
     assert_flatpack_rounded_theme
 

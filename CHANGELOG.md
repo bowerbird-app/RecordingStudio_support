@@ -11,6 +11,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Tickets have no person field. Status stays in the Messages thread header.
 
+### Changed
+- Staff Status in the Messages header is a default Flatpack Button dropdown sized to the label (`messages_panel_right_header` and `messages_panel_right_header_mobile`). The trigger shows the current status. The menu PATCHes `/admin/support/tickets/:id` with Turbo Stream, same staff gate as before.
+
 ### Removed
 - Ticket assignee (`assignee_type` / `assignee_id`, the assignee index, `Tickets.update!` assignee, the header picker, Admin Unassigned widget and filter, and `support_tickets.unassigned_open`)
 

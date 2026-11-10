@@ -2,6 +2,19 @@
 
 module RecordingStudioSupport
   module MessagesInboxHelper # rubocop:disable Metrics/ModuleLength -- inbox paths and ticket header hooks stay together
+    STATUS_MENU_ITEM_CLASSES = [
+      "flex items-center gap-[var(--dropdown-item-gap)]",
+      "w-full",
+      "px-[var(--dropdown-item-padding-x)] py-[var(--dropdown-item-padding-y)]",
+      "text-sm text-left",
+      "rounded-[var(--dropdown-item-radius)]",
+      "text-[var(--surface-content-color)]",
+      "hover:bg-[var(--surface-muted-background-color)]",
+      "cursor-pointer",
+      "transition-colors duration-base",
+      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ring"
+    ].join(" ").freeze
+
     def support_messages_form_url(group_recording)
       return if group_recording.blank?
 
@@ -80,6 +93,18 @@ module RecordingStudioSupport
 
     def support_ticket_status_options
       SupportTicket::STATUSES.map { |status| [support_ticket_status_label_for(status), status] }
+    end
+
+    def support_ticket_status_action(ticket, label:, status:)
+      button_to(
+        label,
+        staff_ticket_update_path_for(ticket),
+        method: :patch,
+        params: { ticket: { status: status } },
+        form: { class: "w-full", data: { turbo: true, turbo_stream: true } },
+        class: STATUS_MENU_ITEM_CLASSES,
+        role: "menuitem"
+      )
     end
 
     def support_ticket_status_label_for(status)
