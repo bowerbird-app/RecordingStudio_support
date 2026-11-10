@@ -3,5 +3,5 @@ en:
     home:
       title: Dummy host
       subtitle: This app proves the support gem in a real host. It is not the product.
-      intro: Sign in stays at admin@admin.com. Help pages live in a section under the workspace.
+      intro: Sign in stays at admin@admin.com. Help pages live under Support, next to tickets.
       open_help: Open help pages

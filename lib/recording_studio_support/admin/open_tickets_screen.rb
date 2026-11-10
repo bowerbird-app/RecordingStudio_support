@@ -12,7 +12,7 @@ module RecordingStudioSupport
       SUBJECT_VALUE = ->(row, _context) { row.subject }
       WAIT_VALUE = ->(row, _context) { wait_label(row) }
       PRIORITY_VALUE = ->(row, _context) { row.priority.to_s.humanize }
-      DESK_URL = ->(row, _context) { desk_path(row) }
+      INBOX_URL = ->(row, _context) { inbox_path(row) }
       ASSIGNEE_FILTER = lambda { |relation, value, _context|
         case value.to_s
         when "Unassigned" then relation.where(assignee_id: nil)
@@ -33,7 +33,7 @@ module RecordingStudioSupport
         column :waiting, title: "Waiting", sortable: false, value: WAIT_VALUE
         column :priority, title: "Priority", sortable: false, value: PRIORITY_VALUE
         column :created_at, title: "Opened"
-        action :desk, text: "Desk", icon: "chat-bubble-left-right", url: DESK_URL
+        action :inbox, text: "Open", icon: "chat-bubble-left-right", url: INBOX_URL
         paginate per_page: 25
         default_sort :created_at, direction: :asc
       end
@@ -58,11 +58,15 @@ module RecordingStudioSupport
         Widgets.age_label(Time.current - created_at)
       end
 
-      def self.desk_path(ticket)
-        group_id = desk_group_id(ticket)
+      def self.inbox_path(ticket)
+        group_id = inbox_group_id(ticket)
         return Queries.staff_messages_path if group_id.blank?
 
         "#{Queries.staff_messages_path}?group_id=#{group_id}"
+      end
+
+      def self.desk_path(ticket)
+        inbox_path(ticket)
       end
 
       def self.opened_at(ticket)
@@ -73,12 +77,12 @@ module RecordingStudioSupport
           ticket.created_at
       end
 
-      def self.desk_group_id(ticket)
-        if ticket.respond_to?(:parent_recording_id) && ticket.parent_recording_id.present?
-          return ticket.parent_recording_id
-        end
-
+      def self.inbox_group_id(ticket)
         Tickets.group_recording_for(ticket)&.id
+      end
+
+      def self.desk_group_id(ticket)
+        inbox_group_id(ticket)
       end
     end
   end

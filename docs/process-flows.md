@@ -2,26 +2,29 @@
 
 How help **pages** and **sections** move through create, edit, publish, trash, and access. Public `/help` is in scope only where it gates drafts.
 
-Staff Support is an **Admin** surface. Accessible on the **admin root** is the gate. Workspace-only `:edit` does not open `/admin/support`.
+Staff Support is an **Admin** surface. Accessible on the **SupportCenter** (or its admin-root parent) is the gate. Workspace-only `:edit` does not open `/admin/support`.
 
 ## Tree and access
 
 ```
-Workspace (root)
-  └── SupportSection (Trashable, Orderable → pages)
-        └── SupportPage (Trashable, Moveable, Publishable)
-              └── Publishable child (status / slug / schedule)
-
-AdminRoot (root, Accessible)  ← staff gate for Admin + /admin/support
+AdminRoot (config.parent_root_type, Accessible)
+  └── SupportCenter            ← host records this during setup
+        ├── SupportSection (Trashable, Orderable → pages)
+        │     └── SupportPage (Trashable, Moveable, Publishable)
+        │           └── Publishable child (status / slug / schedule)
+        ├── SupportTicket
+        └── MessageMount :support
+              └── MessageGroup   (tag support_ticket → ticket recording)
 ```
 
 | Rule | Today |
 | --- | --- |
-| Who “owns” content | Pages still live under a **workspace**. Staff who can use Admin may edit any workspace’s help. |
+| Who “owns” content | Pages and tickets live under **SupportCenter**. Staff who can use Admin may edit that tree. |
 | Per-page / per-section owners | **None.** Accessible is not enabled on `SupportPage` or `SupportSection`. |
-| Move between sections | Changes parent under the **same** workspace root. |
-| Staff gate | Accessible on the **admin root** (same bar as `/admin`). Fail closed. |
-| Public | `/help` only. `/admin/support` is never anonymous. |
+| Move between sections | Changes parent under the **same** SupportCenter. |
+| Staff gate | Accessible `:edit` on the SupportCenter or its admin root (same bar as `/admin`). Fail closed. |
+| Public | `/help` only. Visitors do not need admin-root access. `/admin/support` is never anonymous. |
+| Customer tickets | Direct Accessible grant on that customer’s MessageGroup only. |
 
 Do not invent a second permission system. If a host needs section- or page-scoped authors, **stop and extend Accessible**.
 

@@ -279,7 +279,7 @@ class AdminTest < Minitest::Test
     assert_equal :created_at, screen.table_value.default_sort_key
     assert_equal "asc", screen.table_value.default_direction
     assert_includes screen.table_value.columns.map(&:key), :waiting
-    assert_includes screen.table_value.actions.map(&:name), :desk
+    assert_includes screen.table_value.actions.map(&:name), :inbox
     assert_includes screen.table_value.filters.map(&:key), :assignee
     assert_equal "/admin/screens/open_tickets?assignee=Unassigned", screen.unassigned_path
   end
@@ -347,8 +347,8 @@ class AdminTest < Minitest::Test
     RecordingStudioSupport::Tickets.stub(:group_recording_for, lambda { |ticket|
       ticket.id == "ticket-old" ? Struct.new(:id).new("group-old") : nil
     }) do
-      assert_equal "/admin/support/messages?group_id=group-old", screen.desk_path(desk_older)
-      assert_equal "/admin/support/messages", screen.desk_path(desk_newer)
+      assert_equal "/admin/support/messages?group_id=group-old", screen.inbox_path(desk_older)
+      assert_equal "/admin/support/messages", screen.inbox_path(desk_newer)
     end
   end
 

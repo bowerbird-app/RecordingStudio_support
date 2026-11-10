@@ -17,7 +17,7 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert_equal [ "Workspace", "Folder" ], RecordingStudio.allowed_parent_types_for("Page")
     assert_equal [ "RecordingStudioSupport::SupportSection" ],
                  RecordingStudio.allowed_parent_types_for("RecordingStudioSupport::SupportPage")
-    assert_equal [ "Workspace" ],
+    assert_equal [ "RecordingStudioSupport::SupportCenter" ],
                  RecordingStudio.allowed_parent_types_for("RecordingStudioSupport::SupportSection")
     assert_equal "Support page", RecordingStudio.recordable_type_label(RecordingStudioSupport::SupportPage)
   end
@@ -83,6 +83,7 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     billing_recording = RecordingStudio::Recording.find_by!(recordable: billing_section)
     developers_recording = RecordingStudio::Recording.find_by!(recordable: developers_section)
     admin_root_recording = RecordingStudio::Recording.find_by!(recordable: admin_root)
+    support_center_recording = RecordingStudioSupport::SupportCenters.for_parent(admin_root_recording)
 
     assert_nil Current.actor
     assert_nil root_recording.parent_recording_id
@@ -92,16 +93,19 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert_equal root_recording, folder_recording.root_recording
     assert_equal folder_recording, page_recording.parent_recording
     assert_equal root_recording, page_recording.root_recording
-    assert_equal root_recording, getting_started_recording.parent_recording
-    assert_equal root_recording, billing_recording.parent_recording
-    assert_equal root_recording, developers_recording.parent_recording
+    assert_equal support_center_recording, getting_started_recording.parent_recording
+    assert_equal support_center_recording, billing_recording.parent_recording
+    assert_equal support_center_recording, developers_recording.parent_recording
+    assert_equal admin_root_recording, getting_started_recording.root_recording
+    assert_equal admin_root_recording, billing_recording.root_recording
+    assert_equal admin_root_recording, developers_recording.root_recording
     assert_equal "credit-card", billing_section.icon
     assert_equal "code-bracket", developers_section.icon
     assert_equal "rocket-launch", getting_started_section.icon
     assert_equal "rocket-launch", sign_in_page.icon
     assert_equal "rocket-launch", password_page.icon
     assert_equal getting_started_recording, support_page_recording.parent_recording
-    assert_equal root_recording, support_page_recording.root_recording
+    assert_equal admin_root_recording, support_page_recording.root_recording
     assert_equal getting_started_recording, password_page_recording.parent_recording
     assert_operator RecordingStudioSupport::SupportSection.count, :>=, 3
     assert_nil admin_root_recording.parent_recording_id
@@ -152,10 +156,12 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert_includes invoice_bodies, "It's there now. Open Billing, then Invoices, and grab the top PDF."
     assert_includes card_bodies, "I saved a new card. The next charge still used the old one."
     assert_includes card_bodies, "That card is the default now. The next invoice uses it."
-    assert RecordingStudioSupport::Messages.group_owner?(RecordingStudioSupport::Tickets.group_recording_for(invoice), admin)
-    assert RecordingStudioSupport::Messages.group_owner?(RecordingStudioSupport::Tickets.group_recording_for(invoice), customer)
-    assert RecordingStudioSupport::Messages.group_owner?(RecordingStudioSupport::Tickets.group_recording_for(card), admin)
-    assert RecordingStudioSupport::Messages.group_owner?(RecordingStudioSupport::Tickets.group_recording_for(card), customer)
+    invoice_group = RecordingStudioSupport::Tickets.group_recording_for(invoice)
+    card_group = RecordingStudioSupport::Tickets.group_recording_for(card)
+    assert RecordingStudioSupport::Messages.staff_has_edit?(invoice_group, admin)
+    assert RecordingStudioSupport::Messages.group_owner?(invoice_group, customer)
+    assert RecordingStudioSupport::Messages.staff_has_edit?(card_group, admin)
+    assert RecordingStudioSupport::Messages.group_owner?(card_group, customer)
 
     assert_no_difference -> { User.count } do
       assert_no_difference -> { RecordingStudio::Recording.count } do

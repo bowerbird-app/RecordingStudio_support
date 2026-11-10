@@ -70,6 +70,7 @@ module RecordingStudioSupport
 
       def can_view_recording?(context, recording)
         return true if can_view_as_staff?(context)
+        return true if can_view_workspace?(context, context.access_grant&.scope_recording)
 
         can_view_workspace?(context, recording&.root_recording)
       end

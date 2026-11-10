@@ -4,10 +4,11 @@ require_relative "tickets/open"
 require_relative "tickets/update"
 
 module RecordingStudioSupport
-  # Support tickets wrap a MessageGroup under the Workspace `:support` mount.
-  # Tickets own conversation lifecycle; MessageGroups are created per ticket.
-  module Tickets
+  # Support tickets live under SupportCenter. The conversation is a tagged
+  # MessageGroup on the :support mount, not a parent.
+  module Tickets # rubocop:disable Metrics/ModuleLength -- public ticket API and tag lookups stay together
     TICKET_TYPE = "RecordingStudioSupport::SupportTicket"
+    TAG_KEY = "support_ticket"
     UNSET = Copy::UNSET
 
     class AlreadyExists < StandardError
@@ -57,26 +58,33 @@ module RecordingStudioSupport
       ids = Array(message_group_ids).compact
       return SupportTicket.none if ids.empty?
 
-      SupportTicket.where(id: ticket_recordings.where(parent_recording_id: ids).select(:recordable_id))
-                   .order(created_at: :desc)
+      ticket_ids = tagged_ticket_recordings(ids).map(&:recordable_id)
+      SupportTicket.where(id: ticket_ids).order(created_at: :desc)
     end
 
     def tickets_by_group_id(message_group_ids)
       ids = Array(message_group_ids).compact
       return {} if ids.empty?
 
-      ticket_recordings.where(parent_recording_id: ids).includes(:recordable).each_with_object({}) do |recording, map|
-        map[recording.parent_recording_id] = recording.recordable
+      tagged_ticket_recordings(ids).each_with_object({}) do |ticket_recording, map|
+        group_id = group_id_for_ticket_recording(ticket_recording)
+        next if group_id.blank?
+
+        map[group_id] = ticket_recording.recordable
       end
     end
 
     def group_recording_for(ticket)
-      return if ticket.blank?
-      return unless ticket.respond_to?(:id)
-      return if ticket.id.blank?
+      recording = ticket_recording_for(ticket)
+      return if recording.blank?
 
-      recording = ticket_recordings.find_by(recordable_id: ticket.id) || recording_for_snapshot_id(ticket.id)
-      recording&.parent_recording
+      mount = Messages.ensure_message_mount
+      return if mount.blank?
+
+      RecordingStudioMessages.tagged_group_recordings(
+        mount_recording: mount,
+        tags: { TAG_KEY => recording }
+      ).first
     end
 
     def ticket_recordings
@@ -109,22 +117,49 @@ module RecordingStudioSupport
     def for_actor(actor)
       return SupportTicket.none if actor.blank?
 
-      group_ids = owned_group_recording_ids(actor)
+      group_ids = viewable_group_recording_ids(actor)
       return SupportTicket.none if group_ids.empty?
 
       for_message_group_ids(group_ids)
     end
 
-    def owned_group_recording_ids(actor)
+    def viewable_group_recording_ids(actor) # rubocop:disable Metrics/MethodLength -- mount then tag filter
       mount = Messages.ensure_message_mount(actor: actor)
       return [] if mount.blank?
 
-      RecordingStudioMessages.viewable_group_recordings(
+      group_ids = RecordingStudioMessages.viewable_group_recordings(
         actor: actor,
         mount_recording: mount
-      ).filter_map do |group|
-        group.id if Messages.group_owner?(group, actor)
-      end
+      ).map(&:id)
+      return [] if group_ids.empty?
+
+      RecordingStudioMessages::MessageGroupTag.where(
+        key: TAG_KEY,
+        message_group_recording_id: group_ids
+      ).pluck(:message_group_recording_id)
+    end
+
+    def ticket_recording_for(ticket)
+      return if ticket.blank?
+      return unless ticket.respond_to?(:id)
+      return if ticket.id.blank?
+
+      ticket_recordings.find_by(recordable_id: ticket.id) || recording_for_snapshot_id(ticket.id)
+    end
+
+    def tagged_ticket_recordings(group_ids)
+      tag_rows = RecordingStudioMessages::MessageGroupTag.where(
+        key: TAG_KEY,
+        message_group_recording_id: group_ids
+      )
+      ticket_recordings.where(id: tag_rows.select(:tagged_recording_id)).includes(:recordable)
+    end
+
+    def group_id_for_ticket_recording(ticket_recording)
+      RecordingStudioMessages::MessageGroupTag.find_by(
+        key: TAG_KEY,
+        tagged_recording_id: ticket_recording.id
+      )&.message_group_recording_id
     end
   end
 end

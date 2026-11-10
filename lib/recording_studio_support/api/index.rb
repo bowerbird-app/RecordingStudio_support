@@ -112,8 +112,8 @@ module RecordingStudioSupport
       end
 
       def page_recordings
-        workspace = context.access_grant.scope_recording
-        relation = Pages.for_root(workspace, query: search_term)
+        center = SupportCenters.current
+        relation = Pages.for_root(center, query: search_term)
         return relation if Access.can_view_as_staff?(context)
 
         relation.where(recordable_id: SupportPage.indexable.select(:id))

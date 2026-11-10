@@ -48,22 +48,9 @@ module RecordingStudioSupport
         route %(mount RecordingStudioViews::Engine, at: "/recording_studio_views")
       end
 
-      def enable_workspace_messages
-        workspace_path = File.join(destination_root, "app/models/workspace.rb")
-        return unless File.exist?(workspace_path)
-
-        contents = File.read(workspace_path)
-        return if contents.include?("Messages.to")
-
-        inject_into_file "app/models/workspace.rb",
-                         after: /recording_studio_recordable[^\n]*\n/ do
-          <<~RUBY
-            include RecordingStudio::Capabilities::Messages.to(
-              keys: [:support],
-              membership_locked: [:support]
-            ) if defined?(RecordingStudioMessages)
-          RUBY
-        end
+      def skip_workspace_messages
+        # Messages.to lives on SupportCenter in the gem. Hosts record a
+        # SupportCenter under config.parent_root_type during setup.
       end
 
       def copy_initializer

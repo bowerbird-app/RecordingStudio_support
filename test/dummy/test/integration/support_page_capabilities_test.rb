@@ -14,10 +14,8 @@ class SupportPageCapabilitiesTest < ActiveSupport::TestCase
       password_confirmation: "Password"
     )
     Current.actor = @user
-    @root_recording = RecordingStudio.root_recording_for(
-      Workspace.create!(name: "Support mixins #{SecureRandom.hex(4)}")
-    )
-    grant_admin!(@root_recording, @user)
+    @admin_root, @center = admin_support_tree(@user)
+    @root_recording = @center
     @section_recording = record_support_section(@root_recording)
     @page_recording = record_support_page(
       @root_recording,
@@ -46,8 +44,12 @@ class SupportPageCapabilitiesTest < ActiveSupport::TestCase
   end
 
   test "folder and page do not get support mixins just because the gems are installed" do
-    folder_recording = @root_recording.record(Folder) { |folder| folder.name = "Product Docs" }
-    page_recording = @root_recording.record(Page, parent_recording: folder_recording) do |page|
+    workspace = RecordingStudio.root_recording_for(
+      Workspace.create!(name: "Support mixins #{SecureRandom.hex(4)}")
+    )
+    grant_admin!(workspace, @user)
+    folder_recording = workspace.record(Folder) { |folder| folder.name = "Product Docs" }
+    page_recording = workspace.record(Page, parent_recording: folder_recording) do |page|
       page.title = "Getting Started"
     end
 
@@ -81,17 +83,4 @@ class SupportPageCapabilitiesTest < ActiveSupport::TestCase
 
   private
 
-  def grant_admin!(recording, actor)
-    original = RecordingStudioAccessible.configuration.access_management_authorizer
-    RecordingStudioAccessible.configuration.access_management_authorizer = ->(**) { true }
-    result = RecordingStudioAccessible.grant_access(
-      recording: recording,
-      actor: actor,
-      role: :admin,
-      manager_actor: actor
-    )
-    raise result.error if result.failure?
-  ensure
-    RecordingStudioAccessible.configuration.access_management_authorizer = original
-  end
 end

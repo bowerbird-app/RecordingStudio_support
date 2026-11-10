@@ -22,6 +22,7 @@ require "recording_studio_support/assign_actor"
 require "recording_studio_support/pages"
 require "recording_studio_support/sections"
 require "recording_studio_support/messages"
+require "recording_studio_support/support_centers"
 require "recording_studio_support/tickets"
 require "recording_studio_support/admin"
 require "recording_studio_support/api"
@@ -41,6 +42,10 @@ module RecordingStudioSupport
 
     def configure
       yield(configuration) if block_given?
+    end
+
+    def parent_root_type
+      configuration.parent_root_type.to_s
     end
 
     def staff_permission(actor:, recording:)

@@ -75,7 +75,7 @@ module RecordingStudioSupport
       section_id = params.dig(:page, :section_id).presence || params[:section_id]
       return Sections.find_kept!(id: section_id) if section_id.present?
 
-      Pages.default_section_for(current_support_root_recording)
+      Pages.default_section_for(section_parent_root_recording)
     rescue ActiveRecord::RecordNotFound
       nil
     end

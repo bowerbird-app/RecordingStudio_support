@@ -55,8 +55,9 @@ class ConfigurationTest < Minitest::Test
     assert_nil configuration.public_section_subtitle
     assert_equal "/help/messages", configuration.public_contact_href
     assert_equal "Contact support", configuration.public_contact_label
-    assert_nil configuration.messages_admin_email
-    assert_nil configuration.messages_admin_finder
+    assert_equal "AdminRoot", configuration.parent_root_type
+    refute_respond_to configuration, :messages_admin_email
+    refute_respond_to configuration, :messages_admin_finder
     assert_nil configuration.layout
     assert_instance_of RecordingStudio::Hooks, configuration.hooks
     refute_includes configuration.to_h.keys, :api_key

@@ -97,7 +97,7 @@ class InstallGeneratorTest < Minitest::Test
     end
   end
 
-  def test_enable_workspace_messages_injects_messages_capability
+  def test_install_does_not_inject_messages_on_workspace
     with_temp_app do |dir|
       FileUtils.mkdir_p(File.join(dir, "app/models"))
       File.write(File.join(dir, "app/models/workspace.rb"), <<~RUBY)
@@ -107,11 +107,11 @@ class InstallGeneratorTest < Minitest::Test
       RUBY
 
       generator = build_generator(dir)
-      generator.enable_workspace_messages
+      generator.skip_workspace_messages if generator.respond_to?(:skip_workspace_messages)
 
       contents = File.read(File.join(dir, "app/models/workspace.rb"))
-      assert_includes contents, "keys: [:support]"
-      assert_includes contents, "membership_locked: [:support]"
+      refute_includes contents, "keys: [:support]"
+      refute_includes contents, "Messages.to"
     end
   end
 

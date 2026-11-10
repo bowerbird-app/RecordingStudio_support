@@ -55,7 +55,7 @@ module RecordingStudioSupport
           [
             ("\n/* Include RecordingStudioSupport engine views for Tailwind CSS */" if support.any?),
             support,
-            ("\n/* Include RecordingStudioMessages views for the Support desk */" if messages.any?),
+            ("\n/* Include RecordingStudioMessages views for Support tickets */" if messages.any?),
             messages,
             ("\n/* Include FlatPack component sources for Tailwind CSS */" if flatpack.any?),
             flatpack,

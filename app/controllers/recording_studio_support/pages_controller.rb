@@ -62,7 +62,7 @@ module RecordingStudioSupport
     end
 
     def load_section_choices
-      @section_choices = Sections.for_root(current_support_root_recording)
+      @section_choices = Sections.for_root(section_parent_root_recording)
     end
 
     def page_params

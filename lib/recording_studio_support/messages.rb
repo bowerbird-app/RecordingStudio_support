@@ -5,24 +5,18 @@ require_relative "messages/open_access_management"
 require_relative "messages/desk_access_navigation"
 
 module RecordingStudioSupport
-  # Support ↔ Messages desk helpers. Mount parent is Workspace, key `:support`.
-  # Tickets own conversation lifecycle; MessageGroups are created per ticket.
+  # Support ↔ Messages helpers. Mount parent is SupportCenter, key `:support`.
+  # Tickets own conversation lifecycle; MessageGroups are tagged per ticket.
   module Messages
     SUPPORT_MOUNT_KEY = :support
 
     module_function
 
     def ensure_message_mount(actor: nil)
-      root = support_workspace_root
-      return if root.blank?
+      center = SupportCenters.current
+      return if center.blank?
 
-      root.ensure_message_mount(SUPPORT_MOUNT_KEY, actor: actor)
-    end
-
-    def support_workspace_root
-      return unless defined?(RecordingStudioMessages)
-
-      Sections.default_parent_root
+      center.ensure_message_mount(SUPPORT_MOUNT_KEY, actor: actor)
     end
 
     def actor_label(actor)

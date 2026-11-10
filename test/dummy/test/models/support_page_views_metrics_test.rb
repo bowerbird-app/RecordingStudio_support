@@ -110,18 +110,6 @@ class SupportPageViewsMetricsTest < ActiveSupport::TestCase
   end
 
   def grant_view!(actor, recording)
-    return if RecordingStudioAccessible.authorized?(actor: actor, recording: recording, role: :view)
-
-    original = RecordingStudioAccessible.configuration.access_management_authorizer
-    RecordingStudioAccessible.configuration.access_management_authorizer = ->(**) { true }
-    result = RecordingStudioAccessible.grant_access(
-      recording: recording,
-      actor: actor,
-      role: :view,
-      manager_actor: actor
-    )
-    raise result.error if result.failure?
-  ensure
-    RecordingStudioAccessible.configuration.access_management_authorizer = original
+    grant_role!(recording, actor, :view)
   end
 end

@@ -11,7 +11,13 @@ module RecordingStudioSupport
       "/recording_studio_messages/message_groups/#{group_recording.id}/messages"
     end
 
-    def messages_inbox_href(group_recording)
+    def messages_inbox_href(group_recording, inbox: nil) # rubocop:disable Lint/UnusedMethodArgument -- Messages 0.14 passes inbox:
+      staff_path = RecordingStudioSupport.configuration.pages_path.to_s.chomp("/")
+      return "#{staff_path}/messages?group_id=#{group_recording.id}" if request.path.to_s.start_with?(staff_path)
+
+      ticket = RecordingStudioSupport::Tickets.tickets_by_group_id([group_recording.id])[group_recording.id]
+      return help_message_path_for_desk(ticket) if ticket
+
       "/recording_studio_messages/message_groups/#{group_recording.id}"
     end
 

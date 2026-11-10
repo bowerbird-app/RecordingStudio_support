@@ -19,6 +19,7 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
       time_zone: "UTC"
     )
     Current.actor = @staff
+    admin_support_tree(@staff)
   end
 
   teardown do
@@ -127,35 +128,33 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
 
   test "a second ticket on the same group is rejected" do
     ticket = open_ticket!
-    group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
+    recording = RecordingStudioSupport::Tickets.recording_for!(ticket)
     opener = RecordingStudioSupport::Tickets::Open.new(
       actor: @patron,
       subject: "Second ticket",
       body: "This thread already has one."
     )
-    opener.define_singleton_method(:create_group!) { group }
 
-    error = assert_raises(RecordingStudioSupport::Tickets::AlreadyExists) { opener.call }
+    error = assert_raises(RecordingStudioSupport::Tickets::AlreadyExists) do
+      opener.send(:create_group!, recording)
+    end
 
     assert_equal "This conversation already has a ticket.", error.message
-    assert_equal 1, RecordingStudioSupport::Tickets.ticket_recordings.where(parent_recording_id: group.id).count
+    assert_equal recording.id, RecordingStudioSupport::Tickets.recording_for!(ticket).id
   end
 
   test "a trashed ticket allows a second ticket on the thread" do
     ticket = open_ticket!
-    group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
     RecordingStudioSupport::Tickets.recording_for!(ticket).update!(trashed_at: Time.current)
-    opener = RecordingStudioSupport::Tickets::Open.new(
+    second = RecordingStudioSupport::Tickets.open!(
       actor: @patron,
-      subject: "Second ticket",
+      subject: "Second ticket #{SecureRandom.hex(4)}",
       body: "The first one is gone."
     )
-    opener.define_singleton_method(:create_group!) { group }
 
-    second = opener.call
-
-    live = RecordingStudioSupport::Tickets.ticket_recordings.where(parent_recording_id: group.id)
-    assert_equal [second.id], live.map { |recording| recording.recordable.id }
+    assert_not_equal ticket.id, second.id
+    assert RecordingStudioSupport::Tickets.group_recording_for(second)
+    assert_nil RecordingStudioSupport::Tickets.group_recording_for(ticket)
   end
 
   private

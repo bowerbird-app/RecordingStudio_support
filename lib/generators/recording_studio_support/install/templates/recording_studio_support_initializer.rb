@@ -9,12 +9,10 @@ RecordingStudioSupport.configure do |config|
   config.public_help_subtitle = "Find an answer."
   config.admin_help_title = "Support"
   config.admin_help_subtitle = "Pages people use when they get stuck."
-  # Signed-in messages desk. Default contact button points here.
+  # Signed-in tickets. Default contact button points here.
   # config.public_contact_href = "/help/messages"
-  # Staff set: when set, only this email is staff for grants, desk, and notices.
-  # When blank, `messages_admin_finder` runs (default: User.where(admin: true)).
-  # config.messages_admin_email = "support@example.com"
-  # config.messages_admin_finder = -> { User.where(admin: true) }
+  # Parent root for SupportCenter. Set this before models load.
+  # config.parent_root_type = "AdminRoot"
 end
 
 # Host-owned. Support does not set these. nil falls through to Accessible :edit.

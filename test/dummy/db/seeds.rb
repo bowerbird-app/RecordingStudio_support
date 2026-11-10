@@ -97,10 +97,16 @@ find_or_record_child = lambda do |recordable, root_recording, parent_recording|
   ).recording
 end
 
-find_or_record_support_section = lambda do |root_recording, title:, icon: nil|
+find_or_record_support_center = lambda do |parent_recording|
+  existing = RecordingStudioSupport::SupportCenters.for_parent(parent_recording)
+  return existing if existing
+
+  parent_recording.record(RecordingStudioSupport::SupportCenter)
+end
+
+find_or_record_support_section = lambda do |center_recording, title:, icon: nil|
   existing = RecordingStudio::Recording.where(
-    root_recording: root_recording,
-    parent_recording: root_recording,
+    parent_recording: center_recording,
     recordable_type: "RecordingStudioSupport::SupportSection",
     trashed_at: nil
   ).find { |recording| recording.recordable.title == title }
@@ -108,7 +114,7 @@ find_or_record_support_section = lambda do |root_recording, title:, icon: nil|
   if existing
     section = existing.recordable
     if section.icon.to_s != icon.to_s
-      root_recording.revise(existing) do |revised|
+      (center_recording.root_recording || center_recording).revise(existing) do |revised|
         revised.icon = icon
       end
       existing.reload
@@ -116,7 +122,10 @@ find_or_record_support_section = lambda do |root_recording, title:, icon: nil|
     return existing
   end
 
-  root_recording.record(RecordingStudioSupport::SupportSection) do |section|
+  (center_recording.root_recording || center_recording).record(
+    RecordingStudioSupport::SupportSection,
+    parent_recording: center_recording
+  ) do |section|
     section.title = title
     section.icon = icon
   end
@@ -169,19 +178,11 @@ grant_workspace_access = lambda do |recording, actor|
   current_role = RecordingStudioAccessible.role_for(actor: actor, recording: recording)
   next if current_role == :admin
 
-  original = RecordingStudioAccessible.configuration.access_management_authorizer
-  begin
-    RecordingStudioAccessible.configuration.access_management_authorizer = ->(**) { true }
-    result = RecordingStudioAccessible.grant_access(
-      recording: recording,
-      actor: actor,
-      role: :admin,
-      manager_actor: actor
-    )
-    raise "Failed to grant workspace access: #{result.error}" if result.failure?
-  ensure
-    RecordingStudioAccessible.configuration.access_management_authorizer = original
-  end
+  result = RecordingStudioAccessible.bootstrap_owner_access!(
+    recording: recording,
+    actor: actor
+  )
+  raise "Failed to grant workspace access: #{result.error}" if result.failure?
 end
 
 # Create the admin user through Users (Devise actor + Profile under People).
@@ -249,12 +250,14 @@ begin
     grant_workspace_access.call(recording, user)
   end
 
-  billing_section = find_or_record_support_section.call(root_recording, title: "Billing", icon: "credit-card")
-  developers_section = find_or_record_support_section.call(root_recording, title: "Developers", icon: "code-bracket")
-  getting_started_section = find_or_record_support_section.call(root_recording, title: "Getting started", icon: "rocket-launch")
+  support_center = find_or_record_support_center.call(admin_root_recording)
+
+  billing_section = find_or_record_support_section.call(support_center, title: "Billing", icon: "credit-card")
+  developers_section = find_or_record_support_section.call(support_center, title: "Developers", icon: "code-bracket")
+  getting_started_section = find_or_record_support_section.call(support_center, title: "Getting started", icon: "rocket-launch")
 
   sign_in_page = find_or_record_support_page.call(
-    root_recording,
+    admin_root_recording,
     getting_started_section,
     title: "How do I sign in?",
     description: "Use the email and password you were given.",
@@ -262,7 +265,7 @@ begin
     body: SIGN_IN_BODY
   )
   password_page = find_or_record_support_page.call(
-    root_recording,
+    admin_root_recording,
     getting_started_section,
     title: "How do I change my password?",
     description: "Pick a new password in account settings.",
@@ -270,7 +273,7 @@ begin
     body: PASSWORD_BODY
   )
   billing_page = find_or_record_support_page.call(
-    root_recording,
+    admin_root_recording,
     billing_section,
     title: "How do I update payment details?",
     description: "Open billing and save the card you want us to use.",
@@ -278,7 +281,7 @@ begin
     body: PAYMENT_BODY
   )
   invoice_page = find_or_record_support_page.call(
-    root_recording,
+    admin_root_recording,
     billing_section,
     title: "Where is my invoice?",
     description: "Open Billing, then Invoices. Download any paid invoice as a PDF.",
@@ -286,7 +289,7 @@ begin
     body: INVOICE_BODY
   )
   developers_page = find_or_record_support_page.call(
-    root_recording,
+    admin_root_recording,
     developers_section,
     title: "Where do I find my API key?",
     description: "Open your developer settings. The key is on that page.",
@@ -346,22 +349,16 @@ begin
   )
 
   share_sample_ticket = lambda do |group, owner, staff|
-    next if RecordingStudioSupport::Messages.group_owner?(group, staff)
+    next if RecordingStudioSupport::Messages.staff_has_edit?(group, staff)
 
-    original = RecordingStudioAccessible.configuration.access_management_authorizer
-    begin
-      RecordingStudioAccessible.configuration.access_management_authorizer = ->(**) { true }
-      RecordingStudioMessages.allow_membership_change do
-        result = RecordingStudioAccessible.grant_access(
-          recording: group,
-          actor: staff,
-          role: :admin,
-          manager_actor: owner
-        )
-        raise "Failed to share sample ticket: #{result.error}" if result.failure?
-      end
-    ensure
-      RecordingStudioAccessible.configuration.access_management_authorizer = original
+    RecordingStudioMessages.allow_membership_change do
+      result = RecordingStudioAccessible.grant_access(
+        recording: group,
+        actor: staff,
+        role: :edit,
+        manager_actor: owner
+      )
+      raise "Failed to share sample ticket: #{result.error}" if result.failure?
     end
   end
 

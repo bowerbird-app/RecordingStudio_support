@@ -2,8 +2,8 @@
 
 module RecordingStudioSupport
   module Tickets
-    # Opens a support ticket: MessageGroup under `:support`, ticket row, staff
-    # grants, and the first message — one transaction.
+    # Opens a support ticket under SupportCenter, then a tagged MessageGroup,
+    # staff grants, and the first message — one transaction.
     class Open
       def self.call(...)
         new(...).call
@@ -21,10 +21,10 @@ module RecordingStudioSupport
         validate!
 
         SupportTicket.transaction do
-          group = create_group!
-          ticket = create_ticket!(group)
+          ticket_recording = create_ticket!
+          group = create_group!(ticket_recording)
           post_initial_message!(group)
-          ticket
+          ticket_recording.recordable
         end
       end
 
@@ -36,9 +36,40 @@ module RecordingStudioSupport
         raise ArgumentError, "body is required" if @body.blank?
       end
 
-      def create_group!
+      def create_ticket!
+        center = SupportCenters.current!
+        RecordingStudio.record!(
+          action: "created",
+          recordable: new_ticket,
+          parent_recording: center,
+          root_recording: center.root_recording || center,
+          actor: @actor
+        ).recording
+      end
+
+      def create_group!(ticket_recording) # rubocop:disable Metrics/MethodLength -- lock, tag, grant, return group
         mount = require_mount!
-        Messages::OpenAccessManagement.with { record_group!(mount) }
+        ticket_recording.with_lock do
+          raise Tickets::AlreadyExists if tagged_group_exists?(mount, ticket_recording)
+
+          group = Messages::OpenAccessManagement.with(actor: @actor, mount: mount) do
+            RecordingStudioMessages.create_group(
+              mount,
+              title: @subject,
+              actor: @actor,
+              tags: { Tickets::TAG_KEY => ticket_recording }
+            )
+          end
+          Messages.sync_staff_grants!(group_recording: group, manager_actor: @actor)
+          group
+        end
+      end
+
+      def tagged_group_exists?(mount, ticket_recording)
+        RecordingStudioMessages.tagged_group_recordings(
+          mount_recording: mount,
+          tags: { Tickets::TAG_KEY => ticket_recording }
+        ).exists?
       end
 
       def require_mount!
@@ -46,30 +77,6 @@ module RecordingStudioSupport
         return mount if mount.present?
 
         raise RecordingStudioMessages::Error, "Support messages are not available"
-      end
-
-      def record_group!(mount)
-        group = RecordingStudioMessages.create_group(mount, title: @subject, actor: @actor)
-        Messages.sync_staff_grants!(group_recording: group, manager_actor: @actor)
-        group
-      end
-
-      def create_ticket!(group)
-        # App-level only. There is no unique index. Vacuous when this
-        # transaction just inserted the group: no other connection can see
-        # that row yet. The lock still serializes a second live ticket when
-        # the parent already existed.
-        group.with_lock do
-          raise Tickets::AlreadyExists if Tickets.ticket_recordings.exists?(parent_recording_id: group.id)
-
-          RecordingStudio.record!(
-            action: "created",
-            recordable: new_ticket,
-            parent_recording: group,
-            root_recording: group.root_recording || group,
-            actor: @actor
-          ).recordable
-        end
       end
 
       def new_ticket

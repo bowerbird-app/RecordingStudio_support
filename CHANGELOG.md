@@ -7,8 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.28.0] - 2026-11-09
+
+**BREAKING.** Tickets are no longer children of a MessageGroup. Help sections are no longer children of Workspace. There is no data migration.
+
+### Added
+- `SupportCenter` recordable. Hosts record it under `config.parent_root_type` (default `AdminRoot`) during setup. Look up with `RecordingStudioSupport::SupportCenters.for_parent`, `current`, and `current!`.
+- Messages mount `:support` (membership locked) lives on SupportCenter.
+- Ticket threads link with Messages tag key `support_ticket`.
+- Public `/help` and `/help/:uuid/:slug` stay published-only. Visitors do not need admin-root access.
+
 ### Changed
-- Development and dummy apps pin Flatpack `0.1.329` (tag `v0.1.329`, commit `3e49ad38b1980add449194d27265edaa7b892c0d`). The gemspec floor stays `>= 0.1.315`.
+- `SupportSection` and `SupportTicket` parents are `SupportCenter`.
+- `Tickets.open!` records the ticket under SupportCenter, then creates the tagged group, grants the requester, syncs staff via Accessible, and posts the first message.
+- Staff access is Accessible `:edit` on the SupportCenter (or its admin-root parent). Dummy Messages pin is `v0.14.0`. Accessible pin is `v0.24.1`. Publishable dummy pin is `v0.13.2` (Flatpack `0.1.331+` dropdown). Flatpack pin is `0.1.341` (gemspec floor `>= 0.1.331`). Development and dummy pin Minitest `~> 5.26` so `Object#stub` stays available.
+- Ticket `create_table` is a clean table with no `message_group_id`.
+
+### Removed
+- Ticket parentage under MessageGroup, and the 0.27 `drop_message_group` migration from the generator story.
+- `User.admin`, `messages_admin_email`, `messages_admin_finder`, and staff shortcuts that used them.
+- Messages enablement on dummy Workspace.
+
+### Upgrade notes
+- Bump to `0.28.0`. Pin Messages `>= 0.12.0` (dummy `v0.14.0`) and Accessible `~> 0.24`.
+- Set `config.parent_root_type` before models load if it is not `AdminRoot`.
+- Add `"RecordingStudioSupport::SupportCenter"` to `config.recordable_types`.
+- Record a SupportCenter under that parent root. Do not expect the Admin section to create it.
+- Move `Messages.to(keys: [:support], membership_locked: [:support])` off Workspace. SupportCenter already includes it.
+- `bin/rails generate recording_studio_support:migrations`, then `bin/rails db:migrate`. Replace a copied ticket `create_table` that still has `message_group_id`. There is no backfill.
+- Read a ticket thread with `Tickets.group_recording_for(ticket)` (tag lookup).
+- Grant staff `:edit` on the SupportCenter or its admin root. Grant customers only on their MessageGroup.
 
 ## [0.27.1] - 2026-11-05
 
@@ -1021,7 +1049,10 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.24.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.28.0...HEAD
+[0.28.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.27.1...v0.28.0
+[0.27.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.27.0...v0.27.1
+[0.27.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.26.0...v0.27.0
 [0.24.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.23.2...v0.24.0
 [0.23.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.23.1...v0.23.2
 [0.23.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.23.0...v0.23.1

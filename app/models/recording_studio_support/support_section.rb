@@ -9,7 +9,7 @@ module RecordingStudioSupport
 
     recording_studio_recordable label: "Help section",
                                 root: false,
-                                allowed_parent_types: ["Workspace"]
+                                allowed_parent_types: ["RecordingStudioSupport::SupportCenter"]
 
     include RecordingStudio::Capabilities::Trashable.to
     include RecordingStudio::Capabilities::Orderable.to(

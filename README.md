@@ -1,25 +1,25 @@
 # Recording Studio Support
 
-Staff write help pages. People help themselves at `/help`. Signed-in users and staff talk on a Messages desk under the support mount.
+Staff write help pages. People help themselves at `/help`. Signed-in users and staff talk in a Support inbox. Tickets and help sections sit under a `SupportCenter` the host records once. Each ticket’s thread is a MessageGroup tagged to that ticket, not a parent.
 
-Help pages sit in a section under your workspace. Each page has a title and a formatted body. Pictures go in that body. A page can go to trash. Staff pick a section by moving the page. Staff land in **Admin Support** (`/admin`). Write, preview, Publish, and uploads live under `/admin/support`. Access is Admin plus Accessible on the admin root — not a workspace `:edit` grant. Logged-out visitors read at `/help` (slug URLs) and live pages under a section. Drafts stay hidden. Signed-in people open `/help/messages`; staff open `/admin/support/messages`. Both desks render the Messages gem chat partial — do not fork Chat::Layout or Chat::Panel. JSON for sections and pages is optional: add Recording Studio API in the **host** (dummy does). Gates stay Accessible. Endpoints: [docs/api.md](docs/api.md).
+Help pages sit in a section under SupportCenter. Each page has a title and a formatted body. Pictures go in that body. A page can go to trash. Staff pick a section by moving the page. Staff land in **Admin Support** (`/admin`). Write, preview, Publish, and uploads live under `/admin/support`. Access is Admin plus Accessible on the SupportCenter or its admin-root parent — not a workspace `:edit` grant. Logged-out visitors read at `/help` (slug URLs) and live pages under a section. Drafts stay hidden. Signed-in people open `/help/messages`; staff open `/admin/support/messages`. Both screens render the Messages gem chat partial — do not fork Chat::Layout or Chat::Panel. JSON for sections and pages is optional: add Recording Studio API in the **host** (dummy does). Gates stay Accessible. Endpoints: [docs/api.md](docs/api.md).
 
 ## Install
 
-Add the gem next to Recording Studio 6.1.0, Accessible 0.19.1, Admin 2.7.0, Attachable 0.15.0, Publishable 0.12, and Flatpack 0.1.329 (`3e49ad38b1980add449194d27265edaa7b892c0d`). Those GitHub tags are the dummy-tested pins in `test/dummy/Gemfile.lock`. The constraint block below is the gemspec floor. GitHub hosting is not a reason to skip the gemspec pins. ViewComponent stays on `>= 4.14, < 5` (this repo locks `4.19.0`).
+Add the gem next to Recording Studio 6.1.0, Accessible 0.24.1, Admin 2.7.0, Attachable 0.15.0, Publishable 0.12, Messages 0.14.0, and Flatpack 0.1.341. Those GitHub tags are the dummy-tested pins in `test/dummy/Gemfile.lock`. The constraint block below is the gemspec floor. GitHub hosting is not a reason to skip the gemspec pins. ViewComponent stays on `>= 4.14, < 5` (this repo locks `4.19.0`).
 
 ```ruby
 # Gemfile
 gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v6.1.0"
-gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.19.1"
+gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.24.1"
 gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.7.0"
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.15.0"
 gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.12.0"
 gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.4.0"
-gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.12.0"
+gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.13.2"
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.1.1"
 gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v3.4.3"
-gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.9.0"
+gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.14.0"
 gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.5.0"
 gem "recording_studio_logs", github: "bowerbird-app/RecordingStudio_logs", tag: "v0.5.0"
 gem "recording_studio_views", github: "bowerbird-app/RecordingStudio_views", tag: "v0.8.0"
@@ -31,16 +31,16 @@ gem "recording_studio_search", "~> 0.6",
 gem "recording_studio_support", github: "bowerbird-app/RecordingStudio_support"
 # Host-owned auth (not a Support gemspec dependency):
 gem "recording_studio_user", github: "bowerbird-app/RecordingStudio_users", tag: "v0.21.0"
-gem "flat_pack", github: "bowerbird-app/flatpack", ref: "3e49ad38b1980add449194d27265edaa7b892c0d" # 0.1.329
+gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.341"
 gem "view_component", "4.19.0"
 ```
 
 ```ruby
 # gemspec / host Gemfile constraints
 gem "recording_studio", ">= 6.1.0"
-gem "flat_pack", ">= 0.1.315"
+gem "flat_pack", ">= 0.1.331"
 gem "view_component", ">= 4.14", "< 5"
-gem "recording_studio_accessible", "~> 0.11"
+gem "recording_studio_accessible", "~> 0.24"
 gem "recording_studio_admin", "~> 2.0"
 gem "recording_studio_attachable", "~> 0.7"
 gem "recording_studio_trashable", "~> 0.9"
@@ -48,14 +48,14 @@ gem "recording_studio_orderable", "~> 0.2"
 gem "recording_studio_publishable", "~> 0.4"
 gem "recording_studio_search", "~> 0.6"
 gem "recording_studio_moveable", "~> 3.2"
-gem "recording_studio_messages", "~> 0.5"
+gem "recording_studio_messages", ">= 0.12.0"
 gem "recording_studio_metrics", ">= 0.5.0", "< 1.0"
 gem "recording_studio_views", ">= 0.8.0", "< 0.9"
 gem "recording_studio_notifications", ">= 0.3.1", "< 1"
 gem "recording_studio_notifications_email", "~> 0.3.1"
 ```
 
-Latest tags of Attachable, Logs, Metrics, Moveable, Notifications, Notifications Email, Search, Views, Cache, Users, Root Switchable, Internationalization, API, and Accessible still require `recording_studio` below 6. This repo's Gemfiles load `test/support/widen_recording_studio_requirement.rb` before the gemspec so Bundler can resolve `6.1.0`. That file is not part of the installed gem. A host Gemfile that includes one of those gems has to widen the requirement the same way. Messages `v0.9.0`, Publishable `v0.12.0`, Orderable `v0.4.0`, Trashable `v0.12.0`, Admin `v2.7.0`, and Recording Studio `v6.1.0` already allow `6.1.0`. Orderable `v0.4.0`, Trashable `v0.12.0`, and Moveable `v3.4.3` drop `RecordingStudio::UsesDefaultLayout`, which Recording Studio 6.1 removed. Earlier tags make `CI=true` eager load raise `NameError`. Admin screens need Admin `v2.7.0` because earlier releases still call `recording_studio_page_nav`. Accessible stays on `v0.19.1`: `0.20` and later reject Messages `v0.9.0`'s first-owner `grant_access` (`You can only grant a role you already hold`). Attachable stays on `v0.15.0` and Notifications stays on `v0.7.0`: later releases need schema changes this dummy does not ship. Root Switchable `v0.10.0` drops `anchor_label`; its gemspec still caps Recording Studio below 5, so the widen hook stays.
+Latest tags of Attachable, Logs, Metrics, Moveable, Notifications, Notifications Email, Search, Views, Cache, Users, Root Switchable, Internationalization, and API still require `recording_studio` below 6. This repo's Gemfiles load `test/support/widen_recording_studio_requirement.rb` before the gemspec so Bundler can resolve `6.1.0`. That file is not part of the installed gem. A host Gemfile that includes one of those gems has to widen the requirement the same way. Messages `v0.14.0`, Publishable `v0.13.2`, Orderable `v0.4.0`, Trashable `v0.12.0`, Admin `v2.7.0`, Accessible `v0.24.1`, and Recording Studio `v6.1.0` already allow `6.1.0`. Orderable `v0.4.0`, Trashable `v0.12.0`, and Moveable `v3.4.3` drop `RecordingStudio::UsesDefaultLayout`, which Recording Studio 6.1 removed. Earlier tags make `CI=true` eager load raise `NameError`. Admin screens need Admin `v2.7.0` because earlier releases still call `recording_studio_page_nav`. Accessible `v0.24.1` is the Messages `0.14` floor. Attachable stays on `v0.15.0` and Notifications stays on `v0.7.0`: later releases need schema changes this dummy does not ship. Root Switchable `v0.10.0` drops `anchor_label`; its gemspec still caps Recording Studio below 5, so the widen hook stays.
 
 Then:
 
@@ -81,7 +81,7 @@ bin/rails generate recording_studio_accessible:migrations
 bin/rails db:migrate
 ```
 
-Accessible `v0.11` stores roles as strings (`view`, `edit`, `admin`) and adds access invitations. Accessible `v0.14` adds access constraint and access rule tables for optional action audiences. Run its 0.8–0.14 migrations (0.15 is translation-only). Grant through `bootstrap_owner_access!` / `grant_access` — do not create `RecordingStudio::Access` rows. Dummy pins API `v0.7.0`. For operations move and trash by an AdminRoot-only client, the **host** sets Trashable and Moveable hooks (Support does not). `nil` falls through to Accessible `:edit`:
+Accessible `v0.24.1` stores roles as strings (`view`, `edit`, `admin`). Run its migrations through that tag. Grant through `bootstrap_owner_access!` / `grant_access` — do not create `RecordingStudio::Access` rows. Dummy pins API `v0.7.0`. For operations move and trash by an AdminRoot-only client, the **host** sets Trashable and Moveable hooks (Support does not). `nil` falls through to Accessible `:edit`:
 
 ```ruby
 RecordingStudioTrashable.configure do |config|
@@ -108,15 +108,43 @@ Install Active Storage if the host does not already have it. Pictures upload thr
 
 The install generator mounts staff Support screens at `/admin/support`, public help at `/help`, and Publishable at `/`. Old `/support` bookmarks redirect to `/admin`. When an `AdminRoot` model is present, it enables `section :support`.
 
+## SupportCenter
+
+Set `config.parent_root_type` **before models load**. Default is `"AdminRoot"`. Hosts record one SupportCenter under that root during setup. The gem does not auto-create it from Admin.
+
+```
+AdminRoot (config.parent_root_type)
+  └── SupportCenter
+        ├── SupportSection → SupportPage
+        ├── SupportTicket
+        └── MessageMount :support
+              └── MessageGroup  (tag "support_ticket" → ticket recording)
+```
+
+```ruby
+RecordingStudioSupport.configure do |config|
+  config.parent_root_type = "AdminRoot"
+end
+
+admin_root = RecordingStudio.root_recording_for(AdminRoot.find_or_create_by!(name: "Admin"))
+center = RecordingStudioSupport::SupportCenters.for_parent(admin_root) ||
+  admin_root.record(RecordingStudioSupport::SupportCenter)
+RecordingStudioSupport::SupportCenters.current
+RecordingStudioSupport::SupportCenters.current!
+```
+
+`Messages.to(keys: [:support], membership_locked: [:support])` lives on `SupportCenter`. Do not enable it on Workspace.
+
 ## Support pages
 
-Register the type next to your host root and the Publishable child. Dummy uses `Workspace`. Dummy also registers `AdminRoot` for staff admin.
+Register the type next to your host root and the Publishable child. Dummy uses `Workspace` for product content. Dummy also registers `AdminRoot` for staff admin and `RecordingStudioSupport::SupportCenter` for help and tickets.
 
 ```ruby
 RecordingStudio.configure do |config|
   config.recordable_types = [
     "Workspace",
     "AdminRoot",
+    "RecordingStudioSupport::SupportCenter",
     "RecordingStudioUser::People",
     "RecordingStudioUser::Profile",
     "RecordingStudioSupport::SupportSection",
@@ -134,25 +162,12 @@ RecordingStudio.configure do |config|
 end
 ```
 
-Enable Messages on the workspace (mount parent, key `:support` — not AdminRoot). Lock membership so ticket conversations cannot invite people from the chat UI:
-
-```ruby
-class Workspace < ApplicationRecord
-  recording_studio_recordable label: "Workspace", root: true
-  RecordingStudio.enable_capability(:accessible, on: self)
-  include RecordingStudio::Capabilities::Messages.to(
-    keys: [:support],
-    membership_locked: [:support]
-  )
-end
-```
-
-The page declares itself under that root and opts into the mixins. Installing the mixin gems does not turn this on for Folder or Page.
+The page declares itself under SupportCenter and opts into the mixins. Installing the mixin gems does not turn this on for Folder or Page.
 
 ```ruby
 recording_studio_recordable label: "Help section",
                             root: false,
-                            allowed_parent_types: ["Workspace"]
+                            allowed_parent_types: ["RecordingStudioSupport::SupportCenter"]
 
 include RecordingStudio::Capabilities::Trashable.to
 include RecordingStudio::Capabilities::Orderable.to(
@@ -176,8 +191,12 @@ include RecordingStudio::Capabilities::Publishable.to(
 Create and change pages with public helpers. Publish with Publishable's Update helper. Do not insert Recording or Event rows by hand.
 
 ```ruby
-root = RecordingStudio.root_recording_for(workspace)
-section = root.record(RecordingStudioSupport::SupportSection) do |item|
+root = RecordingStudio.root_recording_for(admin_root)
+center = RecordingStudioSupport::SupportCenters.current!
+section = root.record(
+  RecordingStudioSupport::SupportSection,
+  parent_recording: center
+) do |item|
   item.title = "Getting started"
   item.icon = "rocket-launch" # optional Heroicons name; blank skips the glyph on /help
 end
@@ -248,7 +267,7 @@ Public **section** show (`/help/sections/:slug`) is its own card stack — not t
 2. Layout `PageTitle` from `content_for :title` and `content_for :subtitle`
 3. Search Instant field (`instant_search_field`) — `size: :lg`, placeholder `Search in {section}…`, white input tokens as above; results update in Turbo Frame `support_page_search_results`
 4. Flatpack Grid (`cols: 1`, `gap: :lg`) of full-width Cards (`href`, `clickable: true`, `hover: :strong`, `background: :default`, `border: :default`, `shadow: :sm`) — Body padding `:lg`, title, muted plain-text snippet (~120 chars from the body; omitted when blank), Flatpack Timestamp from publish time (`publish_at`, then recording `updated_at`, then page `created_at`)
-5. Optional host contact Card + secondary Button — only when `public_contact_href` is set (inside the Instant results frame so Instant updates keep it in sync), spaced below the article Grid (`mt-10`). The Button uses `data-turbo-frame="_top"` so the desk loads as a full page
+5. Optional host contact Card + secondary Button — only when `public_contact_href` is set (inside the Instant results frame so Instant updates keep it in sync), spaced below the article Grid (`mt-10`). The Button uses `data-turbo-frame="_top"` so Messages loads as a full page
 6. Flatpack EmptyState when the query matches nothing or the section has no live pages — search no-results copy is `Try another keyword or {contact link}.` (underlined Flatpack Link inline, also `data-turbo-frame="_top"`; no Button slot, no bottom Card)
 
 Public **article** show (`/help/:uuid/:slug`) ends with the same optional contact Card + secondary Button when `public_contact_href` is set (prompt via `support_public_contact_prompt` for the parent section). Public `/help?q=` with no section hits uses the same EmptyState Contact Button in its `slot`.
@@ -286,36 +305,33 @@ RecordingStudioSupport.configure do |config|
     when "billing" then "Payments, invoices, and plan changes."
     end
   }
-  # Default contact button points at the signed-in desk.
+  # Default contact button points at signed-in tickets.
   config.public_contact_href = "/help/messages"
   config.public_contact_label = "Contact support"
-  # Staff set for the messages desk (grants, staff desk, notices).
-  # When set, only this email is staff. When blank, `messages_admin_finder`
-  # runs (default: User.where(admin: true)).
-  # config.messages_admin_email = "support@example.com"
-  # config.messages_admin_finder = -> { User.where(admin: true) }
+  # Parent root for SupportCenter. Set this before models load.
+  config.parent_root_type = "AdminRoot"
 end
 ```
 
-## Messages desk
+## Tickets and Messages
 
-Tickets own the conversation lifecycle. Each ticket creates a MessageGroup under the Workspace `:support` mount (global — not per AdminRoot). Public `/help` stays anonymous with no composer. Existing per-user MessageGroups are not migrated.
+Tickets own the conversation lifecycle. Each ticket is recorded under SupportCenter. `Tickets.open!` then creates one MessageGroup on the `:support` mount and tags it `support_ticket` → the ticket recording. Public `/help` stays anonymous with no composer. There is no data migration from older ticket trees.
 
-| Desk | Path | Who |
+| Screen | Path | Who |
 |---|---|---|
 | User list | `GET /help/messages` | Signed-in user (auth required) |
 | User new | `GET /help/messages/new` + `POST /help/messages` | Signed-in user |
 | User show | `GET /help/messages/:id` | Ticket owner (or staff) |
-| Staff | `GET /admin/support/messages` | Signed-in staff |
-| Staff ticket | `PATCH /admin/support/tickets/:id` | Signed-in staff (status / assignee) |
+| Staff inbox | `GET /admin/support/messages` | Signed-in staff with Accessible `:edit` on SupportCenter |
+| Staff ticket | `PATCH /admin/support/tickets/:id` | Same staff gate (status / assignee) |
 
-**Staff set** (`messages_admin_email`): when set to an email, only that user is staff. When blank, `messages_admin_finder` runs — default `User.where(admin: true)` (or your host finder). Same set for `:edit` grants on each conversation, staff desk access, and staff notifications.
+Staff is whoever Accessible grants `:edit` (or `:admin`) on the SupportCenter, its parent, or its admin root. There is no `User.admin` path, `messages_admin_email`, or `messages_admin_finder`. Customers get a direct grant on their MessageGroup only. They never need access to the admin root.
 
-Opening a ticket runs `Tickets.open!`: a MessageGroup under `:support`, then `RecordingStudio.record!` for one `SupportTicket` child of that group (`subject`, `priority`, status `open`), staff `:edit` grants (via `allow_membership_change`), and the first message. One live ticket per thread is app-level. `open!` locks the parent group and looks for an untrashed ticket recording. There is no unique index. The lock does nothing for a group this transaction just inserted, because no other connection can see that row yet. It still serializes a second live ticket when the parent already existed. A trashed ticket does not count, so another ticket on that thread is allowed. A second live ticket raises `Tickets::AlreadyExists` ("This conversation already has a ticket."). Users list their tickets instead of a singleton group. Staff edit status, priority, and assignee with `Tickets.update!`. That locks the ticket recording, reloads the current recordable, and revises it. One `updated` event stores the diff in `metadata["changes"]` (for example `{"status" => ["open", "resolved"]}`). A nil actor is stored on that event when Recording Studio `require_actor` is off. When `require_actor` is on, the write raises `RecordingStudio::ActorRequired`. `Tickets.open!` rejects a blank actor itself. Hosts that set `config.authorize_write` must allow these ticket creates and updates. Support does not set that hook. A nil hook allows the write. The desk URL keeps the id it was opened with. `Tickets.find!` resolves a recording id or an older snapshot id to the current ticket, and raises `ActiveRecord::RecordNotFound` once the recording is trashed. Status values: `open`, `waiting_on_customer`, `waiting_on_support`, `resolved`. Priority: `low`, `normal`, `high`. Assignee is optional.
+Opening a ticket runs `Tickets.open!`: record the ticket under SupportCenter, create the tagged group, grant the requester, sync staff via Accessible, then post the first message. One live tagged group per ticket is the current product. Find the thread with `Tickets.group_recording_for(ticket)` (tag lookup). A second live group for the same ticket raises `Tickets::AlreadyExists` ("This conversation already has a ticket."). Users list tickets they own. Staff edit status, priority, and assignee with `Tickets.update!`. That locks the ticket recording, reloads the current recordable, and revises it. One `updated` event stores the diff in `metadata["changes"]` (for example `{"status" => ["open", "resolved"]}`). A nil actor is stored on that event when Recording Studio `require_actor` is off. When `require_actor` is on, the write raises `RecordingStudio::ActorRequired`. `Tickets.open!` rejects a blank actor itself. Hosts that set `config.authorize_write` must allow these ticket creates and updates. Support does not set that hook. A nil hook allows the write. The ticket URL keeps the id it was opened with. `Tickets.find!` resolves a recording id or an older snapshot id to the current ticket, and raises `ActiveRecord::RecordNotFound` once the recording is trashed. Status values: `open`, `waiting_on_customer`, `waiting_on_support`, `resolved`. Priority: `low`, `normal`, `high`. Assignee is optional.
 
-The Workspace `:support` mount is **membership locked** (`membership_locked: [:support]`). Ticket panels hide **+ Access** / avatars; Accessible manage/grant/update/revoke on those conversations is denied unless wrapped in `RecordingStudioMessages.allow_membership_change` (Support’s staff sync already does this).
+The SupportCenter `:support` mount is **membership locked** (`membership_locked: [:support]`). Ticket panels hide **+ Access** / avatars; Accessible manage/grant/update/revoke on those conversations is denied unless wrapped in `RecordingStudioMessages.allow_membership_change` (Support’s staff sync already does this).
 
-Both desks render `recording_studio_messages/message_groups/desk` only — do not fork Chat::Layout or Chat::Panel. The panel is a Turbo frame; Support prepends Accessible's access button so "+ Access" uses `data-turbo-frame="_top"` and the access page loads in full. Each desk opens with a Flatpack PageTitle (`Messages` for the user desk, `Support messages` for staff). Keep `data-theme="rounded"` on `<html>` and add Tailwind `@source` lines for Messages views.
+Both screens render `recording_studio_messages/message_groups/desk` only — do not fork Chat::Layout or Chat::Panel. The panel is a Turbo frame; Support prepends Accessible's access button so "+ Access" uses `data-turbo-frame="_top"` and the access page loads in full. Each screen opens with a Flatpack PageTitle (`Messages` for the customer list, `Support messages` for staff). Keep `data-theme="rounded"` on `<html>` and add Tailwind `@source` lines for Messages views.
 
 `public_contact_href` defaults to `/help/messages`. Logged-out visitors who click Contact hit sign-in.
 
@@ -462,16 +478,16 @@ Dummy kit pins:
 | Gem | Pin |
 |-----|-----|
 | Recording Studio | `v6.1.0` |
-| Accessible | `v0.19.1` |
+| Accessible | `v0.24.1` |
 | Admin | `v2.7.0` |
 | Attachable | `v0.15.0` |
-| Messages | `v0.9.0` |
+| Messages | `v0.14.0` |
 | Notifications | `v0.7.0` |
 | Notifications Email | `v0.3.4` |
 | Users | `v0.21.0` |
 | Trashable | `v0.12.0` |
 | Orderable | `v0.4.0` |
-| Publishable | `v0.12.0` |
+| Publishable | `v0.13.2` |
 | Icons | `v0.1.1` |
 | Moveable | `v3.4.3` |
 | Search | `v0.6.0` |
@@ -479,7 +495,7 @@ Dummy kit pins:
 | Cache | `v0.5.0` (dummy only; Users 0.21+ / Root Switchable 0.9+ floor) |
 | API | `v0.7.0` (dummy only; not a Support gemspec dependency) |
 | Internationalization | `v0.1.2` (dummy only; not a Support gemspec dependency) |
-| FlatPack | `0.1.329` (`3e49ad38b1980add449194d27265edaa7b892c0d`) |
+| FlatPack | `0.1.341` |
 | ViewComponent | `4.19.0` |
 
 ```bash

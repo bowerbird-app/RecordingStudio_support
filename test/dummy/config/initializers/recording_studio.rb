@@ -6,6 +6,7 @@ RecordingStudio.configure do |config|
     "Folder",
     "Page",
     "AdminRoot",
+    "RecordingStudioSupport::SupportCenter",
     "RecordingStudioUser::People",
     "RecordingStudioUser::Profile",
     "RecordingStudioSupport::SupportSection",

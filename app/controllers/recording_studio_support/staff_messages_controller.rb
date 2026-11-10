@@ -30,10 +30,15 @@ module RecordingStudioSupport
     end
 
     def load_group_recordings
-      RecordingStudioMessages.viewable_group_recordings(
+      groups = RecordingStudioMessages.viewable_group_recordings(
         actor: current_support_actor,
         mount_recording: @mount_recording
       )
+      tagged_ids = RecordingStudioMessages::MessageGroupTag.where(
+        key: RecordingStudioSupport::Tickets::TAG_KEY,
+        message_group_recording_id: groups.map(&:id)
+      ).pluck(:message_group_recording_id)
+      groups.select { |group| tagged_ids.include?(group.id) }
     end
 
     def user_desk_return_to

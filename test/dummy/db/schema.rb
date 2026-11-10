@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_10_27_120000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_09_080000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -306,9 +306,20 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_27_120000) do
     t.index ["task", "subject", "finished_at"], name: "index_rs_logs_maintenance_runs_on_task_and_subject"
   end
 
+  create_table "recording_studio_message_group_tags", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "message_group_recording_id", null: false
+    t.string "key", null: false
+    t.uuid "tagged_recording_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["key", "tagged_recording_id"], name: "index_message_group_tags_on_key_and_tagged_recording"
+    t.index ["message_group_recording_id", "key"], name: "index_message_group_tags_on_group_and_key", unique: true
+  end
+
   create_table "recording_studio_message_groups", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.datetime "created_at", null: false
     t.string "title", null: false
+    t.datetime "last_message_at"
+    t.index ["last_message_at"], name: "index_recording_studio_message_groups_on_last_message_at"
   end
 
   create_table "recording_studio_message_mounts", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -332,6 +343,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_27_120000) do
     t.uuid "otp_challenge_id", null: false
     t.string "submitted_name", null: false
     t.uuid "user_id", null: false
+    t.jsonb "tags", default: {}, null: false
     t.index ["message_group_id"], name: "index_public_contact_intents_on_message_group", unique: true, where: "(message_group_id IS NOT NULL)"
     t.check_constraint "message_group_id IS NULL AND body IS NOT NULL AND char_length(body) >= 1 AND char_length(body) <= 10000 OR message_group_id IS NOT NULL AND body IS NULL", name: "contact_intent_state"
   end
@@ -467,6 +479,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_10_27_120000) do
     t.string "keyword", null: false
     t.datetime "updated_at", null: false
     t.index ["keyword", "embedding_model"], name: "index_rss_queries_on_keyword_and_model", unique: true
+  end
+
+  create_table "recording_studio_support_centers", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.datetime "created_at", null: false
   end
 
   create_table "recording_studio_support_page_views", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
