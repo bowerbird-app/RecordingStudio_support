@@ -26,7 +26,7 @@ Name the Admin API `:operations` (`default_access :read_only`). Support register
 
 Provision operations clients on **AdminRoot** (featured_in). Support handlers find Workspace help by id and authorize AdminRoot `:view` / `:edit`. Move accepts `parent_id`, `destination_id`, or `new_parent_id`. Section create ignores trashed parents.
 
-Live OpenAPI (Scalar) is optional and owned by the API gem. Generate it in the host if you want an explorer. This file is the Support contract even when Scalar is off.
+Live OpenAPI (Scalar) is optional and owned by the API gem. Generate it in the host if you want an explorer. This file is the Support contract even when Scalar is off. SupportCenter, SupportSection, and SupportPage registrations set `openapi: { tags: ["Support"], tag: { group: "Support" } }` so Scalar and MCP docs (`RecordingStudio_MCP` `v0.30.3+`) keep those types with Support instead of ungrouped.
 
 ## Auth
 

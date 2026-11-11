@@ -24,6 +24,7 @@ module RecordingStudioSupport
     SECTION_TYPE = "RecordingStudioSupport::SupportSection"
     PAGE_TYPE = "RecordingStudioSupport::SupportPage"
     TYPES = [SECTION_TYPE, PAGE_TYPE, CENTER_TYPE].freeze
+    SUPPORT_OPENAPI = { tags: ["Support"], tag: { group: "Support" } }.freeze
 
     class << self
       def register!

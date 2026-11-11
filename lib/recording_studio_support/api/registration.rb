@@ -86,7 +86,7 @@ module RecordingStudioSupport
           output_keys: %i[title slug icon],
           writable_attributes: %i[title icon],
           sortable_attributes: %i[title],
-          operations: operations,
+          operations: operations, openapi: SUPPORT_OPENAPI,
           relationships: { pages: pages_relationship(relationship_endpoints) }
         )
       end
@@ -99,7 +99,7 @@ module RecordingStudioSupport
           output_keys: %i[title description icon body],
           writable_attributes: %i[title description icon body],
           sortable_attributes: %i[title],
-          operations: operations,
+          operations: operations, openapi: SUPPORT_OPENAPI,
           capability_actions: capability_actions
         )
       end

@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.32.1] - 2026-11-11
+
+Support pages, sections, and centers sit in the Support group in API and MCP docs.
+
+### Changed
+- Type registrations pass `openapi: { tags: ["Support"], tag: { group: "Support" } }`. Scalar nests those resources in the Support tag group. MCP docs (`v0.30.3+`) put the types under the Support tag instead of leaving them ungrouped.
+
+### Upgrade notes
+- Bump to `0.32.1`. Docs grouping only; no host code change.
+
 ## [0.32.0] - 2026-11-11
 
 Staff MCP can list, show, and create a SupportCenter on the operations API.
@@ -1125,7 +1135,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.32.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.32.1...HEAD
+[0.32.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.32.0...v0.32.1
 [0.32.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.31.0...v0.32.0
 [0.31.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.30.0...v0.31.0
 [0.30.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.29.0...v0.30.0
