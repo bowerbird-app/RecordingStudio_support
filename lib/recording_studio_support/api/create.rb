@@ -37,10 +37,7 @@ module RecordingStudioSupport
       end
 
       def create_center!(actor)
-        SupportCenters.create!(
-          parent_recording: parent_recording!,
-          actor: actor
-        )
+        SupportCenters.create!(parent_recording: parent_recording!, actor: actor)
       end
 
       def create_section!(actor, attrs)
@@ -51,6 +48,8 @@ module RecordingStudioSupport
           actor: actor
         )
       rescue ArgumentError => e
+        raise unless e.message == "Help sections belong under Support."
+
         Lookup.raise_invalid_parent!(context.recordable_type, e.message)
       end
 
@@ -71,15 +70,17 @@ module RecordingStudioSupport
         parent_id = Payload.parent_id(context)
         raise_missing_parent! if parent_id.blank?
 
-        lookup_parent!(parent_id)
+        if context.recordable_type == Api::SECTION_TYPE
+          Lookup.workspace!(id: parent_id)
+        else
+          center_or_section_parent!(parent_id)
+        end
       end
 
-      def lookup_parent!(parent_id)
-        case context.recordable_type
-        when Api::CENTER_TYPE then Lookup.parent_root!(id: parent_id)
-        when Api::SECTION_TYPE then Lookup.workspace!(id: parent_id)
-        else Lookup.section!(id: parent_id)
-        end
+      def center_or_section_parent!(parent_id)
+        return Lookup.parent_root!(id: parent_id) if context.recordable_type == Api::CENTER_TYPE
+
+        Lookup.section!(id: parent_id)
       end
 
       def raise_missing_parent!

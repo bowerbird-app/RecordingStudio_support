@@ -28,6 +28,7 @@ class ApiTest < Minitest::Test
     assert_includes create, "Sections.create!"
     assert_includes create, "Pages.create!"
     assert_includes create, "InvalidParent"
+    assert_includes create, "Help sections belong under Support."
     assert_includes update, "Sections.revise!"
     assert_includes update, "Pages.revise!"
     assert_includes destroy, "Sections.trash!"

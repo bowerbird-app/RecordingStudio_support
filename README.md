@@ -1,6 +1,6 @@
 # Recording Studio Support
 
-The support team writes help pages. People help themselves at `/help`. Signed-in users and the support team talk in a Support inbox. Tickets and help sections sit under a `SupportCenter` the host records once. Each ticket’s thread is a MessageGroup tagged to that ticket, not a parent.
+The support team writes help pages. People help themselves at `/help`. Signed-in users and the support team talk in a Support inbox. Tickets and help sections sit under a `SupportCenter`. Hosts usually record that center during setup. A later create makes another. Each ticket’s thread is a MessageGroup tagged to that ticket, not a parent.
 
 Help pages sit in a section under SupportCenter. Each page has a title and a formatted body. Pictures go in that body. A page can go to trash. The support team picks a section by moving the page. The support team lands in **Admin Support** (`/admin`). Write, preview, Publish, and uploads live under `/admin/support`. Access is Admin plus Accessible on the SupportCenter or its admin-root parent — not a workspace `:edit` grant. Logged-out visitors read at `/help` (slug URLs) and live pages under a section. Drafts stay hidden. Signed-in people open `/help/messages`; the support team opens `/admin/support/messages`. Both screens render the Messages gem chat partial — do not fork Chat::Layout or Chat::Panel. JSON for sections and pages is optional: add Recording Studio API in the **host** (dummy does). Gates stay Accessible. Endpoints: [docs/api.md](docs/api.md).
 
@@ -110,7 +110,7 @@ The install generator mounts Support screens at `/admin/support`, public help at
 
 ## SupportCenter
 
-Set `config.parent_root_type` **before models load**. Default is `"AdminRoot"`. Hosts record one SupportCenter under that root during setup. The gem does not auto-create it from Admin.
+Set `config.parent_root_type` **before models load**. Default is `"AdminRoot"`. Hosts usually record a SupportCenter under that root during setup. The gem does not auto-create it from Admin. Creating another SupportCenter is allowed.
 
 ```
 AdminRoot (config.parent_root_type)

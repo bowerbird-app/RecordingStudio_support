@@ -12,6 +12,8 @@ module RecordingStudioSupport
           writable_attributes: [],
           operations: %i[index show create]
         )
+        Registration.register_handler(CENTER_TYPE, :index, api: Registration::OPERATIONS_API, handler: Index)
+        Registration.register_handler(CENTER_TYPE, :show, api: Registration::OPERATIONS_API, handler: Show)
       end
     end
   end

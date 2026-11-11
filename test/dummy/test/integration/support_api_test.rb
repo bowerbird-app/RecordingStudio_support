@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "minitest/mock"
 
 class SupportApiTest < ActionDispatch::IntegrationTest
   PUBLIC_ROOT = "/recording_studio_api/api/v1"
@@ -134,6 +135,38 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     details = body["details"] || body.dig("error", "details") || []
     assert_predicate details, :present?, body
     assert(details.any? { |detail| detail.fetch("attribute").to_s == "parent_id" }, body)
+  end
+
+  test "support center create maps InvalidParent to invalid_input" do
+    boom = lambda do |**|
+      raise RecordingStudio::InvalidParent, "RecordingStudioSupport::SupportCenter cannot be recorded under AdminRoot"
+    end
+    RecordingStudioSupport::SupportCenters.stub(:create!, boom) do
+      post "#{OPERATIONS_ROOT}/support_centers",
+           headers: auth(@editor_operations_token),
+           params: { parent_id: @admin_root.id },
+           as: :json
+    end
+
+    assert_response :unprocessable_entity
+    body = response.parsed_body
+    assert_equal "invalid_input", body["code"] || body.dig("error", "code")
+    details = body["details"] || body.dig("error", "details") || []
+    assert_predicate details, :present?, body
+    assert(details.any? { |detail| detail.fetch("attribute").to_s == "parent_id" }, body)
+  end
+
+  test "operations token without AdminRoot access is forbidden on support centers" do
+    get "#{OPERATIONS_ROOT}/support_centers", headers: auth(@workspace_operations_token), as: :json
+
+    assert_response :forbidden
+
+    post "#{OPERATIONS_ROOT}/support_centers",
+         headers: auth(@workspace_operations_token),
+         params: { parent_id: @admin_root.id },
+         as: :json
+
+    assert_response :forbidden
   end
 
   test "section create without a support center is a client error" do

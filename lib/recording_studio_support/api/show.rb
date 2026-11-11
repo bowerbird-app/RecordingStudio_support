@@ -12,7 +12,7 @@ module RecordingStudioSupport
       end
 
       def call
-        recording = target_recording
+        recording = center_recording || target_recording
         if Access.operations_api?(context)
           Access.authorize_support_team_view!(context)
         else
@@ -28,20 +28,22 @@ module RecordingStudioSupport
       attr_reader :context
 
       def target_recording
-        case context.recordable_type
-        when Api::CENTER_TYPE then Lookup.center!(id: Payload.member_id(context))
-        when Api::SECTION_TYPE then Lookup.section!(id: Payload.member_id(context))
-        else page_recording
+        if context.recordable_type == Api::SECTION_TYPE
+          Lookup.section!(id: Payload.member_id(context))
+        elsif Payload.nested?(context)
+          Lookup.page_in_section!(
+            section: Lookup.section!(id: context.parent_id),
+            id: context.relationship_id
+          )
+        else
+          Lookup.page!(id: Payload.member_id(context))
         end
       end
 
-      def page_recording
-        return Lookup.page!(id: Payload.member_id(context)) unless Payload.nested?(context)
+      def center_recording
+        return unless context.recordable_type == Api::CENTER_TYPE
 
-        Lookup.page_in_section!(
-          section: Lookup.section!(id: context.parent_id),
-          id: context.relationship_id
-        )
+        Lookup.center!(id: Payload.member_id(context))
       end
 
       def hide_draft!(recording)
