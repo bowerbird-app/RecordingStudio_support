@@ -2,7 +2,7 @@
 
 module RecordingStudioSupport
   module Api
-    module Registration
+    module Registration # rubocop:disable Metrics/ModuleLength -- type registrations plus public/operations handlers
       module_function
 
       PUBLIC_PAGE_OPERATIONS = %i[index show].freeze
@@ -91,7 +91,7 @@ module RecordingStudioSupport
         )
       end
 
-      def register_pages!(api:, operations:, capability_actions:)
+      def register_pages!(api:, operations:, capability_actions:) # rubocop:disable Metrics/MethodLength -- optional auto_capability_actions for API 0.19+
         extra = {}
         names = RecordingStudioApi.method(:register_recordable_type_api).parameters.map(&:last)
         extra[:auto_capability_actions] = false if api == :public && names.include?(:auto_capability_actions)

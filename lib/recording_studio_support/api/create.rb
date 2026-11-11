@@ -31,6 +31,8 @@ module RecordingStudioSupport
         return create_section!(actor, attrs) if context.recordable_type == Api::SECTION_TYPE
 
         create_page!(actor, attrs)
+      rescue RecordingStudio::InvalidParent => e
+        raise_invalid_parent_input!(e.message)
       end
 
       def create_section!(actor, attrs)
@@ -44,8 +46,6 @@ module RecordingStudioSupport
         raise unless e.message == "Help sections belong under Support."
 
         raise_invalid_parent_input!(e.message)
-      rescue RecordingStudio::InvalidParent => e
-        raise_invalid_parent_input!(e.message)
       end
 
       def create_page!(actor, attrs)
@@ -57,11 +57,9 @@ module RecordingStudioSupport
           icon: attrs[:icon],
           actor: actor
         )
-      rescue RecordingStudio::InvalidParent => e
-        raise_invalid_parent_input!(e.message)
       end
 
-      def parent_recording!
+      def parent_recording! # rubocop:disable Metrics/AbcSize -- kept recording lookup when the parent is not a section
         return context.parent_recording if context.respond_to?(:parent_recording) && context.parent_recording
 
         parent_id = Payload.parent_id(context)
