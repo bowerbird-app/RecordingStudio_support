@@ -3,6 +3,8 @@
 module RecordingStudioSupport
   module Api
     class Create
+      include Idempotency
+
       def self.call(context)
         new(context).call
       end
@@ -31,47 +33,64 @@ module RecordingStudioSupport
         return create_section!(actor, attrs) if context.recordable_type == Api::SECTION_TYPE
 
         create_page!(actor, attrs)
+      end
+
+      def create_section!(actor, attrs)
+        create_with_parent_errors!(help_section: true) do
+          Sections.create!(
+            root_recording: parent_recording!,
+            title: attrs[:title],
+            icon: attrs[:icon],
+            actor: actor
+          )
+        end
+      end
+
+      def create_page!(actor, attrs)
+        create_with_parent_errors! do
+          Pages.create!(
+            parent_recording: parent_recording!,
+            title: attrs[:title],
+            body: attrs[:body],
+            description: attrs[:description],
+            icon: attrs[:icon],
+            actor: actor
+          )
+        end
+      end
+
+      def create_with_parent_errors!(help_section: false)
+        yield
+      rescue ArgumentError => e
+        raise unless help_section && e.message == "Help sections belong under Support."
+
+        raise_invalid_parent_input!(e.message)
       rescue RecordingStudio::InvalidParent => e
         raise_invalid_parent_input!(e.message)
       end
 
-      def create_section!(actor, attrs)
-        Sections.create!(
-          root_recording: parent_recording!,
-          title: attrs[:title],
-          icon: attrs[:icon],
-          actor: actor
-        )
-      rescue ArgumentError => e
-        raise unless e.message == "Help sections belong under Support."
-
-        raise_invalid_parent_input!(e.message)
-      end
-
-      def create_page!(actor, attrs)
-        Pages.create!(
-          parent_recording: parent_recording!,
-          title: attrs[:title],
-          body: attrs[:body],
-          description: attrs[:description],
-          icon: attrs[:icon],
-          actor: actor
-        )
-      end
-
-      def parent_recording! # rubocop:disable Metrics/AbcSize -- kept recording lookup when the parent is not a section
-        return context.parent_recording if context.respond_to?(:parent_recording) && context.parent_recording
+      def parent_recording!
+        recording = context_parent_recording
+        return recording if recording
 
         parent_id = Payload.parent_id(context)
         raise_missing_parent! if parent_id.blank?
 
-        if context.recordable_type == Api::SECTION_TYPE
-          Lookup.workspace!(id: parent_id)
-        else
-          RecordingStudio::Recording.where(trashed_at: nil).find(parent_id)
-        end
+        find_kept_parent!(parent_id)
       rescue ActiveRecord::RecordNotFound
         Lookup.raise_not_found("Resource was not found")
+      end
+
+      def context_parent_recording
+        return unless context.respond_to?(:parent_recording)
+
+        context.parent_recording
+      end
+
+      def find_kept_parent!(parent_id)
+        return Lookup.workspace!(id: parent_id) if context.recordable_type == Api::SECTION_TYPE
+
+        RecordingStudio::Recording.where(trashed_at: nil).find(parent_id)
       end
 
       def raise_invalid_parent_input!(message)
@@ -94,33 +113,6 @@ module RecordingStudioSupport
         raise RecordingStudioApi::InvalidActionInputError.new(
           "parent_id is required for #{context.recordable_type}",
           details: details
-        )
-      end
-
-      def cached_idempotent_response
-        key = context.idempotency_key
-        return if key.blank? || !defined?(RecordingStudioApi::IdempotencyStore)
-
-        payload = RecordingStudioApi::IdempotencyStore.fetch(
-          api: context.api_key,
-          client_id: context.api_client.id,
-          key: key
-        )
-        return if payload.blank?
-
-        { json: payload.fetch("json"), status: payload.fetch("status", "created").to_sym }
-      end
-
-      def store_idempotent_response(result)
-        key = context.idempotency_key
-        return if key.blank? || !defined?(RecordingStudioApi::IdempotencyStore)
-
-        RecordingStudioApi::IdempotencyStore.write(
-          api: context.api_key,
-          client_id: context.api_client.id,
-          key: key,
-          payload: result.fetch(:json),
-          status: result.fetch(:status, :created).to_s
         )
       end
     end

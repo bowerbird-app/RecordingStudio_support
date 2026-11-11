@@ -2,7 +2,7 @@
 
 module RecordingStudioSupport
   module Api
-    module Registration # rubocop:disable Metrics/ModuleLength -- type registrations plus public/operations handlers
+    module Registration
       module_function
 
       PUBLIC_PAGE_OPERATIONS = %i[index show].freeze
@@ -38,18 +38,9 @@ module RecordingStudioSupport
       end
 
       def register_handlers!
-        register_page_read_handlers!
+        Handlers.register_reads!
         register_write_handlers!
-        register_public_section_refusals!
-      end
-
-      def register_page_read_handlers!
-        register_handler(PAGE_TYPE, :index, api: :public, handler: Index)
-        register_handler(PAGE_TYPE, :show, api: :public, handler: Show)
-        register_handler(SECTION_TYPE, :index, api: OPERATIONS_API, handler: Index)
-        register_handler(SECTION_TYPE, :show, api: OPERATIONS_API, handler: Show)
-        register_handler(PAGE_TYPE, :index, api: OPERATIONS_API, handler: Index)
-        register_handler(PAGE_TYPE, :show, api: OPERATIONS_API, handler: Show)
+        Handlers.register_public_refusals!
       end
 
       def register_write_handlers!
@@ -63,13 +54,6 @@ module RecordingStudioSupport
         register_handler(PAGE_TYPE, :publish, api: OPERATIONS_API, handler: Publish)
         register_handler(PAGE_TYPE, :unpublish, api: OPERATIONS_API, handler: Unpublish)
         register_handler(CENTER_TYPE, :create, api: OPERATIONS_API, handler: CreateCenter)
-      end
-
-      def register_public_section_refusals!
-        %i[index show create update destroy].each do |action|
-          register_handler(SECTION_TYPE, action, api: :public, handler: RefusePublicSections)
-          register_handler(CENTER_TYPE, action, api: :public, handler: RefusePublicCenters)
-        end
       end
 
       def register_handler(type, action, api:, handler:)
@@ -91,22 +75,30 @@ module RecordingStudioSupport
         )
       end
 
-      def register_pages!(api:, operations:, capability_actions:) # rubocop:disable Metrics/MethodLength -- optional auto_capability_actions for API 0.19+
-        extra = {}
-        names = RecordingStudioApi.method(:register_recordable_type_api).parameters.map(&:last)
-        extra[:auto_capability_actions] = false if api == :public && names.include?(:auto_capability_actions)
-
+      def register_pages!(api:, operations:, capability_actions:)
         RecordingStudioApi.register_recordable_type_api(
           PAGE_TYPE,
+          **page_registration_options(api, operations, capability_actions)
+        )
+      end
+
+      def page_registration_options(api, operations, capability_actions)
+        {
           api: api,
           serializer: Serialize::PAGE,
           output_keys: %i[title description icon body],
           writable_attributes: %i[title description icon body],
           sortable_attributes: %i[title],
           operations: operations,
-          capability_actions: capability_actions,
-          **extra
-        )
+          capability_actions: capability_actions
+        }.merge(page_registration_extra(api))
+      end
+
+      def page_registration_extra(api)
+        extra = {}
+        names = RecordingStudioApi.method(:register_recordable_type_api).parameters.map(&:last)
+        extra[:auto_capability_actions] = false if api == :public && names.include?(:auto_capability_actions)
+        extra
       end
 
       def pages_relationship(endpoints)
