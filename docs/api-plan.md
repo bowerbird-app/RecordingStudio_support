@@ -39,7 +39,7 @@ Support registers Metrics definitions; the host calls `RecordingStudioMetrics::A
 
 ## Registration
 
-Register SupportCenter, sections, and pages when `RecordingStudioApi` is defined (`to_prepare`). Resource names are `support_centers`, `support_sections`, and `support_pages`. Public is page reads only. Operations is SupportCenter `index` / `show` / `create` plus section reads and writes — pass `operations:` so `:read_only` does not apply. Do not register `GET support/search`. Do not register `support_sections` on public. Recording Studio API’s public surface still lists every host recordable type; an unregistered type gets default CRUD. Support handlers refuse public `support_sections` (and nested pages) so those calls stay `404` / unsupported without emptying `operations:` (the API gem treats `[]` as all CRUD).
+Register SupportCenter, sections, and pages when `RecordingStudioApi` is defined (`to_prepare`). Resource names are `support_centers`, `support_sections`, and `support_pages`. Pass `openapi: { tags: ["Support"], tag: { group: "Support" } }` on those type registrations so Scalar and MCP docs group them with Support. Public is page reads only. Operations is SupportCenter `index` / `show` / `create` plus section reads and writes — pass `operations:` so `:read_only` does not apply. Do not register `GET support/search`. Do not register `support_sections` on public. Recording Studio API’s public surface still lists every host recordable type; an unregistered type gets default CRUD. Support handlers refuse public `support_sections` (and nested pages) so those calls stay `404` / unsupported without emptying `operations:` (the API gem treats `[]` as all CRUD).
 
 ```ruby
 RecordingStudioApi.register_recordable_type_api(
@@ -51,6 +51,7 @@ RecordingStudioApi.register_recordable_type_api(
   output_keys: %i[title slug icon],
   writable_attributes: %i[title icon],
   operations: %i[index show create update destroy],
+  openapi: { tags: ["Support"], tag: { group: "Support" } },
   relationships: {
     pages: {
       source: :children,
@@ -85,7 +86,8 @@ RecordingStudioApi.register_recordable_type_api(
   },
   output_keys: %i[title description icon body],
   writable_attributes: %i[title description icon body],
-  operations: %i[index show]
+  operations: %i[index show],
+  openapi: { tags: ["Support"], tag: { group: "Support" } }
 )
 
 RecordingStudioApi.register_recordable_type_api(
@@ -102,7 +104,8 @@ RecordingStudioApi.register_recordable_type_api(
   output_keys: %i[title description icon body],
   writable_attributes: %i[title description icon body],
   operations: %i[index show create update destroy],
-  capability_actions: %i[move publish unpublish]
+  capability_actions: %i[move publish unpublish],
+  openapi: { tags: ["Support"], tag: { group: "Support" } }
 )
 ```
 

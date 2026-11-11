@@ -24,12 +24,15 @@ module RecordingStudioSupport
     SECTION_TYPE = "RecordingStudioSupport::SupportSection"
     PAGE_TYPE = "RecordingStudioSupport::SupportPage"
     TYPES = [SECTION_TYPE, PAGE_TYPE, CENTER_TYPE].freeze
+    SUPPORT_OPENAPI = { tags: ["Support"], tag: { group: "Support" } }.freeze
 
     class << self
       def register!
         return unless recording_studio_api_available?
 
         Registration.register!
+        register_openapi!(api: :public, types: [PAGE_TYPE])
+        register_openapi!(api: Registration::OPERATIONS_API, types: [SECTION_TYPE, PAGE_TYPE])
         true
       end
 
@@ -41,6 +44,20 @@ module RecordingStudioSupport
         defined?(RecordingStudioApi) &&
           RecordingStudioApi.respond_to?(:register_recordable_type_api) &&
           RecordingStudioApi.respond_to?(:register_resource_handler)
+      end
+
+      private
+
+      def register_openapi!(api:, types:)
+        types.each do |type|
+          existing = RecordingStudioApi.recordable_registration_for(type, api: api)
+          RecordingStudioApi.register_recordable_type_api(
+            type,
+            api: api,
+            openapi: SUPPORT_OPENAPI,
+            operations: existing&.operations
+          )
+        end
       end
     end
   end

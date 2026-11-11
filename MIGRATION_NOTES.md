@@ -1,5 +1,20 @@
 # Upgrade notes
 
+## 0.32.1
+
+API and MCP docs group Support pages, sections, and centers under Support. No host code change.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.32.1`.
+
+### Verify
+
+```bash
+bundle exec rake test
+bundle exec rubocop
+```
+
 ## 0.32.0
 
 SupportCenter is on the staff (`:operations`) API. Wrong parents are a 4xx `parent_id` error, not an internal error.
