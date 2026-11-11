@@ -20,6 +20,19 @@ module RecordingStudioSupport
       for_parent(default_parent_root)
     end
 
+    def kept
+      RecordingStudio::Recording.where(
+        recordable_type: TYPE,
+        trashed_at: nil
+      )
+    end
+
+    def create!(parent_recording:, actor: nil)
+      AssignActor.assign_actor(actor) do
+        parent_recording.record(SupportCenter)
+      end
+    end
+
     def current!
       current || raise(ArgumentError, "Create a SupportCenter under the configured parent root first.")
     end

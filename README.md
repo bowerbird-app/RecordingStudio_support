@@ -1,6 +1,6 @@
 # Recording Studio Support
 
-The support team writes help pages. People help themselves at `/help`. Signed-in users and the support team talk in a Support inbox. Tickets and help sections sit under a `SupportCenter` the host records once. Each ticket’s thread is a MessageGroup tagged to that ticket, not a parent.
+The support team writes help pages. People help themselves at `/help`. Signed-in users and the support team talk in a Support inbox. Tickets and help sections sit under a `SupportCenter`. Hosts usually record that center during setup. A later create makes another. Each ticket’s thread is a MessageGroup tagged to that ticket, not a parent.
 
 Help pages sit in a section under SupportCenter. Each page has a title and a formatted body. Pictures go in that body. A page can go to trash. The support team picks a section by moving the page. The support team lands in **Admin Support** (`/admin`). Write, preview, Publish, and uploads live under `/admin/support`. Access is Admin plus Accessible on the SupportCenter or its admin-root parent — not a workspace `:edit` grant. Logged-out visitors read at `/help` (slug URLs) and live pages under a section. Drafts stay hidden. Signed-in people open `/help/messages`; the support team opens `/admin/support/messages`. Both screens render the Messages gem chat partial — do not fork Chat::Layout or Chat::Panel. JSON for sections and pages is optional: add Recording Studio API in the **host** (dummy does). Gates stay Accessible. Endpoints: [docs/api.md](docs/api.md).
 
@@ -110,7 +110,7 @@ The install generator mounts Support screens at `/admin/support`, public help at
 
 ## SupportCenter
 
-Set `config.parent_root_type` **before models load**. Default is `"AdminRoot"`. Hosts record one SupportCenter under that root during setup. The gem does not auto-create it from Admin.
+Set `config.parent_root_type` **before models load**. Default is `"AdminRoot"`. Hosts usually record a SupportCenter under that root during setup. The gem does not auto-create it from Admin. Creating another SupportCenter is allowed.
 
 ```
 AdminRoot (config.parent_root_type)
@@ -375,13 +375,13 @@ Who can create, revise, publish, and trash is spelled out in [docs/process-flows
 
 ## JSON API
 
-Support does not gemspec-depend on `recording_studio_api`. If the host adds that gem, Support registers **public** page reads and **operations** section reads plus writes. Operations `SupportPage` `operations:` include those writes so MCP `describe` matches `PATCH`.
+Support does not gemspec-depend on `recording_studio_api`. If the host adds that gem, Support registers **public** page reads and **operations** SupportCenter (`index` / `show` / `create`) plus section reads and writes. Operations `SupportPage` `operations:` include those writes so MCP `describe` matches `PATCH`.
 
 Full contract for hosts and AI agents: **[docs/api.md](docs/api.md)** (auth, fields, search, examples). Design notes: [docs/api-plan.md](docs/api-plan.md).
 
 Public keeps only `GET support_pages` and `GET support_pages/:id`. Those use `:view` on the workspace that owns the page, or on the admin root. Admin-root readers see drafts. Workspace-only readers see live/`indexable` pages, matching `/help`.
 
-Section list/show and nested section-page reads live on `/recording_studio_api/apis/operations/v1/…` and authorize Accessible `:view` on the **admin root** (`can_view_as_support_team?`). Writes (`create` / `update` / trash / move / publish / unpublish) stay on operations and still need AdminRoot `:edit` — the same bar as `authorize_support!(:edit)`. A public token is rejected there. An operations actor without AdminRoot `:edit` is `403` on writes.
+SupportCenter list/show/create, section list/show, and nested section-page reads live on `/recording_studio_api/apis/operations/v1/…` and authorize Accessible `:view` on the **admin root** (`can_view_as_support_team?`). Writes (`create` / `update` / trash / move / publish / unpublish) stay on operations and still need AdminRoot `:edit` — the same bar as `authorize_support!(:edit)`. A public token is rejected there. An operations actor without AdminRoot `:edit` is `403` on writes.
 
 Bearer token: public `POST /recording_studio_api/oauth/token`; operations `POST /recording_studio_api/apis/operations/oauth/token` (`client_credentials`), then `Authorization: Bearer …`.
 
@@ -389,6 +389,9 @@ Bearer token: public `POST /recording_studio_api/oauth/token`; operations `POST 
 | --- | --- |
 | `GET` | `/recording_studio_api/api/v1/support_pages` |
 | `GET` | `/recording_studio_api/api/v1/support_pages/:id` |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_centers` |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_centers/:id` |
+| `POST` | `/recording_studio_api/apis/operations/v1/support_centers` |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_sections` |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_sections/:id` |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages` |

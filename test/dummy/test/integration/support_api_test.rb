@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "minitest/mock"
 
 class SupportApiTest < ActionDispatch::IntegrationTest
   PUBLIC_ROOT = "/recording_studio_api/api/v1"
@@ -76,6 +77,111 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     get "#{PUBLIC_ROOT}/support_pages", as: :json
 
     assert_response :unauthorized
+  end
+
+  test "operations editor can list show and create support centers" do
+    center = RecordingStudioSupport::SupportCenters.current
+
+    get "#{OPERATIONS_ROOT}/support_centers", headers: auth(@editor_operations_token), as: :json
+
+    assert_response :success
+    ids = response.parsed_body.fetch("records").map { |record| record.fetch("id") }
+    assert_includes ids, center.id
+
+    get "#{OPERATIONS_ROOT}/support_centers/#{center.id}",
+        headers: auth(@viewer_operations_token),
+        as: :json
+
+    assert_response :success
+    assert_equal center.id, response.parsed_body.fetch("id")
+    assert_equal "RecordingStudioSupport::SupportCenter", response.parsed_body.fetch("type")
+
+    post "#{OPERATIONS_ROOT}/support_centers",
+         headers: auth(@editor_operations_token),
+         params: { parent_id: @admin_root.id },
+         as: :json
+
+    assert_response :created
+    created_id = response.parsed_body.fetch("id")
+    created = RecordingStudio::Recording.find(created_id)
+    assert_equal "RecordingStudioSupport::SupportCenter", created.recordable_type
+    assert_equal @admin_root.id, created.parent_recording_id
+  end
+
+  test "public cannot list show or create support centers" do
+    center = RecordingStudioSupport::SupportCenters.current
+
+    get "#{PUBLIC_ROOT}/support_centers", headers: auth(@workspace_token), as: :json
+    assert_public_resource_unavailable
+
+    get "#{PUBLIC_ROOT}/support_centers/#{center.id}", headers: auth(@workspace_token), as: :json
+    assert_public_resource_unavailable
+
+    post "#{PUBLIC_ROOT}/support_centers",
+         headers: auth(@support_public_token),
+         params: { parent_id: @admin_root.id },
+         as: :json
+    assert_public_write_unavailable
+  end
+
+  test "support center create rejects a workspace parent" do
+    post "#{OPERATIONS_ROOT}/support_centers",
+         headers: auth(@editor_operations_token),
+         params: { parent_id: @root.id },
+         as: :json
+
+    assert_response :unprocessable_entity
+    body = response.parsed_body
+    details = body["details"] || body.dig("error", "details") || []
+    assert_predicate details, :present?, body
+    assert(details.any? { |detail| detail.fetch("attribute").to_s == "parent_id" }, body)
+  end
+
+  test "support center create maps InvalidParent to invalid_input" do
+    boom = lambda do |**|
+      raise RecordingStudio::InvalidParent, "RecordingStudioSupport::SupportCenter cannot be recorded under AdminRoot"
+    end
+    RecordingStudioSupport::SupportCenters.stub(:create!, boom) do
+      post "#{OPERATIONS_ROOT}/support_centers",
+           headers: auth(@editor_operations_token),
+           params: { parent_id: @admin_root.id },
+           as: :json
+    end
+
+    assert_response :unprocessable_entity
+    body = response.parsed_body
+    assert_equal "invalid_input", body["code"] || body.dig("error", "code")
+    details = body["details"] || body.dig("error", "details") || []
+    assert_predicate details, :present?, body
+    assert(details.any? { |detail| detail.fetch("attribute").to_s == "parent_id" }, body)
+  end
+
+  test "operations token without AdminRoot access is forbidden on support centers" do
+    get "#{OPERATIONS_ROOT}/support_centers", headers: auth(@workspace_operations_token), as: :json
+
+    assert_response :forbidden
+
+    post "#{OPERATIONS_ROOT}/support_centers",
+         headers: auth(@workspace_operations_token),
+         params: { parent_id: @admin_root.id },
+         as: :json
+
+    assert_response :forbidden
+  end
+
+  test "section create without a support center is a client error" do
+    RecordingStudioSupport::SupportCenters.kept.update_all(trashed_at: Time.current)
+
+    post "#{OPERATIONS_ROOT}/support_sections",
+         headers: auth(@editor_operations_token),
+         params: { title: "Orphan section", parent_id: @admin_root.id },
+         as: :json
+
+    assert_response :unprocessable_entity
+    body = response.parsed_body
+    details = body["details"] || body.dig("error", "details") || []
+    assert_predicate details, :present?, body
+    assert(details.any? { |detail| detail.fetch("attribute").to_s == "parent_id" }, body)
   end
 
   test "public section routes are not found or unsupported" do
@@ -576,6 +682,10 @@ class SupportApiTest < ActionDispatch::IntegrationTest
       "RecordingStudioSupport::SupportSection",
       api: :operations
     )
+    operations_center = RecordingStudioApi.recordable_registration_for(
+      "RecordingStudioSupport::SupportCenter",
+      api: :operations
+    )
 
     assert_equal %i[index show], public_page.operations
     refute public_page.supports_operation?(:update)
@@ -590,6 +700,9 @@ class SupportApiTest < ActionDispatch::IntegrationTest
 
     assert_equal %i[create destroy index show update], operations_section.operations
     assert operations_section.supports_operation?(:update)
+
+    assert_equal %i[create index show], operations_center.operations
+    refute operations_center.supports_operation?(:update)
   end
 
   test "page and section lists accept an API Page pagination payload" do

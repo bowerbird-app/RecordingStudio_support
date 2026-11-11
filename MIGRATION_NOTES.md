@@ -1,5 +1,21 @@
 # Upgrade notes
 
+## 0.32.0
+
+SupportCenter is on the staff (`:operations`) API. Wrong parents are a 4xx `parent_id` error, not an internal error.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.32.0`.
+2. On a fresh database, create the center with operations `POST …/support_centers` and `parent_id` of the AdminRoot recording, or keep recording it in setup.
+
+### Verify
+
+```bash
+bundle exec rake test
+bundle exec rubocop
+```
+
 ## 0.31.0
 
 Support-team public names now say support inbox or support ticket. There are no aliases. Follow CHANGELOG 0.31.0 for the old-to-new map.

@@ -40,6 +40,10 @@ module RecordingStudioSupport
           icon: attrs[:icon],
           actor: actor
         )
+      rescue ArgumentError => e
+        raise unless e.message == "Help sections belong under Support."
+
+        raise_invalid_parent_input!(e.message)
       end
 
       def create_page!(actor, attrs)
@@ -64,6 +68,16 @@ module RecordingStudioSupport
         else
           Lookup.section!(id: parent_id)
         end
+      end
+
+      def raise_invalid_parent_input!(message)
+        details = [{
+          attribute: :parent_id,
+          message: "is not allowed for #{context.recordable_type}",
+          full_message: message,
+          type: :invalid
+        }]
+        raise RecordingStudioApi::InvalidActionInputError.new(message, details: details)
       end
 
       def raise_missing_parent!

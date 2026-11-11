@@ -5,6 +5,14 @@ module RecordingStudioSupport
     module Lookup
       module_function
 
+      def center!(id:)
+        raise_not_found("Resource was not found") if id.blank?
+
+        SupportCenters.kept.find(id)
+      rescue ActiveRecord::RecordNotFound
+        raise_not_found("Resource was not found")
+      end
+
       def page!(id:, include_trashed: false)
         raise_not_found("Resource was not found") if id.blank?
 
@@ -29,6 +37,16 @@ module RecordingStudioSupport
         recording = RecordingStudio::Recording.where(trashed_at: nil).find(id)
         raise_not_found("Parent resource was not found") unless Sections.allowed_parent_root?(recording)
 
+        recording
+      rescue ActiveRecord::RecordNotFound
+        raise_not_found("Parent resource was not found")
+      end
+
+      def parent_root!(id:)
+        raise_not_found("Parent resource was not found") if id.blank?
+
+        recording = RecordingStudio::Recording.where(trashed_at: nil).find(id)
+        RecordingStudio.assert_parent_allowed!(child_type: Api::CENTER_TYPE, parent_recording: recording)
         recording
       rescue ActiveRecord::RecordNotFound
         raise_not_found("Parent resource was not found")

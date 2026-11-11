@@ -16,6 +16,7 @@ module RecordingStudioSupport
       def register!
         register_public!
         register_operations!
+        CenterType.register!
         register_handlers!
       end
 
@@ -61,11 +62,13 @@ module RecordingStudioSupport
         register_handler(PAGE_TYPE, :move, api: OPERATIONS_API, handler: Move)
         register_handler(PAGE_TYPE, :publish, api: OPERATIONS_API, handler: Publish)
         register_handler(PAGE_TYPE, :unpublish, api: OPERATIONS_API, handler: Unpublish)
+        register_handler(CENTER_TYPE, :create, api: OPERATIONS_API, handler: CreateCenter)
       end
 
       def register_public_section_refusals!
         %i[index show create update destroy].each do |action|
           register_handler(SECTION_TYPE, action, api: :public, handler: RefusePublicSections)
+          register_handler(CENTER_TYPE, action, api: :public, handler: RefusePublicCenters)
         end
       end
 

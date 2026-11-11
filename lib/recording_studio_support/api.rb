@@ -4,21 +4,26 @@ require_relative "api/access"
 require_relative "api/lookup"
 require_relative "api/payload"
 require_relative "api/serialize"
+require_relative "api/center_type"
 require_relative "api/registration"
 require_relative "api/create"
+require_relative "api/create_center"
 require_relative "api/update"
 require_relative "api/destroy"
 require_relative "api/index"
 require_relative "api/show"
+require_relative "api/show_center"
 require_relative "api/move"
 require_relative "api/publishable_transition"
 require_relative "api/refuse_public_sections"
+require_relative "api/refuse_public_centers"
 
 module RecordingStudioSupport
   module Api
+    CENTER_TYPE = "RecordingStudioSupport::SupportCenter"
     SECTION_TYPE = "RecordingStudioSupport::SupportSection"
     PAGE_TYPE = "RecordingStudioSupport::SupportPage"
-    TYPES = [SECTION_TYPE, PAGE_TYPE].freeze
+    TYPES = [SECTION_TYPE, PAGE_TYPE, CENTER_TYPE].freeze
 
     class << self
       def register!
