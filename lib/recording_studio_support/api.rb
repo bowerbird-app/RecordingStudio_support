@@ -6,8 +6,6 @@ require_relative "api/payload"
 require_relative "api/serialize"
 require_relative "api/center_type"
 require_relative "api/registration"
-require_relative "api/registration/handlers"
-require_relative "api/idempotency"
 require_relative "api/create"
 require_relative "api/create_center"
 require_relative "api/update"
@@ -34,7 +32,7 @@ module RecordingStudioSupport
 
         Registration.register!
         register_openapi!(api: :public, types: [PAGE_TYPE])
-        register_openapi!(api: Registration::OPERATIONS_API, types: [SECTION_TYPE, PAGE_TYPE, CENTER_TYPE])
+        register_openapi!(api: Registration::OPERATIONS_API, types: [SECTION_TYPE, PAGE_TYPE])
         true
       end
 
