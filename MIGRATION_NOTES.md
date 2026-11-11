@@ -2,7 +2,7 @@
 
 ## 0.32.2
 
-Wrong-parent SupportPage create is `invalid_input`. Section and page writes pass `actor:`. Public SupportPage describe does not advertise writes. Operations OpenAPI includes SupportCenter.
+Wrong-parent SupportPage create is `invalid_input`. Section, page, and SupportCenter writes pass `actor:`.
 
 ### Host app
 

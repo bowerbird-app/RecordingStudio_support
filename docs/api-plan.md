@@ -87,7 +87,6 @@ RecordingStudioApi.register_recordable_type_api(
   output_keys: %i[title description icon body],
   writable_attributes: %i[title description icon body],
   operations: %i[index show],
-  auto_capability_actions: false,
   openapi: { tags: ["Support"], tag: { group: "Support" } }
 )
 

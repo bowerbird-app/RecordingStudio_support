@@ -30,17 +30,20 @@ class ApiTest < Minitest::Test
     assert_includes create_center, "raise_invalid_parent_input!"
     lookup = File.read(File.expand_path("../lib/recording_studio_support/api/lookup.rb", __dir__))
     assert_includes lookup, "assert_parent_allowed!"
+    assert_includes lookup, "def kept_recording!"
     assert_includes create, "Sections.create!"
     assert_includes create, "Pages.create!"
     assert_includes create, "InvalidActionInputError"
     assert_includes create, "Help sections belong under Support."
     assert_includes create, "InvalidParent"
-    assert_includes create, "where(trashed_at: nil).find(parent_id)"
+    assert_includes create, "Lookup.kept_recording!"
     refute_includes create, "Lookup.section!"
     pages = File.read(File.expand_path("../lib/recording_studio_support/pages.rb", __dir__))
     sections = File.read(File.expand_path("../lib/recording_studio_support/sections.rb", __dir__))
     assert_includes pages, "actor: actor"
     assert_includes sections, "actor: actor"
+    centers = File.read(File.expand_path("../lib/recording_studio_support/support_centers.rb", __dir__))
+    assert_includes centers, "parent_recording.record(SupportCenter, actor: actor)"
     assert_includes update, "Sections.revise!"
     assert_includes update, "Pages.revise!"
     assert_includes destroy, "Sections.trash!"
@@ -96,8 +99,9 @@ class ApiTest < Minitest::Test
     assert_includes registration, "ADMIN_PAGE_OPERATIONS = (READ_OPERATIONS + WRITE_OPERATIONS)"
     assert_includes registration, "operations: ADMIN_PAGE_OPERATIONS"
     assert_includes registration, "operations: PUBLIC_PAGE_OPERATIONS"
-    assert_includes registration, "extra[:auto_capability_actions] = false"
-    assert_includes api, "types: [SECTION_TYPE, PAGE_TYPE, CENTER_TYPE]"
+    refute_includes registration, "auto_capability_actions"
+    assert_includes api, "types: [SECTION_TYPE, PAGE_TYPE]"
+    refute_includes api, "types: [SECTION_TYPE, PAGE_TYPE, CENTER_TYPE]"
     assert_includes registration, "CenterType.register!"
     assert_includes registration, "handler: CreateCenter"
     center_type = File.read(File.expand_path("../lib/recording_studio_support/api/center_type.rb", __dir__))

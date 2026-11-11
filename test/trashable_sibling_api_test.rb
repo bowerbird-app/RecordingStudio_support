@@ -10,7 +10,7 @@ class TrashableSiblingApiTest < Minitest::Test
     "lib/recording_studio_support/pages/counts.rb" => %w[kept_pages_for_sections],
     "lib/recording_studio_support/sections.rb" => %w[kept kept_sections],
     "lib/recording_studio_support/sections/lookups.rb" => %w[find_kept! default_parent_root],
-    "lib/recording_studio_support/api/lookup.rb" => %w[workspace!],
+    "lib/recording_studio_support/api/lookup.rb" => %w[kept_recording!],
     "lib/recording_studio_support/admin/queries.rb" => %w[kept_page_recordings]
   }.freeze
 
