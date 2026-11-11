@@ -1,5 +1,20 @@
 # Upgrade notes
 
+## 0.32.2
+
+Wrong-parent SupportPage create is `invalid_input`. Section and page writes pass `actor:`. Public SupportPage describe does not advertise writes. Operations OpenAPI includes SupportCenter.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.32.2`.
+
+### Verify
+
+```bash
+bundle exec rake test
+bundle exec rubocop
+```
+
 ## 0.32.1
 
 API and MCP docs group Support pages, sections, and centers under Support. No host code change.

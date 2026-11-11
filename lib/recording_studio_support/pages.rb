@@ -17,7 +17,8 @@ module RecordingStudioSupport
       assign_actor(actor) do
         parent_recording.root_recording.record(
           SupportPage,
-          parent_recording: parent_recording
+          parent_recording: parent_recording,
+          actor: actor
         ) do |page|
           page.title = title.to_s.strip
           page.description = description.to_s.strip.presence
@@ -29,7 +30,7 @@ module RecordingStudioSupport
 
     def revise!(recording:, title:, body:, description: nil, icon: nil, actor: nil)
       assign_actor(actor) do
-        recording.root_recording.revise(recording) do |page|
+        recording.root_recording.revise(recording, actor: actor) do |page|
           page.title = title.to_s.strip
           page.description = description.to_s.strip.presence
           page.icon = icon

@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.32.2] - 2026-11-11
+
+Page create with a non-section parent returns the same invalid `parent_id` error as section create. Section and page writes pass `actor:` into `record` / `revise`. Public SupportPage describe no longer advertises writes. Operations OpenAPI registration includes SupportCenter.
+
+### Fixed
+- `SupportPage` create looks up `parent_id` as a kept recording, not `Lookup.section!`. A present AdminRoot (or other non-section) parent raises `InvalidActionInputError` with a `parent_id` detail, same helper as section create when the center is missing or Recording Studio rejects the parent (`InvalidParent`).
+- `Sections.create!` / `Pages.create!` / `revise!` pass `actor:` into `record` and `revise`, so core `ActorRequired` does not leak as an MCP internal error when `Current.actor` is unset.
+
+### Changed
+- Public `SupportPage` registration sets `auto_capability_actions: false` when Recording Studio API supports that option, so `describe` does not advertise writable fields or publish on a read-only type.
+- `register_openapi!` for `:operations` includes `CENTER_TYPE`. `CenterType.register!` still owns the SupportCenter type registration.
+
+### Upgrade notes
+- Bump to `0.32.2`. No host code change. Hosts on API `0.19.0+` stop seeing public SupportPage write actions in describe.
+
 ## [0.32.1] - 2026-11-11
 
 Support pages, sections, and centers sit in the Support group in API and MCP docs.
@@ -1135,7 +1150,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.32.1...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.32.2...HEAD
+[0.32.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.32.1...v0.32.2
 [0.32.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.32.0...v0.32.1
 [0.32.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.31.0...v0.32.0
 [0.31.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.30.0...v0.31.0

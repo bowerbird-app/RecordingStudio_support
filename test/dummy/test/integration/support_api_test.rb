@@ -169,6 +169,19 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
+  test "page create with a non-section parent is a client error" do
+    post "#{OPERATIONS_ROOT}/support_pages",
+         headers: auth(@editor_operations_token),
+         params: { title: "Orphan page", body: "<p>Hi</p>", parent_id: @admin_root.id },
+         as: :json
+
+    assert_response :unprocessable_entity
+    body = response.parsed_body
+    details = body["details"] || body.dig("error", "details") || []
+    assert_predicate details, :present?, body
+    assert(details.any? { |detail| detail.fetch("attribute").to_s == "parent_id" }, body)
+  end
+
   test "section create without a support center is a client error" do
     RecordingStudioSupport::SupportCenters.kept.update_all(trashed_at: Time.current)
 
@@ -688,6 +701,9 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     )
 
     assert_equal %i[index show], public_page.operations
+    if public_page.respond_to?(:auto_capability_actions)
+      refute public_page.auto_capability_actions
+    end
     refute public_page.supports_operation?(:update)
     refute public_page.supports_operation?(:create)
     refute public_page.supports_operation?(:destroy)

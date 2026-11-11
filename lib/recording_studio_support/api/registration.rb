@@ -92,6 +92,10 @@ module RecordingStudioSupport
       end
 
       def register_pages!(api:, operations:, capability_actions:)
+        extra = {}
+        names = RecordingStudioApi.method(:register_recordable_type_api).parameters.map(&:last)
+        extra[:auto_capability_actions] = false if api == :public && names.include?(:auto_capability_actions)
+
         RecordingStudioApi.register_recordable_type_api(
           PAGE_TYPE,
           api: api,
@@ -100,7 +104,8 @@ module RecordingStudioSupport
           writable_attributes: %i[title description icon body],
           sortable_attributes: %i[title],
           operations: operations,
-          capability_actions: capability_actions
+          capability_actions: capability_actions,
+          **extra
         )
       end
 

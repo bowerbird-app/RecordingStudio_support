@@ -34,6 +34,13 @@ class ApiTest < Minitest::Test
     assert_includes create, "Pages.create!"
     assert_includes create, "InvalidActionInputError"
     assert_includes create, "Help sections belong under Support."
+    assert_includes create, "InvalidParent"
+    assert_includes create, "where(trashed_at: nil).find(parent_id)"
+    refute_includes create, "Lookup.section!"
+    pages = File.read(File.expand_path("../lib/recording_studio_support/pages.rb", __dir__))
+    sections = File.read(File.expand_path("../lib/recording_studio_support/sections.rb", __dir__))
+    assert_includes pages, "actor: actor"
+    assert_includes sections, "actor: actor"
     assert_includes update, "Sections.revise!"
     assert_includes update, "Pages.revise!"
     assert_includes destroy, "Sections.trash!"
@@ -89,6 +96,8 @@ class ApiTest < Minitest::Test
     assert_includes registration, "ADMIN_PAGE_OPERATIONS = (READ_OPERATIONS + WRITE_OPERATIONS)"
     assert_includes registration, "operations: ADMIN_PAGE_OPERATIONS"
     assert_includes registration, "operations: PUBLIC_PAGE_OPERATIONS"
+    assert_includes registration, "extra[:auto_capability_actions] = false"
+    assert_includes api, "types: [SECTION_TYPE, PAGE_TYPE, CENTER_TYPE]"
     assert_includes registration, "CenterType.register!"
     assert_includes registration, "handler: CreateCenter"
     center_type = File.read(File.expand_path("../lib/recording_studio_support/api/center_type.rb", __dir__))

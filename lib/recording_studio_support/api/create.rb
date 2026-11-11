@@ -44,6 +44,8 @@ module RecordingStudioSupport
         raise unless e.message == "Help sections belong under Support."
 
         raise_invalid_parent_input!(e.message)
+      rescue RecordingStudio::InvalidParent => e
+        raise_invalid_parent_input!(e.message)
       end
 
       def create_page!(actor, attrs)
@@ -55,6 +57,8 @@ module RecordingStudioSupport
           icon: attrs[:icon],
           actor: actor
         )
+      rescue RecordingStudio::InvalidParent => e
+        raise_invalid_parent_input!(e.message)
       end
 
       def parent_recording!
@@ -66,8 +70,10 @@ module RecordingStudioSupport
         if context.recordable_type == Api::SECTION_TYPE
           Lookup.workspace!(id: parent_id)
         else
-          Lookup.section!(id: parent_id)
+          RecordingStudio::Recording.where(trashed_at: nil).find(parent_id)
         end
+      rescue ActiveRecord::RecordNotFound
+        Lookup.raise_not_found("Resource was not found")
       end
 
       def raise_invalid_parent_input!(message)

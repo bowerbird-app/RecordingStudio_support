@@ -22,7 +22,7 @@ bin/rails db:migrate
 
 Mount the engine (dummy uses `/recording_studio_api`). Enable `:accessible` and `:api_access_point` on roots that hold API keys. Dummy does this on `Workspace` and `AdminRoot`.
 
-Name the Admin API `:operations` (`default_access :read_only`). Support registers **page reads** on the public API and **SupportCenter reads/create plus section reads and writes** on `:operations`. Page writes on operations include `create` / `update` / `destroy` in `operations:` so MCP `describe` matches the handlers. Handlers register with `register_resource_handler` and call `Pages` / `Sections`. From API `0.6.9`, registered handlers receive raw ids (`id`, `parent_id`, `relationship_id`) and look up kept Support records themselves. Pass `operations:` explicitly on the operations registrations so the named-API read-only default does not apply. List handlers read `PaginateResourceCollection` `Page` or a Hash.
+Name the Admin API `:operations` (`default_access :read_only`). Support registers **page reads** on the public API and **SupportCenter reads/create plus section reads and writes** on `:operations`. Page writes on operations include `create` / `update` / `destroy` in `operations:` so MCP `describe` matches the handlers. Public SupportPage sets `auto_capability_actions: false` (API `0.19.0+`) so describe does not advertise writes or publish. Handlers register with `register_resource_handler` and call `Pages` / `Sections`. From API `0.6.9`, registered handlers receive raw ids (`id`, `parent_id`, `relationship_id`) and look up kept Support records themselves. Pass `operations:` explicitly on the operations registrations so the named-API read-only default does not apply. List handlers read `PaginateResourceCollection` `Page` or a Hash. `register_openapi!` includes SupportCenter on `:operations`; `CenterType.register!` still registers that type.
 
 Provision operations clients on **AdminRoot** (featured_in). Support handlers find Workspace help by id and authorize AdminRoot `:view` / `:edit`. Move accepts `parent_id`, `destination_id`, or `new_parent_id`. Section create ignores trashed parents.
 
@@ -153,5 +153,7 @@ Content-Type: application/json
 
 { "title": "How do I get a receipt?", "body": "<p>Open Billing.</p>", "parent_id": "<section_recording_id>" }
 ```
+
+A page `parent_id` that is not a SupportSection (for example an AdminRoot id) is `invalid_input` with a `parent_id` detail, same as section create when the parent is not a SupportCenter. A missing parent recording is still not found. Writes pass `actor:` into `record` / `revise`.
 
 Design notes (handlers): [api-plan.md](api-plan.md).

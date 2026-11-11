@@ -32,7 +32,7 @@ module RecordingStudioSupport
 
         Registration.register!
         register_openapi!(api: :public, types: [PAGE_TYPE])
-        register_openapi!(api: Registration::OPERATIONS_API, types: [SECTION_TYPE, PAGE_TYPE])
+        register_openapi!(api: Registration::OPERATIONS_API, types: [SECTION_TYPE, PAGE_TYPE, CENTER_TYPE])
         true
       end
 
