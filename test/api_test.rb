@@ -27,6 +27,9 @@ class ApiTest < Minitest::Test
     create_center = File.read(File.expand_path("../lib/recording_studio_support/api/create_center.rb", __dir__))
     assert_includes create_center, "SupportCenters.create!"
     assert_includes create_center, "InvalidParent"
+    assert_includes create_center, "raise_invalid_parent_input!"
+    lookup = File.read(File.expand_path("../lib/recording_studio_support/api/lookup.rb", __dir__))
+    assert_includes lookup, "assert_parent_allowed!"
     assert_includes create, "Sections.create!"
     assert_includes create, "Pages.create!"
     assert_includes create, "InvalidActionInputError"

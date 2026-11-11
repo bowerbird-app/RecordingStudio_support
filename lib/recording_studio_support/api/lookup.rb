@@ -46,9 +46,8 @@ module RecordingStudioSupport
         raise_not_found("Parent resource was not found") if id.blank?
 
         recording = RecordingStudio::Recording.where(trashed_at: nil).find(id)
-        return recording if recording.recordable_type == RecordingStudioSupport.parent_root_type
-
-        raise RecordingStudio::InvalidParent, "parent_id is not allowed for #{Api::CENTER_TYPE}"
+        RecordingStudio.assert_parent_allowed!(child_type: Api::CENTER_TYPE, parent_recording: recording)
+        recording
       rescue ActiveRecord::RecordNotFound
         raise_not_found("Parent resource was not found")
       end

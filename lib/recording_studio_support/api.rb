@@ -23,7 +23,7 @@ module RecordingStudioSupport
     CENTER_TYPE = "RecordingStudioSupport::SupportCenter"
     SECTION_TYPE = "RecordingStudioSupport::SupportSection"
     PAGE_TYPE = "RecordingStudioSupport::SupportPage"
-    TYPES = [CENTER_TYPE, SECTION_TYPE, PAGE_TYPE].freeze
+    TYPES = [SECTION_TYPE, PAGE_TYPE, CENTER_TYPE].freeze
 
     class << self
       def register!
