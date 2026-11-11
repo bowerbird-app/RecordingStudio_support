@@ -5,10 +5,8 @@ module RecordingStudioSupport
     module Lookup
       module_function
 
-      def center!(id:, include_trashed: false)
+      def center!(id:)
         raise_not_found("Resource was not found") if id.blank?
-
-        return RecordingStudio::Recording.where(recordable_type: Api::CENTER_TYPE).find(id) if include_trashed
 
         SupportCenters.kept.find(id)
       rescue ActiveRecord::RecordNotFound

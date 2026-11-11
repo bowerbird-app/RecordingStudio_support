@@ -24,10 +24,12 @@ class ApiTest < Minitest::Test
     move = File.read(File.expand_path("../lib/recording_studio_support/api/move.rb", __dir__))
     access = File.read(File.expand_path("../lib/recording_studio_support/api/access.rb", __dir__))
 
-    assert_includes create, "SupportCenters.create!"
+    create_center = File.read(File.expand_path("../lib/recording_studio_support/api/create_center.rb", __dir__))
+    assert_includes create_center, "SupportCenters.create!"
+    assert_includes create_center, "InvalidParent"
     assert_includes create, "Sections.create!"
     assert_includes create, "Pages.create!"
-    assert_includes create, "InvalidParent"
+    assert_includes create, "InvalidActionInputError"
     assert_includes create, "Help sections belong under Support."
     assert_includes update, "Sections.revise!"
     assert_includes update, "Pages.revise!"
@@ -84,8 +86,10 @@ class ApiTest < Minitest::Test
     assert_includes registration, "operations: ADMIN_PAGE_OPERATIONS"
     assert_includes registration, "operations: PUBLIC_PAGE_OPERATIONS"
     assert_includes registration, "CenterType.register!"
+    assert_includes registration, "handler: CreateCenter"
     center_type = File.read(File.expand_path("../lib/recording_studio_support/api/center_type.rb", __dir__))
     assert_includes center_type, "CENTER_TYPE"
+    assert_includes center_type, "handler: ShowCenter"
   end
 
   def test_lib_and_app_do_not_prepend_other_gems

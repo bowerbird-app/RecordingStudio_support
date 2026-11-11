@@ -12,7 +12,7 @@ module RecordingStudioSupport
       end
 
       def call
-        recording = center_recording || target_recording
+        recording = target_recording
         if Access.operations_api?(context)
           Access.authorize_support_team_view!(context)
         else
@@ -38,12 +38,6 @@ module RecordingStudioSupport
         else
           Lookup.page!(id: Payload.member_id(context))
         end
-      end
-
-      def center_recording
-        return unless context.recordable_type == Api::CENTER_TYPE
-
-        Lookup.center!(id: Payload.member_id(context))
       end
 
       def hide_draft!(recording)

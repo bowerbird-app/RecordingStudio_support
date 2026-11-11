@@ -62,7 +62,7 @@ module RecordingStudioSupport
         register_handler(PAGE_TYPE, :move, api: OPERATIONS_API, handler: Move)
         register_handler(PAGE_TYPE, :publish, api: OPERATIONS_API, handler: Publish)
         register_handler(PAGE_TYPE, :unpublish, api: OPERATIONS_API, handler: Unpublish)
-        register_handler(CENTER_TYPE, :create, api: OPERATIONS_API, handler: Create)
+        register_handler(CENTER_TYPE, :create, api: OPERATIONS_API, handler: CreateCenter)
       end
 
       def register_public_section_refusals!

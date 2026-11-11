@@ -26,24 +26,11 @@ module RecordingStudioSupport
       attr_reader :context
 
       def create_recording!
-        write_recording!
-      rescue RecordingStudio::InvalidParent => e
-        details = [{ attribute: :parent_id, message: "is not allowed for #{context.recordable_type}",
-                     full_message: e.message, type: :invalid }]
-        raise RecordingStudioApi::InvalidActionInputError.new(e.message, details: details)
-      end
-
-      def write_recording!
         actor = Access.write_actor(context)
         attrs = Payload.attributes(context)
-        return create_center!(actor) if context.recordable_type == Api::CENTER_TYPE
         return create_section!(actor, attrs) if context.recordable_type == Api::SECTION_TYPE
 
         create_page!(actor, attrs)
-      end
-
-      def create_center!(actor)
-        SupportCenters.create!(parent_recording: parent_recording!, actor: actor)
       end
 
       def create_section!(actor, attrs)
@@ -56,7 +43,7 @@ module RecordingStudioSupport
       rescue ArgumentError => e
         raise unless e.message == "Help sections belong under Support."
 
-        raise RecordingStudio::InvalidParent, e.message
+        raise_invalid_parent_input!(e.message)
       end
 
       def create_page!(actor, attrs)
@@ -75,10 +62,22 @@ module RecordingStudioSupport
 
         parent_id = Payload.parent_id(context)
         raise_missing_parent! if parent_id.blank?
-        type = context.recordable_type
-        return Lookup.parent_root!(id: parent_id) if type == Api::CENTER_TYPE
 
-        type == Api::SECTION_TYPE ? Lookup.workspace!(id: parent_id) : Lookup.section!(id: parent_id)
+        if context.recordable_type == Api::SECTION_TYPE
+          Lookup.workspace!(id: parent_id)
+        else
+          Lookup.section!(id: parent_id)
+        end
+      end
+
+      def raise_invalid_parent_input!(message)
+        details = [{
+          attribute: :parent_id,
+          message: "is not allowed for #{context.recordable_type}",
+          full_message: message,
+          type: :invalid
+        }]
+        raise RecordingStudioApi::InvalidActionInputError.new(message, details: details)
       end
 
       def raise_missing_parent!
