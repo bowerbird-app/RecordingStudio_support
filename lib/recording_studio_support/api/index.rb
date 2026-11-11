@@ -91,10 +91,15 @@ module RecordingStudioSupport
       end
 
       def filtered_recordings
+        return center_recordings if context.recordable_type == Api::CENTER_TYPE
         return section_recordings if context.recordable_type == Api::SECTION_TYPE
         return nested_page_recordings if nested_section_id.present?
 
         page_recordings
+      end
+
+      def center_recordings
+        SupportCenters.kept
       end
 
       def nested_page_recordings

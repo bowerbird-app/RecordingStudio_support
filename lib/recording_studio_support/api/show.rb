@@ -28,16 +28,20 @@ module RecordingStudioSupport
       attr_reader :context
 
       def target_recording
-        if context.recordable_type == Api::SECTION_TYPE
-          Lookup.section!(id: Payload.member_id(context))
-        elsif Payload.nested?(context)
-          Lookup.page_in_section!(
-            section: Lookup.section!(id: context.parent_id),
-            id: context.relationship_id
-          )
-        else
-          Lookup.page!(id: Payload.member_id(context))
+        case context.recordable_type
+        when Api::CENTER_TYPE then Lookup.center!(id: Payload.member_id(context))
+        when Api::SECTION_TYPE then Lookup.section!(id: Payload.member_id(context))
+        else page_recording
         end
+      end
+
+      def page_recording
+        return Lookup.page!(id: Payload.member_id(context)) unless Payload.nested?(context)
+
+        Lookup.page_in_section!(
+          section: Lookup.section!(id: context.parent_id),
+          id: context.relationship_id
+        )
       end
 
       def hide_draft!(recording)

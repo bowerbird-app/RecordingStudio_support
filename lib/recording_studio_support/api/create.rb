@@ -28,9 +28,19 @@ module RecordingStudioSupport
       def create_recording!
         actor = Access.write_actor(context)
         attrs = Payload.attributes(context)
+        return create_center!(actor) if context.recordable_type == Api::CENTER_TYPE
         return create_section!(actor, attrs) if context.recordable_type == Api::SECTION_TYPE
 
         create_page!(actor, attrs)
+      rescue RecordingStudio::InvalidParent => e
+        Lookup.raise_invalid_parent!(context.recordable_type, e.message)
+      end
+
+      def create_center!(actor)
+        SupportCenters.create!(
+          parent_recording: parent_recording!,
+          actor: actor
+        )
       end
 
       def create_section!(actor, attrs)
@@ -40,6 +50,8 @@ module RecordingStudioSupport
           icon: attrs[:icon],
           actor: actor
         )
+      rescue ArgumentError => e
+        Lookup.raise_invalid_parent!(context.recordable_type, e.message)
       end
 
       def create_page!(actor, attrs)
@@ -59,10 +71,14 @@ module RecordingStudioSupport
         parent_id = Payload.parent_id(context)
         raise_missing_parent! if parent_id.blank?
 
-        if context.recordable_type == Api::SECTION_TYPE
-          Lookup.workspace!(id: parent_id)
-        else
-          Lookup.section!(id: parent_id)
+        lookup_parent!(parent_id)
+      end
+
+      def lookup_parent!(parent_id)
+        case context.recordable_type
+        when Api::CENTER_TYPE then Lookup.parent_root!(id: parent_id)
+        when Api::SECTION_TYPE then Lookup.workspace!(id: parent_id)
+        else Lookup.section!(id: parent_id)
         end
       end
 

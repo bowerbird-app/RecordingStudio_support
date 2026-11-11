@@ -24,16 +24,11 @@ module RecordingStudioSupport
       end
 
       def register_operations!
-        register_sections!(
-          api: OPERATIONS_API,
-          operations: ADMIN_SECTION_OPERATIONS,
-          relationship_endpoints: ADMIN_NESTED_PAGE_OPERATIONS
-        )
-        register_pages!(
-          api: OPERATIONS_API,
-          operations: ADMIN_PAGE_OPERATIONS,
-          capability_actions: %i[move publish unpublish]
-        )
+        CenterType.register!
+        register_sections!(api: OPERATIONS_API, operations: ADMIN_SECTION_OPERATIONS,
+                           relationship_endpoints: ADMIN_NESTED_PAGE_OPERATIONS)
+        register_pages!(api: OPERATIONS_API, operations: ADMIN_PAGE_OPERATIONS,
+                        capability_actions: %i[move publish unpublish])
       end
 
       def register_handlers!
@@ -45,10 +40,10 @@ module RecordingStudioSupport
       def register_page_read_handlers!
         register_handler(PAGE_TYPE, :index, api: :public, handler: Index)
         register_handler(PAGE_TYPE, :show, api: :public, handler: Show)
-        register_handler(SECTION_TYPE, :index, api: OPERATIONS_API, handler: Index)
-        register_handler(SECTION_TYPE, :show, api: OPERATIONS_API, handler: Show)
-        register_handler(PAGE_TYPE, :index, api: OPERATIONS_API, handler: Index)
-        register_handler(PAGE_TYPE, :show, api: OPERATIONS_API, handler: Show)
+        [CENTER_TYPE, SECTION_TYPE, PAGE_TYPE].each do |type|
+          register_handler(type, :index, api: OPERATIONS_API, handler: Index)
+          register_handler(type, :show, api: OPERATIONS_API, handler: Show)
+        end
       end
 
       def register_write_handlers!
@@ -61,11 +56,13 @@ module RecordingStudioSupport
         register_handler(PAGE_TYPE, :move, api: OPERATIONS_API, handler: Move)
         register_handler(PAGE_TYPE, :publish, api: OPERATIONS_API, handler: Publish)
         register_handler(PAGE_TYPE, :unpublish, api: OPERATIONS_API, handler: Unpublish)
+        register_handler(CENTER_TYPE, :create, api: OPERATIONS_API, handler: Create)
       end
 
       def register_public_section_refusals!
         %i[index show create update destroy].each do |action|
           register_handler(SECTION_TYPE, action, api: :public, handler: RefusePublicSections)
+          register_handler(CENTER_TYPE, action, api: :public, handler: RefusePublicSections)
         end
       end
 

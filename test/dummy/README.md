@@ -77,6 +77,7 @@ OTP is off (`otp_enabled = false`). OmniAuth Continue-with buttons appear only w
 - `/recording_studio_api/oauth/token` - OAuth `client_credentials` for a public API bearer token
 - `/recording_studio_api/apis/operations/oauth/token` - OAuth `client_credentials` for an operations API bearer token
 - `/recording_studio_api/api/v1/support_pages` - public JSON pages (`GET` list / show). `?q=` searches articles
+- `/recording_studio_api/apis/operations/v1/support_centers` - operations SupportCenter reads (`GET`) and create (`POST`)
 - `/recording_studio_api/apis/operations/v1/support_sections` - operations section reads (`GET`) and writes (`POST` / `PATCH` / `DELETE`)
 - `/recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages` - operations nested pages (`GET` list / show, including `?q=`) plus writes
 - `/recording_studio_api/apis/operations/v1/support_pages` - operations writes and `POST …/actions/move`

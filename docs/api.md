@@ -22,7 +22,7 @@ bin/rails db:migrate
 
 Mount the engine (dummy uses `/recording_studio_api`). Enable `:accessible` and `:api_access_point` on roots that hold API keys. Dummy does this on `Workspace` and `AdminRoot`.
 
-Name the Admin API `:operations` (`default_access :read_only`). Support registers **page reads** on the public API and **section reads plus writes** on `:operations`. Page writes on operations include `create` / `update` / `destroy` in `operations:` so MCP `describe` matches the handlers. Handlers register with `register_resource_handler` and call `Pages` / `Sections`. From API `0.6.9`, registered handlers receive raw ids (`id`, `parent_id`, `relationship_id`) and look up kept Support records themselves. Pass `operations:` explicitly on the operations registrations so the named-API read-only default does not apply. List handlers read `PaginateResourceCollection` `Page` or a Hash.
+Name the Admin API `:operations` (`default_access :read_only`). Support registers **page reads** on the public API and **SupportCenter reads/create plus section reads and writes** on `:operations`. Page writes on operations include `create` / `update` / `destroy` in `operations:` so MCP `describe` matches the handlers. Handlers register with `register_resource_handler` and call `Pages` / `Sections`. From API `0.6.9`, registered handlers receive raw ids (`id`, `parent_id`, `relationship_id`) and look up kept Support records themselves. Pass `operations:` explicitly on the operations registrations so the named-API read-only default does not apply. List handlers read `PaginateResourceCollection` `Page` or a Hash.
 
 Provision operations clients on **AdminRoot** (featured_in). Support handlers find Workspace help by id and authorize AdminRoot `:view` / `:edit`. Move accepts `parent_id`, `destination_id`, or `new_parent_id`. Section create ignores trashed parents.
 
@@ -75,10 +75,13 @@ Mount prefix is the host’s API engine path. Dummy uses `/recording_studio_api`
 
 Public `support_sections` list/show and nested section-pages are not registered (`404` / unsupported). Public `POST` / `PATCH` / `DELETE` and public page `move` / `publish` / `unpublish` are not registered.
 
-## Admin API (`api: :operations`, section reads plus writes)
+## Admin API (`api: :operations`, SupportCenter plus section reads and writes)
 
 | Method | Path | Who | Notes |
 | --- | --- | --- | --- |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_centers` | AdminRoot `:view` | List SupportCenters |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_centers/:id` | AdminRoot `:view` | One SupportCenter |
+| `POST` | `/recording_studio_api/apis/operations/v1/support_centers` | AdminRoot `:edit` | Body: `parent_id` (AdminRoot recording). No extra serializer keys |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_sections` | AdminRoot `:view` | List sections |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_sections/:id` | AdminRoot `:view` | One section |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages` | AdminRoot `:view` | Pages in that section |
@@ -119,6 +122,8 @@ Move and trash go through Moveable `move_to!` and Trashable. Support handlers st
 Orderable reorder is not allowlisted on Support pages.
 
 ## Fields
+
+SupportCenters have no extra serializer keys or writable attributes. Create takes `parent_id` only.
 
 Sections serialize `title`, `slug`, `icon`. Writable: `title`, `icon`. Slug is Support-owned.
 
