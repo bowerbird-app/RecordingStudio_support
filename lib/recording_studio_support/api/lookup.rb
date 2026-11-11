@@ -8,9 +8,9 @@ module RecordingStudioSupport
       def center!(id:, include_trashed: false)
         raise_not_found("Resource was not found") if id.blank?
 
-        scope = RecordingStudio::Recording.where(recordable_type: Api::CENTER_TYPE)
-        scope = scope.where(trashed_at: nil) unless include_trashed
-        scope.includes(:recordable).find(id)
+        return RecordingStudio::Recording.where(recordable_type: Api::CENTER_TYPE).find(id) if include_trashed
+
+        SupportCenters.kept.find(id)
       rescue ActiveRecord::RecordNotFound
         raise_not_found("Resource was not found")
       end
@@ -50,24 +50,9 @@ module RecordingStudioSupport
         recording = RecordingStudio::Recording.where(trashed_at: nil).find(id)
         return recording if recording.recordable_type == RecordingStudioSupport.parent_root_type
 
-        raise_invalid_parent!(
-          Api::CENTER_TYPE,
-          "parent_id is not allowed for #{Api::CENTER_TYPE}"
-        )
+        raise RecordingStudio::InvalidParent, "parent_id is not allowed for #{Api::CENTER_TYPE}"
       rescue ActiveRecord::RecordNotFound
         raise_not_found("Parent resource was not found")
-      end
-
-      def raise_invalid_parent!(recordable_type, message)
-        raise RecordingStudioApi::InvalidActionInputError.new(
-          message,
-          details: [{
-            attribute: :parent_id,
-            message: "is not allowed for #{recordable_type}",
-            full_message: message,
-            type: :invalid
-          }]
-        )
       end
 
       def page_in_section!(section:, id:, include_trashed: false)
