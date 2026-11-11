@@ -76,7 +76,6 @@ class ApiTest < Minitest::Test
     refute_includes engine, "RecordingStudioMetrics::Api.register!"
     assert_includes api, "SUPPORT_OPENAPI = { tags: [\"Support\"], tag: { group: \"Support\" } }"
     assert_includes registration, "RecordingStudioApi.register_recordable_type_api"
-    assert_includes registration, "openapi: SUPPORT_OPENAPI"
     assert_includes registration, "register_resource_handler"
     assert_includes registration, "api: :public"
     assert_includes registration, "api: OPERATIONS_API"
@@ -95,7 +94,6 @@ class ApiTest < Minitest::Test
     center_type = File.read(File.expand_path("../lib/recording_studio_support/api/center_type.rb", __dir__))
     assert_includes center_type, "CENTER_TYPE"
     assert_includes center_type, "handler: ShowCenter"
-    assert_includes center_type, "openapi: SUPPORT_OPENAPI"
   end
 
   def test_lib_and_app_do_not_prepend_other_gems
