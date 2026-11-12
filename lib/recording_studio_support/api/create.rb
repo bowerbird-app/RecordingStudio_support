@@ -31,6 +31,8 @@ module RecordingStudioSupport
         return create_section!(actor, attrs) if context.recordable_type == Api::SECTION_TYPE
 
         create_page!(actor, attrs)
+      rescue RecordingStudio::InvalidParent => e
+        raise_invalid_parent_input!(e.message)
       end
 
       def create_section!(actor, attrs)
@@ -66,7 +68,7 @@ module RecordingStudioSupport
         if context.recordable_type == Api::SECTION_TYPE
           Lookup.workspace!(id: parent_id)
         else
-          Lookup.section!(id: parent_id)
+          Lookup.kept_recording!(id: parent_id)
         end
       end
 

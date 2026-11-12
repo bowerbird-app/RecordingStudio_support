@@ -29,7 +29,7 @@ module RecordingStudioSupport
 
     def create!(parent_recording:, actor: nil)
       AssignActor.assign_actor(actor) do
-        parent_recording.record(SupportCenter)
+        parent_recording.record(SupportCenter, actor: actor)
       end
     end
 

@@ -10,7 +10,7 @@ class TrashableSiblingApiTest < Minitest::Test
     "lib/recording_studio_support/pages/counts.rb" => %w[kept_pages_for_sections],
     "lib/recording_studio_support/sections.rb" => %w[kept kept_sections],
     "lib/recording_studio_support/sections/lookups.rb" => %w[find_kept! default_parent_root],
-    "lib/recording_studio_support/api/lookup.rb" => %w[workspace!],
+    "lib/recording_studio_support/api/lookup.rb" => %w[kept_recording!],
     "lib/recording_studio_support/admin/queries.rb" => %w[kept_page_recordings]
   }.freeze
 
@@ -71,7 +71,7 @@ class TrashableSiblingApiTest < Minitest::Test
     assert_includes changelog, "v0.9.0"
     assert_includes changelog, "[0.17.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.16.1...v0.17.0"
     assert_includes changelog, "## [0.19.0]"
-    assert_includes changelog, "compare/v0.32.1...HEAD"
+    assert_includes changelog, "compare/v0.32.2...HEAD"
     assert_includes changelog, "[0.19.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.18.0...v0.19.0"
     assert_includes changelog, "## [0.18.0]"
     assert_includes changelog, "[0.18.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.17.0...v0.18.0"

@@ -169,6 +169,38 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
+  test "page create with a non-section parent is a client error" do
+    post "#{OPERATIONS_ROOT}/support_pages",
+         headers: auth(@editor_operations_token),
+         params: { title: "Orphan page", body: "<p>Hi</p>", parent_id: @admin_root.id },
+         as: :json
+
+    assert_response :unprocessable_entity
+    body = response.parsed_body
+    details = body["details"] || body.dig("error", "details") || []
+    assert_predicate details, :present?, body
+    assert(details.any? { |detail| detail.fetch("attribute").to_s == "parent_id" }, body)
+  end
+
+  test "section create with an invalid parent is a client error" do
+    boom = lambda do |**|
+      raise RecordingStudio::InvalidParent, "RecordingStudioSupport::SupportSection cannot be recorded under AdminRoot"
+    end
+    RecordingStudioSupport::Sections.stub(:create!, boom) do
+      post "#{OPERATIONS_ROOT}/support_sections",
+           headers: auth(@editor_operations_token),
+           params: { title: "Wrong parent section", parent_id: @admin_root.id },
+           as: :json
+    end
+
+    assert_response :unprocessable_entity
+    body = response.parsed_body
+    assert_equal "invalid_input", body["code"] || body.dig("error", "code")
+    details = body["details"] || body.dig("error", "details") || []
+    assert_predicate details, :present?, body
+    assert(details.any? { |detail| detail.fetch("attribute").to_s == "parent_id" }, body)
+  end
+
   test "section create without a support center is a client error" do
     RecordingStudioSupport::SupportCenters.kept.update_all(trashed_at: Time.current)
 

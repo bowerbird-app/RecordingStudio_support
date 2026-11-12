@@ -36,7 +36,8 @@ module RecordingStudioSupport
       assign_actor(actor) do
         (center.root_recording || center).record(
           SupportSection,
-          parent_recording: center
+          parent_recording: center,
+          actor: actor
         ) do |section|
           section.title = title.to_s.strip
           section.slug = SupportSection.slug_for(title)
@@ -47,7 +48,7 @@ module RecordingStudioSupport
 
     def revise!(recording:, title:, icon: nil, actor: nil)
       assign_actor(actor) do
-        recording.root_recording.revise(recording) do |section|
+        recording.root_recording.revise(recording, actor: actor) do |section|
           section.title = title.to_s.strip
           section.slug = SupportSection.slug_for(title, excluding_id: recording.recordable_id)
           section.icon = icon

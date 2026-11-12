@@ -31,21 +31,23 @@ module RecordingStudioSupport
         raise_not_found("Resource was not found")
       end
 
-      def workspace!(id:)
-        raise_not_found("Parent resource was not found") if id.blank?
+      def kept_recording!(id:, not_found: "Resource was not found")
+        raise_not_found(not_found) if id.blank?
 
-        recording = RecordingStudio::Recording.where(trashed_at: nil).find(id)
+        RecordingStudio::Recording.where(trashed_at: nil).find(id)
+      rescue ActiveRecord::RecordNotFound
+        raise_not_found(not_found)
+      end
+
+      def workspace!(id:)
+        recording = kept_recording!(id: id, not_found: "Parent resource was not found")
         raise_not_found("Parent resource was not found") unless Sections.allowed_parent_root?(recording)
 
         recording
-      rescue ActiveRecord::RecordNotFound
-        raise_not_found("Parent resource was not found")
       end
 
       def parent_root!(id:)
-        raise_not_found("Parent resource was not found") if id.blank?
-
-        recording = RecordingStudio::Recording.where(trashed_at: nil).find(id)
+        recording = kept_recording!(id: id, not_found: "Parent resource was not found")
         RecordingStudio.assert_parent_allowed!(child_type: Api::CENTER_TYPE, parent_recording: recording)
         recording
       rescue ActiveRecord::RecordNotFound
