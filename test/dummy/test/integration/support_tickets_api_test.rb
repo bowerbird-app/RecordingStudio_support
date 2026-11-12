@@ -18,7 +18,7 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
     @admin_root = RecordingStudio.root_recording_for(AdminRoot.find_or_create_by!(name: "Admin"))
     grant!(@admin_root, @support_user, :admin)
     bootstrap_owner!(@root, @support_user)
-    record_support_center(@admin_root)
+    @center = record_support_center(@admin_root)
 
     @patron_token = provision_token(
       access_point: @root,
@@ -32,6 +32,14 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
       role: :view,
       name: "Stranger tickets #{SecureRandom.hex(4)}"
     )
+    support_public = provision_client(
+      access_point: @root,
+      actor: @support_user,
+      role: :view,
+      name: "Support public tickets #{SecureRandom.hex(4)}"
+    )
+    @support_public_client = support_public.fetch(:api_client)
+    @support_public_token = support_public.fetch(:access_token)
     @editor_operations_token = provision_token(
       access_point: @admin_root,
       actor: @support_user,
@@ -130,6 +138,57 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "support team public client cannot show another customers ticket" do
+    customer = User.create!(
+      email: "ticket-customer-#{SecureRandom.hex(4)}@example.com",
+      password: "Password",
+      password_confirmation: "Password"
+    )
+    Current.actor = customer
+    ticket = RecordingStudioSupport::Tickets.open!(
+      actor: customer,
+      subject: "Customer crop #{SecureRandom.hex(4)}",
+      body: "Please look at this field."
+    )
+    ticket_id = RecordingStudioSupport::Tickets.recording_for!(ticket).id
+    Current.actor = nil
+
+    assert RecordingStudioSupport::Messages.support_team_actor?(@support_user)
+    refute RecordingStudioSupport::Messages.support_team_actor?(@support_public_client)
+
+    get "#{PUBLIC_ROOT}/support_tickets/#{ticket_id}", headers: auth(@support_public_token), as: :json
+
+    assert_response :not_found
+  end
+
+  test "public ticket index walks every own id once at limit 1" do
+    own_ids = Array.new(3) { open_ticket_via_api! }
+    stranger_id = open_ticket_via_api!(token: @stranger_token)
+
+    seen = walk_ticket_ids(PUBLIC_ROOT, @patron_token)
+
+    assert_equal own_ids.sort, seen.sort
+    assert_equal own_ids.size, seen.size
+    assert_equal seen.uniq, seen
+    refute_includes seen, stranger_id
+  end
+
+  test "operations ticket index walks every current id once at limit 1" do
+    patron_ids = Array.new(2) { open_ticket_via_api! }
+    stranger_id = open_ticket_via_api!(token: @stranger_token)
+    expected = RecordingStudioSupport::Tickets.ticket_recordings.where(
+      recordable_id: RecordingStudioSupport::Tickets.current.select(:id)
+    ).pluck(:id)
+
+    seen = walk_ticket_ids(OPERATIONS_ROOT, @editor_operations_token)
+
+    assert_includes expected, stranger_id
+    patron_ids.each { |id| assert_includes expected, id }
+    assert_equal expected.sort, seen.sort
+    assert_equal expected.size, seen.size
+    assert_equal seen.uniq, seen
+  end
+
   test "invalid status or priority is unprocessable" do
     ticket_id = open_ticket_via_api!
 
@@ -169,9 +228,9 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
 
   private
 
-  def open_ticket_via_api!
+  def open_ticket_via_api!(token: @patron_token)
     post "#{PUBLIC_ROOT}/support_tickets",
-         headers: auth(@patron_token),
+         headers: auth(token),
          params: { subject: "Ticket #{SecureRandom.hex(4)}", body: "Please take a look." },
          as: :json
 
@@ -179,11 +238,54 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
     response.parsed_body.fetch("id")
   end
 
+  def walk_ticket_ids(root, token)
+    seen = []
+    pagination_token = nil
+    pages = 0
+
+    loop do
+      pages += 1
+      assert_operator pages, :<, 50, "ticket index pagination did not end"
+      params = { limit: 1 }
+      params[:pagination_token] = pagination_token if pagination_token.present?
+      get "#{root}/support_tickets", headers: auth(token), params: params, as: :json
+
+      assert_response :success
+      body = response.parsed_body
+      records = body.fetch("records")
+      meta = body.fetch("meta")
+      records.each { |record| seen << record.fetch("id") }
+      break unless truthy_meta?(meta, "has_more")
+
+      pagination_token = meta["next_pagination_token"] || meta[:next_pagination_token]
+      assert pagination_token.present?, "expected next_pagination_token when has_more"
+    end
+
+    seen
+  end
+
+  def truthy_meta?(meta, key)
+    value = meta[key] || meta[key.to_sym]
+    value == true || value == "true"
+  end
+
   def auth(token)
     { "Authorization" => "Bearer #{token}", "Accept" => "application/json" }
   end
 
   def provision_token(access_point:, actor:, role:, name:, admin_root_recording: nil, admin_root_role: :edit, api: :public)
+    provision_client(
+      access_point: access_point,
+      actor: actor,
+      role: role,
+      name: name,
+      admin_root_recording: admin_root_recording,
+      admin_root_role: admin_root_role,
+      api: api
+    ).fetch(:access_token)
+  end
+
+  def provision_client(access_point:, actor:, role:, name:, admin_root_recording: nil, admin_root_role: :edit, api: :public)
     result = RecordingStudioApi::Services::ProvisionApiClient.call(
       access_point_recording: access_point,
       manager_actor: actor,
@@ -204,7 +306,7 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
     )
     raise token_result.error unless token_result.success?
 
-    token_result.value.fetch(:access_token)
+    payload.merge(access_token: token_result.value.fetch(:access_token))
   end
 
   def bootstrap_owner!(recording, actor)

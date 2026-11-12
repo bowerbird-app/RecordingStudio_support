@@ -12,8 +12,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Support tickets join the existing JSON API. Section list honors `?q=`.
 
 ### Added
-- Public `support_tickets` `index` / `show` / `create` (`Tickets.open!`). Create uses the Accessible actor on the access grant. Callers see their own tickets; someone else's ticket is not found.
+- Public `support_tickets` `index` / `show` / `create` (`Tickets.open!`). Create uses the Accessible actor on the access grant. Callers see their own tickets; someone else's ticket is not found. Public show is `Tickets.for_actor` only. Support-team people read other tickets on operations show, not the public client.
 - Operations `support_tickets` `index` / `show` / `update`. Index is `Tickets.current`. Update is `Tickets.update!` for `status` and `priority`. Same support-team gate as the HTML ticket controllers: Accessible `:edit` on SupportCenter via `access_grant.authorize!`.
+- Ticket create reuses `Create`'s idempotency helpers. The HTML customer open form still sets priority, so public writable attributes keep `subject`, `body`, and `priority`.
 
 ### Fixed
 - Operations `GET support_sections?q=` passes `q` to `Sections.public_index(query:)`.

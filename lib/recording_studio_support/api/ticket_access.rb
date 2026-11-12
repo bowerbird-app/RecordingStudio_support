@@ -43,7 +43,6 @@ module RecordingStudioSupport
       def visible_to_actor?(context, ticket)
         person = actor(context)
         return false if person.blank?
-        return true if Messages.support_team_actor?(person)
 
         Tickets.for_actor(person).exists?(id: ticket.id)
       end
@@ -56,10 +55,9 @@ module RecordingStudioSupport
       end
 
       def input_details(error)
-        record = error.respond_to?(:record) ? error.record : nil
-        return [] if record.blank? || !record.respond_to?(:errors)
+        return [] unless error.is_a?(ActiveRecord::RecordInvalid)
 
-        record.errors.map do |item|
+        error.record.errors.map do |item|
           {
             attribute: item.attribute,
             message: item.message,
