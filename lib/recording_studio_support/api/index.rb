@@ -113,7 +113,7 @@ module RecordingStudioSupport
       end
 
       def section_recordings
-        Sections.public_index
+        Sections.public_index(query: search_term)
       end
 
       def page_recordings
