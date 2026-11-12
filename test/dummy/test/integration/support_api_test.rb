@@ -817,6 +817,27 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  test "q filters the operations section index" do
+    token = "Quorum#{SecureRandom.hex(4)}"
+    hit, miss = record_as_support_team do
+      [
+        record_support_section(@root, title: "#{token} billing"),
+        record_support_section(@root, title: "Unrelated #{SecureRandom.hex(4)}")
+      ]
+    end
+
+    get "#{OPERATIONS_ROOT}/support_sections",
+        headers: auth(@editor_operations_token),
+        params: { q: token },
+        as: :json
+
+    assert_response :success
+    titles = response.parsed_body.fetch("records").map { |record| record.fetch("title") }
+    assert_includes titles, hit.recordable.title
+    refute_includes titles, miss.recordable.title
+    assert_equal token, response.parsed_body.fetch("meta").fetch("q")
+  end
+
   test "q searches nested section pages and the pages collection" do
     token = "Zephyr#{SecureRandom.hex(4)}"
     live_hit, draft_hit, miss = record_as_support_team do

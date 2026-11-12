@@ -103,6 +103,7 @@ class ApiTest < Minitest::Test
     assert_includes api, "types: [SECTION_TYPE, PAGE_TYPE]"
     refute_includes api, "types: [SECTION_TYPE, PAGE_TYPE, CENTER_TYPE]"
     assert_includes registration, "CenterType.register!"
+    assert_includes api, "TicketType.register!"
     assert_includes registration, "handler: CreateCenter"
     center_type = File.read(File.expand_path("../lib/recording_studio_support/api/center_type.rb", __dir__))
     assert_includes center_type, "CENTER_TYPE"
@@ -126,6 +127,7 @@ class ApiTest < Minitest::Test
     index = File.read(File.expand_path("../lib/recording_studio_support/api/index.rb", __dir__))
 
     assert_includes index, "Pages.for_root"
+    assert_includes index, "Sections.public_index(query: search_term)"
     refute_includes index, "SearchLimit"
     refute_includes index, "InstantSearch"
   end

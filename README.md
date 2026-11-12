@@ -375,13 +375,13 @@ Who can create, revise, publish, and trash is spelled out in [docs/process-flows
 
 ## JSON API
 
-Support does not gemspec-depend on `recording_studio_api`. If the host adds that gem, Support registers **public** page reads and **operations** SupportCenter (`index` / `show` / `create`) plus section reads and writes. Operations `SupportPage` `operations:` include those writes so MCP `describe` matches `PATCH`.
+Support does not gemspec-depend on `recording_studio_api`. If the host adds that gem, Support registers **public** page reads and ticket open/list/show, and **operations** SupportCenter (`index` / `show` / `create`) plus section reads and writes and ticket list/show/update. Operations `SupportPage` `operations:` include those writes so MCP `describe` matches `PATCH`.
 
 Full contract for hosts and AI agents: **[docs/api.md](docs/api.md)** (auth, fields, search, examples). Design notes: [docs/api-plan.md](docs/api-plan.md).
 
-Public keeps only `GET support_pages` and `GET support_pages/:id`. Those use `:view` on the workspace that owns the page, or on the admin root. Admin-root readers see drafts. Workspace-only readers see live/`indexable` pages, matching `/help`.
+Public keeps `GET support_pages` and `GET support_pages/:id`, plus ticket `GET`/`POST support_tickets`. Pages use `:view` on the workspace that owns the page, or on the admin root. Admin-root readers see drafts. Workspace-only readers see live/`indexable` pages, matching `/help`. Tickets authorize `access_grant.authorize!` `:view` on the grant scope (signed-in HTML). The opener is the grant actor. Another person's ticket is `404`.
 
-SupportCenter list/show/create, section list/show, and nested section-page reads live on `/recording_studio_api/apis/operations/v1/…` and authorize Accessible `:view` on the **admin root** (`can_view_as_support_team?`). Writes (`create` / `update` / trash / move / publish / unpublish) stay on operations and still need AdminRoot `:edit` — the same bar as `authorize_support!(:edit)`. A public token is rejected there. An operations actor without AdminRoot `:edit` is `403` on writes.
+SupportCenter list/show/create, section list/show, and nested section-page reads live on `/recording_studio_api/apis/operations/v1/…` and authorize Accessible `:view` on the **admin root** (`can_view_as_support_team?`). Writes (`create` / `update` / trash / move / publish / unpublish) stay on operations and still need AdminRoot `:edit` — the same bar as `authorize_support!(:edit)`. Ticket list/show/update on operations need Accessible `:edit` on **SupportCenter**, the same support-team gate as `SupportTicketsController`. A public token is rejected there. An operations actor without that role is `403`.
 
 Bearer token: public `POST /recording_studio_api/oauth/token`; operations `POST /recording_studio_api/apis/operations/oauth/token` (`client_credentials`), then `Authorization: Bearer …`.
 
@@ -389,6 +389,12 @@ Bearer token: public `POST /recording_studio_api/oauth/token`; operations `POST 
 | --- | --- |
 | `GET` | `/recording_studio_api/api/v1/support_pages` |
 | `GET` | `/recording_studio_api/api/v1/support_pages/:id` |
+| `GET` | `/recording_studio_api/api/v1/support_tickets` |
+| `GET` | `/recording_studio_api/api/v1/support_tickets/:id` |
+| `POST` | `/recording_studio_api/api/v1/support_tickets` |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_tickets` |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_tickets/:id` |
+| `PATCH` | `/recording_studio_api/apis/operations/v1/support_tickets/:id` |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_centers` |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_centers/:id` |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_centers` |
@@ -420,7 +426,7 @@ RecordingStudioMetrics::Api.register!(api: :operations)
 
 The support team with AdminRoot `:view` can read them. A public token or a non-admin operations token is denied. `support_pages.total` counts live page recordings (`Admin::Queries.kept_page_recordings`), not SupportPage snapshots. Ticket metrics count the current snapshot of each ticket recording (joined to `recording_studio_support_tickets` on `recordable_id`, type `RecordingStudioSupport::SupportTicket`, `trashed_at` null). A revised ticket counts once. `support_tickets.oldest_open_age` is the age in seconds of the oldest open ticket, from the recording's `created_at` (`value` omitted when there are none). `support_tickets.opened` buckets that same open time. Results use the Metrics cache (default 5 minutes), so the age can lag by up to that TTL.
 
-`group_by` (Metrics 0.3): `support_tickets.open` accepts `group_by=priority`; `support_tickets.opened` accepts `group_by=status` or `group_by=priority` with `from`/`to`/`interval`. Groups with fewer than 5 tickets fold into `other`, so groups plus `other` equal the total. `oldest_open_age`, `by_status` and `by_priority` take no `group_by`. There are no metric filters (Support has no ticket list endpoint whose filters they could mirror). The catalog lists `group_by`, `min_group_size`, `date_range`, `timezone` and `freshness` for each metric.
+`group_by` (Metrics 0.3): `support_tickets.open` accepts `group_by=priority`; `support_tickets.opened` accepts `group_by=status` or `group_by=priority` with `from`/`to`/`interval`. Groups with fewer than 5 tickets fold into `other`, so groups plus `other` equal the total. `oldest_open_age`, `by_status` and `by_priority` take no `group_by`. Ticket list endpoints do not add metric filters. The catalog lists `group_by`, `min_group_size`, `date_range`, `timezone` and `freshness` for each metric.
 
 `support_tickets.avg_time_to_resolve` (unit `seconds`) is the mean of `resolved_at` minus the recording's `created_at` for tickets in the `resolved` status, bucketed by `resolved_at`, with `from`/`to`/`interval`. Later snapshots do not move the open time. A bucket with no resolutions is `null`, not 0. It accepts `group_by=priority` (the same queue grouping and 5-ticket fold as `open`). A reopened ticket clears `resolved_at` and counts again from its next resolution. There are no filters, as above.
 
@@ -428,7 +434,7 @@ The support team with AdminRoot `:view` can read them. A public token or a non-a
 
 `GET support_pages?q=` on public uses `Pages.for_root` / `SupportPage.search`. There is no `GET support/search`. Instant UI is not used.
 
-Do not add a Support `ApiController`. Domain writes stay `Pages` / `Sections`. Public anonymous browse stays `/help`.
+Do not add a Support `ApiController`. Domain writes stay `Pages` / `Sections` / `Tickets`. Public anonymous browse stays `/help`.
 
 Host sketch:
 

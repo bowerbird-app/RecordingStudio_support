@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.33.0] - 2026-11-12
+
+Support tickets join the existing JSON API. Section list honors `?q=`.
+
+### Added
+- Public `support_tickets` `index` / `show` / `create` (`Tickets.open!`). Create uses the Accessible actor on the access grant. Callers see their own tickets; someone else's ticket is not found. Public show is `Tickets.for_actor` only. Support-team people read other tickets on operations show, not the public client.
+- Operations `support_tickets` `index` / `show` / `update`. Index is `Tickets.current`. Update is `Tickets.update!` for `status` and `priority`. Same support-team gate as the HTML ticket controllers: Accessible `:edit` on SupportCenter via `access_grant.authorize!`.
+- Ticket create reuses `Create`'s idempotency helpers. The HTML customer open form still sets priority, so public writable attributes keep `subject`, `body`, and `priority`.
+
+### Fixed
+- Operations `GET support_sections?q=` passes `q` to `Sections.public_index(query:)`.
+
+### Upgrade notes
+- Bump to `0.33.0`.
+- Public tokens can open and read the grant actor's tickets. Operations support-team editors (`:edit` on SupportCenter) can list every current ticket and change status or priority.
+- Status is `open` or `resolved`. Priority is `low`, `normal`, or `high`.
+- Help-center page and section routes are unchanged except section list search.
+
 ## [0.32.2] - 2026-11-11
 
 Page create with a non-section parent returns the same invalid `parent_id` error as section create. Section, page, and SupportCenter writes pass `actor:` into `record` / `revise`.
@@ -1146,7 +1164,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.32.2...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.33.0...HEAD
+[0.33.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.32.2...v0.33.0
 [0.32.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.32.1...v0.32.2
 [0.32.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.32.0...v0.32.1
 [0.32.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.31.0...v0.32.0

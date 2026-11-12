@@ -17,12 +17,20 @@ require_relative "api/move"
 require_relative "api/publishable_transition"
 require_relative "api/refuse_public_sections"
 require_relative "api/refuse_public_centers"
+require_relative "api/ticket_access"
+require_relative "api/ticket_index"
+require_relative "api/ticket_show"
+require_relative "api/ticket_open"
+require_relative "api/ticket_update"
+require_relative "api/ticket_openapi"
+require_relative "api/ticket_type"
 
 module RecordingStudioSupport
   module Api
     CENTER_TYPE = "RecordingStudioSupport::SupportCenter"
     SECTION_TYPE = "RecordingStudioSupport::SupportSection"
     PAGE_TYPE = "RecordingStudioSupport::SupportPage"
+    TICKET_TYPE = "RecordingStudioSupport::SupportTicket"
     TYPES = [SECTION_TYPE, PAGE_TYPE, CENTER_TYPE].freeze
     SUPPORT_OPENAPI = { tags: ["Support"], tag: { group: "Support" } }.freeze
 
@@ -31,6 +39,7 @@ module RecordingStudioSupport
         return unless recording_studio_api_available?
 
         Registration.register!
+        TicketType.register!
         register_openapi!(api: :public, types: [PAGE_TYPE])
         register_openapi!(api: Registration::OPERATIONS_API, types: [SECTION_TYPE, PAGE_TYPE])
         true
