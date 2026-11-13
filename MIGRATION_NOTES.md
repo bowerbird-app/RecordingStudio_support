@@ -1,5 +1,22 @@
 # Upgrade notes
 
+## 0.34.1
+
+A customer reply notifies support admins who only inherit access. The sender is not notified.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.34.1`.
+2. Pin `recording_studio_messages` `>= 0.26.0` (tag `v0.26.0`) and `recording_studio_accessible` `>= 0.33.0` (tag `v0.33.0`).
+3. No migration. Staff still get no grant on the ticket message group.
+
+### Verify
+
+```bash
+bundle exec ruby -Itest test/recording_studio_support_test.rb test/trashable_sibling_api_test.rb
+cd test/dummy && bundle exec rails test test/integration/support_inbox_test.rb
+```
+
 ## 0.34.0
 
 Ticket conversations inherit access. The customer gets `:edit` on the message group. Staff are not seated on it.

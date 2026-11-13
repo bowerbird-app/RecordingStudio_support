@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.34.1] - 2026-11-13
+
+A customer reply on an inherited ticket notifies the support team. Messages 0.26 sends that notice to everyone with effective `:view`, including access inherited from SupportCenter or AdminRoot, and never to the sender.
+
+### Changed
+- Gemspec floors are `recording_studio_messages` `>= 0.26.0, < 1.0` and `recording_studio_accessible` `>= 0.33.0, < 1.0`.
+- Development and the dummy pin Messages `v0.26.0` and Accessible `v0.33.0`.
+
+### Upgrade notes
+- Bump to `0.34.1`.
+- Pin Messages `v0.26.0` (`>= 0.26.0, < 1.0`) and Accessible `v0.33.0` (`>= 0.33.0, < 1.0`). Messages 0.26 calls `actors_with_access`, which is not in Accessible 0.32.
+- No Support migration. Accessible 0.33 has no migration.
+- A customer message notifies people who only inherit `:view`. They still have no grant on the message group. The sender is not notified.
+
 ## [0.34.0] - 2026-11-13
 
 Ticket conversations use Messages inherited access. The customer who opens a ticket gets `:edit` on that message group. Staff reach it through access inherited from SupportCenter or AdminRoot. Support no longer seats staff on the group, and it no longer patches Accessible so a customer can grant themselves `:admin`.
@@ -1213,7 +1227,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.34.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.34.1...HEAD
+[0.34.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.34.0...v0.34.1
 [0.34.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.33.2...v0.34.0
 [0.33.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.33.1...v0.33.2
 [0.33.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.33.0...v0.33.1
