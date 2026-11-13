@@ -26,7 +26,6 @@ class SupportMembershipLockTest < ActionDispatch::IntegrationTest
       time_zone: "UTC"
     )
 
-    RecordingStudioSupport::Messages::OpenAccessManagement.install!
     RecordingStudioMessages::MembershipLock.install_authorizer_wrap!
   end
 
@@ -36,7 +35,7 @@ class SupportMembershipLockTest < ActionDispatch::IntegrationTest
     assert RecordingStudioMessages.membership_locked?(mount)
   end
 
-  test "ticket open and the support team sync succeed under the lock" do
+  test "ticket open grants the customer edit and seats nobody else" do
     ticket = RecordingStudioSupport::Tickets.open!(
       actor: @patron,
       subject: "Lock proof",
@@ -45,14 +44,11 @@ class SupportMembershipLockTest < ActionDispatch::IntegrationTest
     group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
 
     assert RecordingStudioMessages.membership_locked_for_group?(group)
-    assert RecordingStudioSupport::Messages.group_owner?(group, @patron)
-    assert RecordingStudioSupport::Messages.support_team_has_edit?(group, @support_user)
-
-    RecordingStudioSupport::Messages.sync_support_team_grants!(
-      group_recording: group,
-      manager_actor: @patron
-    )
-    assert RecordingStudioSupport::Messages.support_team_has_edit?(group, @support_user)
+    assert_equal [ "edit" ], direct_access_roles(group, @patron)
+    assert_empty direct_access_roles(group, @support_user)
+    assert_equal 1, RecordingStudioAccessible.access_recordings_for(group).size
+    assert RecordingStudioAccessible.authorized?(actor: @support_user, recording: group, role: :view)
+    assert RecordingStudioAccessible.authorized?(actor: @support_user, recording: group, role: :edit)
   end
 
   test "manage grant without bypass is denied on a ticket group" do

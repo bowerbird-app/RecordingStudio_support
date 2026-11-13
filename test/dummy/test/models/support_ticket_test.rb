@@ -34,7 +34,13 @@ class SupportTicketModelTest < ActiveSupport::TestCase
     group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
     assert_not_nil group
     assert_equal "Crop export failed", group.recordable.title
-    assert RecordingStudioSupport::Messages.group_owner?(group, @patron)
+    assert_equal [ "edit" ], direct_access_roles(group, @patron)
+    assert_empty direct_access_roles(group, User.find_by!(email: "admin@admin.com"))
+    assert RecordingStudioAccessible.authorized?(
+      actor: User.find_by!(email: "admin@admin.com"),
+      recording: group,
+      role: :view
+    )
 
     messages = RecordingStudioMessages.message_recordings(group)
     assert_equal 1, messages.count
@@ -88,12 +94,6 @@ class SupportTicketModelTest < ActiveSupport::TestCase
   private
 
   def message_group_count_for(actor)
-    mount = RecordingStudioSupport::Messages.ensure_message_mount(actor: actor)
-    return 0 if mount.blank?
-
-    RecordingStudioMessages.viewable_group_recordings(
-      actor: actor,
-      mount_recording: mount
-    ).count { |group| RecordingStudioSupport::Messages.group_owner?(group, actor) }
+    RecordingStudioSupport::Tickets.for_actor(actor).count
   end
 end

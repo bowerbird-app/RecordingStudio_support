@@ -103,6 +103,12 @@ module SupportRecordHelpers
     RecordingStudioSupport::Tickets.find!(ticket.id)
   end
 
+  def direct_access_roles(recording, actor)
+    RecordingStudioAccessible.access_recordings_for_actor(recording: recording, actor: actor).map do |access|
+      access.recordable.role.to_s
+    end
+  end
+
   def grant_admin!(recording, actor)
     grant_role!(recording, actor, :admin)
   end

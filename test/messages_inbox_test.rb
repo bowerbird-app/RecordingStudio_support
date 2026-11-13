@@ -41,20 +41,14 @@ class MessagesInboxTest < Minitest::Test
     assert_includes type.available_channels, :email
   end
 
-  def test_already_granted_requires_edit_not_any_access
+  def test_support_team_check_does_not_grant_on_the_group
     source = File.read(File.expand_path("../lib/recording_studio_support/messages/support_team.rb", __dir__))
 
-    assert_includes source, "def support_team_has_edit?"
-    assert_includes source, "%w[edit admin]"
-    assert_includes source, "next if support_team_has_edit?"
-    assert_includes source, "access_recordings_for_actor"
-  end
-
-  def test_sync_support_team_grants_uses_membership_change_bypass
-    source = File.read(File.expand_path("../lib/recording_studio_support/messages/support_team.rb", __dir__))
-
-    assert_includes source, "RecordingStudioMessages.allow_membership_change"
-    assert_includes source, "def sync_support_team_grants!"
+    assert_includes source, "def support_team_actor?"
+    assert_includes source, "role: :edit"
+    refute_includes source, "sync_support_team_grants!"
+    refute_includes source, "group_owner?"
+    refute_includes source, "grant_access"
   end
 
   def test_access_button_targets_the_top_frame
@@ -105,18 +99,29 @@ class MessagesInboxTest < Minitest::Test
     )
   end
 
-  def test_open_ticket_uses_narrow_first_open_access_gate
+  def test_open_ticket_grants_the_customer_edit_on_an_inherited_mount
     open_source = File.read(File.expand_path("../lib/recording_studio_support/tickets/open.rb", __dir__))
-    gate_source = File.read(
+    grant_source = File.read(
+      File.expand_path("../lib/recording_studio_support/tickets/grant_customer_edit.rb", __dir__)
+    )
+    center = File.read(
+      File.expand_path("../app/models/recording_studio_support/support_center.rb", __dir__)
+    )
+    runtime = File.read(File.expand_path("../lib/recording_studio_support/engine/runtime_prepares.rb", __dir__))
+
+    assert_includes center, "access: :inherited"
+    assert_includes center, "membership_locked: [:support]"
+    assert_includes open_source, "GrantCustomerEdit.call"
+    assert_includes grant_source, "RecordingStudioMessages.allow_membership_change"
+    assert_includes grant_source, "role: :edit"
+    assert_includes grant_source, "manager_actor: manager"
+    assert_includes open_source, "tags: { Tickets::TAG_KEY => ticket_recording }"
+    refute_includes open_source, "OpenAccessManagement"
+    refute_includes open_source, "sync_support_team_grants!"
+    refute_includes runtime, "OpenAccessManagement"
+    assert_includes runtime, "MembershipLock.install_authorizer_wrap!"
+    refute File.exist?(
       File.expand_path("../lib/recording_studio_support/messages/open_access_management.rb", __dir__)
     )
-
-    assert_includes open_source, "OpenAccessManagement.with(actor: @actor, mount: mount)"
-    refute_includes open_source, "configuration.access_management_authorizer = ->(**) { true }"
-    refute_includes gate_source, "return true if open?"
-    assert_includes gate_source, "first_open_membership_grant?"
-    assert_includes gate_source, "wrap_role_ceiling!"
-    assert_includes gate_source, "RoleCeilingFirstOpen"
-    assert_includes open_source, "tags: { Tickets::TAG_KEY => ticket_recording }"
   end
 end

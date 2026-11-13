@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.34.0] - 2026-11-13
+
+Ticket conversations use Messages inherited access. The customer who opens a ticket gets `:edit` on that message group. Staff reach it through access inherited from SupportCenter or AdminRoot. Support no longer seats staff on the group, and it no longer patches Accessible so a customer can grant themselves `:admin`.
+
+### Changed
+- SupportCenter enables messages with `access: :inherited` alongside `keys: [:support]` and `membership_locked: [:support]`. `create_group` seats nobody.
+- `Tickets.open!` grants the customer `:edit` inside `allow_membership_change`. The recorded granter is an admin already held on an ancestor. That admin is not added to the group. A support-team opener gets no direct grant.
+- Removed `OpenAccessManagement` and `sync_support_team_grants!`. Ticket show uses Accessible `:view` on the group. `Tickets.for_actor` keeps a support-team person's own list to tickets they created.
+- Messages dependency floor is `>= 0.22.0`, which is the release that added `access: :inherited`.
+
+### Upgrade notes
+- Bump to `0.34.0`. Pin Messages `>= 0.22.0` (dummy stays on `v0.25.1`).
+- Do not grant staff on ticket message groups. Inherited `:edit` on SupportCenter or AdminRoot is how they view and reply.
+- A customer's only grant on the group is `:edit`. The granter named on that grant is an inherited admin and is not a member of the group.
+- My tickets for a support-team actor lists tickets that actor created. Opening a ticket URL still allows anyone with `:view` on the group.
+- Opening a ticket does not notify staff. Messages notifies direct grants, and the only new grant is the customer, who is the sender. Staff notifications need the Messages change for inherited recipients.
+- No data migration. Dummy seeds no longer grant the sample admin on sample ticket groups.
+
 ## [0.33.2] - 2026-11-13
 
 Search 0.10 Instant hits are empty without an actor. Section Instant still finds articles inside the section. Help and support desks keep a working unread toggle. Dummy writes stay open, and the Gemfile pins the current release tags.
@@ -1195,7 +1213,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.33.2...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.34.0...HEAD
+[0.34.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.33.2...v0.34.0
 [0.33.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.33.1...v0.33.2
 [0.33.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.33.0...v0.33.1
 [0.33.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.32.2...v0.33.0

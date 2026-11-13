@@ -2,8 +2,10 @@
 
 module RecordingStudioSupport
   module Tickets
-    # Opens a support ticket under SupportCenter, then a tagged MessageGroup,
-    # support-team grants, and the first message — one transaction.
+    # Opens a support ticket under SupportCenter, then a tagged MessageGroup
+    # and the first message. Inherited access seats nobody. A customer gets
+    # :edit. The granter is an admin already on an ancestor and is not added
+    # to the group.
     class Open
       def self.call(...)
         new(...).call
@@ -47,22 +49,24 @@ module RecordingStudioSupport
         ).recording
       end
 
-      def create_group!(ticket_recording) # rubocop:disable Metrics/MethodLength -- lock, tag, grant, return group
+      def create_group!(ticket_recording)
         mount = require_mount!
         ticket_recording.with_lock do
           raise Tickets::AlreadyExists if tagged_group_exists?(mount, ticket_recording)
 
-          group = Messages::OpenAccessManagement.with(actor: @actor, mount: mount) do
-            RecordingStudioMessages.create_group(
-              mount,
-              title: @subject,
-              actor: @actor,
-              tags: { Tickets::TAG_KEY => ticket_recording }
-            )
-          end
-          Messages.sync_support_team_grants!(group_recording: group, manager_actor: @actor)
-          group
+          record_group!(mount, ticket_recording)
         end
+      end
+
+      def record_group!(mount, ticket_recording)
+        group = RecordingStudioMessages.create_group(
+          mount,
+          title: @subject,
+          actor: @actor,
+          tags: { Tickets::TAG_KEY => ticket_recording }
+        )
+        GrantCustomerEdit.call(group:, actor: @actor)
+        group
       end
 
       def tagged_group_exists?(mount, ticket_recording)

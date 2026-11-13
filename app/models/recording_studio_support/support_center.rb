@@ -12,7 +12,8 @@ module RecordingStudioSupport
     if defined?(RecordingStudioMessages)
       include RecordingStudio::Capabilities::Messages.to(
         keys: [:support],
-        membership_locked: [:support]
+        membership_locked: [:support],
+        access: :inherited
       )
     end
   end

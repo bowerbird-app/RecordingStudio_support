@@ -146,8 +146,7 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert_equal "normal", invoice.priority
     assert_equal "open", card.status
     assert_equal "high", card.priority
-    assert_equal [ "Where did my invoice go?", "New card did not stick" ].sort,
-                 RecordingStudioSupport::Tickets.for_actor(admin).map(&:subject).sort
+    assert_empty RecordingStudioSupport::Tickets.for_actor(admin).map(&:subject)
     assert_equal [ "Where did my invoice go?", "New card did not stick" ].sort,
                  RecordingStudioSupport::Tickets.for_actor(customer).map(&:subject).sort
 
@@ -159,10 +158,12 @@ class RecordingStudioSupportTest < ActiveSupport::TestCase
     assert_includes card_bodies, "That card is the default now. The next invoice uses it."
     invoice_group = RecordingStudioSupport::Tickets.group_recording_for(invoice)
     card_group = RecordingStudioSupport::Tickets.group_recording_for(card)
-    assert RecordingStudioSupport::Messages.support_team_has_edit?(invoice_group, admin)
-    assert RecordingStudioSupport::Messages.group_owner?(invoice_group, customer)
-    assert RecordingStudioSupport::Messages.support_team_has_edit?(card_group, admin)
-    assert RecordingStudioSupport::Messages.group_owner?(card_group, customer)
+    [ invoice_group, card_group ].each do |group|
+      assert_equal [ "edit" ], direct_access_roles(group, customer)
+      assert_empty direct_access_roles(group, admin)
+      assert RecordingStudioAccessible.authorized?(actor: admin, recording: group, role: :view)
+      assert RecordingStudioAccessible.authorized?(actor: admin, recording: group, role: :edit)
+    end
 
     assert_no_difference -> { User.count } do
       assert_no_difference -> { RecordingStudio::Recording.count } do

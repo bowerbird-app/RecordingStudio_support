@@ -27,6 +27,7 @@ module RecordingStudioSupport
           title: "Ticket - Index",
           summary: "List support tickets",
           description: "List tickets the caller can see. Public tokens see the signed-in actor's tickets. " \
+                       "A support-team actor's public list is tickets they created. " \
                        "Operations tokens with support-team edit on SupportCenter see every current ticket."
         }
       end
@@ -35,7 +36,8 @@ module RecordingStudioSupport
         {
           title: "Ticket - Show",
           summary: "Show a support ticket",
-          description: "Return one ticket. Public tokens may read a ticket they opened. " \
+          description: "Return one ticket. Public tokens may read a ticket on their own list. " \
+                       "A support-team actor's list is tickets they created. " \
                        "Someone else's ticket is not found. Operations support-team editors can read any ticket. " \
                        "#{STATUS_DESCRIPTION} #{PRIORITY_DESCRIPTION}"
         }

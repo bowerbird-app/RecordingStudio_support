@@ -241,9 +241,7 @@ class SupportInboxTest < ActionDispatch::IntegrationTest
   test "untagged support group does not show support ticket controls" do
     sign_in @support_user
     mount = RecordingStudioSupport::Messages.ensure_message_mount(actor: @support_user)
-    group = RecordingStudioSupport::Messages::OpenAccessManagement.with(actor: @support_user, mount: mount) do
-      RecordingStudioMessages.create_group(mount, title: "Not a ticket", actor: @support_user)
-    end
+    group = RecordingStudioMessages.create_group(mount, title: "Not a ticket", actor: @support_user)
     RecordingStudioMessages.send_message(
       group_recording: group,
       body: "This is not a ticket thread.",
@@ -296,18 +294,19 @@ class SupportInboxTest < ActionDispatch::IntegrationTest
     assert_select "a[href='/help/messages']", text: /Contact support/
   end
 
-  test "send notifies the support team in app and by email" do
+  test "opening a ticket does not seat or notify the support team" do
     sign_in @patron
 
-    assert_difference -> { RecordingStudioNotifications::Notification.count }, +2 do
-      assert_emails 1 do
+    assert_no_difference -> { RecordingStudioNotifications::Notification.count } do
+      assert_no_emails do
         open_ticket!(@patron, subject: "Ping the inbox", body: "Ping the inbox.")
       end
     end
 
-    notice = RecordingStudioNotifications::Notification.order(:created_at).last
-    assert_equal "message_received", notice.notification_type
-    assert_includes notice.url.to_s, "/admin/support/messages"
+    ticket = RecordingStudioSupport::SupportTicket.find_by!(subject: "Ping the inbox")
+    group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
+    assert_empty direct_access_roles(group, @support_user)
+    assert RecordingStudioAccessible.authorized?(actor: @support_user, recording: group, role: :view)
   end
 
   test "one to one helpers are not used on the user path" do
@@ -341,12 +340,6 @@ class SupportInboxTest < ActionDispatch::IntegrationTest
   end
 
   def message_group_count_for(actor)
-    mount = RecordingStudioSupport::Messages.ensure_message_mount(actor: actor)
-    return 0 if mount.blank?
-
-    RecordingStudioMessages.viewable_group_recordings(
-      actor: actor,
-      mount_recording: mount
-    ).count { |group| RecordingStudioSupport::Messages.group_owner?(group, actor) }
+    RecordingStudioSupport::Tickets.for_actor(actor).count
   end
 end
