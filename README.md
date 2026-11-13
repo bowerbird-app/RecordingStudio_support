@@ -6,12 +6,12 @@ Help pages sit in a section under SupportCenter. Each page has a title and a for
 
 ## Install
 
-Add the gem next to Recording Studio 6.7.0, Accessible 0.32.0, Admin 2.13.0, Attachable 0.23.0, Publishable 0.15.0, Messages 0.25.1, and Flatpack 0.1.357. Those GitHub tags are the dummy-tested pins in `test/dummy/Gemfile.lock`. The constraint block below is the gemspec floor. GitHub hosting is not a reason to skip the gemspec pins. ViewComponent stays on `>= 4.14, < 5` (this repo locks `4.19.0`).
+Add the gem next to Recording Studio 6.7.0, Accessible 0.33.0, Admin 2.13.0, Attachable 0.23.0, Publishable 0.15.0, Messages 0.26.0, and Flatpack 0.1.357. Those GitHub tags are the dummy-tested pins in `test/dummy/Gemfile.lock`. The constraint block below is the gemspec floor. GitHub hosting is not a reason to skip the gemspec pins. ViewComponent stays on `>= 4.14, < 5` (this repo locks `4.19.0`).
 
 ```ruby
 # Gemfile
 gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v6.7.0"
-gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.32.0"
+gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.33.0"
 gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.13.0"
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.23.0"
 gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.14.0"
@@ -19,7 +19,7 @@ gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderab
 gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.15.0"
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.2.1"
 gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v4.1.1"
-gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.25.1"
+gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.26.0"
 gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.8.0"
 gem "recording_studio_logs", github: "bowerbird-app/RecordingStudio_logs", tag: "v0.7.4"
 gem "recording_studio_views", github: "bowerbird-app/RecordingStudio_views", tag: "v0.13.0"
@@ -40,7 +40,7 @@ gem "view_component", "4.19.0"
 gem "recording_studio", "~> 6.0", ">= 6.1.0"
 gem "flat_pack", ">= 0.1.331", "< 1.0"
 gem "view_component", ">= 4.14", "< 5"
-gem "recording_studio_accessible", ">= 0.24", "< 1.0"
+gem "recording_studio_accessible", ">= 0.33.0", "< 1.0"
 gem "recording_studio_admin", ">= 2.0", "< 3.0"
 gem "recording_studio_attachable", ">= 0.7", "< 1.0"
 gem "recording_studio_trashable", ">= 0.9", "< 1.0"
@@ -48,14 +48,14 @@ gem "recording_studio_orderable", ">= 0.2", "< 1.0"
 gem "recording_studio_publishable", ">= 0.4", "< 1.0"
 gem "recording_studio_search", ">= 0.6", "< 1.0"
 gem "recording_studio_moveable", ">= 3.2", "< 5.0"
-gem "recording_studio_messages", ">= 0.22.0", "< 1.0"
+gem "recording_studio_messages", ">= 0.26.0", "< 1.0"
 gem "recording_studio_metrics", ">= 0.5.0", "< 1.0"
 gem "recording_studio_views", ">= 0.8.0", "< 1.0"
 gem "recording_studio_notifications", ">= 0.3.1", "< 1.0"
 gem "recording_studio_notifications_email", ">= 0.3.1", "< 1.0"
 ```
 
-Pin the GitHub release tags above. Those releases allow Recording Studio 6.7, so this repo does not rewrite sibling gemspecs at Bundler load. Messages `v0.25.1` keeps the conversation header hooks Support uses for support-team Status. Hosts need Messages `>= 0.22.0` so the support mount can use `access: :inherited`. Attachable `v0.23.0` and Publishable `v0.15.0` depend on API `~> 0.23`. The root Gemfile pins API `v0.23.1` so Bundler can resolve them. API stays off the Support gemspec. Recording Studio `v6.7.0` refuses writes unless the host sets `config.authorize_write`, or sets `config.allow_unauthorized_writes` for the old open writes. Dummy sets `allow_unauthorized_writes` because seeds and tests record help before Accessible grants exist. A production host sets `authorize_write` instead. Trashable `v0.14.0` adds nullable `purge_at`. Generate its migration and run `recording_studio_trashable:restamp_purge_at` once. Root Switchable `v0.15.0` requires Accessible `:view` on the mounted switch page when a current root is selected.
+Pin the GitHub release tags above. Those releases allow Recording Studio 6.7, so this repo does not rewrite sibling gemspecs at Bundler load. Messages `v0.26.0` keeps the conversation header hooks Support uses for support-team Status. Hosts need Messages `>= 0.26.0` and Accessible `>= 0.33.0`. The support mount uses `access: :inherited`, and a customer reply notifies everyone with effective `:view`, including inherited access, and never the sender. Attachable `v0.23.0` and Publishable `v0.15.0` depend on API `~> 0.23`. The root Gemfile pins API `v0.23.1` so Bundler can resolve them. API stays off the Support gemspec. Recording Studio `v6.7.0` refuses writes unless the host sets `config.authorize_write`, or sets `config.allow_unauthorized_writes` for the old open writes. Dummy sets `allow_unauthorized_writes` because seeds and tests record help before Accessible grants exist. A production host sets `authorize_write` instead. Trashable `v0.14.0` adds nullable `purge_at`. Generate its migration and run `recording_studio_trashable:restamp_purge_at` once. Root Switchable `v0.15.0` requires Accessible `:view` on the mounted switch page when a current root is selected.
 
 Then:
 
@@ -81,7 +81,7 @@ bin/rails generate recording_studio_accessible:migrations
 bin/rails db:migrate
 ```
 
-Accessible `v0.32.0` stores roles as strings (`view`, `edit`, `admin`). Run its migrations through that tag. Grant through `bootstrap_owner_access!` / `grant_access` — do not create `RecordingStudio::Access` rows. Dummy pins API `v0.23.1`. For operations move and trash by an AdminRoot-only client, the **host** sets Trashable and Moveable hooks (Support does not). `nil` falls through to Accessible `:edit`:
+Accessible `v0.33.0` stores roles as strings (`view`, `edit`, `admin`). Run its migrations through that tag. Grant through `bootstrap_owner_access!` / `grant_access` — do not create `RecordingStudio::Access` rows. Dummy pins API `v0.23.1`. For operations move and trash by an AdminRoot-only client, the **host** sets Trashable and Moveable hooks (Support does not). `nil` falls through to Accessible `:edit`:
 
 ```ruby
 RecordingStudioTrashable.configure do |config|
@@ -484,10 +484,10 @@ Dummy kit pins:
 | Gem | Pin |
 |-----|-----|
 | Recording Studio | `v6.7.0` |
-| Accessible | `v0.32.0` |
+| Accessible | `v0.33.0` |
 | Admin | `v2.13.0` |
 | Attachable | `v0.23.0` |
-| Messages | `v0.25.1` |
+| Messages | `v0.26.0` |
 | Notifications | `v0.15.0` |
 | Notifications Email | `v0.5.2` |
 | Users | `v0.28.1` |

@@ -294,19 +294,30 @@ class SupportInboxTest < ActionDispatch::IntegrationTest
     assert_select "a[href='/help/messages']", text: /Contact support/
   end
 
-  test "opening a ticket does not seat or notify the support team" do
+  test "a customer reply notifies a support admin with only inherited access" do
     sign_in @patron
+    ticket = open_ticket!(@patron, subject: "Ping the inbox", body: "Ping the inbox.")
+    group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
 
-    assert_no_difference -> { RecordingStudioNotifications::Notification.count } do
-      assert_no_emails do
-        open_ticket!(@patron, subject: "Ping the inbox", body: "Ping the inbox.")
+    assert_empty direct_access_roles(group, @support_user)
+    assert RecordingStudioAccessible.authorized?(actor: @support_user, recording: group, role: :view)
+
+    assert_difference -> { message_received_for(@support_user).count }, +1 do
+      assert_no_difference -> { message_received_for(@patron).count } do
+        assert_emails 1 do
+          RecordingStudioMessages.send_message(
+            group_recording: group,
+            body: "Still stuck on the quieter crop.",
+            actor: @patron
+          )
+        end
       end
     end
 
-    ticket = RecordingStudioSupport::SupportTicket.find_by!(subject: "Ping the inbox")
-    group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
-    assert_empty direct_access_roles(group, @support_user)
-    assert RecordingStudioAccessible.authorized?(actor: @support_user, recording: group, role: :view)
+    notice = message_received_for(@support_user).order(:created_at).last
+    assert_equal "message_received", notice.notification_type
+    assert_equal @support_user, notice.recipient
+    assert_empty direct_access_roles(group.reload, @support_user)
   end
 
   test "one to one helpers are not used on the user path" do
@@ -341,5 +352,12 @@ class SupportInboxTest < ActionDispatch::IntegrationTest
 
   def message_group_count_for(actor)
     RecordingStudioSupport::Tickets.for_actor(actor).count
+  end
+
+  def message_received_for(actor)
+    RecordingStudioNotifications::Notification.where(
+      notification_type: "message_received",
+      recipient: actor
+    )
   end
 end

@@ -8,13 +8,13 @@ gemspec
 # These gems are not published to RubyGems; resolve the gemspec pins from GitHub.
 gem "flat_pack", ">= 0.1.331", "< 1.0", github: "bowerbird-app/flatpack", tag: "v0.1.357"
 gem "recording_studio", "~> 6.0", ">= 6.1.0", github: "bowerbird-app/RecordingStudio", tag: "v6.7.0"
-gem "recording_studio_accessible", ">= 0.24", "< 1.0",
-    github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.32.0"
+gem "recording_studio_accessible", ">= 0.33.0", "< 1.0",
+    github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.33.0"
 gem "recording_studio_admin", ">= 2.0", "< 3.0", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.13.0"
 gem "recording_studio_attachable", ">= 0.7", "< 1.0", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.23.0"
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.2.1"
 gem "recording_studio_logs", ">= 0.4.0", "< 1.0", github: "bowerbird-app/RecordingStudio_logs", tag: "v0.7.4"
-gem "recording_studio_messages", ">= 0.22.0", "< 1.0", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.25.1"
+gem "recording_studio_messages", ">= 0.26.0", "< 1.0", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.26.0"
 gem "recording_studio_metrics", ">= 0.5.0", "< 1.0", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.8.0"
 gem "recording_studio_moveable", ">= 3.2", "< 5.0", github: "bowerbird-app/RecordingStudio_moveable", tag: "v4.1.1"
 gem "recording_studio_notifications", ">= 0.3.1", "< 1.0",
