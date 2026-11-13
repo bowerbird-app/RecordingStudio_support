@@ -16,8 +16,6 @@ RecordingStudio.configure do |config|
     "RecordingStudioMessages::MessageGroup",
     "RecordingStudioMessages::Message",
     "RecordingStudioAttachable::Attachment",
-    "RecordingStudioAttachable::Library",
-    "RecordingStudioAttachable::Placement",
     "RecordingStudioPublishable::Publishable",
     "RecordingStudio::Access",
     "RecordingStudioApi::ApiClient",
@@ -31,6 +29,11 @@ RecordingStudio.configure do |config|
   config.app_name = "Dummy host" if config.respond_to?(:app_name=)
 
   config.actor = -> { Current.actor }
+
+  # Recording Studio 6.5 refuses writes with no authorizer. Dummy seeds and
+  # tests record help before Accessible grants exist, so this host keeps the
+  # previous open writes. A production host sets authorize_write instead.
+  config.allow_unauthorized_writes = true
 
   config.event_notifications_enabled = true
 

@@ -21,6 +21,15 @@ module RecordingStudioSupport
       "/recording_studio_messages/message_groups/#{group_recording.id}/messages"
     end
 
+    # Messages 0.25 builds the unread toggle with url_for. Help and support
+    # desks are host routes, so that reversal has no route. Stay on the list.
+    def messages_unread_filter_index_path(query)
+      return messages_filter_path(help_messages_path_for, query) if help_messages_request?
+      return messages_filter_path(support_messages_path_for, query) if support_inbox_request?
+
+      super
+    end
+
     def messages_inbox_href(group_recording, inbox: nil)
       return my_messages_href(group_recording) if inbox == :my_messages && respond_to?(:my_messages_href)
       return support_inbox_group_href(group_recording) if support_inbox_request?
@@ -144,6 +153,21 @@ module RecordingStudioSupport
     def support_inbox_request?
       inbox_mount_path = RecordingStudioSupport.configuration.pages_path.to_s.chomp("/")
       request.path.to_s.start_with?(inbox_mount_path)
+    end
+
+    def help_messages_request?
+      request.path.to_s.start_with?(help_messages_path_for)
+    end
+
+    def support_messages_path_for
+      "#{RecordingStudioSupport.configuration.pages_path.to_s.chomp('/')}/messages"
+    end
+
+    def messages_filter_path(base, query)
+      extra = query.to_h.stringify_keys.except("id", "group_id", "after_id")
+      return base if extra.blank?
+
+      "#{base}?#{extra.to_query}"
     end
 
     def support_inbox_group_href(group_recording)

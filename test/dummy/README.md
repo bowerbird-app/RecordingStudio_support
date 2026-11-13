@@ -43,7 +43,7 @@ Auth uses `layouts/recording_studio_user/auth` with `html data-theme="rounded"`.
 
 ## Layouts and assets
 
-Authenticated pages call `recording_studio_layout`. A nil setting renders `recording_studio/default_layout`. That layout owns back/close chrome and Flatpack flash alerts. Dummy overrides the layout file so `<html>` gets `data-theme="rounded"`, `lang`, and Flatpack copy data. Core `v6.1.0` already sets the theme on `<html>`. The override adds the language selector, view tracking, and the content-editor sheet. Do not invent a custom theme or a sidebar shell. A compact `recording_studio_language_selector` sits in the top nav right slot (English/French).
+Authenticated pages call `recording_studio_layout`. A nil setting renders `recording_studio/default_layout`. That layout owns back/close chrome and Flatpack flash alerts. Dummy overrides the layout file so `<html>` gets `data-theme="rounded"`, `lang`, and Flatpack copy data. Core `v6.7.0` already sets the theme on `<html>`. The override adds the language selector, view tracking, and the content-editor sheet. Do not invent a custom theme or a sidebar shell. A compact `recording_studio_language_selector` sits in the top nav right slot (English/French).
 
 Public and support help use the same default layout. Do not use Publishable's application layout or invent a Support-only public shell. Support and Admin Support screens are back/close only. Sign out and the workspace switcher stay off PageNav, including dummy host pages, `/admin/support`, `/help`, and `/admin`. Access can stay on Admin. Do not put a login button in that chrome. Switch language from PageNav; article titles stay in the language they were written.
 

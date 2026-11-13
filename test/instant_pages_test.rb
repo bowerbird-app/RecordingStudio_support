@@ -38,4 +38,14 @@ class InstantPagesTest < Minitest::Test
     refute_includes initializer, "User"
     refute_includes initializer, "SupportSection"
   end
+
+  def test_section_instant_searches_pages_inside_the_section
+    source = File.read(File.expand_path("../lib/recording_studio_support/instant_pages.rb", __dir__))
+    engine = File.read(File.expand_path("../lib/recording_studio_support/search_instant_live_pages.rb", __dir__))
+
+    assert_includes source, "SupportPage.search"
+    refute_includes source, "hits_for"
+    assert_includes engine, "actor: search_actor"
+    assert_includes engine, "InstantPages.live_only"
+  end
 end
