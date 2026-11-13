@@ -15,11 +15,12 @@ module RecordingStudioSupport
       term = query.to_s.strip
       return scope if term.blank?
 
-      matched = RecordingStudioSearch::InstantSearch.hits_for([MODEL_NAME], term, limit: 20)
-      relation = search_relation(matched)
-      return scope.none if relation.blank?
+      # Search Instant hits are Accessible-scoped and empty without an actor.
+      # Section Instant already limited the audience, so rank inside that scope.
+      matched = SupportPage.search(term, limit: 20)
+      return scope.none if matched.blank?
 
-      scope.where(id: relation.unscope(:order).reselect(:id)).limit(20)
+      scope.where(id: matched.unscope(:order).reselect(:id)).limit(20)
     end
 
     def public_articles(section_recording, query:)
@@ -59,13 +60,5 @@ module RecordingStudioSupport
       end
     end
     private_class_method :page_scope
-
-    def search_relation(matched)
-      return matched if matched.is_a?(ActiveRecord::Relation)
-      return if matched.blank?
-
-      matched[SupportPage] || matched[MODEL_NAME]
-    end
-    private_class_method :search_relation
   end
 end

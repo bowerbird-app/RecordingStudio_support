@@ -7,6 +7,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.33.2] - 2026-11-13
+
+Search 0.10 Instant hits are empty without an actor. Section Instant still finds articles inside the section. Help and support desks keep a working unread toggle. Dummy writes stay open, and the Gemfile pins the current release tags.
+
+### Changed
+- Section Instant searches `SupportPage` inside the section audience. It does not call Search Instant `hits_for`, which returns nothing when the visitor has no Accessible grant.
+- The Search engine Instant path passes the controller actor, then keeps live `SupportPage` rows.
+- Help and support message desks build the unread-filter link on their own list path. Messages 0.25 `url_for` cannot reverse those host routes.
+- Dummy sets `config.allow_unauthorized_writes` so seeds and tests can record before Accessible grants exist. Root switch tests grant `:view`. Users auth renders inside `recording_studio/default_layout`.
+
+### Upgrade notes
+- Bump to `0.33.2`.
+- Pin Search `v0.10.0` or newer. Public `/help` Instant does not need an actor. The engine Instant path does: a signed-out request returns no hits.
+- Messages `v0.25.1` unread toggle on a host desk needs this release. Older Messages builds did not render that button on the help thread.
+- Recording Studio `v6.7.0` refuses writes unless the host sets `authorize_write` or `allow_unauthorized_writes`. Dummy uses the open-write flag. A production host should set `authorize_write`.
+- Trashable `v0.14.0` needs `purge_at` on recordings. Root Switchable `v0.15.0` requires Accessible `:view` on the switch page when a current root is selected.
+- Users `v0.28.1` calls `after_sign_in_path_for` with `public_send` while the method is private. Dummy publishes that method. Do the same if password sign-in raises `NoMethodError`.
+
 ## [0.33.1] - 2026-11-13
 
 Sibling dependency ranges let later 0.x minors resolve. Notifications Email still accepts the held `0.3.1` and also `0.5.x`. Views stays compatible with the dummy `0.8.0` tag and later `0.x`. Moveable stays on the 3.2 API this gem calls and also allows host 4.x.
@@ -1177,7 +1195,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.33.1...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.33.2...HEAD
+[0.33.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.33.1...v0.33.2
 [0.33.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.33.0...v0.33.1
 [0.33.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.32.2...v0.33.0
 [0.32.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.32.1...v0.32.2

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_09_220000) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_13_090006) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
   enable_extension "pg_trgm"
@@ -216,6 +216,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_220000) do
     t.integer "status_code", null: false
     t.datetime "updated_at", null: false
     t.string "user_agent"
+    t.datetime "arrived_at", default: -> { "clock_timestamp()" }
+    t.integer "latency_bucket_ms"
     t.index ["api_client_id", "occurred_at"], name: "index_rs_api_request_logs_on_client_and_time"
     t.index ["api_credential_id", "occurred_at"], name: "index_rs_api_request_logs_on_credential_and_time"
     t.index ["api_key", "occurred_at"], name: "index_rs_api_request_logs_on_api_and_time"
@@ -286,13 +288,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_220000) do
 
   create_table "recording_studio_logs_aggregation_runs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.string "aggregation_name", null: false
-    t.date "day", null: false
     t.string "status", null: false
     t.text "error_message"
     t.datetime "finished_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["aggregation_name", "day"], name: "index_rs_logs_aggregation_runs_on_name_and_day", unique: true
+    t.datetime "period_start", null: false
+    t.index ["aggregation_name", "period_start"], name: "index_rs_logs_aggregation_runs_on_name_and_period", unique: true
   end
 
   create_table "recording_studio_logs_maintenance_runs", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
@@ -340,6 +342,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_220000) do
     t.index ["message_group_recording_id"], name: "index_message_reads_on_message_group_recording_id"
   end
 
+  create_table "recording_studio_message_references", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.uuid "message_recording_id", null: false
+    t.uuid "target_recording_id", null: false
+    t.datetime "created_at", null: false
+    t.index ["message_recording_id", "target_recording_id"], name: "index_message_references_on_message_and_target", unique: true
+    t.index ["message_recording_id"], name: "index_message_references_on_message_recording_id"
+    t.index ["target_recording_id"], name: "index_message_references_on_target_recording_id"
+  end
+
   create_table "recording_studio_messages", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.text "body"
     t.datetime "created_at", null: false
@@ -375,6 +386,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_220000) do
     t.index ["status", "rollup_reserved_at"], name: "idx_rsn_deliveries_rollup_reservation"
   end
 
+  create_table "recording_studio_notifications_email_suppressions", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
+    t.string "address", null: false
+    t.string "reason", null: false
+    t.string "provider", null: false
+    t.datetime "lifted_at"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["address"], name: "idx_rsne_suppressions_address", unique: true
+  end
+
   create_table "recording_studio_notifications_notifications", id: :uuid, default: -> { "gen_random_uuid()" }, force: :cascade do |t|
     t.uuid "actor_id"
     t.string "actor_type"
@@ -395,6 +416,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_220000) do
     t.string "title", null: false
     t.datetime "updated_at", null: false
     t.string "url"
+    t.boolean "inbox", default: true, null: false
     t.index ["recipient_type", "recipient_id", "idempotency_key"], name: "idx_rsn_notifications_idempotency", unique: true, where: "(idempotency_key IS NOT NULL)"
     t.index ["recipient_type", "recipient_id", "notification_type"], name: "idx_rsn_notifications_recipient_type"
     t.index ["recording_id"], name: "idx_rsn_notifications_recording"
@@ -448,10 +470,12 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_09_220000) do
     t.boolean "trash_root", default: false, null: false
     t.datetime "trashed_at"
     t.datetime "updated_at", null: false
+    t.datetime "purge_at"
     t.index ["parent_recording_id", "recording_studio_orderable_position"], name: "idx_rs_recordings_orderable_sibling_position"
     t.index ["parent_recording_id"], name: "idx_rs_attachable_parent_active", where: "(((recordable_type)::text = 'RecordingStudioAttachable::Attachment'::text) AND (trashed_at IS NULL))"
     t.index ["parent_recording_id"], name: "index_recording_studio_recordings_on_parent_recording_id"
     t.index ["parent_recording_id"], name: "index_rs_publishable_child_per_parent", unique: true, where: "(((recordable_type)::text = 'RecordingStudioPublishable::Publishable'::text) AND (trashed_at IS NULL))"
+    t.index ["purge_at"], name: "idx_rs_recordings_due_purge_at", where: "(trashed_at IS NOT NULL)"
     t.index ["recordable_type", "recordable_id", "parent_recording_id", "trashed_at"], name: "index_recording_studio_recordings_on_recordable_parent_trashed"
     t.index ["recordable_type", "recordable_id"], name: "index_recording_studio_recordings_on_recordable"
     t.index ["recordable_type", "recordable_id"], name: "index_rs_unique_root_recording_per_recordable", unique: true, where: "(parent_recording_id IS NULL)"

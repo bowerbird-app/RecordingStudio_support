@@ -18,7 +18,7 @@ class DefaultLayoutAssetsTest < ActionDispatch::IntegrationTest
 
     assert_response :success
     assert_select "html[data-theme='rounded']"
-    refute_includes response.body, "data-recording-studio-default-layout"
+    assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_select "input[type='password'][name='user[password]']"
     assert_select "button[type='submit']", text: "Continue with email", count: 0
     assert_includes response.body, "flat_pack/variables"
@@ -58,7 +58,7 @@ class DefaultLayoutAssetsTest < ActionDispatch::IntegrationTest
     get new_user_session_path
 
     assert_response :success
-    refute_includes response.body, "data-recording-studio-default-layout"
+    assert_select "body[data-recording-studio-default-layout='true']", count: 1
     assert_select "html[data-theme='rounded']"
     assert_includes response.body, "flat_pack/variables"
     assert_includes response.body, "flat_pack/rich_text"

@@ -6,8 +6,8 @@ RecordingStudioUser.configure do |config|
   config.mount_path = "/recording_studio_users"
   config.profile_route_path = "profile"
   config.admin_route_path = "admin"
-  # Layout for the engine's signed-in screens. Sign in and sign up keep the
-  # gem's own centered layout, "recording_studio_user/auth".
+  # Layout for signed-in screens and the auth shell. Users 0.28 paints
+  # recording_studio_user/auth inside this layout.
   config.layout = "recording_studio/default_layout"
   # Leave additional_profile_attributes at the gem default (includes :locale).
   config.require_password_confirmation = false
@@ -58,6 +58,16 @@ RecordingStudioUser.configure do |config|
   # and installed recording_studio_notifications. Set primary_login_type = :otp
   # only when OTP login and registration are on.
   config.otp_enabled = false
+end
+
+# Users 0.28 keeps after_sign_in_path_for private and then public_sends it
+# from complete_signed_in!. Publish it so the password step can redirect.
+Rails.application.config.to_prepare do
+  next unless defined?(RecordingStudioUser::Auth::BaseController)
+
+  RecordingStudioUser::Auth::BaseController.class_eval do
+    public :after_sign_in_path_for, :after_sign_up_path_for
+  end
 end
 
 # Host Devise must skip sessions/registrations/passwords and mount Users auth:

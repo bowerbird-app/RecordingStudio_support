@@ -73,6 +73,7 @@ class MessagesInboxTest < Minitest::Test
 
     assert_includes install, "RecordingStudioMessages::PanelHelper"
     assert_includes install, "MessagesInboxHelper"
+    assert_includes helper, "def messages_unread_filter_index_path"
     assert_includes helper, "def messages_panel_right_header"
     assert_includes helper, "def messages_panel_right_header_mobile"
     assert_includes helper, "def support_ticket_for_header"
