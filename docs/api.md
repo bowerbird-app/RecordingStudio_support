@@ -64,7 +64,7 @@ The API client’s `AccessGrant.actor` is the Accessible actor (person, machine,
 | Missing token | `401` | `401` | `401` | `401` | `401` |
 | No Accessible grant | `403` / `401` | `403` / `401` | `403` / `401` | `403` / `401` | `403` / `401` |
 
-HTML ticket roles (the API matches these): `UserMessagesController` needs a signed-in actor to list, show, and open. Show also allows the ticket owner or the support team; anyone else is denied. `SupportTicketsController#update` needs the support team: Accessible `:edit` on SupportCenter (or its parent / admin root). The JSON actor is always `AccessGrant.actor`, never a body field.
+HTML ticket roles: `UserMessagesController` needs a signed-in actor to list, show, and open. The list is `Tickets.for_actor`. A customer's list is conversations they can `:view` (their `:edit` grant). A support-team actor's list is tickets they created, so inherited access does not list every ticket. Show allows Accessible `:view` on that conversation, which covers the customer and staff who inherit access from SupportCenter or AdminRoot. Anyone else is denied. `SupportTicketsController#update` needs the support team: Accessible `:edit` on SupportCenter (or its parent / admin root). The JSON actor is always `AccessGrant.actor`, never a body field. Public ticket index and show use `Tickets.for_actor`, so a support-team public client sees tickets that client created. Operations ticket index and show stay `Tickets.current`.
 
 ## Public API (page reads only)
 
@@ -75,7 +75,7 @@ Mount prefix is the host’s API engine path. Dummy uses `/recording_studio_api`
 | `GET` | `/recording_studio_api/api/v1/support_pages` | `:view` | List pages. `?q=` searches articles |
 | `GET` | `/recording_studio_api/api/v1/support_pages/:id` | `:view` | One page |
 | `GET` | `/recording_studio_api/api/v1/support_tickets` | `:view` on the grant scope | List the grant actor's current tickets (`Tickets.current` merged with `Tickets.for_actor`) |
-| `GET` | `/recording_studio_api/api/v1/support_tickets/:id` | `:view` on the grant scope | One ticket the actor opened (or support team). Someone else's ticket is `404` |
+| `GET` | `/recording_studio_api/api/v1/support_tickets/:id` | `:view` on the grant scope | One ticket on the actor's own list. A support-team actor's list is tickets they created. Someone else's ticket is `404` |
 | `POST` | `/recording_studio_api/api/v1/support_tickets` | `:view` on the grant scope | Open (`Tickets.open!`). Body: `subject`, `body`, optional `priority` (`low`, `normal`, `high`) |
 
 Public `support_sections` list/show and nested section-pages are not registered (`404` / unsupported). Public ticket `PATCH` / `DELETE` are not registered. Public page `POST` / `PATCH` / `DELETE` and public page `move` / `publish` / `unpublish` are not registered.

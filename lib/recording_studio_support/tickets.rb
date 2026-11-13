@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require_relative "tickets/grant_customer_edit"
 require_relative "tickets/open"
 require_relative "tickets/update"
 require_relative "tickets/reopen_from_customer_message"
@@ -118,10 +119,19 @@ module RecordingStudioSupport
     def for_actor(actor)
       return SupportTicket.none if actor.blank?
 
-      group_ids = viewable_group_recording_ids(actor)
-      return SupportTicket.none if group_ids.empty?
+      tickets = for_message_group_ids(viewable_group_recording_ids(actor))
+      return tickets unless Messages.support_team_actor?(actor)
 
-      for_message_group_ids(group_ids)
+      created_by(actor, tickets)
+    end
+
+    # Inherited :view lists every ticket. A support-team person's own list is
+    # the tickets they created.
+    def created_by(actor, tickets)
+      created_ids = RecordingStudio::Event.by_actor(actor).with_action("created").where(
+        recording_id: ticket_recordings.where(recordable_id: tickets.select(:id)).select(:id)
+      ).select(:recording_id)
+      tickets.where(id: ticket_recordings.where(id: created_ids).select(:recordable_id))
     end
 
     def viewable_group_recording_ids(actor) # rubocop:disable Metrics/MethodLength -- mount then tag filter

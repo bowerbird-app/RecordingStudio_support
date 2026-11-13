@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.33.2", ::RecordingStudioSupport::VERSION
+    assert_equal "0.34.0", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -28,7 +28,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemspec, 'spec.add_dependency "recording_studio_accessible", ">= 0.24", "< 1.0"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_admin", ">= 2.0", "< 3.0"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_attachable", ">= 0.7", "< 1.0"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_messages", ">= 0.17.0", "< 1.0"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_messages", ">= 0.22.0", "< 1.0"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_metrics", ">= 0.5.0", "< 1.0"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_notifications", ">= 0.3.1", "< 1.0"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_notifications_email", ">= 0.3.1", "< 1.0"'
@@ -43,8 +43,9 @@ class RecordingStudioSupportTest < Minitest::Test
     assert requirements.fetch("recording_studio_notifications_email").satisfied_by?(Gem::Version.new("0.3.1"))
     assert requirements.fetch("recording_studio_notifications_email").satisfied_by?(Gem::Version.new("0.5.0"))
     refute requirements.fetch("recording_studio_notifications_email").satisfied_by?(Gem::Version.new("1.0.0"))
-    assert requirements.fetch("recording_studio_messages").satisfied_by?(Gem::Version.new("0.17.0"))
-    assert requirements.fetch("recording_studio_messages").satisfied_by?(Gem::Version.new("0.18.0"))
+    refute requirements.fetch("recording_studio_messages").satisfied_by?(Gem::Version.new("0.21.0"))
+    assert requirements.fetch("recording_studio_messages").satisfied_by?(Gem::Version.new("0.22.0"))
+    assert requirements.fetch("recording_studio_messages").satisfied_by?(Gem::Version.new("0.25.1"))
     refute requirements.fetch("recording_studio_messages").satisfied_by?(Gem::Version.new("0.16.0"))
     refute requirements.fetch("recording_studio_messages").satisfied_by?(Gem::Version.new("1.0.0"))
     assert requirements.fetch("recording_studio").satisfied_by?(Gem::Version.new("6.1.0"))

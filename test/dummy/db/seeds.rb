@@ -348,20 +348,6 @@ begin
     seo_description: "Open your developer settings. The key is on that page."
   )
 
-  share_sample_ticket = lambda do |group, owner, teammate|
-    next if RecordingStudioSupport::Messages.support_team_has_edit?(group, teammate)
-
-    RecordingStudioMessages.allow_membership_change do
-      result = RecordingStudioAccessible.grant_access(
-        recording: group,
-        actor: teammate,
-        role: :edit,
-        manager_actor: owner
-      )
-      raise "Failed to share sample ticket: #{result.error}" if result.failure?
-    end
-  end
-
   ensure_sample_ticket = lambda do |sample|
     ticket = RecordingStudioSupport::SupportTicket.find_by(subject: sample[:subject])
     if ticket.nil?
@@ -376,8 +362,6 @@ begin
 
     group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
     raise "Sample ticket #{sample[:subject]} has no conversation" if group.blank?
-
-    share_sample_ticket.call(group, customer, user)
 
     bodies = RecordingStudioMessages.message_recordings(group).map { |recording| recording.recordable.body.to_s }
     if bodies.exclude?(sample[:reply])

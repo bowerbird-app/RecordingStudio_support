@@ -36,7 +36,6 @@ module RecordingStudioSupport
       return head :not_found if @group_recording.blank?
       return deny_support_access! unless ticket_visible_to_actor?
 
-      sync_ticket_grants!
       load_ticket_thread!
     end
 
@@ -61,13 +60,6 @@ module RecordingStudioSupport
       render :new, status: :unprocessable_entity
     end
 
-    def sync_ticket_grants!
-      RecordingStudioSupport::Messages.sync_support_team_grants!(
-        group_recording: @group_recording,
-        manager_actor: current_support_actor
-      )
-    end
-
     def load_ticket_thread!
       @mount_recording = @group_recording.parent_recording
       @group_recordings = [@group_recording]
@@ -81,8 +73,13 @@ module RecordingStudioSupport
     end
 
     def ticket_visible_to_actor?
-      RecordingStudioSupport::Messages.group_owner?(@group_recording, current_support_actor) ||
-        RecordingStudioSupport::Messages.support_team_actor?(current_support_actor)
+      return false unless defined?(RecordingStudioAccessible)
+
+      RecordingStudioAccessible.authorized?(
+        actor: current_support_actor,
+        recording: @group_recording,
+        role: :view
+      )
     end
 
     def ticket_params

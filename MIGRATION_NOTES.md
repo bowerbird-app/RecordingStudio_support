@@ -1,5 +1,24 @@
 # Upgrade notes
 
+## 0.34.0
+
+Ticket conversations inherit access. The customer gets `:edit` on the message group. Staff are not seated on it.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.34.0`.
+2. Pin `recording_studio_messages` `>= 0.22.0`. `access: :inherited` is not in older Messages. Dummy stays on tag `v0.25.1`.
+3. Leave ticket message groups without staff grants. Staff view and reply through `:edit` inherited from SupportCenter or AdminRoot.
+4. A support-team person's My tickets list is tickets they created. A direct ticket URL still opens when they have `:view` on the group.
+5. Staff notifications for a new ticket wait on the Messages change for inherited recipients. This gem does not seat staff to restore them.
+
+### Verify
+
+```bash
+bundle exec ruby -Itest test/messages_inbox_test.rb
+bundle exec rails test test/dummy/test/models/support_ticket_test.rb test/dummy/test/integration/support_membership_lock_test.rb test/dummy/test/integration/support_inbox_test.rb test/dummy/test/integration/support_center_tree_test.rb
+```
+
 ## 0.32.2
 
 Wrong-parent SupportPage create is `invalid_input`. Section, page, and SupportCenter writes pass `actor:`.

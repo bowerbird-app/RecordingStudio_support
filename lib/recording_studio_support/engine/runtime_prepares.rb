@@ -17,7 +17,6 @@ module RecordingStudioSupport
     initializer "recording_studio_support.messages" do
       config.to_prepare do
         RecordingStudioSupport::Engine.register_message_received_with_email!
-        RecordingStudioSupport::Messages::OpenAccessManagement.install!
         RecordingStudioSupport::Messages::SendMessageReopen.install!
         if defined?(RecordingStudioMessages::MembershipLock)
           RecordingStudioMessages::MembershipLock.install_authorizer_wrap!

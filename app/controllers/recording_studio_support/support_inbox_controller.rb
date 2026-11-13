@@ -20,7 +20,6 @@ module RecordingStudioSupport
       @group_recordings = load_group_recordings
       load_tickets_for_groups
       load_selected_conversation
-      sync_selected_group_grants
     end
 
     private
@@ -87,22 +86,6 @@ module RecordingStudioSupport
         group.recordable&.title.to_s.strip.present? &&
           RecordingStudioMessages.message_recordings(group).last&.recordable&.body.present?
       end || @group_recordings.first
-    end
-
-    def sync_selected_group_grants
-      return if @group_recording.blank?
-
-      owner = group_owner_actor(@group_recording) || current_support_actor
-      RecordingStudioSupport::Messages.sync_support_team_grants!(
-        group_recording: @group_recording,
-        manager_actor: owner
-      )
-    end
-
-    def group_owner_actor(group_recording)
-      RecordingStudioMessages.granted_actors(group_recording).find do |actor|
-        RecordingStudioSupport::Messages.group_owner?(group_recording, actor)
-      end
     end
   end
 end

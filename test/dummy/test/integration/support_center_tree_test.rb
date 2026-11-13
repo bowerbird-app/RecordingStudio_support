@@ -73,6 +73,49 @@ class SupportCenterTreeTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
+  test "support team my tickets are the ones they created" do
+    customer_ticket = RecordingStudioSupport::Tickets.open!(
+      actor: @patron,
+      subject: "Customer ticket",
+      body: "Not on the staff list."
+    )
+    staff_ticket = RecordingStudioSupport::Tickets.open!(
+      actor: @support_user,
+      subject: "Staff opened this",
+      body: "Opened from the team."
+    )
+    customer_group = RecordingStudioSupport::Tickets.group_recording_for(customer_ticket)
+    staff_group = RecordingStudioSupport::Tickets.group_recording_for(staff_ticket)
+
+    assert_equal [ "edit" ], direct_access_roles(customer_group, @patron)
+    assert_empty direct_access_roles(customer_group, @support_user)
+    assert_empty direct_access_roles(staff_group, @support_user)
+    assert_empty RecordingStudioAccessible.access_recordings_for(staff_group)
+    assert RecordingStudioAccessible.authorized?(actor: @support_user, recording: customer_group, role: :edit)
+
+    subjects = RecordingStudioSupport::Tickets.for_actor(@support_user).map(&:subject)
+    assert_includes subjects, "Staff opened this"
+    refute_includes subjects, "Customer ticket"
+    refute_includes RecordingStudioSupport::Tickets.for_actor(@patron).map(&:subject), "Staff opened this"
+
+    sign_in @support_user
+    get "/help/messages"
+    assert_response :success
+    assert_includes response.body, "Staff opened this"
+    refute_includes response.body, "Customer ticket"
+
+    get "/help/messages/#{customer_ticket.id}"
+    assert_response :success
+
+    group = customer_group
+    assert_difference -> { RecordingStudioMessages.message_recordings(group).count }, +1 do
+      post "/recording_studio_messages/message_groups/#{group.id}/messages", params: {
+        message: { body: "We can see this without a seat." }
+      }
+    end
+    assert_empty direct_access_roles(group.reload, @support_user)
+  end
+
   test "someone outside the support team gets forbidden on support screens" do
     sign_in @patron
     get "/admin/support/messages"
