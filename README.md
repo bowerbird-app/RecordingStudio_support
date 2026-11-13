@@ -26,7 +26,7 @@ gem "recording_studio_views", github: "bowerbird-app/RecordingStudio_views", tag
 gem "recording_studio_notifications", github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.7.0"
 gem "recording_studio_notifications_email",
     github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.3.4"
-gem "recording_studio_search", "~> 0.6",
+gem "recording_studio_search", ">= 0.6", "< 1.0",
     github: "bowerbird-app/RecordingStudio_search", tag: "v0.6.0"
 gem "recording_studio_support", github: "bowerbird-app/RecordingStudio_support"
 # Host-owned auth (not a Support gemspec dependency):
@@ -37,22 +37,22 @@ gem "view_component", "4.19.0"
 
 ```ruby
 # gemspec / host Gemfile constraints
-gem "recording_studio", ">= 6.1.0"
-gem "flat_pack", ">= 0.1.331"
+gem "recording_studio", "~> 6.0", ">= 6.1.0"
+gem "flat_pack", ">= 0.1.331", "< 1.0"
 gem "view_component", ">= 4.14", "< 5"
-gem "recording_studio_accessible", "~> 0.24"
-gem "recording_studio_admin", "~> 2.0"
-gem "recording_studio_attachable", "~> 0.7"
-gem "recording_studio_trashable", "~> 0.9"
-gem "recording_studio_orderable", "~> 0.2"
-gem "recording_studio_publishable", "~> 0.4"
-gem "recording_studio_search", "~> 0.6"
-gem "recording_studio_moveable", "~> 3.2"
-gem "recording_studio_messages", ">= 0.17.0"
+gem "recording_studio_accessible", ">= 0.24", "< 1.0"
+gem "recording_studio_admin", ">= 2.0", "< 3.0"
+gem "recording_studio_attachable", ">= 0.7", "< 1.0"
+gem "recording_studio_trashable", ">= 0.9", "< 1.0"
+gem "recording_studio_orderable", ">= 0.2", "< 1.0"
+gem "recording_studio_publishable", ">= 0.4", "< 1.0"
+gem "recording_studio_search", ">= 0.6", "< 1.0"
+gem "recording_studio_moveable", ">= 3.2", "< 5.0"
+gem "recording_studio_messages", ">= 0.17.0", "< 1.0"
 gem "recording_studio_metrics", ">= 0.5.0", "< 1.0"
-gem "recording_studio_views", ">= 0.8.0", "< 0.9"
-gem "recording_studio_notifications", ">= 0.3.1", "< 1"
-gem "recording_studio_notifications_email", "~> 0.3.1"
+gem "recording_studio_views", ">= 0.8.0", "< 1.0"
+gem "recording_studio_notifications", ">= 0.3.1", "< 1.0"
+gem "recording_studio_notifications_email", ">= 0.3.1", "< 1.0"
 ```
 
 Latest tags of Attachable, Logs, Metrics, Moveable, Notifications, Notifications Email, Search, Views, Cache, Users, Root Switchable, Internationalization, and API still require `recording_studio` below 6. This repo's Gemfiles load `test/support/widen_recording_studio_requirement.rb` before the gemspec so Bundler can resolve `6.1.0`. That file is not part of the installed gem. A host Gemfile that includes one of those gems has to widen the requirement the same way. Messages `v0.17.0`, Publishable `v0.13.2`, Orderable `v0.4.0`, Trashable `v0.12.0`, Admin `v2.7.0`, Accessible `v0.24.1`, and Recording Studio `v6.1.0` already allow `6.1.0`. Orderable `v0.4.0`, Trashable `v0.12.0`, and Moveable `v3.4.3` drop `RecordingStudio::UsesDefaultLayout`, which Recording Studio 6.1 removed. Earlier tags make `CI=true` eager load raise `NameError`. Admin screens need Admin `v2.7.0` because earlier releases still call `recording_studio_page_nav`. Accessible `v0.24.1` is the Messages `0.17` floor. Attachable stays on `v0.15.0` and Notifications stays on `v0.7.0`: later releases need schema changes this dummy does not ship. Root Switchable `v0.10.0` drops `anchor_label`; its gemspec still caps Recording Studio below 5, so the widen hook stays. Messages `v0.17.0` adds conversation header hooks. Support uses those for the support team Status. Hosts need Messages `>= 0.17.0`.
