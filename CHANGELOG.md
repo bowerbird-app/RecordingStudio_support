@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.33.1] - 2026-11-13
+
+Sibling dependency ranges let later 0.x minors resolve. Notifications Email still accepts the held `0.3.1` and also `0.5.x`. Views stays compatible with the dummy `0.8.0` tag and later `0.x`. Moveable stays on the 3.2 API this gem calls and also allows host 4.x.
+
+### Changed
+- `flat_pack` and 0.x `recording_studio_*` dependencies use `>=` the previous floor and `< 1.0`, including `recording_studio_notifications_email` `>= 0.3.1, < 1.0` and `recording_studio_views` `>= 0.8.0, < 1.0`.
+- `recording_studio_admin` is `>= 2.0, < 3.0`.
+- `recording_studio_moveable` is `>= 3.2, < 5.0`. Support calls `Moveable.to` and `move_to!`, which 3.2 already provides.
+- `recording_studio` is `~> 6.0, >= 6.1.0`.
+
+### Upgrade notes
+- Bump to `0.33.1`. Hosts on Notifications Email `0.3.1` stay compatible. Hosts on Moveable 4.x can resolve. Dummy GitHub tags are unchanged.
+
 ## [0.33.0] - 2026-11-12
 
 Support tickets join the existing JSON API. Section list honors `?q=`.
@@ -1164,7 +1177,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.33.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.33.1...HEAD
+[0.33.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.33.0...v0.33.1
 [0.33.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.32.2...v0.33.0
 [0.32.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.32.1...v0.32.2
 [0.32.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.32.0...v0.32.1

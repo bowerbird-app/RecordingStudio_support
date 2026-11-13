@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.33.0", ::RecordingStudioSupport::VERSION
+    assert_equal "0.33.1", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -22,33 +22,51 @@ class RecordingStudioSupportTest < Minitest::Test
   def test_gemspec_pins_recording_studio_kit_and_support_mixins
     gemspec = File.read(File.expand_path("../recording_studio_support.gemspec", __dir__))
 
-    assert_includes gemspec, 'spec.add_dependency "recording_studio", ">= 6.1.0"'
-    assert_includes gemspec, 'spec.add_dependency "flat_pack", ">= 0.1.331"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio", "~> 6.0", ">= 6.1.0"'
+    assert_includes gemspec, 'spec.add_dependency "flat_pack", ">= 0.1.331", "< 1.0"'
     assert_includes gemspec, 'spec.add_dependency "view_component", ">= 4.14", "< 5"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_accessible", "~> 0.24"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_admin", "~> 2.0"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_attachable", "~> 0.7"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_messages", ">= 0.17.0"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_accessible", ">= 0.24", "< 1.0"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_admin", ">= 2.0", "< 3.0"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_attachable", ">= 0.7", "< 1.0"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_messages", ">= 0.17.0", "< 1.0"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_metrics", ">= 0.5.0", "< 1.0"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_notifications", ">= 0.3.1", "< 1"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_notifications_email", "~> 0.3.1"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_notifications", ">= 0.3.1", "< 1.0"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_notifications_email", ">= 0.3.1", "< 1.0"'
 
-    notifications = Gem::Dependency.new("recording_studio_notifications", ">= 0.3.1", "< 1")
-    messages = Gem::Dependency.new("recording_studio_messages", ">= 0.17.0")
+    spec = Gem::Specification.load(File.expand_path("../recording_studio_support.gemspec", __dir__))
+    requirements = spec.dependencies.to_h { |dependency| [dependency.name, dependency.requirement] }
 
-    assert notifications.requirement.satisfied_by?(Gem::Version.new("0.3.1"))
-    assert notifications.requirement.satisfied_by?(Gem::Version.new("0.4.0"))
-    assert notifications.requirement.satisfied_by?(Gem::Version.new("0.5.0"))
-    refute notifications.requirement.satisfied_by?(Gem::Version.new("1.0.0"))
-    assert messages.requirement.satisfied_by?(Gem::Version.new("0.17.0"))
-    assert messages.requirement.satisfied_by?(Gem::Version.new("0.18.0"))
-    refute messages.requirement.satisfied_by?(Gem::Version.new("0.16.0"))
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_trashable", "~> 0.9"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_orderable", "~> 0.2"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_publishable", "~> 0.4"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_search", "~> 0.6"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_moveable", "~> 3.2"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_views", ">= 0.8.0", "< 0.9"'
+    assert requirements.fetch("recording_studio_notifications").satisfied_by?(Gem::Version.new("0.3.1"))
+    assert requirements.fetch("recording_studio_notifications").satisfied_by?(Gem::Version.new("0.4.0"))
+    assert requirements.fetch("recording_studio_notifications").satisfied_by?(Gem::Version.new("0.5.0"))
+    refute requirements.fetch("recording_studio_notifications").satisfied_by?(Gem::Version.new("1.0.0"))
+    assert requirements.fetch("recording_studio_notifications_email").satisfied_by?(Gem::Version.new("0.3.1"))
+    assert requirements.fetch("recording_studio_notifications_email").satisfied_by?(Gem::Version.new("0.5.0"))
+    refute requirements.fetch("recording_studio_notifications_email").satisfied_by?(Gem::Version.new("1.0.0"))
+    assert requirements.fetch("recording_studio_messages").satisfied_by?(Gem::Version.new("0.17.0"))
+    assert requirements.fetch("recording_studio_messages").satisfied_by?(Gem::Version.new("0.18.0"))
+    refute requirements.fetch("recording_studio_messages").satisfied_by?(Gem::Version.new("0.16.0"))
+    refute requirements.fetch("recording_studio_messages").satisfied_by?(Gem::Version.new("1.0.0"))
+    assert requirements.fetch("recording_studio").satisfied_by?(Gem::Version.new("6.1.0"))
+    assert requirements.fetch("recording_studio").satisfied_by?(Gem::Version.new("6.2.0"))
+    refute requirements.fetch("recording_studio").satisfied_by?(Gem::Version.new("6.0.9"))
+    refute requirements.fetch("recording_studio").satisfied_by?(Gem::Version.new("7.0.0"))
+    assert requirements.fetch("recording_studio_admin").satisfied_by?(Gem::Version.new("2.7.0"))
+    refute requirements.fetch("recording_studio_admin").satisfied_by?(Gem::Version.new("3.0.0"))
+    assert requirements.fetch("recording_studio_moveable").satisfied_by?(Gem::Version.new("3.2.0"))
+    assert requirements.fetch("recording_studio_moveable").satisfied_by?(Gem::Version.new("3.4.3"))
+    assert requirements.fetch("recording_studio_moveable").satisfied_by?(Gem::Version.new("4.1.1"))
+    refute requirements.fetch("recording_studio_moveable").satisfied_by?(Gem::Version.new("5.0.0"))
+    assert requirements.fetch("recording_studio_views").satisfied_by?(Gem::Version.new("0.8.0"))
+    assert requirements.fetch("recording_studio_views").satisfied_by?(Gem::Version.new("0.13.0"))
+    refute requirements.fetch("recording_studio_views").satisfied_by?(Gem::Version.new("0.7.9"))
+    refute requirements.fetch("recording_studio_views").satisfied_by?(Gem::Version.new("1.0.0"))
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_trashable", ">= 0.9", "< 1.0"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_orderable", ">= 0.2", "< 1.0"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_publishable", ">= 0.4", "< 1.0"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_search", ">= 0.6", "< 1.0"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_moveable", ">= 3.2", "< 5.0"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_views", ">= 0.8.0", "< 1.0"'
     refute_includes gemspec, 'spec.add_dependency "recording_studio_api"'
     refute_includes gemspec, 'spec.add_dependency "recording_studio_user"'
     refute_includes gemspec, "recording_studio_internationalization"
