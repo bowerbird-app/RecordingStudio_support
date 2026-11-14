@@ -3,33 +3,47 @@
 require "test_helper"
 
 class TrashableSiblingApiTest < Minitest::Test
-  # Hash-filter sites keep main's additive trashed_at: nil because
-  # recording_studio_trashable_active unscopes trashed_at first.
-  HASH_FILTER_METHODS = {
-    "lib/recording_studio_support/pages/lookups.rb" => %w[kept_pages kept_pages_for_section find_kept! recording_for],
+  # Kept reads go through Recording.kept. Trashable's active scope unscopes
+  # trashed_at, so Support does not call it.
+  KEPT_METHODS = {
+    "lib/recording_studio_support/pages/lookups.rb" => %w[
+      kept_pages kept_pages_for_center kept_pages_for_section find_kept! recording_for
+    ],
     "lib/recording_studio_support/pages/counts.rb" => %w[kept_pages_for_sections],
     "lib/recording_studio_support/sections.rb" => %w[kept kept_sections],
     "lib/recording_studio_support/sections/lookups.rb" => %w[find_kept! default_parent_root],
+    "lib/recording_studio_support/support_centers.rb" => %w[for_parent kept default_parent_root recording_for],
     "lib/recording_studio_support/api/lookup.rb" => %w[kept_recording!],
-    "lib/recording_studio_support/admin/queries.rb" => %w[kept_page_recordings]
+    "lib/recording_studio_support/admin/queries.rb" => %w[kept_page_recordings],
+    "lib/recording_studio_support/tickets.rb" => %w[ticket_recordings]
   }.freeze
 
-  def test_hash_filter_sites_keep_main_additive_trashed_at_nil
-    HASH_FILTER_METHODS.each do |relative_path, method_names|
+  REMOVED_TRASHABLE_QUERY_HELPERS = %w[
+    recording_studio_trashable_active
+    recording_studio_trashable_including_trashed
+    recording_studio_trashable_kept_sql
+    recording_studio_trashable_trashed_sql
+  ].freeze
+
+  def test_kept_reads_use_recording_kept
+    KEPT_METHODS.each do |relative_path, method_names|
       source = File.read(File.expand_path("../#{relative_path}", __dir__))
       code = source.lines.grep_v(/^\s*#/).join
 
-      assert_includes code, "trashed_at: nil",
-                      "#{relative_path} should keep main's additive trashed_at: nil"
-      refute_includes code, "recording_studio_trashable_active",
-                      "#{relative_path} must not chain trashable_active (unscope differs under default_scope)"
+      assert_includes code, "RecordingStudio::Recording.kept",
+                      "#{relative_path} should filter with Recording.kept"
+      refute_includes code, "trashed_at: nil",
+                      "#{relative_path} should not hand-write trashed_at: nil"
+      REMOVED_TRASHABLE_QUERY_HELPERS.each do |helper|
+        refute_includes code, helper, "#{relative_path} must not call #{helper}"
+      end
 
       method_names.each do |method_name|
         method_source = extract_method_source(source, method_name)
-        assert_includes method_source, "trashed_at: nil",
-                        "#{relative_path}##{method_name} must keep trashed_at: nil"
-        refute_includes method_source, "recording_studio_trashable_active",
-                        "#{relative_path}##{method_name} must not use trashable_active"
+        assert_includes method_source, "RecordingStudio::Recording.kept",
+                        "#{relative_path}##{method_name} must use Recording.kept"
+        refute_includes method_source, "trashed_at: nil",
+                        "#{relative_path}##{method_name} must not hand-write trashed_at: nil"
       end
     end
   end
@@ -39,8 +53,9 @@ class TrashableSiblingApiTest < Minitest::Test
       File.expand_path("../app/models/recording_studio_support/support_section.rb", __dir__)
     )
 
-    assert_includes source, "recording_studio_trashable_kept_sql"
+    assert_includes source, "RecordingStudio.kept_sql"
     assert_includes source, "quote_table_name"
+    refute_includes source, "recording_studio_trashable_kept_sql"
     refute_match(/INNER JOIN \#\{table\}/, source)
     refute_match(/\.trashed_at\s+IS\s+NULL/i, source)
   end
@@ -58,6 +73,9 @@ class TrashableSiblingApiTest < Minitest::Test
     refute_match(/\bdef\s+kept_sql\b/, sources)
     refute_match(/\bdef\s+trashed_sql\b/, sources)
     refute_includes sources, "update_columns(trashed_at:"
+    REMOVED_TRASHABLE_QUERY_HELPERS.each do |helper|
+      refute_includes sources, helper
+    end
   end
 
   def test_changelog_and_pins_document_trashable_0_9
@@ -71,12 +89,17 @@ class TrashableSiblingApiTest < Minitest::Test
     assert_includes changelog, "v0.9.0"
     assert_includes changelog, "[0.17.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.16.1...v0.17.0"
     assert_includes changelog, "## [0.19.0]"
-    assert_includes changelog, "compare/v0.34.1...HEAD"
+    assert_includes changelog, "compare/v0.35.0...HEAD"
     assert_includes changelog, "[0.19.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.18.0...v0.19.0"
     assert_includes changelog, "## [0.18.0]"
     assert_includes changelog, "[0.18.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.17.0...v0.18.0"
+    assert_includes changelog, "## [0.35.0]"
+    assert_includes changelog, "RecordingStudio.kept_sql"
+    assert_includes changelog, ">= 6.14.0"
     assert_includes gemfile, 'tag: "v0.14.0"'
+    assert_includes gemfile, 'tag: "v6.14.0"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_trashable", ">= 0.9", "< 1.0"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio", "~> 6.0", ">= 6.14.0"'
   end
 
   private

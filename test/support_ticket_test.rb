@@ -64,7 +64,8 @@ class SupportTicketTest < Minitest::Test
 
     assert_includes source, "def current_join_sql"
     assert_includes source, "quote_table_name"
-    assert_includes source, "recording_studio_trashable_kept_sql"
+    assert_includes source, "RecordingStudio.kept_sql"
+    refute_includes source, "recording_studio_trashable_kept_sql"
     refute_includes source, "CURRENT_JOIN"
   end
 end

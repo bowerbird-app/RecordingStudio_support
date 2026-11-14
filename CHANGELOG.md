@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.35.0] - 2026-11-14
+
+Kept recording reads use Recording Studio `Recording.kept` and `RecordingStudio.kept_sql`. Support no longer calls Trashable's query helpers or writes its own `trashed_at` filter.
+
+### Changed
+- Page, section, center, ticket, admin, and API lookups call `RecordingStudio::Recording.kept`.
+- Section slug uniqueness and the current-ticket join use `RecordingStudio.kept_sql`.
+- Gemspec requires `recording_studio` `~> 6.0, >= 6.14.0`. Development and the dummy pin tag `v6.14.0`.
+- Dummy copies Recording Studio's `root_recording_id` migration for events.
+- Trashable stays on tag `v0.14.0`. That release does not register the kept filter.
+
+### Upgrade notes
+- Bump to `0.35.0`. Require Recording Studio `>= 6.14.0` (tag `v6.14.0`).
+- Copy core migration `20261114090000_add_root_recording_id_to_recording_studio_events` if events do not yet store `root_recording_id`.
+- `Recording.kept` hides trashed rows only after an addon registers a recording filter. Trashable `0.16` does that and removes `recording_studio_trashable_kept_sql`, `recording_studio_trashable_active`, `recording_studio_trashable_including_trashed`, and `recording_studio_trashable_trashed_sql`. This release does not pin Trashable `0.16`. On Trashable `0.14`, kept lists include trashed rows until that filter is registered.
+- Trash and restore still use `recording_studio_trashable_trash!` / `recording_studio_trashable_restore!`. No Support migration.
+
 ## [0.34.1] - 2026-11-13
 
 A customer reply on an inherited ticket notifies the support team. Messages 0.26 sends that notice to everyone with effective `:view`, including access inherited from SupportCenter or AdminRoot, and never to the sender.
@@ -1227,7 +1244,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.34.1...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.0...HEAD
+[0.35.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.34.1...v0.35.0
 [0.34.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.34.0...v0.34.1
 [0.34.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.33.2...v0.34.0
 [0.33.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.33.1...v0.33.2

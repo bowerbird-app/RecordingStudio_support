@@ -4,9 +4,8 @@ module RecordingStudioSupport
   module Sections
     module Lookups
       def find_kept!(id:)
-        RecordingStudio::Recording.where(
-          recordable_type: SUPPORT_SECTION_TYPE,
-          trashed_at: nil
+        RecordingStudio::Recording.kept.where(
+          recordable_type: SUPPORT_SECTION_TYPE
         ).includes(:recordable).find(id)
       end
 
@@ -41,10 +40,9 @@ module RecordingStudioSupport
       end
 
       def default_parent_root
-        parent = RecordingStudio::Recording.find_by(
+        parent = RecordingStudio::Recording.kept.find_by(
           recordable_type: RecordingStudioSupport.parent_root_type,
-          parent_recording_id: nil,
-          trashed_at: nil
+          parent_recording_id: nil
         )
         SupportCenters.for_parent(parent) || parent
       end

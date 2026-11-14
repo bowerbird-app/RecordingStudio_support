@@ -748,9 +748,8 @@ class SupportApiTest < ActionDispatch::IntegrationTest
   test "page and section lists accept an API Page pagination payload" do
     service = RecordingStudioApi::Services::PaginateResourceCollection
     original = service.method(:call)
-    section_rows = RecordingStudio::Recording.where(
-      recordable_type: "RecordingStudioSupport::SupportSection",
-      trashed_at: nil
+    section_rows = RecordingStudio::Recording.kept.where(
+      recordable_type: "RecordingStudioSupport::SupportSection"
     ).limit(5).to_a
     page_class = Data.define(:rows, :meta)
     fake_result = Struct.new(:value) do

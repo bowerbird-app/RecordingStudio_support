@@ -23,10 +23,7 @@ module RecordingStudioSupport
     end
 
     def kept
-      RecordingStudio::Recording.where(
-        recordable_type: SUPPORT_SECTION_TYPE,
-        trashed_at: nil
-      )
+      RecordingStudio::Recording.kept.where(recordable_type: SUPPORT_SECTION_TYPE)
     end
 
     def create!(root_recording:, title:, icon: nil, actor: nil) # rubocop:disable Metrics/MethodLength -- record under SupportCenter
@@ -91,10 +88,9 @@ module RecordingStudioSupport
     end
 
     def kept_sections(center_recording)
-      RecordingStudio::Recording.where(
+      RecordingStudio::Recording.kept.where(
         parent_recording_id: center_recording.id,
-        recordable_type: SUPPORT_SECTION_TYPE,
-        trashed_at: nil
+        recordable_type: SUPPORT_SECTION_TYPE
       )
     end
 

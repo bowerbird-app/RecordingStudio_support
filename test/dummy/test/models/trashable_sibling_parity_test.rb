@@ -19,7 +19,7 @@ class TrashableSiblingParityTest < ActiveSupport::TestCase
     remove_recording_default_scope!
   end
 
-  test "kept page and section scopes match main trashed_at nil filters" do
+  test "kept page and section scopes match Recording.kept" do
     section = record_support_section(@root_recording, title: "Live section")
     kept_page = record_support_page(@root_recording, section, title: "Kept page")
     trashed_page = record_support_page(@root_recording, section, title: "Trashed page")
@@ -30,15 +30,13 @@ class TrashableSiblingParityTest < ActiveSupport::TestCase
 
     page_ids = RecordingStudioSupport::Pages.kept_pages(@root_recording).pluck(:id)
     section_ids = RecordingStudioSupport::Sections.kept_sections(@center).pluck(:id)
-    main_page_ids = RecordingStudio::Recording.where(
+    main_page_ids = RecordingStudio::Recording.kept.where(
       root_recording_id: @root_recording.id,
-      recordable_type: RecordingStudioSupport::Pages::SUPPORT_PAGE_TYPE,
-      trashed_at: nil
+      recordable_type: RecordingStudioSupport::Pages::SUPPORT_PAGE_TYPE
     ).pluck(:id)
-    main_section_ids = RecordingStudio::Recording.where(
+    main_section_ids = RecordingStudio::Recording.kept.where(
       parent_recording_id: @center.id,
-      recordable_type: RecordingStudioSupport::Sections::SUPPORT_SECTION_TYPE,
-      trashed_at: nil
+      recordable_type: RecordingStudioSupport::Sections::SUPPORT_SECTION_TYPE
     ).pluck(:id)
 
     assert_equal main_page_ids.sort, page_ids.sort
@@ -52,19 +50,7 @@ class TrashableSiblingParityTest < ActiveSupport::TestCase
     assert trashed_page.reload.recording_studio_trashable_trashed?
   end
 
-  test "kept_sections Sections.kept and admin queries keep additive trashed_at in to_sql" do
-    assert_additive_trashed_at_sql!(RecordingStudioSupport::Sections.kept_sections(@center).to_sql,
-                                    label: "kept_sections")
-    assert_additive_trashed_at_sql!(RecordingStudioSupport::Sections.kept.to_sql, label: "Sections.kept")
-    assert_additive_trashed_at_sql!(
-      RecordingStudioSupport::Admin::Queries.kept_page_recordings.to_sql,
-      label: "Admin::Queries.kept_page_recordings"
-    )
-    assert_additive_trashed_at_sql!(
-      RecordingStudioSupport::Pages.kept_pages(@root_recording).to_sql,
-      label: "kept_pages"
-    )
-
+  test "kept scopes use Recording.kept and not trashable query helpers" do
     %i[kept_sections kept kept_page_recordings kept_pages].each do |name|
       source_file = case name
                     when :kept_sections, :kept
@@ -75,9 +61,11 @@ class TrashableSiblingParityTest < ActiveSupport::TestCase
                       RecordingStudioSupport::Pages.method(name).source_location.first
                     end
       code = File.read(source_file).lines.grep_v(/^\s*#/).join
-      assert_includes code, "trashed_at: nil", "#{name} source must keep trashed_at: nil"
+      assert_includes code, "RecordingStudio::Recording.kept", "#{name} source must use Recording.kept"
+      assert_not_includes code, "trashed_at: nil", "#{name} source must not hand-write trashed_at: nil"
       assert_not_includes code, "recording_studio_trashable_active",
                           "#{name} source must not use trashable_active"
+      assert_not_includes code, "recording_studio_trashable_kept_sql"
     end
   end
 
@@ -87,14 +75,13 @@ class TrashableSiblingParityTest < ActiveSupport::TestCase
     quoted_sections = ActiveRecord::Base.connection.quote_table_name(
       RecordingStudioSupport::SupportSection.table_name
     )
-    expected_kept = RecordingStudio::Recording.recording_studio_trashable_kept_sql(table)
+    expected_kept = RecordingStudio.kept_sql(table)
     join_sql = RecordingStudioSupport::SupportSection.current_kept_join_sql
 
     assert_includes join_sql, expected_kept
     assert_includes join_sql, "INNER JOIN #{quoted_table}"
     assert_includes join_sql, "#{quoted_table}.recordable_id = #{quoted_sections}.id"
     assert_no_match(/INNER JOIN #{Regexp.escape(table)} /, join_sql)
-    assert_no_match(/#{Regexp.escape(table)}\.trashed_at\s+IS\s+NULL/, join_sql)
 
     title = "Parity billing #{SecureRandom.hex(4)}"
     expected_slug = title.parameterize
@@ -134,7 +121,7 @@ class TrashableSiblingParityTest < ActiveSupport::TestCase
     assert_not_includes ids, trashed.id
   end
 
-  test "default_scope parity: additive trashed_at remains in SQL and IDs match main" do
+  test "kept matches Recording.kept under a host default scope and does not unscope" do
     section = record_support_section(@root_recording, title: "Default scope section")
     kept_page = record_support_page(@root_recording, section, title: "Default scope kept")
     trashed_page = record_support_page(@root_recording, section, title: "Default scope trashed")
@@ -144,27 +131,15 @@ class TrashableSiblingParityTest < ActiveSupport::TestCase
 
     kept_pages = RecordingStudioSupport::Pages.kept_pages(@root_recording)
     kept_sections = RecordingStudioSupport::Sections.kept_sections(@center)
-    sections_kept = RecordingStudioSupport::Sections.kept
-    admin_pages = RecordingStudioSupport::Admin::Queries.kept_page_recordings
 
-    # Under default_scope, ID equality alone is vacuous (default_scope already
-    # hides trashed rows). Require two trashed_at predicates so dropping the
-    # explicit filter OR switching to trashable_active (unscope + one predicate)
-    # fails this test.
-    [kept_pages, kept_sections, sections_kept, admin_pages].each do |relation|
-      assert_duplicated_trashed_at_sql!(relation.to_sql, label: relation.to_sql[0, 80])
-    end
-
-    main_ids = RecordingStudio::Recording.where(
+    main_ids = RecordingStudio::Recording.kept.where(
       root_recording_id: @root_recording.id,
-      recordable_type: RecordingStudioSupport::Pages::SUPPORT_PAGE_TYPE,
-      trashed_at: nil
+      recordable_type: RecordingStudioSupport::Pages::SUPPORT_PAGE_TYPE
     ).pluck(:id)
     support_ids = kept_pages.pluck(:id)
-    section_main_ids = RecordingStudio::Recording.where(
+    section_main_ids = RecordingStudio::Recording.kept.where(
       parent_recording_id: @center.id,
-      recordable_type: RecordingStudioSupport::Sections::SUPPORT_SECTION_TYPE,
-      trashed_at: nil
+      recordable_type: RecordingStudioSupport::Sections::SUPPORT_SECTION_TYPE
     ).pluck(:id)
     section_support_ids = kept_sections.pluck(:id)
 
@@ -174,33 +149,17 @@ class TrashableSiblingParityTest < ActiveSupport::TestCase
     assert_not_includes support_ids, trashed_page.id
     assert_includes section_support_ids, section.id
 
-    # Prove the active-vs-additive divergence the SQL check guards against.
+    # .kept adds the registered filter. It does not unscope, so a trashed-only
+    # relation stays trashed-only.
     trashed_base = RecordingStudio::Recording.unscope(where: :trashed_at).where.not(trashed_at: nil).where(
       root_recording_id: @root_recording.id,
       recordable_type: RecordingStudioSupport::Pages::SUPPORT_PAGE_TYPE
     )
-    additive_ids = trashed_base.where(trashed_at: nil).pluck(:id)
-    active_ids = trashed_base.recording_studio_trashable_active.pluck(:id)
-
-    assert_empty additive_ids, "additive trashed_at: nil must not revive rows from a trashed-only base"
-    assert_includes active_ids, kept_page.id,
-                    "trashable_active unscopes and returns kept rows — Support must not use it here"
+    assert_not_includes trashed_base.kept.pluck(:id), kept_page.id
+    assert_empty trashed_base.where(trashed_at: nil).pluck(:id)
   end
 
   private
-
-  def assert_additive_trashed_at_sql!(sql, label:)
-    assert_match(/["']?trashed_at["']?\s+IS\s+NULL/i, sql,
-                 "#{label} to_sql must include trashed_at IS NULL")
-    assert_no_match(/recording_studio_trashable_active/, sql)
-  end
-
-  def assert_duplicated_trashed_at_sql!(sql, label:)
-    count = sql.scan(/["']?trashed_at["']?\s+IS\s+NULL/i).size
-    assert_operator count, :>=, 2,
-                    "#{label} expected >= 2 trashed_at IS NULL predicates under default_scope " \
-                    "(got #{count}). Dropping trashed_at: nil or using trashable_active yields 1."
-  end
 
   def install_recording_default_scope!
     return if @default_scope_installed

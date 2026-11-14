@@ -9,10 +9,9 @@ module RecordingStudioSupport
     def for_parent(parent_recording)
       return if parent_recording.blank?
 
-      RecordingStudio::Recording.find_by(
+      RecordingStudio::Recording.kept.find_by(
         parent_recording_id: parent_recording.id,
-        recordable_type: TYPE,
-        trashed_at: nil
+        recordable_type: TYPE
       )
     end
 
@@ -21,10 +20,7 @@ module RecordingStudioSupport
     end
 
     def kept
-      RecordingStudio::Recording.where(
-        recordable_type: TYPE,
-        trashed_at: nil
-      )
+      RecordingStudio::Recording.kept.where(recordable_type: TYPE)
     end
 
     def create!(parent_recording:, actor: nil)
@@ -38,10 +34,9 @@ module RecordingStudioSupport
     end
 
     def default_parent_root
-      RecordingStudio::Recording.where(
+      RecordingStudio::Recording.kept.where(
         recordable_type: RecordingStudioSupport.parent_root_type,
-        parent_recording_id: nil,
-        trashed_at: nil
+        parent_recording_id: nil
       ).order(:created_at).first
     end
 
@@ -49,10 +44,9 @@ module RecordingStudioSupport
       return center if center.is_a?(RecordingStudio::Recording) && center.recordable_type == TYPE
       return if center.blank?
 
-      RecordingStudio::Recording.find_by(
+      RecordingStudio::Recording.kept.find_by(
         recordable: center,
-        recordable_type: TYPE,
-        trashed_at: nil
+        recordable_type: TYPE
       )
     end
   end
