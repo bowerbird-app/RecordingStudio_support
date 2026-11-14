@@ -1,5 +1,24 @@
 # Upgrade notes
 
+## 0.35.0
+
+Kept reads use `RecordingStudio::Recording.kept` and `RecordingStudio.kept_sql`. Support does not call Trashable's kept/active/trashed SQL helpers and does not add its own `trashed_at` predicate.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.35.0`.
+2. Require Recording Studio `>= 6.14.0` (tag `v6.14.0`), Accessible `>= 0.42.0` (tag `v0.42.0`), and Trashable `>= 0.16.0` (tag `v0.16.0`).
+3. Copy core migration `20261114090000_add_root_recording_id_to_recording_studio_events` when `recording_studio_events` has no `root_recording_id`, then migrate.
+4. Trashable `0.16` registers `:trashable`, so `Recording.kept` hides trashed rows. It removes `recording_studio_trashable_kept_sql`, `recording_studio_trashable_active`, `recording_studio_trashable_including_trashed`, and `recording_studio_trashable_trashed_sql`. Set `config.access_management_actor_scope` before manage access.
+5. No Support migration. Trash and restore stay on `recording_studio_trashable_trash!` / `recording_studio_trashable_restore!`. Recording Studio API `v0.23.1` still calls the removed helper. Point that call at `RecordingStudio.kept_sql` until API drops it.
+
+### Verify
+
+```bash
+bundle exec ruby -Itest test/trashable_sibling_api_test.rb test/support_section_slug_test.rb test/support_ticket_test.rb test/recording_studio_support_test.rb
+cd test/dummy && bundle exec rails test test/models/trashable_sibling_parity_test.rb test/models/support_ticket_reads_test.rb
+```
+
 ## 0.34.1
 
 A customer reply notifies support admins who only inherit access. The sender is not notified.

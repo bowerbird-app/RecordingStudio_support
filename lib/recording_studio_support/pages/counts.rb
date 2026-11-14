@@ -21,10 +21,9 @@ module RecordingStudioSupport
       end
 
       def kept_pages_for_sections(section_ids)
-        RecordingStudio::Recording.where(
+        RecordingStudio::Recording.kept.where(
           parent_recording_id: section_ids,
-          recordable_type: SUPPORT_PAGE_TYPE,
-          trashed_at: nil
+          recordable_type: SUPPORT_PAGE_TYPE
         )
       end
 

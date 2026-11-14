@@ -84,11 +84,10 @@ PASSWORD_BODY = <<~HTML.freeze unless defined?(PASSWORD_BODY)
 HTML
 
 find_or_record_child = lambda do |recordable, root_recording, parent_recording|
-  RecordingStudio::Recording.find_by(
+  RecordingStudio::Recording.kept.find_by(
     root_recording: root_recording,
     parent_recording: parent_recording,
-    recordable: recordable,
-    trashed_at: nil
+    recordable: recordable
   ) || RecordingStudio.record!(
     action: "created",
     recordable: recordable,
@@ -105,10 +104,9 @@ find_or_record_support_center = lambda do |parent_recording|
 end
 
 find_or_record_support_section = lambda do |center_recording, title:, icon: nil|
-  existing = RecordingStudio::Recording.where(
+  existing = RecordingStudio::Recording.kept.where(
     parent_recording: center_recording,
-    recordable_type: "RecordingStudioSupport::SupportSection",
-    trashed_at: nil
+    recordable_type: "RecordingStudioSupport::SupportSection"
   ).find { |recording| recording.recordable.title == title }
 
   if existing
@@ -132,10 +130,9 @@ find_or_record_support_section = lambda do |center_recording, title:, icon: nil|
 end
 
 find_or_record_support_page = lambda do |root_recording, parent_recording, title:, body:, description: nil, icon: nil|
-  existing = RecordingStudio::Recording.where(
+  existing = RecordingStudio::Recording.kept.where(
     root_recording: root_recording,
-    recordable_type: "RecordingStudioSupport::SupportPage",
-    trashed_at: nil
+    recordable_type: "RecordingStudioSupport::SupportPage"
   ).find { |recording| recording.recordable.title == title }
 
   if existing

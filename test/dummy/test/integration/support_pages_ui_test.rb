@@ -389,10 +389,9 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
       page: { title: "Smuggled", body: "Nope", section_id: section_b.id }
     }
     assert_response :forbidden
-    titles = RecordingStudio::Recording.where(
+    titles = RecordingStudio::Recording.kept.where(
       parent_recording_id: section_b.id,
-      recordable_type: "RecordingStudioSupport::SupportPage",
-      trashed_at: nil
+      recordable_type: "RecordingStudioSupport::SupportPage"
     ).filter_map { |recording| recording.recordable&.title }
     refute_includes titles, "Smuggled"
   end

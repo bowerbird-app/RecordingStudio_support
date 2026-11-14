@@ -34,7 +34,7 @@ module RecordingStudioSupport
       def kept_recording!(id:, not_found: "Resource was not found")
         raise_not_found(not_found) if id.blank?
 
-        RecordingStudio::Recording.where(trashed_at: nil).find(id)
+        RecordingStudio::Recording.kept.find(id)
       rescue ActiveRecord::RecordNotFound
         raise_not_found(not_found)
       end

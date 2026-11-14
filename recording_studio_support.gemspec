@@ -24,8 +24,8 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "flat_pack", ">= 0.1.331", "< 1.0"
   spec.add_dependency "rails", "~> 8.1.0"
-  spec.add_dependency "recording_studio", "~> 6.0", ">= 6.1.0"
-  spec.add_dependency "recording_studio_accessible", ">= 0.33.0", "< 1.0"
+  spec.add_dependency "recording_studio", "~> 6.0", ">= 6.14.0"
+  spec.add_dependency "recording_studio_accessible", ">= 0.42.0", "< 1.0"
   spec.add_dependency "recording_studio_admin", ">= 2.0", "< 3.0"
   spec.add_dependency "recording_studio_attachable", ">= 0.7", "< 1.0"
   spec.add_dependency "recording_studio_messages", ">= 0.26.0", "< 1.0"
@@ -36,7 +36,7 @@ Gem::Specification.new do |spec|
   spec.add_dependency "recording_studio_orderable", ">= 0.2", "< 1.0"
   spec.add_dependency "recording_studio_publishable", ">= 0.4", "< 1.0"
   spec.add_dependency "recording_studio_search", ">= 0.6", "< 1.0"
-  spec.add_dependency "recording_studio_trashable", ">= 0.9", "< 1.0"
+  spec.add_dependency "recording_studio_trashable", ">= 0.16.0", "< 1.0"
   spec.add_dependency "recording_studio_views", ">= 0.8.0", "< 1.0"
   spec.add_dependency "view_component", ">= 4.14", "< 5"
 end

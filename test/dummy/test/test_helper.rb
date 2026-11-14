@@ -60,9 +60,8 @@ module SupportRecordHelpers
   end
 
   def seeded_section(title)
-    RecordingStudio::Recording.where(
-      recordable_type: "RecordingStudioSupport::SupportSection",
-      trashed_at: nil
+    RecordingStudio::Recording.kept.where(
+      recordable_type: "RecordingStudioSupport::SupportSection"
     ).find { |recording| recording.recordable.title == title }
   end
 
@@ -176,9 +175,8 @@ module SupportRecordHelpers
   end
 
   def seeded_page(title)
-    RecordingStudio::Recording.where(
-      recordable_type: "RecordingStudioSupport::SupportPage",
-      trashed_at: nil
+    RecordingStudio::Recording.kept.where(
+      recordable_type: "RecordingStudioSupport::SupportPage"
     ).find { |recording| recording.recordable.title == title }
   end
 end

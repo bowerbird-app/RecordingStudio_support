@@ -4,9 +4,9 @@ source "https://rubygems.org"
 gem "recording_studio_support", path: "../.."
 
 # RecordingStudio engine
-gem "recording_studio", "~> 6.0", ">= 6.1.0", github: "bowerbird-app/RecordingStudio", tag: "v6.7.0"
+gem "recording_studio", "~> 6.0", ">= 6.14.0", github: "bowerbird-app/RecordingStudio", tag: "v6.14.0"
 gem "view_component", "4.19.0"
-gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.33.0"
+gem "recording_studio_accessible", ">= 0.42.0", "< 1.0", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.42.0"
 gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.13.0"
 gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.23.0"
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.2.1"
@@ -18,7 +18,7 @@ gem "recording_studio_notifications_email",
 gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.7.0"
 gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.15.0"
 gem "recording_studio_search", github: "bowerbird-app/RecordingStudio_search", tag: "v0.10.0"
-gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.14.0"
+gem "recording_studio_trashable", ">= 0.16.0", "< 1.0", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.16.0"
 gem "recording_studio_logs", github: "bowerbird-app/RecordingStudio_logs", tag: "v0.7.4"
 gem "recording_studio_views", github: "bowerbird-app/RecordingStudio_views", tag: "v0.13.0"
 

@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.35.0] - 2026-11-14
+
+Kept recording reads use Recording Studio `Recording.kept` and `RecordingStudio.kept_sql`. Support no longer calls Trashable's query helpers or writes its own `trashed_at` filter.
+
+### Changed
+- Page, section, center, ticket, admin, and API lookups call `RecordingStudio::Recording.kept`.
+- Section slug uniqueness and the current-ticket join use `RecordingStudio.kept_sql`.
+- Gemspec requires `recording_studio` `~> 6.0, >= 6.14.0`. Development and the dummy pin tag `v6.14.0`.
+- Dummy copies Recording Studio's `root_recording_id` migration for events.
+- Gemspec floors are Accessible `>= 0.42.0, < 1.0` and Trashable `>= 0.16.0, < 1.0`. Development and the dummy pin tags `v0.42.0` and `v0.16.0`.
+- Trashable `v0.16.0` registers the `:trashable` recording filter. `Recording.kept` hides trashed rows. The suite does not register that filter itself.
+- Dummy resolves `omniauth` `2.4.1` (`CVE-2026-63183`). Users `v0.28.1` allows `~> 2.1`.
+
+### Upgrade notes
+- Bump to `0.35.0`. Require Recording Studio `>= 6.14.0` (tag `v6.14.0`), Accessible `>= 0.42.0` (tag `v0.42.0`), and Trashable `>= 0.16.0` (tag `v0.16.0`).
+- Copy core migration `20261114090000_add_root_recording_id_to_recording_studio_events` if events do not yet store `root_recording_id`.
+- Trashable `0.16` removes `recording_studio_trashable_kept_sql`, `recording_studio_trashable_active`, `recording_studio_trashable_including_trashed`, and `recording_studio_trashable_trashed_sql`. Accessible `0.42` no longer calls them. Set `config.access_management_actor_scope` (required since Accessible `0.36`) before manage access.
+- Recording Studio API `v0.23.1` still calls `recording_studio_trashable_kept_sql`. The dummy bridges that call to `RecordingStudio.kept_sql`. Support's own code does not.
+- Trash and restore still use `recording_studio_trashable_trash!` / `recording_studio_trashable_restore!`. No Support migration.
+
 ## [0.34.1] - 2026-11-13
 
 A customer reply on an inherited ticket notifies the support team. Messages 0.26 sends that notice to everyone with effective `:view`, including access inherited from SupportCenter or AdminRoot, and never to the sender.
@@ -1227,7 +1247,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.34.1...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.0...HEAD
+[0.35.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.34.1...v0.35.0
 [0.34.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.34.0...v0.34.1
 [0.34.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.33.2...v0.34.0
 [0.33.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.33.1...v0.33.2
