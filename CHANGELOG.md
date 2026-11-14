@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.35.2] - 2026-11-14
+
+A customer message on a resolved ticket still reopens it. Support listens on Recording Studio `after_record` instead of prepending Messages `send_message`.
+
+### Changed
+- `Messages::ReopenOnCustomerMessage` registers once on `RecordingStudio.configuration.hooks.after_record` when the gem loads. It is not registered from `to_prepare`.
+- The handler runs only for a created `RecordingStudioMessages::Message`. The group is `event.recording.parent_recording`. The actor is `event.actor`. Reopen still goes through `Tickets::ReopenFromCustomerMessage`.
+- Removed `Messages::SendMessageReopen`.
+
+### Upgrade notes
+- Bump to `0.35.2`.
+- No migration. Hosts do not call `SendMessageReopen.install!`.
+- Reopen now runs inside the message transaction. A failed reopen rolls the message back with it.
+
 ## [0.35.1] - 2026-11-14
 
 Search engine Instant uses Search's own hits, including the actor and root Search passes, then drops draft support pages. Other models in that result stay.
@@ -1258,7 +1272,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.1...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.2...HEAD
+[0.35.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.1...v0.35.2
 [0.35.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.0...v0.35.1
 [0.35.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.34.1...v0.35.0
 [0.34.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.34.0...v0.34.1

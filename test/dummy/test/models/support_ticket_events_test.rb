@@ -134,6 +134,26 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     assert_equal({ "status" => %w[resolved open] }, event.metadata["changes"])
   end
 
+  test "a non-message record does not reopen a resolved ticket" do
+    ticket = open_ticket!
+    recording = RecordingStudioSupport::Tickets.update!(ticket, actor: @support_user, status: :resolved)
+    group = RecordingStudioSupport::Tickets.group_recording_for(recording.recordable)
+    other_record = Struct.new(:action, :recordable_type, :recording, :actor).new(
+      "created",
+      "RecordingStudioSupport::SupportTicket",
+      Struct.new(:parent_recording).new(group),
+      @patron
+    )
+
+    RecordingStudioSupport::Messages::ReopenOnCustomerMessage.call(other_record)
+    RecordingStudioSupport::Tickets.update!(recording, actor: @patron, priority: :high)
+
+    current = RecordingStudioSupport::Tickets.find!(ticket.id)
+    assert_equal "resolved", current.status
+    assert_equal "high", current.priority
+    assert_not_nil current.resolved_at
+  end
+
   test "a support team message does not reopen a resolved ticket" do
     ticket = open_ticket!
     RecordingStudioSupport::Tickets.update!(ticket, actor: @support_user, status: :resolved)

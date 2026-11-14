@@ -1,5 +1,22 @@
 # Upgrade notes
 
+## 0.35.2
+
+A resolved ticket still reopens when a customer creates a message. Support registers that on Recording Studio `after_record` once at load.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.35.2`.
+2. Drop any call to `RecordingStudioSupport::Messages::SendMessageReopen.install!`. That module is gone.
+3. No migration. The reopen runs inside the message transaction, so a failed reopen rolls the message back.
+
+### Verify
+
+```bash
+bundle exec ruby -Itest test/reopen_on_customer_message_test.rb test/messages_inbox_test.rb
+cd test/dummy && bundle exec rails test test/models/support_ticket_events_test.rb
+```
+
 ## 0.35.1
 
 Search engine Instant keeps Search's own hits, then drops draft support pages. Other models in that result stay.
