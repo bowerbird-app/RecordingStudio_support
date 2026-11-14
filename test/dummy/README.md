@@ -66,7 +66,7 @@ OTP is off (`otp_enabled = false`). OmniAuth Continue-with buttons appear only w
 - `/help/messages` - signed-in tickets and messages
 - `/admin/support/messages` - support inbox. Status is an Open/Resolved Button dropdown in the open thread header, not above the list
 - `/help/sections/:slug` - published pages in a section (declare this before the Publishable mount; UUID bookmarks redirect). Typing filters articles in a Turbo Frame via Instant Search (`/help/sections/:slug/instant_search`)
-- `/recording_studio_search/instant_search` - Search Instant engine (live `SupportPage` only)
+- `/recording_studio_search/instant_search` - Search Instant engine (live `SupportPage` rows, plus other allowlisted models; drafts stay out)
 - `/help/:uuid/:slug` - public help page through Publishable
 - `/admin` - Admin Support hub (pick **Admin** in the top control first). Old `/support` redirects here
 - `/admin/screens/support_pages` - table of every help page with search, Published/Draft, and section; Edit, Move, and New page open from here

@@ -1,5 +1,21 @@
 # Upgrade notes
 
+## 0.35.1
+
+Search engine Instant keeps Search's own hits, then drops draft support pages. Other models in that result stay.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.35.1`.
+2. No migration. Search that requires a root for Instant hits returns those hits again. Draft support pages stay out of the engine Instant results.
+
+### Verify
+
+```bash
+bundle exec ruby -Itest test/instant_pages_test.rb test/recording_studio_support_test.rb test/trashable_sibling_api_test.rb
+cd test/dummy && bundle exec rails test test/integration/support_instant_search_test.rb
+```
+
 ## 0.35.0
 
 Kept reads use `RecordingStudio::Recording.kept` and `RecordingStudio.kept_sql`. Support does not call Trashable's kept/active/trashed SQL helpers and does not add its own `trashed_at` predicate.

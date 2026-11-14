@@ -78,6 +78,52 @@ class SupportInstantSearchTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "How do I change my password?"
   end
 
+  test "search engine instant keeps live pages and other models and hides drafts" do
+    sign_in @user
+    Current.actor = @user
+    token = SecureRandom.hex(4)
+    center = seeded_section("Getting started").parent_recording
+    section = RecordingStudioSupport::Sections.create!(
+      root_recording: center,
+      title: "Sign in marigold desk #{token}",
+      actor: @user
+    )
+    live = RecordingStudioSupport::Pages.create!(
+      parent_recording: section,
+      title: "Sign in marigold article #{token}",
+      body: "Live marigold article #{token}.",
+      actor: @user
+    )
+    draft = RecordingStudioSupport::Pages.create!(
+      parent_recording: section,
+      title: "Sign in marigold draft #{token}",
+      body: "Hidden marigold draft #{token}.",
+      actor: @user
+    )
+    publish_page!(live, slug: "sign-in-marigold-article-#{token}", status: "published")
+    publish_page!(draft, slug: "sign-in-marigold-draft-#{token}", status: "draft")
+
+    config = RecordingStudioSearch.configuration
+    previous_models = Array(config.instant_search_models).dup
+    config.instant_search_models = previous_models + ["RecordingStudioSupport::SupportSection"]
+
+    get "/recording_studio_search/instant_search", params: {
+      q: "sign in marigold #{token}",
+      models: [
+        "RecordingStudioSupport::SupportPage",
+        "RecordingStudioSupport::SupportSection"
+      ],
+      frame_id: "support_page_search_results"
+    }
+
+    assert_response :success
+    assert_includes response.body, "Sign in marigold article #{token}"
+    assert_includes response.body, "Sign in marigold desk #{token}"
+    refute_includes response.body, "Sign in marigold draft #{token}"
+  ensure
+    config.instant_search_models = previous_models if defined?(previous_models) && previous_models
+  end
+
   test "search engine instant finds a live page and ignores blank q" do
     sign_in @user
 
@@ -119,5 +165,18 @@ class SupportInstantSearchTest < ActionDispatch::IntegrationTest
 
     assert_response :redirect
     assert_match "/users/sign_in", response.redirect_url
+  end
+
+  private
+
+  def publish_page!(page_recording, slug:, status:)
+    result = RecordingStudioPublishable::Services::Publishables::Update.call(
+      parent_recording: page_recording,
+      actor: @user,
+      attributes: { slug: slug, status: status }
+    )
+    raise result.error if result.failure?
+
+    result
   end
 end

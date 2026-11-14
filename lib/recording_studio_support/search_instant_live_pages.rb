@@ -1,30 +1,23 @@
 # frozen_string_literal: true
 
 module RecordingStudioSupport
-  # Search 0.10 Instant hits are empty without an actor. Pass the controller
-  # actor, then drop drafts so an allowlisted SupportPage cannot leak them.
+  # Search Instant#show already passes actor and root into hits, then renders.
+  # Keep that computation. Filter drafts on the way into render, before the
+  # template reads @hits. Other models stay.
   module SearchInstantLivePages
     def show
-      @query = search_query
-      @hits = instant_hits
-      @hits = InstantPages.live_only(@hits)
-      render layout: false
+      @_filter_instant_hits = true
+      super
+    ensure
+      @_filter_instant_hits = false
     end
 
-    private
-
-    def instant_hits
-      hits = RecordingStudioSearch::InstantSearch.method(:hits_for)
-      if hits.parameters.any? { |_kind, name| name == :actor }
-        return RecordingStudioSearch::InstantSearch.hits_for(
-          requested_models,
-          @query,
-          actor: search_actor,
-          limit: 20
-        )
+    def render(...)
+      if @_filter_instant_hits
+        @_filter_instant_hits = false
+        @hits = InstantPages.live_only(@hits)
       end
-
-      RecordingStudioSearch::InstantSearch.hits_for(requested_models, @query, limit: 20)
+      super
     end
   end
 end
