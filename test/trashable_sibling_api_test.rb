@@ -96,9 +96,13 @@ class TrashableSiblingApiTest < Minitest::Test
     assert_includes changelog, "## [0.35.0]"
     assert_includes changelog, "RecordingStudio.kept_sql"
     assert_includes changelog, ">= 6.14.0"
-    assert_includes gemfile, 'tag: "v0.14.0"'
+    assert_includes gemfile, 'tag: "v0.16.0"'
+    assert_includes gemfile, 'tag: "v0.42.0"'
     assert_includes gemfile, 'tag: "v6.14.0"'
-    assert_includes gemspec, 'spec.add_dependency "recording_studio_trashable", ">= 0.9", "< 1.0"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_trashable", ">= 0.16.0", "< 1.0"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio_accessible", ">= 0.42.0", "< 1.0"'
+    assert_includes changelog, "v0.16.0"
+    assert_includes changelog, "v0.42.0"
     assert_includes gemspec, 'spec.add_dependency "recording_studio", "~> 6.0", ">= 6.14.0"'
   end
 

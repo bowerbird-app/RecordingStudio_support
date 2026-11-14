@@ -16,12 +16,14 @@ Kept recording reads use Recording Studio `Recording.kept` and `RecordingStudio.
 - Section slug uniqueness and the current-ticket join use `RecordingStudio.kept_sql`.
 - Gemspec requires `recording_studio` `~> 6.0, >= 6.14.0`. Development and the dummy pin tag `v6.14.0`.
 - Dummy copies Recording Studio's `root_recording_id` migration for events.
-- Trashable stays on tag `v0.14.0`. That release does not register the kept filter.
+- Gemspec floors are Accessible `>= 0.42.0, < 1.0` and Trashable `>= 0.16.0, < 1.0`. Development and the dummy pin tags `v0.42.0` and `v0.16.0`.
+- Trashable `v0.16.0` registers the `:trashable` recording filter. `Recording.kept` hides trashed rows. The suite does not register that filter itself.
 
 ### Upgrade notes
-- Bump to `0.35.0`. Require Recording Studio `>= 6.14.0` (tag `v6.14.0`).
+- Bump to `0.35.0`. Require Recording Studio `>= 6.14.0` (tag `v6.14.0`), Accessible `>= 0.42.0` (tag `v0.42.0`), and Trashable `>= 0.16.0` (tag `v0.16.0`).
 - Copy core migration `20261114090000_add_root_recording_id_to_recording_studio_events` if events do not yet store `root_recording_id`.
-- `Recording.kept` hides trashed rows only after an addon registers a recording filter. Trashable `0.16` does that and removes `recording_studio_trashable_kept_sql`, `recording_studio_trashable_active`, `recording_studio_trashable_including_trashed`, and `recording_studio_trashable_trashed_sql`. This release does not pin Trashable `0.16`. On Trashable `0.14`, kept lists include trashed rows until that filter is registered.
+- Trashable `0.16` removes `recording_studio_trashable_kept_sql`, `recording_studio_trashable_active`, `recording_studio_trashable_including_trashed`, and `recording_studio_trashable_trashed_sql`. Accessible `0.42` no longer calls them. Set `config.access_management_actor_scope` (required since Accessible `0.36`) before manage access.
+- Recording Studio API `v0.23.1` still calls `recording_studio_trashable_kept_sql`. The dummy bridges that call to `RecordingStudio.kept_sql`. Support's own code does not.
 - Trash and restore still use `recording_studio_trashable_trash!` / `recording_studio_trashable_restore!`. No Support migration.
 
 ## [0.34.1] - 2026-11-13

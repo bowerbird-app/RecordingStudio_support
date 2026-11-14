@@ -159,6 +159,25 @@ class TrashableSiblingParityTest < ActiveSupport::TestCase
     assert_empty trashed_base.where(trashed_at: nil).pluck(:id)
   end
 
+  test "kept excludes trashed recordings through Trashable's registered filter" do
+    helper = File.read(Rails.root.join("test/test_helper.rb"))
+    assert_not_includes helper, "register_recording_filter"
+
+    section = record_support_section(@root_recording, title: "Filter section")
+    kept_page = record_support_page(@root_recording, section, title: "Filter kept")
+    trashed_page = record_support_page(@root_recording, section, title: "Filter trashed")
+    trashed_page.recording_studio_trashable_trash!(actor: @user)
+
+    assert RecordingStudio::Recording.kept.exists?(id: kept_page.id)
+    assert_not RecordingStudio::Recording.kept.exists?(id: trashed_page.id)
+
+    assert RecordingStudio::RecordingFilters.unregister(:trashable)
+    assert RecordingStudio::Recording.kept.exists?(id: trashed_page.id)
+  ensure
+    RecordingStudioTrashable::RecordingFilter.register!
+    assert_not RecordingStudio::Recording.kept.exists?(id: trashed_page.id) if trashed_page
+  end
+
   private
 
   def install_recording_default_scope!

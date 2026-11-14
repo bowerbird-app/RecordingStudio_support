@@ -7,10 +7,10 @@ Kept reads use `RecordingStudio::Recording.kept` and `RecordingStudio.kept_sql`.
 ### Host app
 
 1. Bump `recording_studio_support` to `0.35.0`.
-2. Require Recording Studio `>= 6.14.0` (tag `v6.14.0`).
+2. Require Recording Studio `>= 6.14.0` (tag `v6.14.0`), Accessible `>= 0.42.0` (tag `v0.42.0`), and Trashable `>= 0.16.0` (tag `v0.16.0`).
 3. Copy core migration `20261114090000_add_root_recording_id_to_recording_studio_events` when `recording_studio_events` has no `root_recording_id`, then migrate.
-4. Leave Trashable on `v0.14.0` until `0.16` is the pin you want. `Recording.kept` applies filters an addon registers. Trashable `0.14` registers none, so kept lists include trashed rows. Trashable `0.16` registers `:trashable` and removes the old query helpers.
-5. No Support migration. Trash and restore stay on `recording_studio_trashable_trash!` / `recording_studio_trashable_restore!`.
+4. Trashable `0.16` registers `:trashable`, so `Recording.kept` hides trashed rows. It removes `recording_studio_trashable_kept_sql`, `recording_studio_trashable_active`, `recording_studio_trashable_including_trashed`, and `recording_studio_trashable_trashed_sql`. Set `config.access_management_actor_scope` before manage access.
+5. No Support migration. Trash and restore stay on `recording_studio_trashable_trash!` / `recording_studio_trashable_restore!`. Recording Studio API `v0.23.1` still calls the removed helper. Point that call at `RecordingStudio.kept_sql` until API drops it.
 
 ### Verify
 
