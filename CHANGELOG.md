@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.35.1] - 2026-11-14
+
+Search engine Instant uses Search's own hits, including the actor and root Search passes, then drops draft support pages. Other models in that result stay.
+
+### Changed
+- Engine Instant calls Search `InstantSearchesController#show`, then `InstantPages.live_only`. Draft `SupportPage` rows drop. Other allowlisted models stay.
+
+### Upgrade notes
+- Bump to `0.35.1`.
+- No migration. A host on Search that requires a root for Instant hits gets those hits again. Draft support pages stay out of the engine Instant results.
+
 ## [0.35.0] - 2026-11-14
 
 Kept recording reads use Recording Studio `Recording.kept` and `RecordingStudio.kept_sql`. Support no longer calls Trashable's query helpers or writes its own `trashed_at` filter.
@@ -1247,7 +1258,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.1...HEAD
+[0.35.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.0...v0.35.1
 [0.35.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.34.1...v0.35.0
 [0.34.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.34.0...v0.34.1
 [0.34.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.33.2...v0.34.0

@@ -45,7 +45,9 @@ class InstantPagesTest < Minitest::Test
 
     assert_includes source, "SupportPage.search"
     refute_includes source, "hits_for"
-    assert_includes engine, "actor: search_actor"
+    assert_includes engine, "super"
     assert_includes engine, "InstantPages.live_only"
+    refute_includes engine, "search_actor"
+    refute_includes engine, "hits_for"
   end
 end
