@@ -25,7 +25,8 @@ gem "recording_studio_orderable", ">= 0.2", "< 1.0", github: "bowerbird-app/Reco
 gem "recording_studio_publishable", ">= 0.4", "< 1.0",
     github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.15.0"
 gem "recording_studio_search", ">= 0.6", "< 1.0", github: "bowerbird-app/RecordingStudio_search", tag: "v0.10.0"
-gem "recording_studio_trashable", ">= 0.16.0", "< 1.0", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.16.0"
+gem "recording_studio_trashable", ">= 0.16.0", "< 1.0",
+    github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.16.0"
 gem "recording_studio_views", ">= 0.8.0", "< 1.0", github: "bowerbird-app/RecordingStudio_views", tag: "v0.13.0"
 # Attachable 0.23 and Publishable 0.15 depend on API. Not a Support gemspec dependency.
 gem "recording_studio_api", ">= 0.23.0", "< 1.0", github: "bowerbird-app/RecordingStudio_api", tag: "v0.23.1"

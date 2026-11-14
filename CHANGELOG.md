@@ -18,6 +18,7 @@ Kept recording reads use Recording Studio `Recording.kept` and `RecordingStudio.
 - Dummy copies Recording Studio's `root_recording_id` migration for events.
 - Gemspec floors are Accessible `>= 0.42.0, < 1.0` and Trashable `>= 0.16.0, < 1.0`. Development and the dummy pin tags `v0.42.0` and `v0.16.0`.
 - Trashable `v0.16.0` registers the `:trashable` recording filter. `Recording.kept` hides trashed rows. The suite does not register that filter itself.
+- Dummy resolves `omniauth` `2.4.1` (`CVE-2026-63183`). Users `v0.28.1` allows `~> 2.1`.
 
 ### Upgrade notes
 - Bump to `0.35.0`. Require Recording Studio `>= 6.14.0` (tag `v6.14.0`), Accessible `>= 0.42.0` (tag `v0.42.0`), and Trashable `>= 0.16.0` (tag `v0.16.0`).
