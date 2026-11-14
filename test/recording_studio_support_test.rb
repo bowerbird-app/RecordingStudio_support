@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.34.1", ::RecordingStudioSupport::VERSION
+    assert_equal "0.35.0", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -22,7 +22,7 @@ class RecordingStudioSupportTest < Minitest::Test
   def test_gemspec_pins_recording_studio_kit_and_support_mixins
     gemspec = File.read(File.expand_path("../recording_studio_support.gemspec", __dir__))
 
-    assert_includes gemspec, 'spec.add_dependency "recording_studio", "~> 6.0", ">= 6.1.0"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio", "~> 6.0", ">= 6.14.0"'
     assert_includes gemspec, 'spec.add_dependency "flat_pack", ">= 0.1.331", "< 1.0"'
     assert_includes gemspec, 'spec.add_dependency "view_component", ">= 4.14", "< 5"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_accessible", ">= 0.33.0", "< 1.0"'
@@ -49,8 +49,8 @@ class RecordingStudioSupportTest < Minitest::Test
     refute requirements.fetch("recording_studio_messages").satisfied_by?(Gem::Version.new("0.25.1"))
     assert requirements.fetch("recording_studio_messages").satisfied_by?(Gem::Version.new("0.26.0"))
     refute requirements.fetch("recording_studio_messages").satisfied_by?(Gem::Version.new("1.0.0"))
-    assert requirements.fetch("recording_studio").satisfied_by?(Gem::Version.new("6.1.0"))
-    assert requirements.fetch("recording_studio").satisfied_by?(Gem::Version.new("6.2.0"))
+    refute requirements.fetch("recording_studio").satisfied_by?(Gem::Version.new("6.13.0"))
+    assert requirements.fetch("recording_studio").satisfied_by?(Gem::Version.new("6.14.0"))
     refute requirements.fetch("recording_studio").satisfied_by?(Gem::Version.new("6.0.9"))
     refute requirements.fetch("recording_studio").satisfied_by?(Gem::Version.new("7.0.0"))
     assert requirements.fetch("recording_studio_admin").satisfied_by?(Gem::Version.new("2.7.0"))
@@ -113,7 +113,7 @@ class RecordingStudioSupportTest < Minitest::Test
   def test_dummy_gemfile_pins_latest_github_release_tags
     gemfile = File.read(File.expand_path("dummy/Gemfile", __dir__))
 
-    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v6.7.0"'
+    assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio", tag: "v6.14.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.33.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_admin", tag: "v2.13.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.23.0"'
@@ -387,7 +387,7 @@ class RecordingStudioSupportTest < Minitest::Test
     readme = File.read(File.expand_path("../README.md", __dir__))
 
     assert_includes readme, "Recording Studio Support"
-    assert_includes readme, "v6.7.0"
+    assert_includes readme, "v6.14.0"
     assert_includes readme, "v0.23.0"
     assert_includes readme, "v0.33.0"
     assert_includes readme, "0.1.357"

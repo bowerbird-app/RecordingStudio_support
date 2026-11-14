@@ -51,7 +51,7 @@ module RecordingStudioSupport
       quoted_recordings = connection.quote_table_name(recordings)
       quoted_tickets = connection.quote_table_name(SupportTicket.table_name)
       type = connection.quote(TICKET_TYPE)
-      kept = RecordingStudio::Recording.recording_studio_trashable_kept_sql(recordings)
+      kept = RecordingStudio.kept_sql(recordings)
       "INNER JOIN #{quoted_recordings} ON #{quoted_recordings}.recordable_id = #{quoted_tickets}.id " \
         "AND #{quoted_recordings}.recordable_type = #{type} AND #{kept}"
     end
@@ -90,7 +90,7 @@ module RecordingStudioSupport
     end
 
     def ticket_recordings
-      RecordingStudio::Recording.where(recordable_type: TICKET_TYPE, trashed_at: nil)
+      RecordingStudio::Recording.kept.where(recordable_type: TICKET_TYPE)
     end
 
     def recording_for!(ticket)

@@ -5,6 +5,17 @@ ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 require "rails/test_help"
 
+# Trashable 0.14 still ships the old query helpers and does not register
+# Recording.kept. Trashable 0.16 registers :trashable and removes those helpers.
+# This pin stays on 0.14, so the suite registers the same filter until that tag moves.
+if RecordingStudio.kept_sql == "1=1"
+  RecordingStudio.register_recording_filter(:trashable, sql: lambda { |table|
+    "#{table}.trashed_at IS NULL"
+  }) do |recordings|
+    recordings.where(trashed_at: nil)
+  end
+end
+
 module SupportRecordHelpers
   def record_support_center(parent_recording)
     center = RecordingStudioSupport::SupportCenters.for_parent(parent_recording) ||
@@ -60,9 +71,8 @@ module SupportRecordHelpers
   end
 
   def seeded_section(title)
-    RecordingStudio::Recording.where(
-      recordable_type: "RecordingStudioSupport::SupportSection",
-      trashed_at: nil
+    RecordingStudio::Recording.kept.where(
+      recordable_type: "RecordingStudioSupport::SupportSection"
     ).find { |recording| recording.recordable.title == title }
   end
 
@@ -176,9 +186,8 @@ module SupportRecordHelpers
   end
 
   def seeded_page(title)
-    RecordingStudio::Recording.where(
-      recordable_type: "RecordingStudioSupport::SupportPage",
-      trashed_at: nil
+    RecordingStudio::Recording.kept.where(
+      recordable_type: "RecordingStudioSupport::SupportPage"
     ).find { |recording| recording.recordable.title == title }
   end
 end

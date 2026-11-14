@@ -1,5 +1,24 @@
 # Upgrade notes
 
+## 0.35.0
+
+Kept reads use `RecordingStudio::Recording.kept` and `RecordingStudio.kept_sql`. Support does not call Trashable's kept/active/trashed SQL helpers and does not add its own `trashed_at` predicate.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.35.0`.
+2. Require Recording Studio `>= 6.14.0` (tag `v6.14.0`).
+3. Copy core migration `20261114090000_add_root_recording_id_to_recording_studio_events` when `recording_studio_events` has no `root_recording_id`, then migrate.
+4. Leave Trashable on `v0.14.0` until `0.16` is the pin you want. `Recording.kept` applies filters an addon registers. Trashable `0.14` registers none, so kept lists include trashed rows. Trashable `0.16` registers `:trashable` and removes the old query helpers.
+5. No Support migration. Trash and restore stay on `recording_studio_trashable_trash!` / `recording_studio_trashable_restore!`.
+
+### Verify
+
+```bash
+bundle exec ruby -Itest test/trashable_sibling_api_test.rb test/support_section_slug_test.rb test/support_ticket_test.rb test/recording_studio_support_test.rb
+cd test/dummy && bundle exec rails test test/models/trashable_sibling_parity_test.rb test/models/support_ticket_reads_test.rb
+```
+
 ## 0.34.1
 
 A customer reply notifies support admins who only inherit access. The sender is not notified.
