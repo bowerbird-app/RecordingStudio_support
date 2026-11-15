@@ -194,7 +194,10 @@ class SupportSectionsDomainTest < ActiveSupport::TestCase
     assert_empty titles.call("no-such-help-section")
 
     scoped_elsewhere = RecordingStudioSupport::Sections.for_root(
-      RecordingStudio.root_recording_for(Workspace.create!(name: "Other #{SecureRandom.hex(4)}")),
+      RecordingStudio.create_root_recording!(
+        Workspace.create!(name: "Other #{SecureRandom.hex(4)}"),
+        actor: @user
+      ),
       query: billing.recordable.title
     )
     assert_empty scoped_elsewhere
@@ -211,7 +214,7 @@ class SupportSectionsDomainTest < ActiveSupport::TestCase
     record_support_section(@root_recording, title: "Refund policy")
     record_support_section(@root_recording, title: "Shipping labels")
 
-    hits = RecordingStudioSupport::SupportSection.search("refund").map(&:title)
+    hits = RecordingStudioSupport::SupportSection.search("refund", unscoped: true).map(&:title)
 
     assert_equal ["Refund policy"], hits
     assert_equal :pg_trgm, RecordingStudioSearch::Registry.entry_for(RecordingStudioSupport::SupportSection).backend

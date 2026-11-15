@@ -14,7 +14,7 @@
       ].join("; ")
     } do %>
   <% if search %>
-    <%= search.instant_search_field(
+    <%= instant_search_field(
           models: [RecordingStudioSupport::InstantPages::MODEL_NAME],
           frame_id: RecordingStudioSupport::InstantPages::FRAME_ID,
           url: instant_url,

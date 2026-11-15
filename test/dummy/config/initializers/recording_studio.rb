@@ -30,10 +30,10 @@ RecordingStudio.configure do |config|
 
   config.actor = -> { Current.actor }
 
-  # Recording Studio 6.5 refuses writes with no authorizer. Dummy seeds and
-  # tests record help before Accessible grants exist, so this host keeps the
-  # previous open writes. A production host sets authorize_write instead.
-  config.allow_unauthorized_writes = true
+  # Recording Studio 7 refuses a write until the host sets authorize_write.
+  # Dummy seeds and tests record help before Accessible grants exist, so this
+  # callback allows the write. A production host checks the actor and the root.
+  config.authorize_write = ->(**) { true }
 
   config.event_notifications_enabled = true
 

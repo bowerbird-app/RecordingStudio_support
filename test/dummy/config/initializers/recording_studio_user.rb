@@ -6,11 +6,13 @@ RecordingStudioUser.configure do |config|
   config.mount_path = "/recording_studio_users"
   config.profile_route_path = "profile"
   config.admin_route_path = "admin"
-  # Layout for signed-in screens and the auth shell. Users 0.28 paints
+  # Layout for signed-in screens and the auth shell. Users 0.30 paints
   # recording_studio_user/auth inside this layout.
   config.layout = "recording_studio/default_layout"
   # Leave additional_profile_attributes at the gem default (includes :locale).
   config.require_password_confirmation = false
+  # Users 0.30 defaults to 12. Dummy seeds and tests sign in with "Password".
+  config.minimum_password_length = 8
   # Sign-in page heading. Default "Welcome back".
   # config.login_title = "Welcome back"
   # First auth screen is always email. Next screen follows this setting:
@@ -60,7 +62,7 @@ RecordingStudioUser.configure do |config|
   config.otp_enabled = false
 end
 
-# Users 0.28 keeps after_sign_in_path_for private and then public_sends it
+# Users 0.30 keeps after_sign_in_path_for private and then public_sends it
 # from complete_signed_in!. Publish it so the password step can redirect.
 Rails.application.config.to_prepare do
   next unless defined?(RecordingStudioUser::Auth::BaseController)

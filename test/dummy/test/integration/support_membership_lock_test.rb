@@ -11,14 +11,14 @@ class SupportMembershipLockTest < ActionDispatch::IntegrationTest
     @support_user = User.find_by!(email: "admin@admin.com")
     @support_user.update!(admin: true) unless @support_user.admin?
 
-    @patron = RecordingStudioUser.create_user!(
+    @patron = create_support_user!(
       email: "lock-patron-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       first_name: "Casey",
       last_name: "Patron",
       time_zone: "UTC"
     )
-    @stranger = RecordingStudioUser.create_user!(
+    @stranger = create_support_user!(
       email: "lock-stranger-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       first_name: "Sam",

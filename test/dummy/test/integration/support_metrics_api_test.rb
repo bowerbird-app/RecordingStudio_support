@@ -19,8 +19,8 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
     )
     Current.actor = @support_user
     @workspace = Workspace.create!(name: "Metrics #{SecureRandom.hex(4)}")
-    @root = RecordingStudio.root_recording_for(@workspace)
-    @admin_root = RecordingStudio.root_recording_for(AdminRoot.find_or_create_by!(name: "Admin"))
+    @root = RecordingStudio.create_root_recording!(@workspace, actor: @support_user)
+    @admin_root = RecordingStudio.create_root_recording!(AdminRoot.find_or_create_by!(name: "Admin"), actor: @support_user)
     grant!(@admin_root, @support_user, :admin)
     record_support_center(@admin_root)
     bootstrap_owner!(@root, @support_user)
@@ -117,7 +117,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
   end
 
   test "oldest open age has no value without open tickets" do
-    current_tickets.open.find_each { |ticket| revise_support_ticket!(ticket, status: :resolved) }
+    current_tickets.open.find_each { |ticket| revise_support_ticket!(ticket, status: :resolved, actor: @support_user) }
 
     get "#{OPERATIONS_ROOT}/metrics/support_tickets/oldest_open_age",
         headers: auth(@support_operations_token),
@@ -375,7 +375,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
         body: "Fixed.",
         priority: :normal
       )
-      revise_support_ticket!(resolved, status: :resolved)
+      revise_support_ticket!(resolved, status: :resolved, actor: @support_user)
       RecordingStudioSupport::Tickets.open!(
         actor: @patron,
         subject: "March extra #{SecureRandom.hex(4)}",
@@ -432,7 +432,7 @@ class SupportMetricsApiTest < ActionDispatch::IntegrationTest
       RecordingStudioSupport::Tickets.open!(actor: @patron, subject: "Resolved #{SecureRandom.hex(4)}", body: "x",
                                             priority: priority)
     end
-    travel_to(opened_at + duration) { revise_support_ticket!(ticket, status: :resolved) }
+    travel_to(opened_at + duration) { revise_support_ticket!(ticket, status: :resolved, actor: @support_user) }
   end
 
   def series_value(rows, date)

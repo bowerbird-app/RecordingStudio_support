@@ -9,14 +9,14 @@ class SupportCenterTreeTest < ActionDispatch::IntegrationTest
   setup do
     load Rails.root.join("db/seeds.rb")
     @support_user = User.find_by!(email: "admin@admin.com")
-    @patron = RecordingStudioUser.create_user!(
+    @patron = create_support_user!(
       email: "center-patron-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       first_name: "Casey",
       last_name: "Patron",
       time_zone: "UTC"
     )
-    @stranger = RecordingStudioUser.create_user!(
+    @stranger = create_support_user!(
       email: "center-stranger-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       first_name: "Sam",
@@ -124,7 +124,7 @@ class SupportCenterTreeTest < ActionDispatch::IntegrationTest
 
   test "support-team access comes from accessible grants not user admin" do
     granted = User.find_by!(email: "admin@admin.com")
-    admin_flagged = RecordingStudioUser.create_user!(
+    admin_flagged = create_support_user!(
       email: "flagged-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       first_name: "Flag",

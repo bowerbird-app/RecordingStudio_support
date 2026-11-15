@@ -9,6 +9,7 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
   setup do
     load Rails.root.join("db/seeds.rb")
     @user = User.find_by!(email: "admin@admin.com")
+    Current.actor = @user
     sign_in @user
   end
 
@@ -355,8 +356,8 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     )
     workspace_a = Workspace.create!(name: "Workspace A #{SecureRandom.hex(4)}")
     workspace_b = Workspace.create!(name: "Workspace B #{SecureRandom.hex(4)}")
-    root_a = RecordingStudio.root_recording_for(workspace_a)
-    root_b = RecordingStudio.root_recording_for(workspace_b)
+    root_a = RecordingStudio.create_root_recording!(workspace_a, actor: editor)
+    root_b = RecordingStudio.create_root_recording!(workspace_b, actor: editor)
     grant_role!(root_a, editor, :edit)
     grant_role!(root_b, editor, :view)
 
@@ -404,8 +405,8 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     )
     workspace_a = Workspace.create!(name: "Section A #{SecureRandom.hex(4)}")
     workspace_b = Workspace.create!(name: "Section B #{SecureRandom.hex(4)}")
-    root_a = RecordingStudio.root_recording_for(workspace_a)
-    root_b = RecordingStudio.root_recording_for(workspace_b)
+    root_a = RecordingStudio.create_root_recording!(workspace_a, actor: editor)
+    root_b = RecordingStudio.create_root_recording!(workspace_b, actor: editor)
     grant_role!(root_a, editor, :edit)
     grant_role!(root_b, editor, :view)
 

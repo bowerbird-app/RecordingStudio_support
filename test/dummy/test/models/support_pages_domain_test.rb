@@ -127,7 +127,7 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
       actor: @user
     )
 
-    hits = RecordingStudioSupport::SupportPage.search("refund").map(&:title)
+    hits = RecordingStudioSupport::SupportPage.search("refund", unscoped: true).map(&:title)
 
     assert_equal ["Refund timeline"], hits
     assert_equal :pg_trgm, RecordingStudioSearch::Registry.entry_for(RecordingStudioSupport::SupportPage).backend
@@ -143,7 +143,10 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
     )
 
     found = RecordingStudioSupport::Pages.find_kept!(id: recording.id)
-    workspace = RecordingStudio.root_recording_for(Workspace.create!(name: "Pages other #{SecureRandom.hex(4)}"))
+    workspace = RecordingStudio.create_root_recording!(
+      Workspace.create!(name: "Pages other #{SecureRandom.hex(4)}"),
+      actor: @user
+    )
 
     assert_equal recording.id, found.id
     assert RecordingStudioSupport::Sections.allowed_parent_root?(@admin_root)

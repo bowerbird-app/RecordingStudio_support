@@ -87,7 +87,7 @@ class CustomerI18nTest < ActionDispatch::IntegrationTest
     refute_includes response.body, "Write a message"
 
     sign_out @user
-    guest = RecordingStudioUser.create_user!(
+    guest = create_support_user!(
       email: "french-guest-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       first_name: "Camille",

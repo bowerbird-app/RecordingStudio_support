@@ -14,8 +14,8 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
     )
     Current.actor = @support_user
     @workspace = Workspace.create!(name: "Ticket API #{SecureRandom.hex(4)}")
-    @root = RecordingStudio.root_recording_for(@workspace)
-    @admin_root = RecordingStudio.root_recording_for(AdminRoot.find_or_create_by!(name: "Admin"))
+    @root = RecordingStudio.create_root_recording!(@workspace, actor: @support_user)
+    @admin_root = RecordingStudio.create_root_recording!(AdminRoot.find_or_create_by!(name: "Admin"), actor: @support_user)
     grant!(@admin_root, @support_user, :admin)
     bootstrap_owner!(@root, @support_user)
     @center = record_support_center(@admin_root)

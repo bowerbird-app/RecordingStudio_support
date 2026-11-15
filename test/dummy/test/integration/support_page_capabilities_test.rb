@@ -44,8 +44,9 @@ class SupportPageCapabilitiesTest < ActiveSupport::TestCase
   end
 
   test "folder and page do not get support mixins just because the gems are installed" do
-    workspace = RecordingStudio.root_recording_for(
-      Workspace.create!(name: "Support mixins #{SecureRandom.hex(4)}")
+    workspace = RecordingStudio.create_root_recording!(
+      Workspace.create!(name: "Support mixins #{SecureRandom.hex(4)}"),
+      actor: @user
     )
     grant_admin!(workspace, @user)
     folder_recording = workspace.record(Folder) { |folder| folder.name = "Product Docs" }

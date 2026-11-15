@@ -12,14 +12,14 @@ class SupportInboxTest < ActionDispatch::IntegrationTest
     @support_user = User.find_by!(email: "admin@admin.com")
     @support_user.update!(admin: true) unless @support_user.admin?
 
-    @patron = RecordingStudioUser.create_user!(
+    @patron = create_support_user!(
       email: "patron-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       first_name: "Casey",
       last_name: "Patron",
       time_zone: "UTC"
     )
-    @stranger = RecordingStudioUser.create_user!(
+    @stranger = create_support_user!(
       email: "stranger-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       first_name: "Sam",
@@ -266,7 +266,7 @@ class SupportInboxTest < ActionDispatch::IntegrationTest
   end
 
   test "support screens use Accessible edit on the support center" do
-    other = RecordingStudioUser.create_user!(
+    other = create_support_user!(
       email: "other-admin-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       first_name: "Other",

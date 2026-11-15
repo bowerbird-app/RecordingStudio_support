@@ -9,8 +9,9 @@ class SupportPageViewBackfillTest < ActiveSupport::TestCase
       password: "Password",
       password_confirmation: "Password"
     )
+    Current.actor = @user
     workspace = Workspace.find_or_create_by!(name: "Studio Workspace")
-    @root = RecordingStudio.root_recording_for(workspace)
+    @root = RecordingStudio.create_root_recording!(workspace, actor: @user)
     @section = record_support_section(@root, title: "Backfill #{SecureRandom.hex(4)}")
     @page = record_support_page(@root, @section, title: "Backfill article #{SecureRandom.hex(4)}")
   end

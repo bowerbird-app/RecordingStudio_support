@@ -19,15 +19,12 @@ module RecordingStudioSupport
       def metrics_admin_root_recording
         return unless defined?(RecordingStudioAdmin)
 
-        config = RecordingStudioAdmin.configuration
-        resolver = config.site_admin_recording_resolver || config.access_recording_resolver
+        resolver = RecordingStudioAdmin.configuration.access_recording_resolver
         return unless resolver
 
-        begin
-          resolver.call(ResolverContext.new(nil))
-        rescue StandardError
-          nil
-        end
+        resolver.call(ResolverContext.new(nil))
+      rescue StandardError
+        nil
       end
 
       def actor_for(context)

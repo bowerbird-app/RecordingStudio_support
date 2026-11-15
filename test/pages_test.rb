@@ -208,15 +208,15 @@ class PagesTest < Minitest::Test
     assert_includes pages, "def public_for_section"
     assert_includes pages, "def related_public_for"
     assert_includes pages, ".distinct.reorder(:title)"
-    assert_includes pages, "SupportPage.search(term)"
-    assert_includes pages, "relation.search(term)"
+    assert_includes pages, "SupportPage.search(term, unscoped: true)"
+    assert_includes pages, "relation.search(term, unscoped: true)"
     refute_includes pages, "ILIKE"
 
     sections = File.read(File.expand_path("../lib/recording_studio_support/sections.rb", __dir__))
     support_section = File.read(
       File.expand_path("../app/models/recording_studio_support/support_section.rb", __dir__)
     )
-    assert_includes sections, "SupportSection.search(term)"
+    assert_includes sections, "SupportSection.search(term, unscoped: true)"
     refute_includes sections, "ILIKE"
     assert_includes support_section, "RecordingStudioSearch::Searchable"
     assert_includes support_section, "searchable backend: :pg_trgm, against: { title: \"A\", slug: \"B\" }"

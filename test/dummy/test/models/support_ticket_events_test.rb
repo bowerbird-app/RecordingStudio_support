@@ -4,14 +4,14 @@ require "test_helper"
 
 class SupportTicketEventsTest < ActiveSupport::TestCase
   setup do
-    @patron = RecordingStudioUser.create_user!(
+    @patron = create_support_user!(
       email: "ticket-events-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       first_name: "Casey",
       last_name: "Patron",
       time_zone: "UTC"
     )
-    @support_user = RecordingStudioUser.create_user!(
+    @support_user = create_support_user!(
       email: "ticket-events-support-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       first_name: "Sam",

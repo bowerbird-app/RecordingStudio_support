@@ -1,5 +1,28 @@
 # Upgrade notes
 
+## 0.36.0
+
+Recording Studio Support requires Recording Studio 7. `root_recording_for` only finds a root. Create one with `create_root_recording!(recordable, actor:)`.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.36.0`.
+2. Require Recording Studio `>= 7.0`, `< 8.0` (tag `v7.0.0`), Messages `>= 0.30.0`, `< 1.0` (tag `v0.30.0`), Moveable `>= 5.0`, `< 6.0` (tag `v5.0.0`), Accessible `>= 0.44.0`, `< 1.0` (tag `v0.44.0`), Admin `>= 2.16.0`, `< 3.0` (tag `v2.16.0`), Trashable `>= 0.17.0`, `< 1.0` (tag `v0.17.0`), and Search `>= 0.14.0`, `< 1.0` (tag `v0.14.0`).
+3. Set `config.authorize_write`. Do not set `allow_unauthorized_writes`.
+4. Copy core migration `20261114090000_add_root_recording_id_to_recording_studio_events` when `recording_studio_events` has no `root_recording_id`, then migrate.
+5. Use `access_recording_resolver`. Admin 2.16 dropped `site_admin_recording_resolver`.
+6. No Support migration. Kept reads stay on `Recording.kept` and `RecordingStudio.kept_sql`. Staff still reach a ticket message group only through an inherited grant and are not seated on the group. The ticket creator still gets `:edit` on that one group.
+7. Users 0.30 rejects passwords shorter than 12 unless the host sets `minimum_password_length`. Dummy sets it to 8. Pass the new user as `actor:` when recording their profile. The People root write needs an actor.
+8. Search calls need `actor:` and `root:`, or `unscoped: true`. Support passes `unscoped: true` after it has already limited the rows. Call `instant_search_field` from the view. It is not a method on the Search routes.
+9. Set Accessible `admin_root_resolver` to the admin root recording. Support's admin section is site-wide, and Admin allows that only when this resolver returns the current access recording.
+
+### Verify
+
+```bash
+bundle exec ruby -Itest test/recording_studio_support_test.rb test/recording_studio_declarations_test.rb test/metrics_access_test.rb test/trashable_sibling_api_test.rb
+cd test/dummy && bundle exec rails test test/models/support_ticket_reads_test.rb test/integration/support_pages_ui_test.rb
+```
+
 ## 0.35.3
 
 The gemspec allows Recording Studio `>= 6.14.0, < 8.0`. Development and the dummy stay on `v6.14.0`.
