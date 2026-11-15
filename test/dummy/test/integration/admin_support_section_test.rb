@@ -11,10 +11,11 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     @user = User.find_by!(email: "admin@admin.com")
     sign_in @user
     switch_to_admin_root!
+    Current.actor = @user
   end
 
   test "admin support metric widgets read metrics and link to inbox or pages" do
-    patron = RecordingStudioUser.create_user!(
+    patron = create_support_user!(
       email: "widget-patron-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       first_name: "Casey",
@@ -62,7 +63,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
   end
 
   test "open tickets screen lists oldest open tickets first" do
-    patron = RecordingStudioUser.create_user!(
+    patron = create_support_user!(
       email: "open-queue-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       first_name: "Casey",
@@ -115,7 +116,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
   end
 
   test "time to close and help page views screens show a chart and table" do
-    patron = RecordingStudioUser.create_user!(
+    patron = create_support_user!(
       email: "close-queue-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       first_name: "Casey",
@@ -176,7 +177,7 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
   end
 
   test "time to close filters bound the table and bucket the chart" do
-    patron = RecordingStudioUser.create_user!(
+    patron = create_support_user!(
       email: "close-filters-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       first_name: "Casey",

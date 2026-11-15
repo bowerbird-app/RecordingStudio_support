@@ -183,16 +183,17 @@ grant_workspace_access = lambda do |recording, actor|
 end
 
 # Create the admin user through Users (Devise actor + Profile under People).
+# Recording Studio 7 requires an actor for the People root, so the saved user
+# is that actor. create_user! cannot pass the user before the row exists.
 user = User.find_by(email: "admin@admin.com")
 if user.nil?
-  user = RecordingStudioUser.create_user!(
+  user = User.create!(
     email: "admin@admin.com",
     password: "Password",
-    first_name: "Avery",
-    last_name: "Admin",
-    time_zone: "UTC"
+    password_confirmation: "Password"
   )
-elsif RecordingStudioUser.profile_for(user).nil?
+end
+if RecordingStudioUser.profile_for(user).nil?
   RecordingStudioUser.record_profile!(
     user,
     first_name: "Avery",
@@ -205,14 +206,13 @@ user.update!(admin: true) if user.respond_to?(:admin=) && !user.admin?
 
 customer = User.find_by(email: "jordan.lee@example.com")
 if customer.nil?
-  customer = RecordingStudioUser.create_user!(
+  customer = User.create!(
     email: "jordan.lee@example.com",
     password: "Password",
-    first_name: "Jordan",
-    last_name: "Lee",
-    time_zone: "UTC"
+    password_confirmation: "Password"
   )
-elsif RecordingStudioUser.profile_for(customer).nil?
+end
+if RecordingStudioUser.profile_for(customer).nil?
   RecordingStudioUser.record_profile!(
     customer,
     first_name: "Jordan",
@@ -232,15 +232,15 @@ previous_actor = Current.actor
 Current.actor = user
 
 begin
-  root_recording = RecordingStudio.root_recording_for(workspace)
-  accessible_root_recording = RecordingStudio.root_recording_for(accessible_workspace)
-  private_root_recording = RecordingStudio.root_recording_for(private_workspace)
+  root_recording = RecordingStudio.create_root_recording!(workspace, actor: user)
+  accessible_root_recording = RecordingStudio.create_root_recording!(accessible_workspace, actor: user)
+  private_root_recording = RecordingStudio.create_root_recording!(private_workspace, actor: user)
 
   folder_recording = find_or_record_child.call(folder, root_recording, root_recording)
   find_or_record_child.call(page, root_recording, folder_recording)
 
   admin_root = AdminRoot.find_or_create_by!(name: "Admin")
-  admin_root_recording = RecordingStudio.root_recording_for(admin_root)
+  admin_root_recording = RecordingStudio.create_root_recording!(admin_root, actor: user)
   bootstrap_owner_access.call(admin_root_recording, user)
 
   [root_recording, accessible_root_recording, private_root_recording].each do |recording|

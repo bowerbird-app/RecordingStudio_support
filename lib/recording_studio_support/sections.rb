@@ -67,7 +67,7 @@ module RecordingStudioSupport
       term = query.to_s.strip
       return ordered(relation) if term.blank?
 
-      matched_ids = SupportSection.search(term).unscope(:order).reselect(:id)
+      matched_ids = SupportSection.search(term, unscoped: true).unscope(:order).reselect(:id)
       relation.where(recordable_id: matched_ids)
     end
 

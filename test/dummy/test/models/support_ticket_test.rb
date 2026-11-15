@@ -5,7 +5,7 @@ require "test_helper"
 class SupportTicketModelTest < ActiveSupport::TestCase
   setup do
     load Rails.root.join("db/seeds.rb")
-    @patron = RecordingStudioUser.create_user!(
+    @patron = create_support_user!(
       email: "ticket-patron-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       first_name: "Casey",

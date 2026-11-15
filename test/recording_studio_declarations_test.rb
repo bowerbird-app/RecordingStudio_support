@@ -7,6 +7,19 @@ require_relative "dummy/config/environment"
 require "rails/test_help"
 
 class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
+  setup do
+    @actor = User.create!(
+      email: "declarations-#{SecureRandom.hex(4)}@example.com",
+      password: "Password",
+      password_confirmation: "Password"
+    )
+    Current.actor = @actor
+  end
+
+  teardown do
+    Current.actor = nil
+  end
+
   test "dummy recordable declarations validate and expose parent/root introspection" do
     assert RecordingStudio.validate_recordable_declarations!
     assert_equal %w[AdminRoot RecordingStudioUser::People Workspace],
@@ -32,16 +45,20 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
   test "root recordable creates a root recording" do
     workspace = Workspace.create!(name: unique_name("Root Workspace"))
 
-    root_recording = RecordingStudio.root_recording_for(workspace)
+    assert_nil RecordingStudio.root_recording_for(workspace)
+
+    root_recording = create_root!(workspace)
 
     assert_predicate root_recording, :persisted?
     assert_equal workspace, root_recording.recordable
     assert_nil root_recording.parent_recording_id
     assert_equal root_recording.id, root_recording.root_recording_id
+    assert_equal root_recording, RecordingStudio.root_recording_for(workspace)
+    assert_equal root_recording, create_root!(workspace)
   end
 
   test "allowed child can be recorded under a workspace root" do
-    root_recording = RecordingStudio.root_recording_for(Workspace.create!(name: unique_name("Child Workspace")))
+    root_recording = create_root!(Workspace.create!(name: unique_name("Child Workspace")))
     folder = Folder.new(name: unique_name("Allowed Folder"))
 
     event = RecordingStudio.record!(
@@ -56,7 +73,7 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
   end
 
   test "page can be recorded under allowed workspace and folder parents" do
-    root_recording = RecordingStudio.root_recording_for(Workspace.create!(name: unique_name("Page Workspace")))
+    root_recording = create_root!(Workspace.create!(name: unique_name("Page Workspace")))
     folder_recording = record_child(Folder.new(name: unique_name("Page Folder")), root_recording, root_recording)
 
     workspace_page_recording = record_child(
@@ -74,12 +91,12 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     folder = Folder.create!(name: unique_name("Root Rejected Folder"))
 
     assert_raises(RecordingStudio::RootNotAllowed) do
-      RecordingStudio.root_recording_for(folder)
+      create_root!(folder)
     end
   end
 
   test "parentless child under an existing root is invalid" do
-    root_recording = RecordingStudio.root_recording_for(Workspace.create!(name: unique_name("Parentless Workspace")))
+    root_recording = create_root!(Workspace.create!(name: unique_name("Parentless Workspace")))
     folder = Folder.create!(name: unique_name("Parentless Folder"))
     recording = RecordingStudio::Recording.new(root_recording: root_recording, recordable: folder)
 
@@ -88,7 +105,7 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
   end
 
   test "page cannot be recorded under another page" do
-    root_recording = RecordingStudio.root_recording_for(Workspace.create!(name: unique_name("Invalid Page Workspace")))
+    root_recording = create_root!(Workspace.create!(name: unique_name("Invalid Page Workspace")))
     page_recording = record_child(Page.new(title: unique_name("Parent Page")), root_recording, root_recording)
 
     error = assert_raises(RecordingStudio::InvalidParent) do
@@ -98,7 +115,7 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
   end
 
   test "support section can be recorded under a support center" do
-    admin_root = RecordingStudio.root_recording_for(AdminRoot.create!(name: unique_name("Support Admin")))
+    admin_root = create_root!(AdminRoot.create!(name: unique_name("Support Admin")))
     center = admin_root.record(RecordingStudioSupport::SupportCenter)
 
     assert RecordingStudio.parent_allowed?(
@@ -206,7 +223,7 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     )
 
     assert_raises(RecordingStudio::RootNotAllowed) do
-      RecordingStudio.root_recording_for(ticket)
+      create_root!(ticket)
     end
   end
 
@@ -216,7 +233,7 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
     )
 
     assert_raises(RecordingStudio::RootNotAllowed) do
-      RecordingStudio.root_recording_for(support_page)
+      create_root!(support_page)
     end
   end
 
@@ -228,7 +245,7 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
       root: false,
       allowed_parent_types: [RecordingStudioSupport.parent_root_type]
     )
-    workspace_root = RecordingStudio.root_recording_for(Workspace.create!(name: unique_name("Alt Parent")))
+    workspace_root = create_root!(Workspace.create!(name: unique_name("Alt Parent")))
 
     assert_equal ["Workspace"],
                  RecordingStudio.allowed_parent_types_for("RecordingStudioSupport::SupportCenter")
@@ -247,7 +264,7 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
 
   test "support page cannot be recorded under a workspace" do
     workspace = Workspace.create!(name: unique_name("Support Parent Workspace"))
-    root_recording = RecordingStudio.root_recording_for(workspace)
+    root_recording = create_root!(workspace)
 
     refute RecordingStudio.parent_allowed?(
       child_type: "RecordingStudioSupport::SupportPage",
@@ -370,6 +387,10 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
 
   private
 
+  def create_root!(recordable)
+    RecordingStudio.create_root_recording!(recordable, actor: @actor)
+  end
+
   def record_child(recordable, root_recording, parent_recording)
     RecordingStudio.record!(
       action: "created",
@@ -384,7 +405,7 @@ class RecordingStudioDeclarationsTest < ActiveSupport::TestCase
   end
 
   def support_tree
-    root_recording = RecordingStudio.root_recording_for(AdminRoot.create!(name: unique_name("Support Admin")))
+    root_recording = create_root!(AdminRoot.create!(name: unique_name("Support Admin")))
     center = root_recording.record(RecordingStudioSupport::SupportCenter)
     [root_recording, center]
   end

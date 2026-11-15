@@ -103,7 +103,7 @@ module RecordingStudioSupport
         term = query.to_s.strip
         return relation if term.blank?
 
-        matched_ids = SupportPage.search(term).unscope(:order).reselect(:id)
+        matched_ids = SupportPage.search(term, unscoped: true).unscope(:order).reselect(:id)
         relation.where(recordable_id: matched_ids)
       end
 
@@ -111,7 +111,7 @@ module RecordingStudioSupport
         term = query.to_s.strip
         return relation if term.blank?
 
-        relation.search(term)
+        relation.search(term, unscoped: true)
       end
     end
   end

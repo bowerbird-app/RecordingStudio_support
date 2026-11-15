@@ -15,9 +15,9 @@ module RecordingStudioSupport
       term = query.to_s.strip
       return scope if term.blank?
 
-      # Search Instant hits are Accessible-scoped and empty without an actor.
+      # Search 0.14 requires an actor and a root, or an explicit unscoped search.
       # Section Instant already limited the audience, so rank inside that scope.
-      matched = SupportPage.search(term, limit: 20)
+      matched = SupportPage.search(term, limit: 20, unscoped: true)
       return scope.none if matched.blank?
 
       scope.where(id: matched.unscope(:order).reselect(:id)).limit(20)

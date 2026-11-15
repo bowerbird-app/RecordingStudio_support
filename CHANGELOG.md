@@ -7,6 +7,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.36.0] - 2026-11-15
+
+Require Recording Studio 7.
+
+### Changed
+- Gemspec requires `recording_studio` `>= 7.0`, `< 8.0`.
+- Open floors: Messages `>= 0.30.0`, `< 1.0`; Moveable `>= 5.0`, `< 6.0`; Accessible `>= 0.44.0`, `< 1.0`; Admin `>= 2.16.0`, `< 3.0`; Attachable `>= 0.28.0`, `< 1.0`; Metrics `>= 0.9.0`, `< 1.0`; Notifications `>= 0.18.0`, `< 1.0`; Notifications Email `>= 0.5.4`, `< 1.0`; Orderable `>= 0.10.0`, `< 1.0`; Publishable `>= 0.18.1`, `< 1.0`; Search `>= 0.14.0`, `< 1.0`; Trashable `>= 0.17.0`, `< 1.0`; Views `>= 0.14.0`, `< 1.0`; Flatpack `>= 0.1.376`, `< 1.0`.
+- Development and the dummy pin Recording Studio `v7.0.0`, Accessible `v0.44.0`, and Search `v0.14.0`.
+- Roots are created with `create_root_recording!(recordable, actor:)`. `root_recording_for` only finds.
+- Dummy `authorize_write` allows the write. It does not set `allow_unauthorized_writes`.
+- Metrics and staff access use `access_recording_resolver`. Admin 2.16 dropped `site_admin_recording_resolver`.
+- Dummy drops the kept-sql bridge. API `v0.24.0` calls `RecordingStudio.kept_sql`.
+- Dummy pins puma `8.1.0` and msgpack `>= 1.8.7`.
+- Dummy sets Users `minimum_password_length` to 8 so seeds and tests keep the password `Password`. Users 0.30 defaults to 12.
+- Help search passes `unscoped: true`. Search 0.14 requires an actor and a root, or that flag. The section, center, or published list already limits the rows.
+- Seeds record each person's profile with that person as the actor. Recording Studio 7 requires an actor for the People root.
+- Accessible 0.44 bootstraps an owned root. A support center grant uses `grant_access` from that root's admin.
+- Dummy sets Accessible `admin_root_resolver` to the Admin root. Site-wide Support screens need that recording.
+- Help search calls the view helper `instant_search_field`. Search 0.14 no longer puts that helper on the engine routes.
+- Dummy also pins Logs `v0.8.0`, Root Switchable `v0.16.0`, and Internationalization `v0.3.0`, the published tags that accept core 7.
+
+### Upgrade notes
+- Bump to `0.36.0`. Require Recording Studio `>= 7.0`, `< 8.0` (tag `v7.0.0`) and Search `>= 0.14.0`, `< 1.0` (tag `v0.14.0`).
+- Create a root with `RecordingStudio.create_root_recording!(recordable, actor:)`. `root_recording_for` returns nil when that recordable has no root.
+- Set `config.authorize_write`. Do not set `allow_unauthorized_writes`.
+- Copy core migration `20261114090000_add_root_recording_id_to_recording_studio_events` when events have no `root_recording_id`.
+- Point admin access at `access_recording_resolver`.
+- Trashable 0.17 has no `kept_sql`. Kept reads stay on `Recording.kept` and `RecordingStudio.kept_sql`.
+- Staff still reach a ticket message group only through an inherited grant. They are not seated on the group. The ticket creator still gets `:edit` on that one group.
+
 ## [0.35.3] - 2026-11-15
 
 Allow recording_studio < 8.0 (core 7 phase 1).
@@ -1282,7 +1312,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.3...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.36.0...HEAD
+[0.36.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.3...v0.36.0
 [0.35.3]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.2...v0.35.3
 [0.35.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.1...v0.35.2
 [0.35.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.0...v0.35.1

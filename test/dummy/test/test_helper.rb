@@ -16,13 +16,13 @@ module SupportRecordHelpers
   def grant_center_access!(center, actor)
     return if actor.blank? || center.blank?
 
-    grant_role!(center, actor, :admin)
     parent = center.parent_recording || center.root_recording
     grant_role!(parent, actor, :admin) if parent && parent != center
+    grant_role!(center, actor, :admin)
   end
 
   def admin_support_tree(actor = Current.actor)
-    admin = RecordingStudio.root_recording_for(AdminRoot.find_or_create_by!(name: "Admin"))
+    admin = RecordingStudio.create_root_recording!(AdminRoot.find_or_create_by!(name: "Admin"), actor: actor)
     grant_role!(admin, actor, :admin) if actor
     center = record_support_center(admin)
     [admin, center]
@@ -44,7 +44,7 @@ module SupportRecordHelpers
       return record_support_center(recording)
     end
 
-    admin = RecordingStudio.root_recording_for(AdminRoot.find_or_create_by!(name: "Admin"))
+    admin = RecordingStudio.create_root_recording!(AdminRoot.find_or_create_by!(name: "Admin"), actor: Current.actor)
     record_support_center(admin)
   end
 
@@ -97,9 +97,26 @@ module SupportRecordHelpers
     RecordingStudioViews::ViewLog.find_by(id: event_id)
   end
 
-  def revise_support_ticket!(ticket, **changes)
-    RecordingStudioSupport::Tickets.update!(ticket, actor: Current.actor, **changes)
+  def revise_support_ticket!(ticket, actor: Current.actor, **changes)
+    writer = actor || User.find_by(email: "admin@admin.com")
+    RecordingStudioSupport::Tickets.update!(ticket, actor: writer, **changes)
     RecordingStudioSupport::Tickets.find!(ticket.id)
+  end
+
+  def create_support_user!(email:, password: "Password", first_name:, last_name:, time_zone: "UTC")
+    user = User.create!(
+      email: email,
+      password: password,
+      password_confirmation: password
+    )
+    RecordingStudioUser.record_profile!(
+      user,
+      actor: user,
+      first_name: first_name,
+      last_name: last_name,
+      time_zone: time_zone
+    )
+    user
   end
 
   def direct_access_roles(recording, actor)
@@ -123,10 +140,7 @@ module SupportRecordHelpers
     if wanted == "admin"
       result = RecordingStudioAccessible.bootstrap_owner_access!(recording: recording, actor: actor)
       return if result.success?
-      unless already_granted?(result)
-        raise result.error if result.failure?
-        return
-      end
+      raise result.error if result.failure? && !manager_grant?(result)
     end
 
     owner = owner_for_grant(recording, actor)
@@ -142,12 +156,26 @@ module SupportRecordHelpers
   end
 
   def already_granted?(result)
-    result.failure? && result.error.to_s.match?(/already exists|already granted/i)
+    manager_grant?(result)
+  end
+
+  # Accessible 0.44 bootstraps an owned root only. A support center is not a
+  # root, so the first admin on that center is grant_access from the root admin.
+  def manager_grant?(result)
+    return false unless result.failure?
+
+    result.error.to_s.match?(/already exists|already granted|Bootstrap is only allowed|use grant_access/i)
   end
 
   def owner_for_grant(recording, actor)
     existing = existing_admin_actor(recording)
     return existing if existing
+
+    root = recording.respond_to?(:root_recording) ? recording.root_recording : nil
+    if root && root != recording
+      existing = existing_admin_actor(root)
+      return existing if existing
+    end
 
     admin = User.find_by(email: "admin@admin.com")
     bootstrap_actor = [admin, actor].compact.find do |candidate|
@@ -156,11 +184,12 @@ module SupportRecordHelpers
     return bootstrap_actor if bootstrap_actor
 
     bootstrap_actor = admin || actor
-    result = RecordingStudioAccessible.bootstrap_owner_access!(recording: recording, actor: bootstrap_actor)
-    unless result.success? || already_granted?(result)
+    target = root || recording
+    result = RecordingStudioAccessible.bootstrap_owner_access!(recording: target, actor: bootstrap_actor)
+    unless result.success? || manager_grant?(result)
       raise result.error
     end
-    existing_admin_actor(recording) || bootstrap_actor
+    existing_admin_actor(recording) || existing_admin_actor(target) || bootstrap_actor
   end
 
   def existing_admin_actor(recording)

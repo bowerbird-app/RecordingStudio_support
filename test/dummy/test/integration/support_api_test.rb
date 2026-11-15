@@ -20,8 +20,8 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     )
     Current.actor = @support_user
     @workspace = Workspace.create!(name: "API #{SecureRandom.hex(4)}")
-    @root = RecordingStudio.root_recording_for(@workspace)
-    @admin_root = RecordingStudio.root_recording_for(AdminRoot.find_or_create_by!(name: "Admin"))
+    @root = RecordingStudio.create_root_recording!(@workspace, actor: @support_user)
+    @admin_root = RecordingStudio.create_root_recording!(AdminRoot.find_or_create_by!(name: "Admin"), actor: @support_user)
     grant!(@admin_root, @support_user, :admin)
     bootstrap_owner!(@root, @support_user)
     grant!(@root, @workspace_user, :edit)
@@ -438,7 +438,7 @@ class SupportApiTest < ActionDispatch::IntegrationTest
   test "section create rejects a trashed workspace parent" do
     trashed = record_as_support_team do
       workspace = Workspace.create!(name: "Trashed #{SecureRandom.hex(4)}")
-      root = RecordingStudio.root_recording_for(workspace)
+      root = RecordingStudio.create_root_recording!(workspace, actor: @support_user)
       bootstrap_owner!(root, @support_user)
       root.update!(trashed_at: Time.current)
       root

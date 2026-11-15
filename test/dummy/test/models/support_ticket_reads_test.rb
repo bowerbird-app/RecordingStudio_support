@@ -13,14 +13,14 @@ class SupportTicketReadsTest < ActiveSupport::TestCase
   ].freeze
 
   setup do
-    @patron = RecordingStudioUser.create_user!(
+    @patron = create_support_user!(
       email: "ticket-reads-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       first_name: "Casey",
       last_name: "Patron",
       time_zone: "UTC"
     )
-    @support_user = RecordingStudioUser.create_user!(
+    @support_user = create_support_user!(
       email: "ticket-reads-support-#{SecureRandom.hex(4)}@example.com",
       password: "Password",
       first_name: "Sam",
@@ -28,7 +28,7 @@ class SupportTicketReadsTest < ActiveSupport::TestCase
       time_zone: "UTC"
     )
     Current.actor = @support_user
-    admin_root = RecordingStudio.root_recording_for(AdminRoot.find_or_create_by!(name: "Admin"))
+    admin_root = RecordingStudio.create_root_recording!(AdminRoot.find_or_create_by!(name: "Admin"), actor: @support_user)
     grant_admin!(admin_root, @support_user)
     record_support_center(admin_root)
     RecordingStudio::Recording.where(recordable_type: RecordingStudioSupport::Tickets::TICKET_TYPE)

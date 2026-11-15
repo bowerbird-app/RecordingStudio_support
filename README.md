@@ -6,56 +6,56 @@ Help pages sit in a section under SupportCenter. Each page has a title and a for
 
 ## Install
 
-Add the gem next to Recording Studio 6.14.0, Accessible 0.42.0, Admin 2.13.0, Attachable 0.23.0, Publishable 0.15.0, Messages 0.26.0, and Flatpack 0.1.357. Those GitHub tags are the dummy-tested pins in `test/dummy/Gemfile.lock`. The constraint block below is the gemspec floor. GitHub hosting is not a reason to skip the gemspec pins. ViewComponent stays on `>= 4.14, < 5` (this repo locks `4.19.0`).
+Add the gem next to Recording Studio 7.0.0, Accessible 0.44.0, Admin 2.16.0, Attachable 0.28.0, Publishable 0.18.1, Messages 0.30.0, Search 0.14.0, and Flatpack 0.1.376. Those GitHub tags are the dummy-tested pins in `test/dummy/Gemfile.lock`. The constraint block below is the gemspec floor. GitHub hosting is not a reason to skip the gemspec pins. ViewComponent stays on `>= 4.14, < 5` (this repo locks `4.19.0`).
 
 ```ruby
 # Gemfile
-gem "recording_studio", github: "bowerbird-app/RecordingStudio", tag: "v6.14.0"
-gem "recording_studio_accessible", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.42.0"
-gem "recording_studio_admin", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.13.0"
-gem "recording_studio_attachable", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.23.0"
-gem "recording_studio_trashable", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.16.0"
-gem "recording_studio_orderable", github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.7.0"
-gem "recording_studio_publishable", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.15.0"
+gem "recording_studio", ">= 7.0", "< 8.0", github: "bowerbird-app/RecordingStudio", tag: "v7.0.0"
+gem "recording_studio_accessible", ">= 0.44.0", "< 1.0", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.44.0"
+gem "recording_studio_admin", ">= 2.16.0", "< 3.0", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.16.0"
+gem "recording_studio_attachable", ">= 0.28.0", "< 1.0", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.28.0"
+gem "recording_studio_trashable", ">= 0.17.0", "< 1.0", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.17.0"
+gem "recording_studio_orderable", ">= 0.10.0", "< 1.0", github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.10.0"
+gem "recording_studio_publishable", ">= 0.18.1", "< 1.0", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.18.1"
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.2.1"
-gem "recording_studio_moveable", github: "bowerbird-app/RecordingStudio_moveable", tag: "v4.1.1"
-gem "recording_studio_messages", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.26.0"
-gem "recording_studio_metrics", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.8.0"
-gem "recording_studio_logs", github: "bowerbird-app/RecordingStudio_logs", tag: "v0.7.4"
-gem "recording_studio_views", github: "bowerbird-app/RecordingStudio_views", tag: "v0.13.0"
-gem "recording_studio_notifications", github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.15.0"
-gem "recording_studio_notifications_email",
-    github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.5.2"
-gem "recording_studio_search", ">= 0.6", "< 1.0",
-    github: "bowerbird-app/RecordingStudio_search", tag: "v0.10.0"
+gem "recording_studio_moveable", ">= 5.0", "< 6.0", github: "bowerbird-app/RecordingStudio_moveable", tag: "v5.0.0"
+gem "recording_studio_messages", ">= 0.30.0", "< 1.0", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.30.0"
+gem "recording_studio_metrics", ">= 0.9.0", "< 1.0", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.9.0"
+gem "recording_studio_logs", ">= 0.8.0", "< 1.0", github: "bowerbird-app/RecordingStudio_logs", tag: "v0.8.0"
+gem "recording_studio_views", ">= 0.14.0", "< 1.0", github: "bowerbird-app/RecordingStudio_views", tag: "v0.14.0"
+gem "recording_studio_notifications", ">= 0.18.0", "< 1.0", github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.18.0"
+gem "recording_studio_notifications_email", ">= 0.5.4", "< 1.0",
+    github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.5.4"
+gem "recording_studio_search", ">= 0.14.0", "< 1.0",
+    github: "bowerbird-app/RecordingStudio_search", tag: "v0.14.0"
 gem "recording_studio_support", github: "bowerbird-app/RecordingStudio_support"
 # Host-owned auth (not a Support gemspec dependency):
-gem "recording_studio_user", github: "bowerbird-app/RecordingStudio_users", tag: "v0.28.1"
-gem "flat_pack", github: "bowerbird-app/flatpack", tag: "v0.1.357"
+gem "recording_studio_user", github: "bowerbird-app/RecordingStudio_users", tag: "v0.30.0"
+gem "flat_pack", ">= 0.1.376", "< 1.0", github: "bowerbird-app/flatpack", tag: "v0.1.376"
 gem "view_component", "4.19.0"
 ```
 
 ```ruby
 # gemspec / host Gemfile constraints
-gem "recording_studio", ">= 6.14.0", "< 8.0"
-gem "flat_pack", ">= 0.1.331", "< 1.0"
+gem "recording_studio", ">= 7.0", "< 8.0"
+gem "flat_pack", ">= 0.1.376", "< 1.0"
 gem "view_component", ">= 4.14", "< 5"
-gem "recording_studio_accessible", ">= 0.42.0", "< 1.0"
-gem "recording_studio_admin", ">= 2.0", "< 3.0"
-gem "recording_studio_attachable", ">= 0.7", "< 1.0"
-gem "recording_studio_trashable", ">= 0.16.0", "< 1.0"
-gem "recording_studio_orderable", ">= 0.2", "< 1.0"
-gem "recording_studio_publishable", ">= 0.4", "< 1.0"
-gem "recording_studio_search", ">= 0.6", "< 1.0"
-gem "recording_studio_moveable", ">= 3.2", "< 5.0"
-gem "recording_studio_messages", ">= 0.26.0", "< 1.0"
-gem "recording_studio_metrics", ">= 0.5.0", "< 1.0"
-gem "recording_studio_views", ">= 0.8.0", "< 1.0"
-gem "recording_studio_notifications", ">= 0.3.1", "< 1.0"
-gem "recording_studio_notifications_email", ">= 0.3.1", "< 1.0"
+gem "recording_studio_accessible", ">= 0.44.0", "< 1.0"
+gem "recording_studio_admin", ">= 2.16.0", "< 3.0"
+gem "recording_studio_attachable", ">= 0.28.0", "< 1.0"
+gem "recording_studio_trashable", ">= 0.17.0", "< 1.0"
+gem "recording_studio_orderable", ">= 0.10.0", "< 1.0"
+gem "recording_studio_publishable", ">= 0.18.1", "< 1.0"
+gem "recording_studio_search", ">= 0.14.0", "< 1.0"
+gem "recording_studio_moveable", ">= 5.0", "< 6.0"
+gem "recording_studio_messages", ">= 0.30.0", "< 1.0"
+gem "recording_studio_metrics", ">= 0.9.0", "< 1.0"
+gem "recording_studio_views", ">= 0.14.0", "< 1.0"
+gem "recording_studio_notifications", ">= 0.18.0", "< 1.0"
+gem "recording_studio_notifications_email", ">= 0.5.4", "< 1.0"
 ```
 
-Pin the GitHub release tags above. Those releases allow Recording Studio 6.14, so this repo does not rewrite sibling gemspecs at Bundler load. Messages `v0.26.0` keeps the conversation header hooks Support uses for support-team Status. Hosts need Messages `>= 0.26.0` and Accessible `>= 0.42.0`. The support mount uses `access: :inherited`, and a customer reply notifies everyone with effective `:view`, including inherited access, and never the sender. Attachable `v0.23.0` and Publishable `v0.15.0` depend on API `~> 0.23`. The root Gemfile pins API `v0.23.1` so Bundler can resolve them. API stays off the Support gemspec. Recording Studio `v6.14.0` refuses writes unless the host sets `config.authorize_write`, or sets `config.allow_unauthorized_writes` for the old open writes. Dummy sets `allow_unauthorized_writes` because seeds and tests record help before Accessible grants exist. A production host sets `authorize_write` instead. Copy Recording Studio's events migration so `recording_studio_events.root_recording_id` exists before writing events. Kept page, section, center, and ticket reads use `Recording.kept` and `RecordingStudio.kept_sql`. Trashable `v0.16.0` registers `:trashable`, so those lists omit trashed rows. Trashable `v0.14.0` adds nullable `purge_at`. Generate its migration and run `recording_studio_trashable:restamp_purge_at` once. Root Switchable `v0.15.0` requires Accessible `:view` on the mounted switch page when a current root is selected.
+Pin the GitHub release tags above. Those releases accept Recording Studio 7, so this repo does not rewrite sibling gemspecs at Bundler load. Messages `v0.30.0` keeps the conversation header hooks Support uses for support-team Status. Hosts need Messages `>= 0.30.0` and Accessible `>= 0.44.0`. The support mount uses `access: :inherited`, and a customer reply notifies everyone with effective `:view`, including inherited access, and never the sender. Staff reach a ticket message group only through that inherited grant. They are not seated on the group. The ticket creator gets `:edit` on that one group. Attachable `v0.28.0` and Publishable `v0.18.1` depend on API `>= 0.24.0`. The root Gemfile pins API `v0.24.0` so Bundler can resolve them. API stays off the Support gemspec. Recording Studio 7 refuses writes unless the host sets `config.authorize_write`. `root_recording_for` only finds a root. Create one with `create_root_recording!(recordable, actor:)`. Dummy's callback allows the write because seeds and tests record help before Accessible grants exist. A production host checks the actor and the root. Copy Recording Studio's events migration so `recording_studio_events.root_recording_id` exists before writing events. Kept page, section, center, and ticket reads use `Recording.kept` and `RecordingStudio.kept_sql`. Trashable `v0.17.0` registers `:trashable` and no longer ships `kept_sql`. Admin `v2.16.0` resolves the admin root with `access_recording_resolver`. Root Switchable `v0.16.0` requires Accessible `:view` on the mounted switch page when a current root is selected.
 
 Then:
 
@@ -81,7 +81,7 @@ bin/rails generate recording_studio_accessible:migrations
 bin/rails db:migrate
 ```
 
-Accessible `v0.42.0` stores roles as strings (`view`, `edit`, `admin`). Set `config.access_management_actor_scope` before manage access. Run its migrations through that tag. Grant through `bootstrap_owner_access!` / `grant_access` — do not create `RecordingStudio::Access` rows. Dummy pins API `v0.23.1`. For operations move and trash by an AdminRoot-only client, the **host** sets Trashable and Moveable hooks (Support does not). `nil` falls through to Accessible `:edit`:
+Accessible `v0.44.0` stores roles as strings (`view`, `edit`, `admin`). Set `config.access_management_actor_scope` before manage access. Run its migrations through that tag. Grant through `bootstrap_owner_access!` / `grant_access` — do not create `RecordingStudio::Access` rows. Dummy pins API `v0.24.0`. For operations move and trash by an AdminRoot-only client, the **host** sets Trashable and Moveable hooks (Support does not). `nil` falls through to Accessible `:edit`:
 
 ```ruby
 RecordingStudioTrashable.configure do |config|
@@ -126,7 +126,10 @@ RecordingStudioSupport.configure do |config|
   config.parent_root_type = "AdminRoot"
 end
 
-admin_root = RecordingStudio.root_recording_for(AdminRoot.find_or_create_by!(name: "Admin"))
+admin_root = RecordingStudio.create_root_recording!(
+  AdminRoot.find_or_create_by!(name: "Admin"),
+  actor: Current.actor
+)
 center = RecordingStudioSupport::SupportCenters.for_parent(admin_root) ||
   admin_root.record(RecordingStudioSupport::SupportCenter)
 RecordingStudioSupport::SupportCenters.current
@@ -189,7 +192,7 @@ include RecordingStudio::Capabilities::Publishable.to(
 Create and change pages with public helpers. Publish with Publishable's Update helper. Do not insert Recording or Event rows by hand.
 
 ```ruby
-root = RecordingStudio.root_recording_for(admin_root)
+root = RecordingStudio.create_root_recording!(admin_root, actor: Current.actor)
 center = RecordingStudioSupport::SupportCenters.current!
 section = root.record(
   RecordingStudioSupport::SupportSection,
@@ -251,7 +254,7 @@ Help page opens are Recording Studio Views raw logs (`RecordingStudioViews::View
 
 Logged-out people can read sections and live pages. Drafts 404.
 
-Public `/help` lists sections. A section show lists `SupportPage.indexable` pages in that section. Do not copy that logic. Public `/help?q=` searches section title and slug via `SupportSection.search` (Recording Studio Search `pg_trgm`) with a GET form. Page search lives on a public section show and filters pages **in that section** via Recording Studio Search trigram on title/body. Typing uses Search Instant UI (`instant_search_field` + Turbo Frame) against the section Instant path; Enter / no-JS still GET `?q=` on the section. The support section show uses the same Instant field against the support Instant path. The Search engine Instant endpoint is mounted for hosts. Support runs Search's own Instant `show` (actor and root included), then drops draft `SupportPage` rows. Other allowlisted models in that result stay. Search `v0.10.0` inherits the host `ApplicationController` and returns no Instant hits without an actor, so a host that requires sign-in requires it on that engine path too. Later Search also requires a root, which that `show` passes. Public `/help` Instant stays on Support’s public Instant controller and searches `SupportPage` inside the section, so a visitor does not need an Accessible grant. Admin support pages and sections table search use the same Search-backed `apply_query` helpers.
+Public `/help` lists sections. A section show lists `SupportPage.indexable` pages in that section. Do not copy that logic. Public `/help?q=` searches section title and slug via `SupportSection.search` (Recording Studio Search `pg_trgm`) with a GET form. Page search lives on a public section show and filters pages **in that section** via Recording Studio Search trigram on title/body. Typing uses Search Instant UI (`instant_search_field` + Turbo Frame) against the section Instant path; Enter / no-JS still GET `?q=` on the section. The support section show uses the same Instant field against the support Instant path. The Search engine Instant endpoint is mounted for hosts. Support runs Search's own Instant `show` (actor and root included), then drops draft `SupportPage` rows. Other allowlisted models in that result stay. Search `v0.14.0` inherits the host `ApplicationController` and returns no Instant hits without an actor, so a host that requires sign-in requires it on that engine path too. Later Search also requires a root, which that `show` passes. Public `/help` Instant stays on Support’s public Instant controller and searches `SupportPage` inside the section, so a visitor does not need an Accessible grant. Admin support pages and sections table search use the same Search-backed `apply_query` helpers.
 
 Public `/help` and public section show use Flatpack Search at full width (`max_width: :none`, placeholder from `recording_studio.support.help.search_placeholder`, English “Search support”). Support sets `--search-input-background-color` to `--color-white` and a visible border so the field reads as enabled instead of Flatpack’s muted default. Public `/help` and public section show pass `size: :lg` (Flatpack `0.1.175+`). Public `/help` also raises the `:lg` vertical padding (`prominent: true`). Support search on remaining engine screens keeps the default `:md`. Passing `placeholder:` still overrides the locale.
 
@@ -362,7 +365,7 @@ mount RecordingStudioAccessible::Engine, at: "/admin/access"
 recording_studio_admin_for :admin, at: "/admin", root_section: :support
 
 RecordingStudioAccessible.bootstrap_owner_access!(
-  recording: RecordingStudio.root_recording_for(admin_root),
+  recording: RecordingStudio.create_root_recording!(admin_root, actor: first_support_user),
   actor: first_support_user
 )
 ```
@@ -472,7 +475,7 @@ Help article titles and bodies, section names, and other support-written databas
 
 Dummy credentials (`test/dummy/config/credentials.yml.enc`) are encrypted with the shared RecordingStudio_* development master key. Set `RAILS_MASTER_KEY` or put that key in `test/dummy/config/master.key` (gitignored). Keep the encrypted file; do not generate a per-repo dummy key.
 
-Public and support help pages use `recording_studio_layout`. A nil setting selects `recording_studio/default_layout`. Dummy still overrides that layout file so `<html>` gets `lang` and Flatpack copy data, the body calls `recording_studio_track_views`, and the top nav's right slot includes the language selector. Flatpack stylesheets load before Tailwind. Support screens and Admin Support screens keep that chrome only. Dummy does not inject Sign out or Root Switchable into the top nav (including dummy host pages, `/admin/support`, `/help`, and `/admin`). Access can stay on Admin. Do not put a login button there. Sign-in uses the Users gem (`recording_studio_user` `v0.28.1`): email at `/users/sign_in`, password at `/users/sign_in/password`. The auth shell is `recording_studio_user/auth` inside `recording_studio/default_layout`, with `html data-theme="rounded"`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`, `preset: :content`, image upload). Dummy Stimulus registers `flat-pack--tiptap` on first paint. The dummy switches English and French with Recording Studio Internationalization. Article titles and seeded bodies stay in the language they were written.
+Public and support help pages use `recording_studio_layout`. A nil setting selects `recording_studio/default_layout`. Dummy still overrides that layout file so `<html>` gets `lang` and Flatpack copy data, the body calls `recording_studio_track_views`, and the top nav's right slot includes the language selector. Flatpack stylesheets load before Tailwind. Support screens and Admin Support screens keep that chrome only. Dummy does not inject Sign out or Root Switchable into the top nav (including dummy host pages, `/admin/support`, `/help`, and `/admin`). Access can stay on Admin. Do not put a login button there. Sign-in uses the Users gem (`recording_studio_user` `v0.30.0`): email at `/users/sign_in`, password at `/users/sign_in/password`. The auth shell is `recording_studio_user/auth` inside `recording_studio/default_layout`, with `html data-theme="rounded"`. Help-page edit boots Flatpack's TipTap `TextArea` (`rich_text: true`, `preset: :content`, image upload). Dummy Stimulus registers `flat-pack--tiptap` on first paint. The dummy switches English and French with Recording Studio Internationalization. Article titles and seeded bodies stay in the language they were written.
 
 | Field    | Value           |
 |----------|-----------------|
@@ -483,28 +486,28 @@ Dummy kit pins:
 
 | Gem | Pin |
 |-----|-----|
-| Recording Studio | `v6.14.0` |
-| Accessible | `v0.42.0` |
-| Admin | `v2.13.0` |
-| Attachable | `v0.23.0` |
-| Messages | `v0.26.0` |
-| Notifications | `v0.15.0` |
-| Notifications Email | `v0.5.2` |
-| Users | `v0.28.1` |
-| Trashable | `v0.16.0` |
-| Orderable | `v0.7.0` |
-| Publishable | `v0.15.0` |
+| Recording Studio | `v7.0.0` |
+| Accessible | `v0.44.0` |
+| Admin | `v2.16.0` |
+| Attachable | `v0.28.0` |
+| Messages | `v0.30.0` |
+| Notifications | `v0.18.0` |
+| Notifications Email | `v0.5.4` |
+| Users | `v0.30.0` |
+| Trashable | `v0.17.0` |
+| Orderable | `v0.10.0` |
+| Publishable | `v0.18.1` |
 | Icons | `v0.2.1` |
-| Moveable | `v4.1.1` |
-| Search | `v0.10.0` |
-| Root Switchable | `v0.15.0` |
-| Logs | `v0.7.4` |
-| Views | `v0.13.0` |
-| Metrics | `v0.8.0` |
+| Moveable | `v5.0.0` |
+| Search | `v0.14.0` |
+| Root Switchable | `v0.16.0` |
+| Logs | `v0.8.0` |
+| Views | `v0.14.0` |
+| Metrics | `v0.9.0` |
 | Cache | `v0.6.3` (dummy only; Users and Root Switchable rate limiting) |
-| API | `v0.23.1` (dummy and root Gemfile for Attachable 0.23 / Publishable 0.15; not a Support gemspec dependency) |
-| Internationalization | `v0.2.2` (dummy only; not a Support gemspec dependency) |
-| FlatPack | `0.1.357` |
+| API | `v0.24.0` (dummy and root Gemfile for Attachable 0.28 / Publishable 0.18; not a Support gemspec dependency) |
+| Internationalization | `v0.3.0` (dummy only; not a Support gemspec dependency) |
+| FlatPack | `0.1.376` |
 | ViewComponent | `4.19.0` |
 
 ```bash
