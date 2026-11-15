@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.35.2", ::RecordingStudioSupport::VERSION
+    assert_equal "0.35.3", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -22,7 +22,7 @@ class RecordingStudioSupportTest < Minitest::Test
   def test_gemspec_pins_recording_studio_kit_and_support_mixins
     gemspec = File.read(File.expand_path("../recording_studio_support.gemspec", __dir__))
 
-    assert_includes gemspec, 'spec.add_dependency "recording_studio", "~> 6.0", ">= 6.14.0"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio", ">= 6.14.0", "< 8.0"'
     assert_includes gemspec, 'spec.add_dependency "flat_pack", ">= 0.1.331", "< 1.0"'
     assert_includes gemspec, 'spec.add_dependency "view_component", ">= 4.14", "< 5"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_accessible", ">= 0.42.0", "< 1.0"'
@@ -52,7 +52,8 @@ class RecordingStudioSupportTest < Minitest::Test
     refute requirements.fetch("recording_studio").satisfied_by?(Gem::Version.new("6.13.0"))
     assert requirements.fetch("recording_studio").satisfied_by?(Gem::Version.new("6.14.0"))
     refute requirements.fetch("recording_studio").satisfied_by?(Gem::Version.new("6.0.9"))
-    refute requirements.fetch("recording_studio").satisfied_by?(Gem::Version.new("7.0.0"))
+    assert requirements.fetch("recording_studio").satisfied_by?(Gem::Version.new("7.0.0"))
+    refute requirements.fetch("recording_studio").satisfied_by?(Gem::Version.new("8.0.0"))
     assert requirements.fetch("recording_studio_admin").satisfied_by?(Gem::Version.new("2.7.0"))
     refute requirements.fetch("recording_studio_admin").satisfied_by?(Gem::Version.new("3.0.0"))
     assert requirements.fetch("recording_studio_moveable").satisfied_by?(Gem::Version.new("3.2.0"))
