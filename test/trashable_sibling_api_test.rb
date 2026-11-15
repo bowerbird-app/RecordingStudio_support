@@ -89,7 +89,7 @@ class TrashableSiblingApiTest < Minitest::Test
     assert_includes changelog, "v0.9.0"
     assert_includes changelog, "[0.17.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.16.1...v0.17.0"
     assert_includes changelog, "## [0.19.0]"
-    assert_includes changelog, "compare/v0.35.2...HEAD"
+    assert_includes changelog, "compare/v0.35.3...HEAD"
     assert_includes changelog, "[0.19.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.18.0...v0.19.0"
     assert_includes changelog, "## [0.18.0]"
     assert_includes changelog, "[0.18.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.17.0...v0.18.0"
@@ -103,7 +103,7 @@ class TrashableSiblingApiTest < Minitest::Test
     assert_includes gemspec, 'spec.add_dependency "recording_studio_accessible", ">= 0.42.0", "< 1.0"'
     assert_includes changelog, "v0.16.0"
     assert_includes changelog, "v0.42.0"
-    assert_includes gemspec, 'spec.add_dependency "recording_studio", "~> 6.0", ">= 6.14.0"'
+    assert_includes gemspec, 'spec.add_dependency "recording_studio", ">= 6.14.0", "< 8.0"'
   end
 
   private

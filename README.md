@@ -37,7 +37,7 @@ gem "view_component", "4.19.0"
 
 ```ruby
 # gemspec / host Gemfile constraints
-gem "recording_studio", "~> 6.0", ">= 6.14.0"
+gem "recording_studio", ">= 6.14.0", "< 8.0"
 gem "flat_pack", ">= 0.1.331", "< 1.0"
 gem "view_component", ">= 4.14", "< 5"
 gem "recording_studio_accessible", ">= 0.42.0", "< 1.0"

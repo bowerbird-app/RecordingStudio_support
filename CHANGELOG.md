@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.35.3] - 2026-11-15
+
+Allow recording_studio < 8.0 (core 7 phase 1).
+
+### Changed
+- Gemspec allows `recording_studio` `>= 6.14.0, < 8.0`. Development and the dummy stay on tag `v6.14.0`.
+
+### Upgrade notes
+- Bump to `0.35.3`. A host may resolve Recording Studio 7. This release does not change the tested pin.
+
 ## [0.35.2] - 2026-11-14
 
 A customer message on a resolved ticket still reopens it. Support listens on Recording Studio `after_record` instead of prepending Messages `send_message`.
@@ -1272,7 +1282,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.2...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.3...HEAD
+[0.35.3]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.2...v0.35.3
 [0.35.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.1...v0.35.2
 [0.35.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.0...v0.35.1
 [0.35.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.34.1...v0.35.0

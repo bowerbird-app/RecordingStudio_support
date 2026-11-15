@@ -1,5 +1,20 @@
 # Upgrade notes
 
+## 0.35.3
+
+The gemspec allows Recording Studio `>= 6.14.0, < 8.0`. Development and the dummy stay on `v6.14.0`.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.35.3`.
+2. No migration. A host may resolve Recording Studio 7. This release does not change the tested pin.
+
+### Verify
+
+```bash
+bundle exec ruby -Itest test/recording_studio_support_test.rb test/trashable_sibling_api_test.rb
+```
+
 ## 0.35.2
 
 A resolved ticket still reopens when a customer creates a message. Support registers that on Recording Studio `after_record` once at load.
