@@ -81,6 +81,7 @@ class SupportInstantSearchTest < ActionDispatch::IntegrationTest
   test "search engine instant keeps live pages and other models and hides drafts" do
     sign_in @user
     Current.actor = @user
+    select_admin_root!
     token = SecureRandom.hex(4)
     center = seeded_section("Getting started").parent_recording
     section = RecordingStudioSupport::Sections.create!(
@@ -126,6 +127,7 @@ class SupportInstantSearchTest < ActionDispatch::IntegrationTest
 
   test "search engine instant finds a live page and ignores blank q" do
     sign_in @user
+    select_admin_root!
 
     get "/recording_studio_search/instant_search", params: {
       q: "sign in",
@@ -168,6 +170,19 @@ class SupportInstantSearchTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  # Search 0.14 scopes engine Instant hits to the current root. Help pages sit under Admin.
+  def select_admin_root!
+    admin = RecordingStudio.root_recording_for(AdminRoot.find_by!(name: "Admin"))
+    patch "/recording_studio_root_switchable/v1/root_switch", params: {
+      scope: "all_workspaces",
+      root_switch: {
+        root_recording_id: admin.id,
+        return_to: "/up"
+      }
+    }
+    assert_response :redirect
+  end
 
   def publish_page!(page_recording, slug:, status:)
     result = RecordingStudioPublishable::Services::Publishables::Update.call(

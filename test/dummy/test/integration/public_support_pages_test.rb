@@ -143,7 +143,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     path = current.recordable.published_url
     assert path.present?
 
-    current.root_recording.revise(current) do |page|
+    current.root_recording.revise(current, actor: User.find_by!(email: "admin@admin.com")) do |page|
       page.description = nil
       page.body = "<p>Pay &amp; save the card. &lt;Keep receipts&gt;.</p>"
     end
