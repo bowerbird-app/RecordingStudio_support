@@ -10,23 +10,23 @@ Add the gem next to Recording Studio 7.0.0, Accessible 0.44.0, Admin 2.16.0, Att
 
 ```ruby
 # Gemfile
-gem "recording_studio", ">= 7.0", "< 8.0", github: "bowerbird-app/RecordingStudio", tag: "v7.0.0"
-gem "recording_studio_accessible", ">= 0.44.0", "< 1.0", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.44.0"
+gem "recording_studio", ">= 7.0.0", "< 8.0", github: "bowerbird-app/RecordingStudio", tag: "v7.0.0"
+gem "recording_studio_accessible", ">= 0.44.0", "< 2.0", github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.44.0"
 gem "recording_studio_admin", ">= 2.16.0", "< 3.0", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.16.0"
-gem "recording_studio_attachable", ">= 0.28.0", "< 1.0", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.28.0"
-gem "recording_studio_trashable", ">= 0.17.0", "< 1.0", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.17.0"
-gem "recording_studio_orderable", ">= 0.10.0", "< 1.0", github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.10.0"
-gem "recording_studio_publishable", ">= 0.18.1", "< 1.0", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.18.1"
+gem "recording_studio_attachable", ">= 0.28.0", "< 2.0", github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.28.0"
+gem "recording_studio_trashable", ">= 0.17.0", "< 2.0", github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.17.0"
+gem "recording_studio_orderable", ">= 0.10.0", "< 2.0", github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.10.0"
+gem "recording_studio_publishable", ">= 0.18.0", "< 2.0", github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.18.1"
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.2.1"
-gem "recording_studio_moveable", ">= 5.0", "< 6.0", github: "bowerbird-app/RecordingStudio_moveable", tag: "v5.0.0"
-gem "recording_studio_messages", ">= 0.30.0", "< 1.0", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.30.0"
-gem "recording_studio_metrics", ">= 0.9.0", "< 1.0", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.9.0"
+gem "recording_studio_moveable", ">= 5.0.0", "< 7.0", github: "bowerbird-app/RecordingStudio_moveable", tag: "v5.0.0"
+gem "recording_studio_messages", ">= 0.30.0", "< 2.0", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.30.0"
+gem "recording_studio_metrics", ">= 0.9.0", "< 2.0", github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.9.0"
 gem "recording_studio_logs", ">= 0.8.0", "< 1.0", github: "bowerbird-app/RecordingStudio_logs", tag: "v0.8.0"
-gem "recording_studio_views", ">= 0.14.0", "< 1.0", github: "bowerbird-app/RecordingStudio_views", tag: "v0.14.0"
-gem "recording_studio_notifications", ">= 0.18.0", "< 1.0", github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.18.0"
-gem "recording_studio_notifications_email", ">= 0.5.4", "< 1.0",
+gem "recording_studio_views", ">= 0.14.0", "< 2.0", github: "bowerbird-app/RecordingStudio_views", tag: "v0.14.0"
+gem "recording_studio_notifications", ">= 0.18.0", "< 2.0", github: "bowerbird-app/RecordingStudio_notifications", tag: "v0.18.0"
+gem "recording_studio_notifications_email", ">= 0.5.4", "< 2.0",
     github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.5.4"
-gem "recording_studio_search", ">= 0.14.0", "< 1.0",
+gem "recording_studio_search", ">= 0.14.0", "< 2.0",
     github: "bowerbird-app/RecordingStudio_search", tag: "v0.14.0"
 gem "recording_studio_support", github: "bowerbird-app/RecordingStudio_support"
 # Host-owned auth (not a Support gemspec dependency):
@@ -37,22 +37,22 @@ gem "view_component", "4.19.0"
 
 ```ruby
 # gemspec / host Gemfile constraints
-gem "recording_studio", ">= 7.0", "< 8.0"
+gem "recording_studio", ">= 7.0.0", "< 8.0"
 gem "flat_pack", ">= 0.1.376", "< 1.0"
 gem "view_component", ">= 4.14", "< 5"
-gem "recording_studio_accessible", ">= 0.44.0", "< 1.0"
+gem "recording_studio_accessible", ">= 0.44.0", "< 2.0"
 gem "recording_studio_admin", ">= 2.16.0", "< 3.0"
-gem "recording_studio_attachable", ">= 0.28.0", "< 1.0"
-gem "recording_studio_trashable", ">= 0.17.0", "< 1.0"
-gem "recording_studio_orderable", ">= 0.10.0", "< 1.0"
-gem "recording_studio_publishable", ">= 0.18.1", "< 1.0"
-gem "recording_studio_search", ">= 0.14.0", "< 1.0"
-gem "recording_studio_moveable", ">= 5.0", "< 6.0"
-gem "recording_studio_messages", ">= 0.30.0", "< 1.0"
-gem "recording_studio_metrics", ">= 0.9.0", "< 1.0"
-gem "recording_studio_views", ">= 0.14.0", "< 1.0"
-gem "recording_studio_notifications", ">= 0.18.0", "< 1.0"
-gem "recording_studio_notifications_email", ">= 0.5.4", "< 1.0"
+gem "recording_studio_attachable", ">= 0.28.0", "< 2.0"
+gem "recording_studio_trashable", ">= 0.17.0", "< 2.0"
+gem "recording_studio_orderable", ">= 0.10.0", "< 2.0"
+gem "recording_studio_publishable", ">= 0.18.0", "< 2.0"
+gem "recording_studio_search", ">= 0.14.0", "< 2.0"
+gem "recording_studio_moveable", ">= 5.0.0", "< 7.0"
+gem "recording_studio_messages", ">= 0.30.0", "< 2.0"
+gem "recording_studio_metrics", ">= 0.9.0", "< 2.0"
+gem "recording_studio_views", ">= 0.14.0", "< 2.0"
+gem "recording_studio_notifications", ">= 0.18.0", "< 2.0"
+gem "recording_studio_notifications_email", ">= 0.5.4", "< 2.0"
 ```
 
 Pin the GitHub release tags above. Those releases accept Recording Studio 7, so this repo does not rewrite sibling gemspecs at Bundler load. Messages `v0.30.0` keeps the conversation header hooks Support uses for support-team Status. Hosts need Messages `>= 0.30.0` and Accessible `>= 0.44.0`. The support mount uses `access: :inherited`, and a customer reply notifies everyone with effective `:view`, including inherited access, and never the sender. Staff reach a ticket message group only through that inherited grant. They are not seated on the group. The ticket creator gets `:edit` on that one group. Attachable `v0.28.0` and Publishable `v0.18.1` depend on API `>= 0.24.0`, `< 1.0`. The root Gemfile raises that floor to `>= 0.26.0` and pins API `v0.26.0` so Bundler can resolve them. API stays off the Support gemspec. Recording Studio 7 refuses writes unless the host sets `config.authorize_write`. `root_recording_for` only finds a root. Create one with `create_root_recording!(recordable, actor:)`. Dummy's callback allows the write because seeds and tests record help before Accessible grants exist. A production host checks the actor and the root. Copy Recording Studio's events migration so `recording_studio_events.root_recording_id` exists before writing events. Kept page, section, center, and ticket reads use `Recording.kept` and `RecordingStudio.kept_sql`. Trashable `v0.17.0` registers `:trashable` and no longer ships `kept_sql`. Admin `v2.16.0` resolves the admin root with `access_recording_resolver`. Root Switchable `v0.16.0` requires Accessible `:view` on the mounted switch page when a current root is selected.

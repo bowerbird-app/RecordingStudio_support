@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.38.0] - 2026-11-16
+
+Widen Recording Studio gemspec caps. Floors stay on the last tested minor. Dummy pins are unchanged.
+
+### Changed
+- Each `recording_studio` and `recording_studio_*` gemspec dependency is `>= X.Y.0` and a major cap. No `~>` and no floor-only requirement.
+- 0.x dependencies cap at `< 2.0`. Core stays `< 8.0`. Admin stays `< 3.0`. Moveable is `>= 5.0.0`, `< 7.0`.
+- Publishable floor is `>= 0.18.0`. Notifications Email stays `>= 0.5.4` and caps at `< 2.0`.
+- Flatpack, Rails, and ViewComponent are unchanged. Development and the dummy keep their GitHub tags.
+
+### Upgrade notes
+- Bump to `0.38.0`.
+- Hosts may resolve a later 1.x of a 0.x Recording Studio dependency, Moveable 6.x, and Publishable from `0.18.0`. Notifications Email still starts at `0.5.4`. The tested tags in the dummy stay the same.
+- No Support migration.
+
 ## [0.37.0] - 2026-11-16
 
 Recording Studio API 0.26 scopes every route id before the handler runs.
@@ -1328,7 +1343,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.37.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.38.0...HEAD
+[0.38.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.37.0...v0.38.0
 [0.37.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.36.0...v0.37.0
 [0.36.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.3...v0.36.0
 [0.35.3]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.2...v0.35.3
