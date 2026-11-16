@@ -1,5 +1,21 @@
 # Upgrade notes
 
+## 0.38.0
+
+Recording Studio dependency caps in the Support gemspec widen. The floor of each one stays on the last tested minor (`X.Y.0`). Dummy and development GitHub tags do not move.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.38.0`.
+2. Gemspec ranges are now `recording_studio` `>= 7.0.0`, `< 8.0`; Admin `>= 2.16.0`, `< 3.0`; Moveable `>= 5.0.0`, `< 7.0`; Publishable `>= 0.18.0`, `< 2.0`; Trashable `>= 0.17.0`, `< 2.0`; Notifications Email `>= 0.5.4`, `< 2.0`. Every other `recording_studio_*` dependency keeps its current floor and caps at `< 2.0`.
+3. No Support migration. Keep the dummy-tested tags until you choose a newer release.
+
+### Verify
+
+```bash
+bundle exec ruby -Itest test/recording_studio_support_test.rb test/metrics_test.rb test/trashable_sibling_api_test.rb
+```
+
 ## 0.37.0
 
 Recording Studio API 0.26 resolves each route id through the token scope and runs `authorize!` before the handler. There is no write opt-out.
