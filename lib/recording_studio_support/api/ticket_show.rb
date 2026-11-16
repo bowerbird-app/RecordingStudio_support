@@ -13,7 +13,7 @@ module RecordingStudioSupport
 
       def call
         authorize!
-        { json: Serialize.recording(TicketAccess.find_recording!(context), context: context) }
+        { json: Serialize.recording(shown_recording, context: context) }
       end
 
       private
@@ -26,6 +26,12 @@ module RecordingStudioSupport
         else
           TicketAccess.authorize_view!(context)
         end
+      end
+
+      def shown_recording
+        return TicketAccess.find_recording!(context) unless Access.operations_api?(context)
+
+        Lookup.routed!(context)
       end
     end
   end

@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.37.0] - 2026-11-16
+
+Recording Studio API 0.26 scopes every route id before the handler runs.
+
+### Changed
+- Operations writes for help page update, destroy, move, and publish, and for ticket update, read `context.recording`. The API resolves that id through the AdminRoot token and checks the recordable type. A foreign id, a wrong type, or a trashed id is `404` and the handler does not run.
+- Move still takes the destination in the body. The handler scopes that section through the same grant.
+- Public help page show and public ticket show pass `owns_scoping: true`. Public page show returns a published page in the current support centre. A draft, or a page in another centre, is not found.
+- Root and dummy Gemfiles require `recording_studio_api` `>= 0.26.0`, `< 1.0`, and pin tag `v0.26.0`. API stays off the Support gemspec.
+
+### Upgrade notes
+- Bump to `0.37.0`. Require Recording Studio API `>= 0.26.0`, `< 1.0` (tag `v0.26.0`).
+- Provision operations clients on the admin root. A workspace-scoped token cannot update, move, publish, or destroy a help page or ticket.
+- Notifications, Messages, and Users still register `:id` paths without `recordable_type` or `scope_id: false`. Copy `test/dummy/config/initializers/recording_studio_api_sibling_scope.rb` until those gems declare it. API 0.26 will not boot without that declaration.
+- No Support migration.
+
 ## [0.36.0] - 2026-11-15
 
 Require Recording Studio 7.
@@ -1312,7 +1328,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.36.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.37.0...HEAD
+[0.37.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.36.0...v0.37.0
 [0.36.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.3...v0.36.0
 [0.35.3]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.2...v0.35.3
 [0.35.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.1...v0.35.2

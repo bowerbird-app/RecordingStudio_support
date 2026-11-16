@@ -39,6 +39,13 @@ module RecordingStudioSupport
         raise_not_found(not_found)
       end
 
+      def routed!(context)
+        recording = context.recording if context.respond_to?(:recording)
+        return recording if recording
+
+        raise_not_found("Resource was not found in this API scope")
+      end
+
       def workspace!(id:)
         recording = kept_recording!(id: id, not_found: "Parent resource was not found")
         raise_not_found("Parent resource was not found") unless Sections.allowed_parent_root?(recording)

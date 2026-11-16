@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require "test_helper"
+require "minitest/mock"
 
 class SupportTicketsApiTest < ActionDispatch::IntegrationTest
   PUBLIC_ROOT = "/recording_studio_api/api/v1"
@@ -226,7 +227,63 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
     assert_equal ["Support"], public_ticket.openapi.fetch(:tags)
   end
 
+  test "in-scope operations editor can update a ticket" do
+    ticket_id = open_ticket_via_api!
+
+    get "#{OPERATIONS_ROOT}/support_tickets/#{ticket_id}",
+        headers: auth(@editor_operations_token),
+        as: :json
+
+    assert_response :success
+
+    patch "#{OPERATIONS_ROOT}/support_tickets/#{ticket_id}",
+          headers: auth(@editor_operations_token),
+          params: { status: "resolved" },
+          as: :json
+
+    assert_response :success
+    assert_equal "resolved", response.parsed_body.fetch("status")
+  end
+
+  test "ticket update 404s for a foreign wrong-type or trashed id and the handler does not run" do
+    foreign = ticket_under_other_admin_root
+    trashed_id = open_ticket_via_api!
+    RecordingStudio::Recording.find(trashed_id).update!(trashed_at: Time.current)
+
+    [foreign.id, @center.id, trashed_id].each do |id|
+      RecordingStudioSupport::Api::TicketUpdate.stub(:call, ->(*) { flunk "TicketUpdate ran for an out-of-scope id" }) do
+        patch "#{OPERATIONS_ROOT}/support_tickets/#{id}",
+              headers: auth(@editor_operations_token),
+              params: { status: "resolved" },
+              as: :json
+
+        assert_response :not_found
+      end
+    end
+  end
+
   private
+
+  def ticket_under_other_admin_root
+    record_as_support_team do
+      other = AdminRoot.create!(name: "Other tickets #{SecureRandom.hex(4)}")
+      root = RecordingStudio.create_root_recording!(other, actor: @support_user)
+      center = root.record(RecordingStudioSupport::SupportCenter)
+      root.record(RecordingStudioSupport::SupportTicket, parent_recording: center) do |ticket|
+        ticket.subject = "Foreign ticket"
+        ticket.status = "open"
+        ticket.priority = "normal"
+      end
+    end
+  end
+
+  def record_as_support_team
+    previous = Current.actor
+    Current.actor = @support_user
+    yield
+  ensure
+    Current.actor = previous
+  end
 
   def open_ticket_via_api!(token: @patron_token)
     post "#{PUBLIC_ROOT}/support_tickets",

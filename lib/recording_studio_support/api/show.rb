@@ -28,16 +28,23 @@ module RecordingStudioSupport
       attr_reader :context
 
       def target_recording
-        if context.recordable_type == Api::SECTION_TYPE
-          Lookup.section!(id: Payload.member_id(context))
-        elsif Payload.nested?(context)
-          Lookup.page_in_section!(
-            section: Lookup.section!(id: context.parent_id),
-            id: context.relationship_id
-          )
-        else
-          Lookup.page!(id: Payload.member_id(context))
-        end
+        return public_page! if public_page?
+
+        Lookup.routed!(context)
+      end
+
+      def public_page?
+        !Access.operations_api?(context) && context.recordable_type == Api::PAGE_TYPE
+      end
+
+      def public_page!
+        center = SupportCenters.current
+        Lookup.raise_not_found("Resource was not found in this API scope") unless center
+
+        recording = Pages.kept_pages_for_center(center).includes(:recordable).find_by(id: Payload.member_id(context))
+        Lookup.raise_not_found("Resource was not found in this API scope") unless recording
+
+        recording
       end
 
       def hide_draft!(recording)

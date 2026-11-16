@@ -46,9 +46,16 @@ class ApiTest < Minitest::Test
     assert_includes centers, "parent_recording.record(SupportCenter, actor: actor)"
     assert_includes update, "Sections.revise!"
     assert_includes update, "Pages.revise!"
+    assert_includes update, "Lookup.routed!"
+    refute_includes update, "Lookup.page!"
+    refute_includes update, "Recording.find"
     assert_includes destroy, "Sections.trash!"
     assert_includes destroy, "Pages.trash!"
+    assert_includes destroy, "Lookup.routed!"
+    refute_includes destroy, "include_trashed: true"
     assert_includes move, "Pages.move!"
+    assert_includes move, "Lookup.routed!"
+    assert_includes move, "ScopedRecording.find!"
     assert_includes move, "destination_id"
     assert_includes move, "new_parent_id"
     assert_includes access, "authorize_edit!"
@@ -104,7 +111,14 @@ class ApiTest < Minitest::Test
     refute_includes api, "types: [SECTION_TYPE, PAGE_TYPE, CENTER_TYPE]"
     assert_includes registration, "CenterType.register!"
     assert_includes api, "TicketType.register!"
+    assert_includes registration, "handler: Show, owns_scoping: true"
     assert_includes registration, "handler: CreateCenter"
+    ticket_type = File.read(File.expand_path("../lib/recording_studio_support/api/ticket_type.rb", __dir__))
+    assert_includes ticket_type, "handler: TicketShow, owns_scoping: true"
+    refute_includes registration, "handler: Update, owns_scoping: true"
+    refute_includes registration, "handler: Destroy, owns_scoping: true"
+    refute_includes registration, "handler: Move, owns_scoping: true"
+    refute_includes registration, "handler: Publish, owns_scoping: true"
     center_type = File.read(File.expand_path("../lib/recording_studio_support/api/center_type.rb", __dir__))
     assert_includes center_type, "CENTER_TYPE"
     assert_includes center_type, "handler: ShowCenter"
@@ -130,6 +144,22 @@ class ApiTest < Minitest::Test
     assert_includes index, "Sections.public_index(query: search_term)"
     refute_includes index, "SearchLimit"
     refute_includes index, "InstantSearch"
+  end
+
+  def test_route_handlers_read_the_scoped_recording
+    ticket_update = File.read(File.expand_path("../lib/recording_studio_support/api/ticket_update.rb", __dir__))
+    ticket_show = File.read(File.expand_path("../lib/recording_studio_support/api/ticket_show.rb", __dir__))
+    show = File.read(File.expand_path("../lib/recording_studio_support/api/show.rb", __dir__))
+    publish = File.read(File.expand_path("../lib/recording_studio_support/api/publishable_transition.rb", __dir__))
+
+    assert_includes ticket_update, "Lookup.routed!"
+    refute_includes ticket_update, "Tickets.find!"
+    assert_includes ticket_show, "Lookup.routed!"
+    assert_includes ticket_show, "TicketAccess.find_recording!"
+    assert_includes show, "SupportCenters.current"
+    assert_includes show, "Pages.kept_pages_for_center"
+    assert_includes publish, "Lookup.routed!"
+    refute_includes publish, "Lookup.page!"
   end
 
   def test_gemspec_still_omits_api_dependency

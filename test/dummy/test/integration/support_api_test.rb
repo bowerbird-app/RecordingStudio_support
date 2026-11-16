@@ -522,7 +522,7 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
-  test "operations token without AdminRoot edit cannot write" do
+  test "operations token scoped to a workspace cannot write admin-root help" do
     post "#{OPERATIONS_ROOT}/support_sections",
          headers: auth(@workspace_operations_token),
          params: { title: "Nope", parent_id: @root.id },
@@ -530,31 +530,41 @@ class SupportApiTest < ActionDispatch::IntegrationTest
 
     assert_response :forbidden
 
-    patch "#{OPERATIONS_ROOT}/support_pages/#{@live.id}",
-          headers: auth(@workspace_operations_token),
-          params: { title: "Hijack" },
-          as: :json
+    refute_handler_runs(RecordingStudioSupport::Api::Update) do
+      patch "#{OPERATIONS_ROOT}/support_pages/#{@live.id}",
+            headers: auth(@workspace_operations_token),
+            params: { title: "Hijack" },
+            as: :json
 
-    assert_response :forbidden
+      assert_response :not_found
+    end
 
-    post "#{OPERATIONS_ROOT}/support_pages/#{@live.id}/actions/publish",
-         headers: auth(@workspace_operations_token),
-         as: :json
-
-    assert_response :forbidden
-
-    post "#{OPERATIONS_ROOT}/support_pages/#{@live.id}/actions/move",
-         headers: auth(@workspace_operations_token),
-         params: { parent_id: @section.id },
-         as: :json
-
-    assert_response :forbidden
-
-    delete "#{OPERATIONS_ROOT}/support_pages/#{@live.id}",
+    refute_handler_runs(RecordingStudioSupport::Api::Publish) do
+      post "#{OPERATIONS_ROOT}/support_pages/#{@live.id}/actions/publish",
            headers: auth(@workspace_operations_token),
            as: :json
 
-    assert_response :forbidden
+      assert_response :not_found
+    end
+
+    refute_handler_runs(RecordingStudioSupport::Api::Move) do
+      post "#{OPERATIONS_ROOT}/support_pages/#{@live.id}/actions/move",
+           headers: auth(@workspace_operations_token),
+           params: { parent_id: @section.id },
+           as: :json
+
+      assert_response :not_found
+    end
+
+    refute_handler_runs(RecordingStudioSupport::Api::Destroy) do
+      delete "#{OPERATIONS_ROOT}/support_pages/#{@live.id}",
+             headers: auth(@workspace_operations_token),
+             as: :json
+
+      assert_response :not_found
+    end
+
+    assert_equal @live.recordable.title, @live.reload.recordable.title
   end
 
   test "operations support team without workspace grant can move and trash through mixins" do
@@ -887,7 +897,186 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_equal token, response.parsed_body.fetch("meta").fetch("q")
   end
 
+  test "public show owns its scope and operations writes do not" do
+    page = RecordingStudioSupport::Api::PAGE_TYPE
+    ticket = RecordingStudioSupport::Api::TICKET_TYPE
+    operations = RecordingStudioSupport::Api::Registration::OPERATIONS_API
+
+    assert_predicate registration_for(page, :show, :public), :owns_scoping?
+    assert_predicate registration_for(ticket, :show, :public), :owns_scoping?
+    %i[update destroy move publish].each do |action|
+      refute_predicate registration_for(page, action, operations), :owns_scoping?
+    end
+    refute_predicate registration_for(ticket, :update, operations), :owns_scoping?
+    refute_predicate registration_for(ticket, :show, operations), :owns_scoping?
+
+    assert_sibling_id_unscoped("notifications.show", :public)
+    assert_sibling_id_unscoped("messages_send_message", :public)
+    assert_sibling_id_unscoped("users_show", :operations)
+  end
+
+  test "in-scope operations editor can update move publish and destroy a help page" do
+    revised = "Revised #{SecureRandom.hex(4)}"
+    patch "#{OPERATIONS_ROOT}/support_pages/#{@live.id}",
+          headers: auth(@editor_operations_token),
+          params: { title: revised },
+          as: :json
+
+    assert_response :success
+    assert_equal revised, @live.reload.recordable.title
+
+    destination = record_as_support_team do
+      record_support_section(@admin_root, title: "Destination #{SecureRandom.hex(4)}")
+    end
+    post "#{OPERATIONS_ROOT}/support_pages/#{@live.id}/actions/move",
+         headers: auth(@editor_operations_token),
+         params: { parent_id: destination.id },
+         as: :json
+
+    assert_response :success
+    assert_equal destination.id, @live.reload.parent_recording_id
+
+    post "#{OPERATIONS_ROOT}/support_pages/#{@draft.id}/actions/publish",
+         headers: auth(@editor_operations_token),
+         as: :json
+
+    assert_response :success
+    assert_predicate @draft.reload.recordable, :indexable?
+
+    disposable = record_as_support_team do
+      record_support_page(@admin_root, @section, title: "Disposable #{SecureRandom.hex(4)}")
+    end
+    delete "#{OPERATIONS_ROOT}/support_pages/#{disposable.id}",
+           headers: auth(@editor_operations_token),
+           as: :json
+
+    assert_response :success
+    assert_predicate disposable.reload.trashed_at, :present?
+  end
+
+  test "page writes 404 for a foreign wrong-type or trashed id and the handler does not run" do
+    foreign = page_under_other_admin_root
+    trashed = record_as_support_team do
+      page = record_support_page(@admin_root, @section, title: "Already trashed #{SecureRandom.hex(4)}")
+      RecordingStudioSupport::Pages.trash!(recording: page, actor: @support_user)
+      page
+    end
+    missed = [foreign.id, @section.id, trashed.id]
+
+    missed.each do |id|
+      refute_handler_runs(RecordingStudioSupport::Api::Update) do
+        patch "#{OPERATIONS_ROOT}/support_pages/#{id}",
+              headers: auth(@editor_operations_token),
+              params: { title: "Nope" },
+              as: :json
+        assert_response :not_found
+      end
+      refute_handler_runs(RecordingStudioSupport::Api::Publish) do
+        post "#{OPERATIONS_ROOT}/support_pages/#{id}/actions/publish",
+             headers: auth(@editor_operations_token),
+             as: :json
+        assert_response :not_found
+      end
+      refute_handler_runs(RecordingStudioSupport::Api::Move) do
+        post "#{OPERATIONS_ROOT}/support_pages/#{id}/actions/move",
+             headers: auth(@editor_operations_token),
+             params: { parent_id: @section.id },
+             as: :json
+        assert_response :not_found
+      end
+      refute_handler_runs(RecordingStudioSupport::Api::Destroy) do
+        delete "#{OPERATIONS_ROOT}/support_pages/#{id}",
+               headers: auth(@editor_operations_token),
+               as: :json
+        assert_response :not_found
+      end
+    end
+
+    assert_equal @live.recordable.title, @live.reload.recordable.title
+  end
+
+  test "move rejects a destination outside the token scope" do
+    foreign_section = page_under_other_admin_root.parent_recording
+    parent_id = @live.parent_recording_id
+
+    post "#{OPERATIONS_ROOT}/support_pages/#{@live.id}/actions/move",
+         headers: auth(@editor_operations_token),
+         params: { parent_id: foreign_section.id },
+         as: :json
+
+    assert_response :not_found
+    assert_equal parent_id, @live.reload.parent_recording_id
+  end
+
+  test "public page show returns only a published page in the current support centre" do
+    other = published_page_in_another_center
+    current_id = RecordingStudioSupport::SupportCenters.current.id
+    here, away = [@live, other].partition { |page| center_id_for(page) == current_id }
+    published_here = here.fetch(0)
+    published_away = away.fetch(0)
+
+    get "#{PUBLIC_ROOT}/support_pages/#{published_here.id}", headers: auth(@workspace_token), as: :json
+
+    assert_response :success
+    assert_equal published_here.recordable.title, response.parsed_body.fetch("title")
+
+    get "#{PUBLIC_ROOT}/support_pages/#{published_away.id}", headers: auth(@workspace_token), as: :json
+
+    assert_response :not_found
+
+    get "#{PUBLIC_ROOT}/support_pages/#{@draft.id}", headers: auth(@workspace_token), as: :json
+
+    assert_response :not_found
+  end
+
   private
+
+  def registration_for(type, action, api)
+    RecordingStudioApi.resource_handler_registration(type, action, api: api)
+  end
+
+  def assert_sibling_id_unscoped(name, api)
+    endpoint = RecordingStudioApi.registered_endpoint(name, api: api)
+
+    assert endpoint, name
+    refute endpoint.scopes_recording, name
+  end
+
+  def refute_handler_runs(handler)
+    handler.stub(:call, ->(*) { flunk "#{handler.name} ran for an out-of-scope id" }) do
+      yield
+    end
+  end
+
+  def center_id_for(page)
+    page.parent_recording.parent_recording_id
+  end
+
+  def published_page_in_another_center
+    record_as_support_team do
+      center = @admin_root.record(RecordingStudioSupport::SupportCenter)
+      section = @admin_root.record(
+        RecordingStudioSupport::SupportSection,
+        parent_recording: center
+      ) { |recordable| recordable.title = "Second centre #{SecureRandom.hex(4)}" }
+      page = record_support_page(@admin_root, section, title: "Second centre page #{SecureRandom.hex(4)}")
+      publish!(page, slug: "second-centre-#{SecureRandom.hex(4)}", status: "published")
+      page
+    end
+  end
+
+  def page_under_other_admin_root
+    record_as_support_team do
+      other = AdminRoot.create!(name: "Other #{SecureRandom.hex(4)}")
+      root = RecordingStudio.create_root_recording!(other, actor: @support_user)
+      center = root.record(RecordingStudioSupport::SupportCenter)
+      section = root.record(
+        RecordingStudioSupport::SupportSection,
+        parent_recording: center
+      ) { |recordable| recordable.title = "Foreign section" }
+      record_support_page(root, section, title: "Foreign page #{SecureRandom.hex(4)}")
+    end
+  end
 
   def assert_public_write_unavailable
     assert_includes [404, 422], response.status, response.body

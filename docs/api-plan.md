@@ -13,27 +13,27 @@ Public anonymous browse stays `/help`. The JSON API is authenticated (bearer cli
 | Who authorizes? | Recording Studio Accessible only |
 | What is Admin? | Support screens (`/admin`, `/admin/support`) gated by Accessible on the **admin root** |
 | Write gate | `authorized?(actor:, recording: admin_root, role: :edit)` — same as `authorize_support!(:edit)` |
-| Read gate | `authorized?(..., role: :view)` on the **workspace root that owns the section/page**, or on the **admin root** |
-| Tree | Sections and pages still live under the workspace. Accessible is not enabled on `SupportPage` / `SupportSection` |
+| Read gate | Public page show checks `:view` on the token scope, then returns a published page in the current support centre. Operations reads check `:view` on the **admin root** |
+| Tree | Sections and pages live under the current support centre, which lives under the admin root. Accessible is not enabled on `SupportPage` / `SupportSection` |
 | Anonymous | `/help` only. No logged-out JSON |
 
 | Actor | Public page `index` / `show` | Operations section / nested-page reads | Operations `create` / `update` / trash / move |
 | --- | --- | --- | --- |
-| Accessible `:edit` or `:admin` on **AdminRoot** | Yes with a public viewer token (all kept pages in the request’s workspace bucket, including drafts) | Yes with an operations token (AdminRoot `:view`) | Yes with an operations token |
-| Accessible `:view` on **AdminRoot** | Yes with a public viewer token | Yes | No — `403` |
-| Workspace `:view` (or stronger) **without** AdminRoot | Yes (that workspace’s help; drafts stay hidden unless product later says otherwise) | No — `403` | No — `403` |
+| Accessible `:edit` or `:admin` on **AdminRoot** | Yes with a public viewer token (published pages in the current support centre, and drafts for the support team) | Yes with an operations token (AdminRoot `:view`) | Yes with an operations token |
+| Accessible `:view` on **AdminRoot** | Yes with a public viewer token | Yes | No. `403` |
+| Workspace `:view` (or stronger) **without** AdminRoot | Yes for a published page in the current support centre. Drafts stay hidden. The workspace root is not the page scope | No. A route id outside the token scope is `404` | Create stays `403`. Member writes on an out-of-scope id are `404` |
 | Public token on operations | — | Rejected | Rejected |
 | No Accessible grant | `403` / `401` | `403` / `401` | `403` / `401` |
 
 The API client’s `AccessGrant.actor` is the actor. Same check for a person, machine client, or agent.
 
-Stock API resource create/update authorize `:edit` on the **parent recording** (workspace/section). That would let a workspace editor write help the UI forbids. Support write handlers must **not** use that default. They authorize the **admin root**, then call Support domain writes. Register those handlers with `register_resource_handler`. Do not prepend into Recording Studio API or Moveable. From API `0.6.9` handlers load records from raw ids. AdminRoot-bound operations clients can reach Workspace help.
+API 0.26 resolves each operations route id through the token scope and requires `:edit` before a write handler runs. There is no write opt-out. Support write handlers read `context.recording` and still authorize the **admin root**, then call Support domain writes. Register those handlers with `register_resource_handler`. Do not prepend into Recording Studio API or Moveable. Provision operations clients on the admin root. A workspace-scoped token cannot address help pages or tickets under that root. Public page show and public ticket show pass `owns_scoping: true`. Public page show also requires the current support centre and a published page.
 
 ## Host vs gem
 
 Support does **not** gemspec-depend on `recording_studio_api` (same pattern as Moveable). If the constant is missing, Support boots with no JSON routes.
 
-The **host** adds the API gem, runs its install/migrations, mounts the engine, names `:operations`, enables `:accessible` and `:api_access_point` on roots that hold API keys, and provisions clients. Dummy wires this (API `v0.24.0`) and sets Trashable / Moveable host hooks to `support_team_permission`.
+The **host** adds the API gem, runs its install/migrations, mounts the engine, names `:operations`, enables `:accessible` and `:api_access_point` on roots that hold API keys, and provisions clients. Dummy wires this (API `v0.26.0`) and sets Trashable / Moveable host hooks to `support_team_permission`.
 
 Support registers Metrics definitions; the host calls `RecordingStudioMetrics::Api.register!(api: :operations)`.
 
