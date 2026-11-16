@@ -104,11 +104,13 @@ module SupportRecordHelpers
   end
 
   def create_support_user!(email:, password: "Password", first_name:, last_name:, time_zone: "UTC")
-    user = User.create!(
+    user = User.new(
       email: email,
       password: password,
       password_confirmation: password
     )
+    user.skip_confirmation!
+    user.save!
     RecordingStudioUser.record_profile!(
       user,
       actor: user,
@@ -215,6 +217,27 @@ module ActiveSupport
     include SupportRecordHelpers
   end
 end
+
+# Users 0.32 adds Devise confirmable. Dummy seeds and tests sign people in
+# without a confirmation email.
+module DummySkipConfirmation
+  def save(...)
+    confirm_for_dummy_sign_in!
+    super
+  end
+
+  def save!(...)
+    confirm_for_dummy_sign_in!
+    super
+  end
+
+  private
+
+  def confirm_for_dummy_sign_in!
+    skip_confirmation! if respond_to?(:skip_confirmation!) && !confirmed?
+  end
+end
+User.prepend(DummySkipConfirmation)
 
 module ActionDispatch
   class IntegrationTest

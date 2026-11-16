@@ -2,9 +2,9 @@
 
 How a host, person, or AI agent talks to Support sections and pages over **Recording Studio API**. Public anonymous browse stays `/help`. This surface is authenticated.
 
-Support does **not** gemspec-depend on `recording_studio_api`. Add that gem in the **host** (floor `>= 0.26.0`, dummy pins `v0.26.0`). If the constant is missing, Support boots with no JSON routes.
+Support does **not** gemspec-depend on `recording_studio_api`. Add that gem in the **host** (floor `>= 1.1.0`, `< 2.0`, dummy pins `v1.2.1`). If the constant is missing, Support boots with no JSON routes.
 
-API 0.26 refuses a registered path that captures `:id` unless that endpoint passes `recordable_type` or `scope_id: false`. Notifications, Messages, and Users still register those paths and resolve the id themselves. The dummy initializer `recording_studio_api_sibling_scope.rb` passes `scope_id: false` for those endpoint names so the suite can boot. A host that loads the same tags needs the same declaration until those gems ship it. Support's own page and ticket routes are resource handlers. They do not use that initializer.
+API refuses a registered path that captures `:id` unless that endpoint passes `recordable_type` or `scope_id: false`. Messages `v0.31.0` declares the conversation recordable type, so send, read, rename, and mark-read scope the message group. Notifications `v0.19.1` and Users `v0.32.0` pass `scope_id: false` because those ids are notification rows and user rows. The dummy initializer `recording_studio_api_sibling_scope.rb` still passes `scope_id: false` for any of those endpoint names that arrive without either declaration. Support's own page and ticket routes are resource handlers. They do not use that initializer.
 
 Support **does** depend on `recording_studio_metrics` and registers site-wide Support metrics. The host calls `RecordingStudioMetrics::Api.register!(api: :operations)` once.
 
@@ -13,7 +13,7 @@ Do not add a Support `ApiController`. Writes go through `Pages` / `Sections`. Ac
 ## Install (host)
 
 ```ruby
-gem "recording_studio_api", ">= 0.26.0", "< 1.0", github: "bowerbird-app/RecordingStudio_api", tag: "v0.26.0"
+gem "recording_studio_api", ">= 1.1.0", "< 2.0", github: "bowerbird-app/RecordingStudio_api", tag: "v1.2.1"
 ```
 
 ```bash
@@ -24,7 +24,7 @@ bin/rails db:migrate
 
 Mount the engine (dummy uses `/recording_studio_api`). Enable `:accessible` and `:api_access_point` on roots that hold API keys. Dummy does this on `Workspace` and `AdminRoot`.
 
-Name the Admin API `:operations` (`default_access :read_only`). Support registers **page reads** on the public API and **SupportCenter reads/create plus section reads and writes** on `:operations`. Tickets follow the same public-reads vs operations-writes split: public `index` / `show` / `open`, operations `index` / `show` / `update`. Page writes on operations include `create` / `update` / `destroy` in `operations:` so MCP `describe` matches the handlers. Handlers register with `register_resource_handler` and call `Pages` / `Sections` / `Tickets`. API 0.26 resolves each route id through the token scope and authorizes it before the handler. Operations write handlers read `context.recording`. Public page show and public ticket show pass `owns_scoping: true` and apply Support's own filters. Pass `operations:` explicitly on the operations registrations so the named-API read-only default does not apply. List handlers read `PaginateResourceCollection` `Page` or a Hash. `CenterType.register!` owns SupportCenter type registration, including its OpenAPI tag. `TicketType.register!` owns SupportTicket.
+Name the Admin API `:operations` (`default_access :read_only`). Support registers **page reads** on the public API and **SupportCenter reads/create plus section reads and writes** on `:operations`. Tickets follow the same public-reads vs operations-writes split: public `index` / `show` / `open`, operations `index` / `show` / `update`. Page writes on operations include `create` / `update` / `destroy` in `operations:` so MCP `describe` matches the handlers. Handlers register with `register_resource_handler` and call `Pages` / `Sections` / `Tickets`. The API resolves each route id through the token scope and authorizes it before the handler. Operations write handlers read `context.recording`. Public page show and public ticket show pass `owns_scoping: true` and apply Support's own filters. Pass `operations:` explicitly on the operations registrations so the named-API read-only default does not apply. List handlers read `PaginateResourceCollection` `Page` or a Hash. `CenterType.register!` owns SupportCenter type registration, including its OpenAPI tag. `TicketType.register!` owns SupportTicket.
 
 Provision operations clients on **AdminRoot** (featured_in). Help pages, sections, and tickets live under that root's support centre, so the grant covers those records. A workspace-scoped token cannot address them. Move still accepts `parent_id`, `destination_id`, or `new_parent_id`. The handler scopes that destination through the same grant. Section create ignores trashed parents.
 
