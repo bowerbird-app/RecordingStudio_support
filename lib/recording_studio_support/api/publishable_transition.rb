@@ -14,7 +14,7 @@ module RecordingStudioSupport
 
       def call
         Access.authorize_edit!(context)
-        recording = Lookup.page!(id: Payload.member_id(context))
+        recording = Lookup.routed!(context)
         outcome = RecordingStudioPublishable::Api::Perform.apply(publishable_context(recording), action_name)
         { json: RecordingStudioPublishable::Api::PublishableSnapshot.call(outcome) }
       end

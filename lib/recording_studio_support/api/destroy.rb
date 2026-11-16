@@ -24,22 +24,7 @@ module RecordingStudioSupport
       attr_reader :context
 
       def target_recording
-        return Lookup.section!(id: Payload.member_id(context), include_trashed: true) if section?
-
-        Lookup.page!(id: page_id, include_trashed: true).then do |page|
-          next page unless Payload.nested?(context)
-          next page if page.parent_recording_id.to_s == context.parent_id.to_s
-
-          Lookup.raise_not_found("Relationship resource was not found")
-        end
-      end
-
-      def section?
-        context.recordable_type == Api::SECTION_TYPE
-      end
-
-      def page_id
-        Payload.nested?(context) ? context.relationship_id : Payload.member_id(context)
+        Lookup.routed!(context)
       end
 
       def trash!(recording)

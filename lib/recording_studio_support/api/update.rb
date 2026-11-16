@@ -32,16 +32,7 @@ module RecordingStudioSupport
       end
 
       def target_recording
-        if context.recordable_type == Api::SECTION_TYPE
-          Lookup.section!(id: Payload.member_id(context))
-        elsif Payload.nested?(context)
-          Lookup.page_in_section!(
-            section: Lookup.section!(id: context.parent_id),
-            id: context.relationship_id
-          )
-        else
-          Lookup.page!(id: Payload.member_id(context))
-        end
+        Lookup.routed!(context)
       end
 
       def revise_section!(recording, attrs, recordable, actor)

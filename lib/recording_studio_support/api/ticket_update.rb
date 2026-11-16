@@ -22,11 +22,11 @@ module RecordingStudioSupport
 
       def update_ticket!
         attrs = Payload.attributes(context)
-        ticket = Tickets.find!(Payload.member_id(context))
-        Tickets.update!(ticket, actor: TicketAccess.actor(context), **ticket_changes(attrs))
-        Tickets.recording_for!(Tickets.find!(ticket.id))
-      rescue ActiveRecord::RecordNotFound
-        raise RecordingStudioApi::NotFoundError, "Resource was not found in this API scope"
+        Tickets.update!(
+          Lookup.routed!(context),
+          actor: TicketAccess.actor(context),
+          **ticket_changes(attrs)
+        )
       rescue ArgumentError, ActiveRecord::RecordInvalid => e
         TicketAccess.invalid_input!(e)
       end

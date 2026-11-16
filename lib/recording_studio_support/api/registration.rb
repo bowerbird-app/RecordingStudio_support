@@ -45,7 +45,7 @@ module RecordingStudioSupport
 
       def register_page_read_handlers!
         register_handler(PAGE_TYPE, :index, api: :public, handler: Index)
-        register_handler(PAGE_TYPE, :show, api: :public, handler: Show)
+        register_handler(PAGE_TYPE, :show, api: :public, handler: Show, owns_scoping: true)
         register_handler(SECTION_TYPE, :index, api: OPERATIONS_API, handler: Index)
         register_handler(SECTION_TYPE, :show, api: OPERATIONS_API, handler: Show)
         register_handler(PAGE_TYPE, :index, api: OPERATIONS_API, handler: Index)
@@ -72,10 +72,10 @@ module RecordingStudioSupport
         end
       end
 
-      def register_handler(type, action, api:, handler:)
+      def register_handler(type, action, api:, handler:, owns_scoping: false)
         return if RecordingStudioApi.resource_handler(type, action, api: api)
 
-        RecordingStudioApi.register_resource_handler(type, action, api: api, handler: handler)
+        RecordingStudioApi.register_resource_handler(type, action, api:, handler:, owns_scoping:)
       end
 
       def register_sections!(api:, operations:, relationship_endpoints:)

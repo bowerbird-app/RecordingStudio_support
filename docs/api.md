@@ -2,7 +2,9 @@
 
 How a host, person, or AI agent talks to Support sections and pages over **Recording Studio API**. Public anonymous browse stays `/help`. This surface is authenticated.
 
-Support does **not** gemspec-depend on `recording_studio_api`. Add that gem in the **host** (dummy pins `v0.24.0`). If the constant is missing, Support boots with no JSON routes.
+Support does **not** gemspec-depend on `recording_studio_api`. Add that gem in the **host** (floor `>= 0.26.0`, dummy pins `v0.26.0`). If the constant is missing, Support boots with no JSON routes.
+
+API 0.26 refuses a registered path that captures `:id` unless that endpoint passes `recordable_type` or `scope_id: false`. Notifications, Messages, and Users still register those paths and resolve the id themselves. The dummy initializer `recording_studio_api_sibling_scope.rb` passes `scope_id: false` for those endpoint names so the suite can boot. A host that loads the same tags needs the same declaration until those gems ship it. Support's own page and ticket routes are resource handlers. They do not use that initializer.
 
 Support **does** depend on `recording_studio_metrics` and registers site-wide Support metrics. The host calls `RecordingStudioMetrics::Api.register!(api: :operations)` once.
 
@@ -11,7 +13,7 @@ Do not add a Support `ApiController`. Writes go through `Pages` / `Sections`. Ac
 ## Install (host)
 
 ```ruby
-gem "recording_studio_api", github: "bowerbird-app/RecordingStudio_api", tag: "v0.24.0"
+gem "recording_studio_api", ">= 0.26.0", "< 1.0", github: "bowerbird-app/RecordingStudio_api", tag: "v0.26.0"
 ```
 
 ```bash
@@ -22,9 +24,9 @@ bin/rails db:migrate
 
 Mount the engine (dummy uses `/recording_studio_api`). Enable `:accessible` and `:api_access_point` on roots that hold API keys. Dummy does this on `Workspace` and `AdminRoot`.
 
-Name the Admin API `:operations` (`default_access :read_only`). Support registers **page reads** on the public API and **SupportCenter reads/create plus section reads and writes** on `:operations`. Tickets follow the same public-reads vs operations-writes split: public `index` / `show` / `open`, operations `index` / `show` / `update`. Page writes on operations include `create` / `update` / `destroy` in `operations:` so MCP `describe` matches the handlers. Handlers register with `register_resource_handler` and call `Pages` / `Sections` / `Tickets`. From API `0.6.9`, registered handlers receive raw ids (`id`, `parent_id`, `relationship_id`) and look up kept Support records themselves. Pass `operations:` explicitly on the operations registrations so the named-API read-only default does not apply. List handlers read `PaginateResourceCollection` `Page` or a Hash. `CenterType.register!` owns SupportCenter type registration, including its OpenAPI tag. `TicketType.register!` owns SupportTicket.
+Name the Admin API `:operations` (`default_access :read_only`). Support registers **page reads** on the public API and **SupportCenter reads/create plus section reads and writes** on `:operations`. Tickets follow the same public-reads vs operations-writes split: public `index` / `show` / `open`, operations `index` / `show` / `update`. Page writes on operations include `create` / `update` / `destroy` in `operations:` so MCP `describe` matches the handlers. Handlers register with `register_resource_handler` and call `Pages` / `Sections` / `Tickets`. API 0.26 resolves each route id through the token scope and authorizes it before the handler. Operations write handlers read `context.recording`. Public page show and public ticket show pass `owns_scoping: true` and apply Support's own filters. Pass `operations:` explicitly on the operations registrations so the named-API read-only default does not apply. List handlers read `PaginateResourceCollection` `Page` or a Hash. `CenterType.register!` owns SupportCenter type registration, including its OpenAPI tag. `TicketType.register!` owns SupportTicket.
 
-Provision operations clients on **AdminRoot** (featured_in). Support handlers find Workspace help by id and authorize AdminRoot `:view` / `:edit`. Move accepts `parent_id`, `destination_id`, or `new_parent_id`. Section create ignores trashed parents.
+Provision operations clients on **AdminRoot** (featured_in). Help pages, sections, and tickets live under that root's support centre, so the grant covers those records. A workspace-scoped token cannot address them. Move still accepts `parent_id`, `destination_id`, or `new_parent_id`. The handler scopes that destination through the same grant. Section create ignores trashed parents.
 
 Live OpenAPI (Scalar) is optional and owned by the API gem. Generate it in the host if you want an explorer. This file is the Support contract even when Scalar is off. SupportCenter, SupportSection, SupportPage, and SupportTicket registrations set `openapi: { tags: ["Support"], tag: { group: "Support" } }` so Scalar and MCP docs (`RecordingStudio_MCP` `v0.30.3+`) keep those types with Support instead of ungrouped. Ticket operations use type-first titles (`Ticket - Open`, `Ticket - Update`, `Ticket - Index`, `Ticket - Show`).
 
@@ -73,7 +75,7 @@ Mount prefix is the host’s API engine path. Dummy uses `/recording_studio_api`
 | Method | Path | Who | Notes |
 | --- | --- | --- | --- |
 | `GET` | `/recording_studio_api/api/v1/support_pages` | `:view` | List pages. `?q=` searches articles |
-| `GET` | `/recording_studio_api/api/v1/support_pages/:id` | `:view` | One page |
+| `GET` | `/recording_studio_api/api/v1/support_pages/:id` | `:view` on the token scope | One published page in the current support centre |
 | `GET` | `/recording_studio_api/api/v1/support_tickets` | `:view` on the grant scope | List the grant actor's current tickets (`Tickets.current` merged with `Tickets.for_actor`) |
 | `GET` | `/recording_studio_api/api/v1/support_tickets/:id` | `:view` on the grant scope | One ticket on the actor's own list. A support-team actor's list is tickets they created. Someone else's ticket is `404` |
 | `POST` | `/recording_studio_api/api/v1/support_tickets` | `:view` on the grant scope | Open (`Tickets.open!`). Body: `subject`, `body`, optional `priority` (`low`, `normal`, `high`) |
@@ -143,7 +145,7 @@ Recording Studio API also returns recording ids, type, and relationship metadata
 
 ## Search
 
-There is no `GET support/search`. Public `GET …/support_pages?q=` uses `Pages.for_root` / `SupportPage.search`. Operations `GET …/support_sections?q=` uses `Sections.public_index(query:)` / `SupportSection.search` (trigram on title and slug). Nested operations `GET …/support_sections/:parent_id/pages?q=` uses `Pages.for_section`. Public workspace-only tokens hide drafts and stay scoped to that client’s workspace root. Operations AdminRoot `:view` readers see drafts.
+There is no `GET support/search`. Public `GET …/support_pages?q=` uses `Pages.for_root` / `SupportPage.search`. Operations `GET …/support_sections?q=` uses `Sections.public_index(query:)` / `SupportSection.search` (trigram on title and slug). Nested operations `GET …/support_sections/:parent_id/pages?q=` uses `Pages.for_section`. Public page show returns a published page in the current support centre. A draft, or a page in another centre, is not found. The API does not resolve that id through the workspace token. Operations AdminRoot `:view` readers see drafts.
 
 ## Examples
 

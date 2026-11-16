@@ -14,7 +14,7 @@ module RecordingStudioSupport
       def call
         Access.authorize_edit!(context)
         recording = Pages.move!(
-          recording: Lookup.page!(id: Payload.member_id(context)),
+          recording: Lookup.routed!(context),
           parent_recording: destination_section!,
           actor: Access.write_actor(context)
         )
@@ -29,7 +29,11 @@ module RecordingStudioSupport
         parent_id = destination_id
         raise RecordingStudioApi::InvalidActionInputError, "parent_id is required for move" if parent_id.blank?
 
-        Lookup.section!(id: parent_id)
+        RecordingStudioApi::ScopedRecording.find!(
+          access_grant: context.access_grant,
+          id: parent_id,
+          recordable_type: Api::SECTION_TYPE
+        )
       end
 
       def destination_id

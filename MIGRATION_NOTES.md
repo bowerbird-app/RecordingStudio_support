@@ -1,5 +1,24 @@
 # Upgrade notes
 
+## 0.37.0
+
+Recording Studio API 0.26 resolves each route id through the token scope and runs `authorize!` before the handler. There is no write opt-out.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.37.0`.
+2. Require `recording_studio_api` `>= 0.26.0`, `< 1.0` (tag `v0.26.0`). Attachable 0.28 and Publishable 0.18.1 already allow that range.
+3. Provision operations clients on the admin root. Help pages, sections, and tickets live under that root's support centre.
+4. A workspace-scoped token can read a published page in the current support centre and a ticket on that actor's own list. It cannot update, move, publish, or destroy those records. Those route ids are `404`.
+5. No Support migration. Public page show and public ticket show keep Support's own filters (`owns_scoping: true`).
+6. Notifications, Messages, and Users still register paths that capture `:id` without `recordable_type` or `scope_id: false`. API 0.26 will not boot the host until each of those endpoints declares one. The dummy passes `scope_id: false` for those names in `test/dummy/config/initializers/recording_studio_api_sibling_scope.rb`. Copy that declaration, or bump those gems when they ship it.
+
+### Verify
+
+```bash
+cd test/dummy && bundle exec rails test test/integration/support_api_test.rb test/integration/support_tickets_api_test.rb
+```
+
 ## 0.36.0
 
 Recording Studio Support requires Recording Studio 7. `root_recording_for` only finds a root. Create one with `create_root_recording!(recordable, actor:)`.

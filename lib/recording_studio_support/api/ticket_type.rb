@@ -29,7 +29,7 @@ module RecordingStudioSupport
           openapi: TicketOpenapi.public
         )
         register_handler(:index, api: :public, handler: TicketIndex)
-        register_handler(:show, api: :public, handler: TicketShow)
+        register_handler(:show, api: :public, handler: TicketShow, owns_scoping: true)
         register_handler(:create, api: :public, handler: TicketOpen)
       end
 
@@ -59,8 +59,14 @@ module RecordingStudioSupport
         }
       end
 
-      def register_handler(action, api:, handler:)
-        Registration.register_handler(TICKET_TYPE, action, api: api, handler: handler)
+      def register_handler(action, api:, handler:, owns_scoping: false)
+        Registration.register_handler(
+          TICKET_TYPE,
+          action,
+          api: api,
+          handler: handler,
+          owns_scoping: owns_scoping
+        )
       end
     end
   end
