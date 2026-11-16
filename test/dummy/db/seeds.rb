@@ -187,11 +187,17 @@ end
 # is that actor. create_user! cannot pass the user before the row exists.
 user = User.find_by(email: "admin@admin.com")
 if user.nil?
-  user = User.create!(
+  user = User.new(
     email: "admin@admin.com",
     password: "Password",
     password_confirmation: "Password"
   )
+  user.skip_confirmation!
+  user.save!
+end
+unless user.confirmed?
+  user.skip_confirmation!
+  user.save!
 end
 if RecordingStudioUser.profile_for(user).nil?
   RecordingStudioUser.record_profile!(
@@ -206,11 +212,17 @@ user.update!(admin: true) if user.respond_to?(:admin=) && !user.admin?
 
 customer = User.find_by(email: "jordan.lee@example.com")
 if customer.nil?
-  customer = User.create!(
+  customer = User.new(
     email: "jordan.lee@example.com",
     password: "Password",
     password_confirmation: "Password"
   )
+  customer.skip_confirmation!
+  customer.save!
+end
+unless customer.confirmed?
+  customer.skip_confirmation!
+  customer.save!
 end
 if RecordingStudioUser.profile_for(customer).nil?
   RecordingStudioUser.record_profile!(
