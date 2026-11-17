@@ -7,6 +7,7 @@ module RecordingStudioSupport
     module OperationDocs
       GROUP = "Support"
       TRASH_GROUP = "Support Trash"
+      TRASH_SUFFIX = "Trash"
       TRASH_ACTIONS = %i[
         trashable_trash trashable_restore trashable_purge trashable_list_trash_bin
       ].freeze
@@ -24,7 +25,6 @@ module RecordingStudioSupport
         return unless defined?(RecordingStudioApi)
 
         APIS.each { |api| apply_api(api) }
-        McpDocs.install!
       end
 
       def operation_title(type, operation)
@@ -104,7 +104,7 @@ module RecordingStudioSupport
         copy = { title: title, summary: title }
         return copy unless TRASH_ACTIONS.include?(action.to_sym)
 
-        copy.merge(tags: [TRASH_GROUP], tag: { group: TRASH_GROUP })
+        copy.merge(tags: [TRASH_GROUP], tag: { group: TRASH_GROUP }, tag_suffix: TRASH_SUFFIX)
       end
       private_class_method :capability_copy
 

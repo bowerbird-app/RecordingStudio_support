@@ -64,16 +64,15 @@ class SupportOperationDocsTest < ActiveSupport::TestCase
     assert_equal EXPECTED, documented_operations
   end
 
-  test "mcp 0.36.3 renders a support group and a support trash group" do
-    docs = RecordingStudioSupport::Api::McpDocs
-    rendered = %i[public operations].flat_map { |api| docs.entries(api: api) }
-    listed = rendered.to_h { |entry| [[entry[:api], entry[:type], entry[:action]], [entry[:group], entry[:title]]] }
-    expected = EXPECTED.reject { |key, _value| %i[index show create update destroy].include?(key.last) }
+  test "mcp 0.36.4 reads the per-type title and trash tag suffix" do
+    capability_keys.each do |api, type, name|
+      action = RecordingStudioApi.capability_action(name, api: api)
+      copy = action.openapi_for(type: type, action: action.name)
+      group, title = EXPECTED.fetch([api, type, name])
 
-    assert_equal expected, listed
-    rendered.each do |entry|
-      refute_includes entry[:title], "press kit"
-      refute_match(/\A(Trash|Ticket) -/, entry[:title])
+      assert_equal title, mcp_title(action, type)
+      assert_equal [group], mcp_groups(api, type, copy)
+      refute_includes title, "press kit"
     end
   end
 
@@ -117,6 +116,24 @@ class SupportOperationDocsTest < ActiveSupport::TestCase
   end
 
   private
+
+  def capability_keys
+    EXPECTED.keys.reject { |key| %i[index show create update destroy].include?(key.last) }
+  end
+
+  def mcp_title(action, type)
+    copy = action.openapi_for(type: type, action: action.name)
+    copy[:title].presence || action.openapi[:title]
+  end
+
+  def mcp_groups(api, type, copy)
+    registration = RecordingStudioApi.recordable_registration_for(type, api: api)
+    tags = Array(registration.openapi[:tags]).map(&:to_s)
+    suffix = copy[:tag_suffix].to_s.strip
+    return tags if suffix.empty?
+
+    tags.map { |tag| "#{tag} #{suffix}" }
+  end
 
   def documented_operations
     %i[public operations].each_with_object({}) do |api, found|

@@ -14,12 +14,12 @@ Support API and MCP docs name each operation with an action-first title. Pages, 
 ### Changed
 - Resource operations set `title` and `summary` together: List support pages, Show support page, Create support page, Update support page, Trash support page, and the same shape for sections, centers, and tickets. Opening a ticket is Open support ticket.
 - Capability actions set a per-type title. Publish support page and Unpublish support page stay Support's even when the shared action title is Publish press kit. Trash titles are Restore support page, Trash support section, Purge support trash, and List support trash, not Trash - Restore.
-- MCP 0.36.3 docs tools for Support capability actions use those titles. Page, section, and center actions are in the group Support. Trash actions are in the group Support Trash. `McpDocs.entries` is that list. The shared action title is left in place, so another product keeps Publish press kit.
-- Trash actions are tagged Support Trash. Page, section, center, and ticket operations stay in Support.
+- Trash actions set `tag_suffix` to `Trash`. MCP 0.36.4 appends that to the type tag, so those tools sit in Support Trash. Page, section, and center actions stay in Support. The per-type title is what MCP shows, including Publish support page and Unpublish support page.
+- Trash actions are tagged Support Trash on the API document. Page, section, center, and ticket operations stay in Support.
 
 ### Upgrade notes
 - Bump to `0.38.1`.
-- Hosts that generate OpenAPI or MCP 0.36.3 docs see the new titles. MCP shows Support and Support Trash for Support capability tools. Routes, auth, draft privacy, and handlers are unchanged.
+- MCP docs need `recording_studio_mcp` `~> 0.36.4` once that version is tagged. This release does not pin the unreleased branch. Routes, auth, draft privacy, and handlers are unchanged.
 - No Support migration.
 
 ## [0.38.0] - 2026-11-16

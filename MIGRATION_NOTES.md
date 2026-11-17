@@ -8,7 +8,8 @@ OpenAPI and MCP docs for Support operations use action-first titles. Pages, sect
 
 1. Bump `recording_studio_support` to `0.38.1`.
 2. No Support migration. Routes, Accessible checks, staff permission, and draft privacy stay as they are.
-3. Docs titles change. Publish support page and Unpublish support page are Support's own titles. A shared Publish press kit title does not replace them on Support types. Trash actions are in the MCP group Support Trash (Restore support page, Purge support trash, List support trash). `McpDocs.entries` is the group and title MCP 0.36.3 shows for each Support capability tool.
+3. Docs titles change. Publish support page and Unpublish support page are the per-type titles MCP 0.36.4 reads. Trash actions set `tag_suffix` to `Trash`, so their sidebar group is Support Trash.
+4. Require `recording_studio_mcp` `~> 0.36.4` once that version is tagged. Do not pin the unreleased branch. MCP 0.36.4 also requires Recording Studio API `>= 1.6.0`.
 
 ### Verify
 

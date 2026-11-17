@@ -24,7 +24,6 @@ require_relative "api/ticket_open"
 require_relative "api/ticket_update"
 require_relative "api/operation_titles"
 require_relative "api/operation_docs"
-require_relative "api/mcp_docs"
 require_relative "api/ticket_openapi"
 require_relative "api/ticket_type"
 
