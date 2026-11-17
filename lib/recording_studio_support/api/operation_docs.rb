@@ -24,6 +24,7 @@ module RecordingStudioSupport
         return unless defined?(RecordingStudioApi)
 
         APIS.each { |api| apply_api(api) }
+        McpDocs.install!
       end
 
       def operation_title(type, operation)

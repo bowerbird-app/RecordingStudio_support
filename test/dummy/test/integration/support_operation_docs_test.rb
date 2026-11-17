@@ -64,6 +64,19 @@ class SupportOperationDocsTest < ActiveSupport::TestCase
     assert_equal EXPECTED, documented_operations
   end
 
+  test "mcp 0.36.3 renders a support group and a support trash group" do
+    docs = RecordingStudioSupport::Api::McpDocs
+    rendered = %i[public operations].flat_map { |api| docs.entries(api: api) }
+    listed = rendered.to_h { |entry| [[entry[:api], entry[:type], entry[:action]], [entry[:group], entry[:title]]] }
+    expected = EXPECTED.reject { |key, _value| %i[index show create update destroy].include?(key.last) }
+
+    assert_equal expected, listed
+    rendered.each do |entry|
+      refute_includes entry[:title], "press kit"
+      refute_match(/\A(Trash|Ticket) -/, entry[:title])
+    end
+  end
+
   test "a shared publish press kit title does not replace the support page title" do
     action = RecordingStudioApi.capability_action(:publish, api: :operations)
     original = action.openapi
