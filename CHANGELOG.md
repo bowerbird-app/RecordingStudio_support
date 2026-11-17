@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.38.1] - 2026-11-17
+
+Support API and MCP docs name each operation with an action-first title. Pages, sections, centers, and tickets stay in the group Support. Trash actions use the group Support Trash.
+
+### Changed
+- Resource operations set `title` and `summary` together: List support pages, Show support page, Create support page, Update support page, Trash support page, and the same shape for sections, centers, and tickets. Opening a ticket is Open support ticket.
+- Capability actions set a per-type title. Publish support page and Unpublish support page stay Support's even when the shared action title is Publish press kit. Trash titles are Restore support page, Trash support section, Purge support trash, and List support trash, not Trash - Restore.
+- Trash actions are tagged Support Trash. Page, section, center, and ticket operations stay in Support.
+
+### Upgrade notes
+- Bump to `0.38.1`.
+- Hosts that generate OpenAPI or MCP docs see the new titles and the Support Trash tag. Routes, auth, draft privacy, and handlers are unchanged.
+- No Support migration.
+
 ## [0.38.0] - 2026-11-16
 
 Widen Recording Studio gemspec caps. Floors stay on the last tested minor. Dummy pins are unchanged.
@@ -1343,7 +1357,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.38.0...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.38.1...HEAD
+[0.38.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.38.0...v0.38.1
 [0.38.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.37.0...v0.38.0
 [0.37.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.36.0...v0.37.0
 [0.36.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.35.3...v0.36.0

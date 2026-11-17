@@ -746,13 +746,14 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_equal %i[create index show], operations_center.operations
     refute operations_center.supports_operation?(:update)
 
-    expected_openapi = RecordingStudioSupport::Api::SUPPORT_OPENAPI
-    assert_equal expected_openapi, public_page.openapi
-    assert_equal expected_openapi, operations_page.openapi
-    assert_equal expected_openapi, operations_section.openapi
-    assert_equal expected_openapi, operations_center.openapi
-    assert_equal ["Support"], public_page.openapi.fetch(:tags)
-    assert_equal "Support", public_page.openapi.dig(:tag, :group)
+    [public_page, operations_page, operations_section, operations_center].each do |registration|
+      assert_equal ["Support"], registration.openapi.fetch(:tags)
+      assert_equal "Support", registration.openapi.dig(:tag, :group)
+    end
+    assert_equal "List support pages", operations_page.openapi.dig(:index, :title)
+    assert_equal "Trash support page", operations_page.openapi.dig(:destroy, :title)
+    assert_equal "List support sections", operations_section.openapi.dig(:index, :title)
+    assert_equal "Create support center", operations_center.openapi.dig(:create, :title)
   end
 
   test "page and section lists accept an API Page pagination payload" do
