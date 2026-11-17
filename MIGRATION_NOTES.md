@@ -1,5 +1,22 @@
 # Upgrade notes
 
+## 0.38.1
+
+OpenAPI and MCP docs for Support operations use action-first titles. Pages, sections, centers, and tickets stay in the group Support. Trash actions use the group Support Trash.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.38.1`.
+2. No Support migration. Routes, Accessible checks, staff permission, and draft privacy stay as they are.
+3. Docs titles change. Publish support page and Unpublish support page are the per-type titles MCP 0.36.4 reads. Trash actions set `tag_suffix` to `Trash`, so their sidebar group is Support Trash.
+4. Require `recording_studio_mcp` `~> 0.36.4` once that version is tagged. Do not pin the unreleased branch. MCP 0.36.4 also requires Recording Studio API `>= 1.6.0`.
+
+### Verify
+
+```bash
+cd test/dummy && bundle exec rails test test/integration/support_operation_docs_test.rb
+```
+
 ## 0.38.0
 
 Recording Studio dependency caps in the Support gemspec widen. The floor of each one stays on the last tested minor (`X.Y.0`). Dummy and development GitHub tags do not move.

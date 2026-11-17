@@ -208,7 +208,7 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
-  test "ticket openapi titles are type first" do
+  test "ticket openapi titles are action first" do
     public_ticket = RecordingStudioApi.recordable_registration_for(
       "RecordingStudioSupport::SupportTicket",
       api: :public
@@ -220,10 +220,10 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
 
     assert_equal %i[create index show], public_ticket.operations
     assert_equal %i[index show update], operations_ticket.operations
-    assert_equal "Ticket - Open", public_ticket.openapi.dig(:create, :title)
-    assert_equal "Ticket - Update", operations_ticket.openapi.dig(:update, :title)
-    assert_equal "Ticket - Index", public_ticket.openapi.dig(:index, :title)
-    assert_equal "Ticket - Show", operations_ticket.openapi.dig(:show, :title)
+    assert_equal "Open support ticket", public_ticket.openapi.dig(:create, :title)
+    assert_equal "Update support ticket", operations_ticket.openapi.dig(:update, :title)
+    assert_equal "List support tickets", public_ticket.openapi.dig(:index, :title)
+    assert_equal "Show support ticket", operations_ticket.openapi.dig(:show, :title)
     assert_equal ["Support"], public_ticket.openapi.fetch(:tags)
   end
 

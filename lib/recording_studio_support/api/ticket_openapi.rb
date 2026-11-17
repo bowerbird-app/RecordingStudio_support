@@ -23,34 +23,31 @@ module RecordingStudioSupport
       end
 
       def index
-        {
-          title: "Ticket - Index",
-          summary: "List support tickets",
-          description: "List tickets the caller can see. Public tokens see the signed-in actor's tickets. " \
+        titled(:index, "List tickets the caller can see. Public tokens see the signed-in actor's tickets. " \
                        "A support-team actor's public list is tickets they created. " \
-                       "Operations tokens with support-team edit on SupportCenter see every current ticket."
-        }
+                       "Operations tokens with support-team edit on SupportCenter see every current ticket.")
       end
 
       def show
-        {
-          title: "Ticket - Show",
-          summary: "Show a support ticket",
-          description: "Return one ticket. Public tokens may read a ticket on their own list. " \
-                       "A support-team actor's list is tickets they created. " \
-                       "Someone else's ticket is not found. Operations support-team editors can read any ticket. " \
-                       "#{STATUS_DESCRIPTION} #{PRIORITY_DESCRIPTION}"
-        }
+        titled(:show, "Return one ticket. Public tokens may read a ticket on their own list. " \
+                      "A support-team actor's list is tickets they created. " \
+                      "Someone else's ticket is not found. Operations support-team editors can read any ticket. " \
+                      "#{STATUS_DESCRIPTION} #{PRIORITY_DESCRIPTION}")
       end
 
       def open
-        { title: "Ticket - Open", summary: "Open a support ticket", description: OPEN_DESCRIPTION,
-          request_body: open_body }
+        titled(:create, OPEN_DESCRIPTION, request_body: open_body)
       end
 
       def update
-        { title: "Ticket - Update", summary: "Update a support ticket", description: UPDATE_DESCRIPTION,
-          request_body: update_body }
+        titled(:update, UPDATE_DESCRIPTION, request_body: update_body)
+      end
+
+      def titled(operation, description, request_body: nil)
+        title = OperationDocs.operation_title(TICKET_TYPE, operation)
+        copy = { title: title, summary: title, description: description }
+        copy[:request_body] = request_body if request_body
+        copy
       end
 
       def open_body
