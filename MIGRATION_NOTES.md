@@ -1,5 +1,21 @@
 # Upgrade notes
 
+## 0.38.2
+
+Support Stimulus controllers are pinned with `preload: false`. The import map does not emit `modulepreload` links for them. `eagerLoadControllersFrom("controllers/recording_studio_support", application)` still imports them, including icon preview on section and page forms.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.38.2`.
+2. No Support migration.
+3. If `config/importmap.rb` pins `controllers/recording_studio_support`, add `preload: false` to that `pin_all_from`. Leave the `eagerLoadControllersFrom` call as it is.
+
+### Verify
+
+```bash
+cd test/dummy && bundle exec rails test test/integration/support_importmap_test.rb
+```
+
 ## 0.38.1
 
 OpenAPI and MCP docs for Support operations use action-first titles. Pages, sections, centers, and tickets stay in the group Support. Trash actions use the group Support Trash.
