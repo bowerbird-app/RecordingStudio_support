@@ -11,6 +11,7 @@ require_relative "api/create_center"
 require_relative "api/update"
 require_relative "api/destroy"
 require_relative "api/index"
+require_relative "api/search"
 require_relative "api/show"
 require_relative "api/show_center"
 require_relative "api/move"
@@ -41,6 +42,7 @@ module RecordingStudioSupport
         return unless recording_studio_api_available?
 
         Registration.register!
+        Search.register!
         TicketType.register!
         register_openapi!(api: :public, types: [PAGE_TYPE])
         register_openapi!(api: Registration::OPERATIONS_API, types: [SECTION_TYPE, PAGE_TYPE])

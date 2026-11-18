@@ -109,7 +109,7 @@ RecordingStudioApi.register_recordable_type_api(
 )
 ```
 
-Do not use `register_endpoint` for these. They are tree recordables. There is no general Support search endpoint.
+Do not use `register_endpoint` for these tree recordables. Published-page search is the public endpoint `GET support_page_search` (`search_support_pages`). There is no `GET support/search`.
 
 ## Routes
 
@@ -118,6 +118,7 @@ Public API v1:
 ```text
 GET    /recording_studio_api/api/v1/support_pages
 GET    /recording_studio_api/api/v1/support_pages/:id
+GET    /recording_studio_api/api/v1/support_page_search
 ```
 
 Operations API v1:

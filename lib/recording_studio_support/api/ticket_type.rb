@@ -52,11 +52,13 @@ module RecordingStudioSupport
       end
 
       def type_options(api:, writable_attributes:, operations:, openapi:)
-        {
+        options = {
           api: api, serializer: TICKET_SERIALIZER, output_keys: OUTPUT_KEYS,
           writable_attributes: writable_attributes, sortable_attributes: %i[subject],
           operations: operations, capability_actions: [], openapi: openapi
         }
+        options[:auto_capability_actions] = false if api == :public
+        options
       end
 
       def register_handler(action, api:, handler:, owns_scoping: false)

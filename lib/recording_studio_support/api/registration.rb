@@ -100,7 +100,7 @@ module RecordingStudioSupport
           writable_attributes: %i[title description icon body],
           sortable_attributes: %i[title],
           operations: operations,
-          capability_actions: capability_actions
+          capability_actions: capability_actions, auto_capability_actions: (api == :public ? false : nil)
         )
       end
 

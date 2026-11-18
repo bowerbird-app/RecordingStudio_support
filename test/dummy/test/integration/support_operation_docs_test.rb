@@ -13,14 +13,6 @@ class SupportOperationDocsTest < ActiveSupport::TestCase
   EXPECTED = {
     [:public, PAGE, :index] => [SUPPORT, "List support pages"],
     [:public, PAGE, :show] => [SUPPORT, "Show support page"],
-    [:public, PAGE, :move] => [SUPPORT, "Move support page"],
-    [:public, PAGE, :publish] => [SUPPORT, "Publish support page"],
-    [:public, PAGE, :unpublish] => [SUPPORT, "Unpublish support page"],
-    [:public, PAGE, :update_publishable] => [SUPPORT, "Update support page publishing"],
-    [:public, PAGE, :trashable_trash] => [TRASH, "Trash support page"],
-    [:public, PAGE, :trashable_restore] => [TRASH, "Restore support page"],
-    [:public, PAGE, :trashable_purge] => [TRASH, "Purge support trash"],
-    [:public, PAGE, :trashable_list_trash_bin] => [TRASH, "List support trash"],
     [:public, TICKET, :index] => [SUPPORT, "List support tickets"],
     [:public, TICKET, :show] => [SUPPORT, "Show support ticket"],
     [:public, TICKET, :create] => [SUPPORT, "Open support ticket"],
@@ -92,6 +84,40 @@ class SupportOperationDocsTest < ActiveSupport::TestCase
     action.instance_variable_set(:@openapi, original) if action && original
   end
 
+  PUBLIC_CAPABILITY_ACTIONS = %w[
+    move publish unpublish update_publishable
+    trashable_trash trashable_restore trashable_purge trashable_list_trash_bin
+  ].freeze
+
+  test "public search is documented for OpenAPI and MCP and public pages have no capability actions" do
+    [PAGE, TICKET].each do |type|
+      assert_empty RecordingStudioApi.capability_actions_for(type, api: :public)
+    end
+
+    endpoint = RecordingStudioApi.registered_endpoint(:search_support_pages, api: :public)
+    assert_equal "Search support pages", endpoint.openapi[:title]
+    assert_equal "Search support pages", endpoint.openapi[:summary]
+    assert_equal ["Support Page"], endpoint.openapi_tags
+    assert_match(/\A[A-Za-z][A-Za-z0-9_.-]*\z/, endpoint.name)
+    refute_includes %w[list show create update delete capability_action describe], endpoint.name
+    assert_nil RecordingStudioApi.registered_endpoint(:search_support_pages, api: :operations)
+
+    document = RecordingStudioApi.openapi_document(api: :public)
+    _path, operation = public_search_operation(document)
+    assert_equal "Search support pages", operation[:title]
+    assert_equal "Search support pages", operation[:summary]
+    assert_equal ["Support Page"], operation[:tags]
+    assert_equal SUPPORT, tag_groups(document).fetch("Support Page")
+    assert operation[:parameters].any? { |parameter|
+      (parameter[:name] || parameter["name"]) == "q" && (parameter[:in] || parameter["in"]) == "query"
+    }
+
+    paths = document.fetch(:paths).keys
+    PUBLIC_CAPABILITY_ACTIONS.each do |name|
+      refute paths.any? { |path| path.include?("/support_") && path.end_with?("/#{name}") }, name
+    end
+  end
+
   test "openapi document uses the registered titles and groups" do
     document = RecordingStudioApi.openapi_document(api: :operations)
     groups = tag_groups(document)
@@ -160,6 +186,16 @@ class SupportOperationDocsTest < ActiveSupport::TestCase
       group = copy.dig(:tag, :group) || SUPPORT
       found[[api, type, action.name.to_sym]] = [group, copy[:title]]
     end
+  end
+
+  def public_search_operation(document)
+    document.fetch(:paths).each do |path, verbs|
+      next unless path.end_with?("/support_page_search")
+
+      return [path, verbs[:get] || verbs["get"]]
+    end
+
+    flunk "public OpenAPI is missing support_page_search"
   end
 
   def support_operations(document)

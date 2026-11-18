@@ -1,5 +1,22 @@
 # Upgrade notes
 
+## 0.38.3
+
+Public Support lists, shows, and searches published pages. Publish, unpublish, move, and trash stay on the operations API.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.38.3`.
+2. No Support migration.
+3. Public OpenAPI and MCP no longer list publish, unpublish, update publishing, move, or the trash actions on SupportPage. A missing token stays `401`. A signed-in public token receives `404` or `422`. Those calls were already unsuccessful.
+4. Published-page search is `GET /recording_studio_api/api/v1/support_page_search?q=`. The MCP tool title is Search support pages.
+
+### Verify
+
+```bash
+cd test/dummy && bundle exec rails test test/integration/support_operation_docs_test.rb test/integration/support_api_test.rb
+```
+
 ## 0.38.2
 
 Support Stimulus controllers are pinned with `preload: false`. The import map does not emit `modulepreload` links for them. `eagerLoadControllersFrom("controllers/recording_studio_support", application)` still imports them, including icon preview on section and page forms.
