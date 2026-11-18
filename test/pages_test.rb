@@ -342,11 +342,11 @@ class PagesTest < Minitest::Test
     assert_includes form, 'scope: "section"'
     assert_includes icon_field, ">Icon</label>"
     assert_includes icon_field, "items-start gap-3"
-    assert_includes icon_field, "h-[calc(1.25rem+2*var(--form-control-padding)+2px)]"
     refute_includes icon_field, "h-11 w-11"
     assert_includes icon_field, "heroicons.com"
     assert_includes icon_field, "recording-studio-support--icon-preview"
-    assert_includes icon_field, "FlatPack::Shared::IconComponent"
+    assert_includes icon_field, "icon_preview_path"
+    assert_includes icon_field, "icon_preview_frame"
     refute_includes icon_field, 'label: "Icon"'
     refute_includes icon_field, "items-end"
     assert_includes controller, "permit(:title, :icon)"
@@ -360,11 +360,27 @@ class PagesTest < Minitest::Test
         __dir__
       )
     )
-    assert_includes preview, "nameValue"
+    frame = File.read(
+      File.expand_path(
+        "../app/views/recording_studio_support/shared/_icon_preview_frame.html.erb",
+        __dir__
+      )
+    )
+    helper = File.read(
+      File.expand_path("../app/helpers/recording_studio_support/list_helper.rb", __dir__)
+    )
+    assert_includes preview, "previewUrl"
     assert_includes preview, "normalize"
-    assert_includes preview, "getControllerForElementAndIdentifier"
-    assert_includes preview, "hasDrawnPaths"
-    assert_includes preview, "Do not wipe those paths"
+    assert_includes preview, "#support_icon_preview"
+    assert_includes preview, "frame.src"
+    refute_includes preview, "flat-pack--icon"
+    refute_includes preview, "nameValue"
+    assert_includes frame, "turbo_frame_tag"
+    assert_includes frame, "h-[calc(1.25rem+2*var(--form-control-padding)+2px)]"
+    assert_includes frame, "support_icon_preview"
+    assert_includes helper, "def support_icon_preview"
+    assert_includes helper, "FlatPack::Shared::IconComponent"
+    refute_includes helper, "heroicons.js"
   end
 
   def test_page_view_model_is_a_log_table

@@ -7,6 +7,22 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.38.5] - 2026-11-18
+
+Help icons render as inline SVG from FlatPack 0.2.0. The section and page icon fields preview that SVG from the server.
+
+### Changed
+- Section and page icon previews render `FlatPack::Shared::IconComponent` in the HTML. Typing a name loads `GET /admin/support/icon_preview` into a Turbo Frame. The frame uses the same Accessible `:edit` check as the form.
+- Public `/help` section icons use the same component, so the glyph is in the first response.
+- Dummy and development Gemfiles pin FlatPack `v0.2.0`. The gemspec floor is `flat_pack >= 0.2.0`, `< 1.0`.
+- The dummy importmap no longer pins `flat_pack/heroicons`.
+
+### Upgrade notes
+- Bump to `0.38.5` and pin FlatPack `v0.2.0` or newer, below `1.0`. The floor moved from `0.1.376` because icon paths are drawn on the server. FlatPack 0.1 renders an empty SVG and the old `flat-pack--icon` controller is gone.
+- No Support migration.
+- Remove a host pin for `flat_pack/heroicons` or `heroicons.js` if you copied the old dummy importmap. Nothing in Support imports that file.
+- Icon preview stays on `recording-studio-support--icon-preview`. Keep the Support controller pin and `eagerLoadControllersFrom`.
+
 ## [0.38.4] - 2026-11-18
 
 Public Support docs put page list, show, and search in one group, and tickets in their own.

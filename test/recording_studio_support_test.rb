@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.38.4", ::RecordingStudioSupport::VERSION
+    assert_equal "0.38.5", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -23,7 +23,7 @@ class RecordingStudioSupportTest < Minitest::Test
     gemspec = File.read(File.expand_path("../recording_studio_support.gemspec", __dir__))
 
     assert_includes gemspec, 'spec.add_dependency "recording_studio", ">= 7.0.0", "< 8.0"'
-    assert_includes gemspec, 'spec.add_dependency "flat_pack", ">= 0.1.376", "< 1.0"'
+    assert_includes gemspec, 'spec.add_dependency "flat_pack", ">= 0.2.0", "< 1.0"'
     assert_includes gemspec, 'spec.add_dependency "view_component", ">= 4.14", "< 5"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_accessible", ">= 0.44.0", "< 2.0"'
     assert_includes gemspec, 'spec.add_dependency "recording_studio_admin", ">= 2.16.0", "< 3.0"'
@@ -36,6 +36,9 @@ class RecordingStudioSupportTest < Minitest::Test
     spec = Gem::Specification.load(File.expand_path("../recording_studio_support.gemspec", __dir__))
     requirements = spec.dependencies.to_h { |dependency| [dependency.name, dependency.requirement] }
 
+    refute requirements.fetch("flat_pack").satisfied_by?(Gem::Version.new("0.1.376"))
+    assert requirements.fetch("flat_pack").satisfied_by?(Gem::Version.new("0.2.0"))
+    refute requirements.fetch("flat_pack").satisfied_by?(Gem::Version.new("1.0.0"))
     refute requirements.fetch("recording_studio_notifications").satisfied_by?(Gem::Version.new("0.17.0"))
     assert requirements.fetch("recording_studio_notifications").satisfied_by?(Gem::Version.new("0.18.0"))
     assert requirements.fetch("recording_studio_notifications").satisfied_by?(Gem::Version.new("0.19.0"))
@@ -157,7 +160,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes dummy_hooks, "RecordingStudioSupport.support_team_permission"
     assert_includes dummy_hooks, "authorization_resolver"
     assert_includes dummy_hooks, "authorization_hook"
-    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.1.377"'
+    assert_includes gemfile, 'github: "bowerbird-app/flatpack", tag: "v0.2.0"'
     assert_includes gemfile, 'gem "view_component", "4.19.0"'
     refute_includes gemfile, "recording_studio/v3.0.0"
     refute_includes gemfile, 'tag: "v0.6.1"'
@@ -430,7 +433,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes readme, "v7.3.0"
     assert_includes readme, "v0.31.0"
     assert_includes readme, "v0.45.1"
-    assert_includes readme, "0.1.376"
+    assert_includes readme, "0.2.0"
     assert_includes readme, "SupportCenter"
     assert_includes readme, "v0.31.0"
     assert_includes readme, "messages_panel_right_header"

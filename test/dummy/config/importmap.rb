@@ -13,7 +13,6 @@ if defined?(FlatPack::Engine)
   pin_all_from FlatPack::Engine.root.join("app/javascript/flat_pack/controllers"), under: "controllers/flat_pack", to: "flat_pack/controllers", preload: false
   pin_all_from FlatPack::Engine.root.join("app/javascript/flat_pack/tiptap"), under: "flat_pack/tiptap", to: "flat_pack/tiptap", preload: false
   pin "controllers/flat_pack/tiptap_controller", to: "flat_pack/controllers/tiptap_controller.js"
-  pin "flat_pack/heroicons", to: "flat_pack/heroicons.js", preload: false
   pin "flat_pack/local_time", to: "flat_pack/local_time.js"
 end
 

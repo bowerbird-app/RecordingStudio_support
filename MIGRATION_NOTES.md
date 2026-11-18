@@ -1,5 +1,23 @@
 # Upgrade notes
 
+## 0.38.5
+
+Help icons are inline SVG from FlatPack 0.2.0. The admin icon field asks the server for a new preview when the name changes.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.38.5`.
+2. Pin `flat_pack` to `>= 0.2.0`, `< 1.0` (dummy tag `v0.2.0`). The gemspec floor moved up from `0.1.376` because this release renders icon paths on the server. FlatPack 0.1 leaves an empty SVG, and `flat-pack--icon` is gone.
+3. No Support migration. Staff permission, Accessible checks, and draft privacy stay as they are.
+4. If `config/importmap.rb` pins `flat_pack/heroicons` or `heroicons.js`, delete that pin. Support does not import it.
+5. Keep the Support Stimulus pin and `eagerLoadControllersFrom("controllers/recording_studio_support", application)`. The icon preview controller still loads from that directory. It sets the Turbo Frame `src` to `GET /admin/support/icon_preview`. That request uses the same `:edit` check as the section and page forms.
+
+### Verify
+
+```bash
+cd test/dummy && bundle exec rails test test/integration/admin_support_section_test.rb test/integration/public_support_pages_test.rb
+```
+
 ## 0.38.4
 
 Public page list, show, and search share one docs tag. Public tickets have their own group. Ticket routes are unchanged.
