@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.38.2] - 2026-11-18
+
+Support controller pins no longer emit `modulepreload` links. The modules stay in the import map, and `eagerLoadControllersFrom` still imports them.
+
+### Changed
+- `config/importmap.rb` pins `app/javascript/recording_studio_support/controllers` with `preload: false`.
+- Module names stay under `controllers/recording_studio_support`. `eagerLoadControllersFrom("controllers/recording_studio_support", application)` still imports them.
+
+### Upgrade notes
+- Bump to `0.38.2`.
+- No Support migration.
+- If the host `config/importmap.rb` pins that same directory, add `preload: false` on that pin. Importmap draws the host file after the engine file, so a later pin replaces the engine pin and turns `modulepreload` back on. Hosts that do not pin it again only bump.
+
 ## [0.38.1] - 2026-11-17
 
 Support API and MCP docs name each operation with an action-first title. Pages, sections, centers, and tickets stay in the group Support. Trash actions use the group Support Trash.
@@ -1358,7 +1371,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.38.1...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.38.2...HEAD
+[0.38.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.38.1...v0.38.2
 [0.38.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.38.0...v0.38.1
 [0.38.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.37.0...v0.38.0
 [0.37.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.36.0...v0.37.0
