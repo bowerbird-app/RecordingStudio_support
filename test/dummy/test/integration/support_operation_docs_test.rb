@@ -13,9 +13,9 @@ class SupportOperationDocsTest < ActiveSupport::TestCase
   EXPECTED = {
     [:public, PAGE, :index] => [SUPPORT, "List support pages"],
     [:public, PAGE, :show] => [SUPPORT, "Show support page"],
-    [:public, TICKET, :index] => [SUPPORT, "List support tickets"],
-    [:public, TICKET, :show] => [SUPPORT, "Show support ticket"],
-    [:public, TICKET, :create] => [SUPPORT, "Open support ticket"],
+    [:public, TICKET, :index] => ["Support Ticket", "List support tickets"],
+    [:public, TICKET, :show] => ["Support Ticket", "Show support ticket"],
+    [:public, TICKET, :create] => ["Support Ticket", "Open support ticket"],
     [:operations, PAGE, :index] => [SUPPORT, "List support pages"],
     [:operations, PAGE, :show] => [SUPPORT, "Show support page"],
     [:operations, PAGE, :create] => [SUPPORT, "Create support page"],
@@ -89,10 +89,54 @@ class SupportOperationDocsTest < ActiveSupport::TestCase
     trashable_trash trashable_restore trashable_purge trashable_list_trash_bin
   ].freeze
 
-  test "public search is documented for OpenAPI and MCP and public pages have no capability actions" do
-    [PAGE, TICKET].each do |type|
-      assert_empty RecordingStudioApi.capability_actions_for(type, api: :public)
+  test "public pages and search share one tag and tickets have their own group" do
+    page = RecordingStudioApi.recordable_registration_for(PAGE, api: :public)
+    ticket = RecordingStudioApi.recordable_registration_for(TICKET, api: :public)
+    endpoint = RecordingStudioApi.registered_endpoint(:search_support_pages, api: :public)
+    page_tag = ["Support Page"]
+    ticket_tag = ["Support Ticket"]
+
+    assert_equal %i[index show], page.operations
+    assert_equal %i[create index show], ticket.operations
+    assert_empty RecordingStudioApi.capability_actions_for(PAGE, api: :public)
+    assert_empty RecordingStudioApi.capability_actions_for(TICKET, api: :public)
+    assert_equal page_tag, page.openapi.fetch(:tags)
+    assert_equal page_tag, endpoint.openapi_tags
+    assert_equal page_tag, mcp_type_tags(:public, PAGE)
+    assert_equal ticket_tag, ticket.openapi.fetch(:tags)
+    assert_equal "Support Ticket", ticket.openapi.dig(:tag, :group)
+    assert_equal ticket_tag, mcp_type_tags(:public, TICKET)
+    assert_equal ["Support"], mcp_type_tags(:operations, PAGE)
+    assert_equal ["Support"], mcp_type_tags(:operations, TICKET)
+
+    document = RecordingStudioApi.openapi_document(api: :public)
+    groups = tag_groups(document)
+    page_operations = public_support_operations(document)
+    page_titles = page_operations.map { |_path, _verb, operation| operation[:title] }
+    page_tags = page_operations.flat_map { |_path, _verb, operation| Array(operation[:tags]) }.uniq
+    ticket_operations = public_ticket_operations(document)
+    ticket_titles = ticket_operations.map { |_path, _verb, operation| operation[:title] }
+    ticket_tags = ticket_operations.flat_map { |_path, _verb, operation| Array(operation[:tags]) }.uniq
+
+    assert_equal page_tag, page_tags
+    assert_includes page_titles, "List support pages"
+    assert_includes page_titles, "Show support page"
+    assert_includes page_titles, "Search support pages"
+    refute_includes page_titles, "Create support page"
+    assert_equal ticket_tag, ticket_tags
+    assert_includes ticket_titles, "List support tickets"
+    assert_includes ticket_titles, "Show support ticket"
+    assert_includes ticket_titles, "Open support ticket"
+    assert_equal SUPPORT, groups.fetch("Support Page")
+    assert_equal "Support Ticket", groups.fetch("Support Ticket")
+    refute_includes groups.keys, "Support"
+    Array(document[:"x-tagGroups"]).each do |group|
+      assert Array(group[:tags]).any?, group.inspect
     end
+  end
+
+  test "public search is documented for OpenAPI and MCP and public pages have no capability actions" do
+    assert_empty RecordingStudioApi.capability_actions_for(PAGE, api: :public)
 
     endpoint = RecordingStudioApi.registered_endpoint(:search_support_pages, api: :public)
     assert_equal "Search support pages", endpoint.openapi[:title]
@@ -152,10 +196,14 @@ class SupportOperationDocsTest < ActiveSupport::TestCase
     copy[:title].presence || action.openapi[:title]
   end
 
-  def mcp_groups(api, type, copy)
+  def mcp_type_tags(api, type)
     registration = RecordingStudioApi.recordable_registration_for(type, api: api)
-    tags = Array(registration.openapi[:tags]).map(&:to_s)
+    Array(registration.openapi[:tags]).map(&:to_s)
+  end
+
+  def mcp_groups(api, type, copy)
     suffix = copy[:tag_suffix].to_s.strip
+    tags = mcp_type_tags(api, type)
     return tags if suffix.empty?
 
     tags.map { |tag| "#{tag} #{suffix}" }
@@ -185,6 +233,26 @@ class SupportOperationDocsTest < ActiveSupport::TestCase
       copy = action.openapi_for(type: type)
       group = copy.dig(:tag, :group) || SUPPORT
       found[[api, type, action.name.to_sym]] = [group, copy[:title]]
+    end
+  end
+
+  def public_support_operations(document)
+    document.fetch(:paths).flat_map do |path, verbs|
+      next [] unless path.include?("/support_pages") || path.end_with?("/support_page_search")
+
+      verbs.filter_map do |verb, operation|
+        [path, verb, operation] if operation.is_a?(Hash)
+      end
+    end
+  end
+
+  def public_ticket_operations(document)
+    document.fetch(:paths).flat_map do |path, verbs|
+      next [] unless path.include?("/support_tickets")
+
+      verbs.filter_map do |verb, operation|
+        [path, verb, operation] if operation.is_a?(Hash)
+      end
     end
   end
 

@@ -15,8 +15,8 @@ module RecordingStudioSupport
 
       module_function
 
-      def for(type, operations:)
-        Array(operations).each_with_object(SUPPORT_OPENAPI.dup) do |operation, copy|
+      def for(type, operations:, openapi: SUPPORT_OPENAPI)
+        Array(operations).each_with_object(openapi.dup) do |operation, copy|
           assign_operation(copy, type, operation)
         end
       end

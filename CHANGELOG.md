@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.38.4] - 2026-11-18
+
+Public Support docs put page list, show, and search in one group, and tickets in their own.
+
+### Changed
+- Public SupportPage list, show, and `GET support_page_search` use the tag Support Page, in the group Support. Public SupportTicket list, show, and open use the tag and group Support Ticket. The public registrations no longer share the tag Support, so that empty group is gone. Operations registrations keep the tag Support, so `tag_suffix` Trash still reads as Support Trash.
+- Public pages stay list, show, and search. Create, update, move, and trash stay off the public API. Public ticket create, list, and show stay owner-only. Search stays published pages only (`SupportPage.indexable`).
+
+### Upgrade notes
+- Bump to `0.38.4`.
+- No Support migration.
+- Public ticket routes are unchanged. Docs clients that looked for public tickets under the group Support now find them under Support Ticket. Page list, show, and search stay together under Support Page.
+
 ## [0.38.3] - 2026-11-18
 
 Public Support is list, show, and search. Publish, unpublish, move, and trash stay on the operations API.
@@ -1384,7 +1397,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.38.3...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.38.4...HEAD
+[0.38.4]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.38.3...v0.38.4
 [0.38.3]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.38.2...v0.38.3
 [0.38.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.38.1...v0.38.2
 [0.38.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.38.0...v0.38.1

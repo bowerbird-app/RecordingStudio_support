@@ -92,6 +92,8 @@ class ApiTest < Minitest::Test
     assert_includes prepares, "RecordingStudioSupport::Metrics.register!"
     refute_includes engine, "RecordingStudioMetrics::Api.register!"
     assert_includes api, "SUPPORT_OPENAPI = { tags: [\"Support\"], tag: { group: \"Support\" } }"
+    assert_includes api, "PUBLIC_PAGE_TAG = \"Support Page\""
+    assert_includes api, "PUBLIC_TICKET_TAG = \"Support Ticket\""
     assert_includes registration, "RecordingStudioApi.register_recordable_type_api"
     assert_includes registration, "register_resource_handler"
     assert_includes registration, "api: :public"
@@ -111,6 +113,7 @@ class ApiTest < Minitest::Test
     assert_includes search, "path: PATH"
     assert_includes search, 'PATH = "support_page_search"'
     assert_includes search, 'TITLE = "Search support pages"'
+    assert_includes search, "PUBLIC_PAGE_TAG"
     assert_includes search, "SupportPage.indexable"
     assert_includes registration, "ADMIN_NESTED_PAGE_OPERATIONS = (READ_OPERATIONS + WRITE_OPERATIONS)"
     assert_includes registration, "ADMIN_PAGE_OPERATIONS = (READ_OPERATIONS + WRITE_OPERATIONS)"
@@ -123,8 +126,10 @@ class ApiTest < Minitest::Test
     assert_includes registration, "handler: Show, owns_scoping: true"
     assert_includes registration, "handler: CreateCenter"
     ticket_type = File.read(File.expand_path("../lib/recording_studio_support/api/ticket_type.rb", __dir__))
-    assert_includes ticket_type, "handler: TicketShow, owns_scoping: true"
-    assert_includes ticket_type, "options[:auto_capability_actions] = false if api == :public"
+    assert_includes ticket_type, "api: :public"
+    assert_includes ticket_type, "auto_capability_actions"
+    assert_includes ticket_type, "handler: TicketOpen"
+    assert File.exist?(File.expand_path("../lib/recording_studio_support/api/ticket_open.rb", __dir__))
     refute_includes registration, "handler: Update, owns_scoping: true"
     refute_includes registration, "handler: Destroy, owns_scoping: true"
     refute_includes registration, "handler: Move, owns_scoping: true"

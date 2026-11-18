@@ -224,7 +224,9 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
     assert_equal "Update support ticket", operations_ticket.openapi.dig(:update, :title)
     assert_equal "List support tickets", public_ticket.openapi.dig(:index, :title)
     assert_equal "Show support ticket", operations_ticket.openapi.dig(:show, :title)
-    assert_equal ["Support"], public_ticket.openapi.fetch(:tags)
+    assert_equal ["Support Ticket"], public_ticket.openapi.fetch(:tags)
+    assert_equal "Support Ticket", public_ticket.openapi.dig(:tag, :group)
+    assert_equal ["Support"], operations_ticket.openapi.fetch(:tags)
   end
 
   test "in-scope operations editor can update a ticket" do

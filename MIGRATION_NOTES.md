@@ -1,5 +1,22 @@
 # Upgrade notes
 
+## 0.38.4
+
+Public page list, show, and search share one docs tag. Public tickets have their own group. Ticket routes are unchanged.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.38.4`.
+2. No Support migration.
+3. Public `GET` and `POST /recording_studio_api/api/v1/support_tickets` still open, list, and show the signed-in actor's tickets. A missing token is `401`. Someone else's ticket is `404`.
+4. Public page list, show, and search share the tag Support Page, in the group Support. Public tickets use the tag and group Support Ticket. Operations pages, sections, centers, and tickets stay in Support. Trash actions stay in Support Trash.
+
+### Verify
+
+```bash
+cd test/dummy && bundle exec rails test test/integration/support_operation_docs_test.rb test/integration/support_tickets_api_test.rb test/integration/support_api_test.rb
+```
+
 ## 0.38.3
 
 Public Support lists, shows, and searches published pages. Publish, unpublish, move, and trash stay on the operations API.

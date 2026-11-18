@@ -22,7 +22,7 @@ module RecordingStudioSupport
       def self.openapi
         {
           title: TITLE, summary: TITLE, description: "Search published support pages by title and body.",
-          tags: ["Support Page"], tag: { group: "Support" },
+          tags: [PUBLIC_PAGE_TAG], tag: { group: "Support" },
           parameters: [{ name: "q", in: "query", required: false, description: QUERY, schema: { type: "string" } }]
         }
       end
