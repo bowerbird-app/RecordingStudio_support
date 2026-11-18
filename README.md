@@ -434,7 +434,7 @@ The support team with AdminRoot `:view` can read them. A public token or a non-a
 
 `support_page_views.over_time` (unit `views`) counts Views raw logs for `RecordingStudioSupport::SupportPage` (one per signed-in or public page show) by `created_at`, with `from`/`to`/`interval`. Identifier, unit, and series shape are unchanged. Views are not de-duplicated by visitor, and there is no `group_by` or filter, so no viewer or page identity is exposed. Daily summaries (`RecordingStudioViews::DailyViewSummary`) are for Logs aggregation, not this public metric.
 
-`GET support_page_search?q=` on public uses `Pages.for_root` / `SupportPage.search` and `SupportPage.indexable`, so the result is published pages only. `GET support_pages?q=` still uses `Pages.for_root` and still shows drafts to a support-team token. There is no `GET support/search`. Instant UI is not used. MCP lists the search endpoint as Search support pages.
+`GET support_page_search?q=` on public uses `Pages.for_root` / `SupportPage.search` and `SupportPage.indexable`, so the result is published pages only. `GET support_pages?q=` still uses `Pages.for_root` and still shows drafts to a support-team token. There is no `GET support/search`. Instant UI is not used. Public list, show, and search share the tag Support Page, in the group Support. Public tickets use the tag and group Support Ticket. Operations types stay on the tag Support, so trash actions stay in Support Trash. MCP lists the search endpoint as Search support pages.
 
 Do not add a Support `ApiController`. Domain writes stay `Pages` / `Sections` / `Tickets`. Public anonymous browse stays `/help`.
 

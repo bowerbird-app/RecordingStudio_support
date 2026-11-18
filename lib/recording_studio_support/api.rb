@@ -35,7 +35,11 @@ module RecordingStudioSupport
     PAGE_TYPE = "RecordingStudioSupport::SupportPage"
     TICKET_TYPE = "RecordingStudioSupport::SupportTicket"
     TYPES = [SECTION_TYPE, PAGE_TYPE, CENTER_TYPE].freeze
+    PUBLIC_PAGE_TAG = "Support Page"
+    PUBLIC_TICKET_TAG = "Support Ticket"
     SUPPORT_OPENAPI = { tags: ["Support"], tag: { group: "Support" } }.freeze
+    PUBLIC_PAGE_OPENAPI = { tags: [PUBLIC_PAGE_TAG], tag: { group: "Support" } }.freeze
+    PUBLIC_TICKET_OPENAPI = { tags: [PUBLIC_TICKET_TAG], tag: { group: PUBLIC_TICKET_TAG } }.freeze
 
     class << self
       def register!
@@ -65,10 +69,11 @@ module RecordingStudioSupport
       def register_openapi!(api:, types:)
         types.each do |type|
           existing = RecordingStudioApi.recordable_registration_for(type, api: api)
+          base = api == :public && type == PAGE_TYPE ? PUBLIC_PAGE_OPENAPI : SUPPORT_OPENAPI
           RecordingStudioApi.register_recordable_type_api(
             type,
             api: api,
-            openapi: OperationDocs.for(type, operations: existing&.operations),
+            openapi: OperationDocs.for(type, operations: existing&.operations, openapi: base),
             operations: existing&.operations
           )
         end

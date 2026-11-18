@@ -768,7 +768,9 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_equal %i[create index show], operations_center.operations
     refute operations_center.supports_operation?(:update)
 
-    [public_page, operations_page, operations_section, operations_center].each do |registration|
+    assert_equal ["Support Page"], public_page.openapi.fetch(:tags)
+    assert_equal "Support", public_page.openapi.dig(:tag, :group)
+    [operations_page, operations_section, operations_center].each do |registration|
       assert_equal ["Support"], registration.openapi.fetch(:tags)
       assert_equal "Support", registration.openapi.dig(:tag, :group)
     end

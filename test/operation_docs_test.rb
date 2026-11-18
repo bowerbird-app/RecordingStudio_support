@@ -62,6 +62,16 @@ class OperationDocsTest < Minitest::Test
 
     assert_equal ["Support"], copy.fetch(:tags)
     assert_equal "Support", copy.dig(:tag, :group)
+
+    public_page = Docs.for(
+      Page,
+      operations: %i[index show],
+      openapi: RecordingStudioSupport::Api::PUBLIC_PAGE_OPENAPI
+    )
+    assert_equal ["Support Page"], public_page.fetch(:tags)
+    assert_equal "Support", public_page.dig(:tag, :group)
+    assert_equal "List support pages", public_page.dig(:index, :title)
+    assert_equal "Show support page", public_page.dig(:show, :title)
     assert_equal "List support pages", copy.dig(:index, :title)
     assert_equal "List support pages", copy.dig(:index, :summary)
     assert_equal "Trash support page", copy.dig(:destroy, :title)

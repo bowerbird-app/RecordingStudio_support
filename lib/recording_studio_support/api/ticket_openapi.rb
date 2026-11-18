@@ -15,7 +15,7 @@ module RecordingStudioSupport
         "#{STATUS_DESCRIPTION} #{PRIORITY_DESCRIPTION}".freeze
 
       def public
-        SUPPORT_OPENAPI.merge(index: index, show: show, create: open)
+        PUBLIC_TICKET_OPENAPI.merge(index: index, show: show, create: open)
       end
 
       def operations
