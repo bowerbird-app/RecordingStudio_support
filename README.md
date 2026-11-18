@@ -6,7 +6,7 @@ Help pages sit in a section under SupportCenter. Each page has a title and a for
 
 ## Install
 
-Add the gem next to Recording Studio 7.3.0, Accessible 0.45.1, Admin 2.18.0, Attachable 0.31.0, Publishable 1.1.0, Messages 0.31.0, Search 0.14.0, and Flatpack 0.1.377. Those GitHub tags are the dummy-tested pins in `test/dummy/Gemfile.lock`. The constraint block below is the gemspec floor. GitHub hosting is not a reason to skip the gemspec pins. ViewComponent stays on `>= 4.14, < 5` (this repo locks `4.19.0`).
+Add the gem next to Recording Studio 7.3.0, Accessible 0.45.1, Admin 2.18.0, Attachable 0.31.0, Publishable 1.1.0, Messages 0.31.0, Search 0.14.0, and Flatpack 0.2.0. Those GitHub tags are the dummy-tested pins in `test/dummy/Gemfile.lock`. The constraint block below is the gemspec floor. GitHub hosting is not a reason to skip the gemspec pins. ViewComponent stays on `>= 4.14, < 5` (this repo locks `4.19.0`).
 
 ```ruby
 # Gemfile
@@ -31,14 +31,14 @@ gem "recording_studio_search", ">= 0.14.0", "< 2.0",
 gem "recording_studio_support", github: "bowerbird-app/RecordingStudio_support"
 # Host-owned auth (not a Support gemspec dependency):
 gem "recording_studio_user", github: "bowerbird-app/RecordingStudio_users", tag: "v0.32.0"
-gem "flat_pack", ">= 0.1.376", "< 1.0", github: "bowerbird-app/flatpack", tag: "v0.1.377"
+gem "flat_pack", ">= 0.2.0", "< 1.0", github: "bowerbird-app/flatpack", tag: "v0.2.0"
 gem "view_component", "4.19.0"
 ```
 
 ```ruby
 # gemspec / host Gemfile constraints
 gem "recording_studio", ">= 7.0.0", "< 8.0"
-gem "flat_pack", ">= 0.1.376", "< 1.0"
+gem "flat_pack", ">= 0.2.0", "< 1.0"
 gem "view_component", ">= 4.14", "< 5"
 gem "recording_studio_accessible", ">= 0.44.0", "< 2.0"
 gem "recording_studio_admin", ">= 2.16.0", "< 3.0"
@@ -508,7 +508,7 @@ Dummy kit pins:
 | Cache | `v0.7.0` (dummy only; Users and Root Switchable rate limiting) |
 | API | `v1.2.1` (dummy pin `>= 1.1.0`, `< 2.0` for Attachable 0.31 / Publishable 1.1 / Notifications 0.19 / Users 0.32; not a Support gemspec dependency) |
 | Internationalization | `v0.3.0` (dummy only; not a Support gemspec dependency) |
-| FlatPack | `0.1.377` |
+| FlatPack | `0.2.0` |
 | ViewComponent | `4.19.0` |
 
 ```bash

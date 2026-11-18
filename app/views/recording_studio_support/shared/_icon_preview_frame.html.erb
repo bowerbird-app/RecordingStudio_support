@@ -1,0 +1,16 @@
+<% glyph = support_icon_preview(local_assigns[:name]) %>
+<%= turbo_frame_tag "support_icon_preview" do %>
+  <div
+    class="<%= [
+      "box-border flex shrink-0 items-center justify-center",
+      "h-[calc(1.25rem+2*var(--form-control-padding)+2px)]",
+      "w-[calc(1.25rem+2*var(--form-control-padding)+2px)]",
+      "rounded-[var(--radius-md)] border border-[var(--surface-border-color)]",
+      "bg-[var(--surface-background-color)] text-[var(--surface-content-color)]",
+      (glyph ? nil : "opacity-40")
+    ].compact.join(" ") %>"
+    aria-hidden="true"
+  >
+    <%= glyph %>
+  </div>
+<% end %>

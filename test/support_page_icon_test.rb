@@ -36,7 +36,8 @@ class SupportPageIconTest < Minitest::Test
     assert_operator advanced_index, :<, section_index
     assert_operator section_index, :<, icon_index
     assert_includes icon_field, "name: input_name"
-    assert_includes icon_field, "FlatPack::Shared::IconComponent"
+    assert_includes icon_field, "icon_preview_frame"
+    assert_includes form, "preview-url-value"
     assert_includes controller, ":icon"
     assert_includes controller, "icon: page_params[:icon]"
     assert_includes controller, "apply_default_page_icon_from_section!"
@@ -56,8 +57,10 @@ class SupportPageIconTest < Minitest::Test
     assert_includes preview, "sectionIcons"
     assert_includes preview, "sectionChanged"
     assert_includes preview, "page[section_id]"
-    assert_includes preview, "nameValue"
-    assert_includes preview, "hasDrawnPaths"
+    assert_includes preview, "previewUrl"
+    assert_includes preview, "#support_icon_preview"
+    refute_includes preview, "flat-pack--icon"
+    refute_includes preview, "nameValue"
     refute File.exist?(
       File.expand_path(
         "../app/javascript/recording_studio_support/controllers/section_icon_preview_controller.js",

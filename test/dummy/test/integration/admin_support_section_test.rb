@@ -442,7 +442,8 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_select "input[name='section[icon]']"
     assert_includes response.body, "rocket-launch"
     assert_includes response.body, "recording-studio-support--icon-preview"
-    assert_includes response.body, 'data-flat-pack--icon-name-value="rocket-launch"'
+    assert_select "turbo-frame#support_icon_preview svg path"
+    refute_includes response.body, "data-flat-pack--icon-name-value"
     refute_includes response.body, "flat-pack-button-group"
   end
 
@@ -493,6 +494,67 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "Edit page"
   end
 
+  test "section icon preview renders an inline svg and updates for another icon" do
+    section = seeded_section("Getting started")
+
+    get "/admin/support/sections/#{section.id}/edit"
+
+    assert_response :success
+    original = icon_preview_paths(response.body)
+    assert original.any?
+    assert_select "turbo-frame#support_icon_preview svg path"
+
+    get "/admin/support/icon_preview", params: { name: "banknotes" }
+
+    assert_response :success
+    updated = icon_preview_paths(response.body)
+    assert updated.any?
+    refute_equal original, updated
+
+    get "/admin/support/icon_preview", params: { name: "rocket_launch" }
+
+    assert_response :success
+    assert_equal original, icon_preview_paths(response.body)
+
+    get "/admin/support/icon_preview", params: { name: "not-a-real-icon" }
+
+    assert_response :success
+    assert_select "turbo-frame#support_icon_preview"
+    assert_empty icon_preview_paths(response.body)
+    refute_includes response.body, "not-a-real-icon"
+  end
+
+  test "section form and icon preview allow staff and refuse everyone else" do
+    section = seeded_section("Getting started")
+    edit_path = "/admin/support/sections/#{section.id}/edit"
+
+    get edit_path
+    assert_response :success
+    assert icon_preview_paths(response.body).any?
+
+    stranger = User.create!(
+      email: "icon-stranger-#{SecureRandom.hex(4)}@example.com",
+      password: "Password",
+      password_confirmation: "Password"
+    )
+    sign_in stranger
+
+    get edit_path
+    assert_response :forbidden
+
+    get "/admin/support/icon_preview", params: { name: "banknotes" }
+    assert_response :forbidden
+    refute_includes response.body, "support_icon_preview"
+
+    sign_out stranger
+
+    get edit_path
+    assert_redirected_to new_user_session_path
+
+    get "/admin/support/icon_preview", params: { name: "banknotes" }
+    assert_redirected_to new_user_session_path
+  end
+
   test "viewer without admin access is forbidden" do
     stranger = User.create!(
       email: "admin-stranger-#{SecureRandom.hex(4)}@example.com",
@@ -507,6 +569,11 @@ class AdminSupportSectionTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def icon_preview_paths(html)
+    document = Nokogiri::HTML(html)
+    document.css("turbo-frame#support_icon_preview svg path").filter_map { |node| node["d"].presence }
+  end
 
   def chart_options_from(html)
     document = Nokogiri::HTML(html)

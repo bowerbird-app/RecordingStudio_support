@@ -1,52 +1,21 @@
 import { Controller } from "@hotwired/stimulus"
 
-// Keeps a Heroicons preview in sync with an Icon field (section or page forms).
-// FlatPack::Shared::IconComponent renders an empty SVG shell; flat-pack--icon
-// fills the paths. Do not wipe those paths unless the name actually changes.
-// On page forms, changing Section updates the icon when it still matches the
-// previous section default (or is blank).
+// Loads a server-rendered Heroicon into the preview frame when the icon
+// field changes. FlatPack 0.2 draws the SVG in the HTML. Setting a name
+// from JavaScript does not.
 export default class extends Controller {
-  static targets = ["frame"]
   static values = {
     inputName: { type: String, default: "section[icon]" },
-    sectionIcons: { type: Object, default: {} }
+    sectionIcons: { type: Object, default: {} },
+    previewUrl: String
   }
 
   connect() {
-    this.lastName = null
     this.trackedSectionDefault = this.normalize(this.iconInput?.value || "")
-    this.sync({ force: false })
   }
 
-  sync(eventOrOptions = {}) {
-    const force = eventOrOptions === true || eventOrOptions?.force === true || eventOrOptions?.type === "input"
-    const input = this.iconInput
-    if (!input || !this.hasFrameTarget) return
-
-    const name = this.normalize(input.value)
-    const icon = this.iconElement
-    if (!icon) return
-
-    if (name === "") {
-      icon.innerHTML = ""
-      this.lastName = ""
-      this.frameTarget.classList.add("opacity-40")
-      return
-    }
-
-    this.frameTarget.classList.remove("opacity-40")
-
-    // Initial paint: FlatPack's icon controller already fills the shell on connect.
-    // Only rewrite when the typed name changes (or an input event forces a refresh).
-    if (!force && this.lastName === null && this.hasDrawnPaths(icon)) {
-      this.lastName = name
-      return
-    }
-
-    if (!force && this.lastName === name && this.hasDrawnPaths(icon)) return
-
-    this.lastName = name
-    this.applyName(icon, name)
+  sync() {
+    this.refresh()
   }
 
   sectionChanged(event) {
@@ -61,34 +30,29 @@ export default class extends Controller {
     const stillOnPreviousDefault =
       current === "" || current === this.normalize(this.trackedSectionDefault || "")
 
-    if (stillOnPreviousDefault) {
-      input.value = nextDefault
-      this.trackedSectionDefault = nextDefault
-      this.sync({ force: true })
-    }
+    if (!stillOnPreviousDefault) return
+
+    input.value = nextDefault
+    this.trackedSectionDefault = nextDefault
+    this.refresh()
   }
 
-  applyName(icon, name) {
-    const iconController = this.application.getControllerForElementAndIdentifier(
-      icon,
-      "flat-pack--icon"
-    )
+  refresh() {
+    const frame = this.element.querySelector("#support_icon_preview")
+    if (!frame || !this.hasPreviewUrlValue) return
 
-    if (iconController) {
-      // Stimulus skips nameValueChanged when the value is unchanged; nudge it so
-      // #render runs after we need a refresh.
-      if (iconController.nameValue === name) {
-        iconController.nameValue = ""
-      }
-      iconController.nameValue = name
-      return
+    const name = this.normalize(this.iconInput?.value || "")
+    const url = new URL(this.previewUrlValue, window.location.origin)
+    if (name) {
+      url.searchParams.set("name", name)
+    } else {
+      url.searchParams.delete("name")
     }
 
-    icon.setAttribute("data-flat-pack--icon-name-value", name)
-  }
+    const next = `${url.pathname}${url.search}`
+    if (frame.getAttribute("src") === next) return
 
-  hasDrawnPaths(icon) {
-    return icon.querySelector("path, circle, rect, line, polyline, polygon") != null
+    frame.src = next
   }
 
   normalize(raw) {
@@ -97,9 +61,5 @@ export default class extends Controller {
 
   get iconInput() {
     return this.element.querySelector(`input[name="${this.inputNameValue}"]`)
-  }
-
-  get iconElement() {
-    return this.frameTarget.querySelector("[data-controller~='flat-pack--icon']")
   }
 }

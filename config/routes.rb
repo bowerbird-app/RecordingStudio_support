@@ -12,6 +12,7 @@ RecordingStudioSupport::Engine.routes.draw do
   end
 
   post "uploads", to: "uploads#create"
+  get "icon_preview", to: "icon_previews#show", as: :icon_preview
 
   resources :pages, path: "", only: %i[show new create edit update] do
     member do

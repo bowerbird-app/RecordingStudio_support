@@ -45,8 +45,7 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "href=\"/admin/support/#{seeded_page('How do I change my password?').id}\""
     refute_includes response.body, "recordable"
     assert_includes response.body, "card-border-color"
-    assert_select "ul[role='list']"
-    assert_includes response.body, "chevron-right"
+    assert_select "ul[role='list'] a svg path", minimum: 2
     refute_includes response.body, "<span>Open</span>"
     refute_includes response.body, "<span>Read</span>"
   end
@@ -132,7 +131,8 @@ class SupportPagesUiTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "input[name='page[icon]'][value='rocket-launch']"
     assert_includes response.body, "recording-studio-support--icon-preview"
-    assert_includes response.body, 'data-flat-pack--icon-name-value="rocket-launch"'
+    assert_select "turbo-frame#support_icon_preview svg path"
+    refute_includes response.body, "data-flat-pack--icon-name-value"
     assert_includes response.body, "Defaults to the section icon"
     assert_includes response.body, "Advanced settings"
     assert_select "[data-controller='flat-pack--collapse'][data-flat-pack--collapse-open-value='false']"

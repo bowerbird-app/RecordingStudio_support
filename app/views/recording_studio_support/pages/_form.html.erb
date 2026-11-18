@@ -6,6 +6,7 @@
     class="flex flex-col gap-4"
     data-controller="<%= controller %>"
     data-<%= controller %>-input-name-value="page[icon]"
+    data-<%= controller %>-preview-url-value="<%= icon_preview_path %>"
     <% if with_section_icons %>
       data-<%= controller %>-section-icons-value="<%= ERB::Util.html_escape(support_section_icon_map(section_choices).to_json) %>"
       data-action="input-><%= controller %>#sync change-><%= controller %>#sectionChanged"
