@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.38.3] - 2026-11-18
+
+Public Support is list, show, and search. Publish, unpublish, move, and trash stay on the operations API.
+
+### Changed
+- Public SupportPage and SupportTicket pass `auto_capability_actions: false`. The public API no longer registers publish, unpublish, update publishing, move, trash, restore, purge, or list trash. A missing token was already `401` and a signed-in public token was already `404`, so no public client was completing those calls. After this release a signed-in public token receives `404` or `422`. Operations registrations are unchanged.
+- Public `GET /recording_studio_api/api/v1/support_page_search` searches published pages with `Pages.for_root` and `SupportPage.indexable` (pg_trgm). Drafts and trashed pages stay out of the result, including for a support-team token. The OpenAPI and MCP title is Search support pages, in the group Support.
+
+### Upgrade notes
+- Bump to `0.38.3`.
+- No Support migration.
+- Public clients that looked up those capability actions should call them on the operations API. `GET support_pages?q=` is unchanged. Published-page search is `GET support_page_search?q=`.
+
 ## [0.38.2] - 2026-11-18
 
 Support controller pins no longer emit `modulepreload` links. The modules stay in the import map, and `eagerLoadControllersFrom` still imports them.
@@ -1371,7 +1384,8 @@ Addon starting point on Recording Studio 4.x, before this repo became Support.
 - Comprehensive README and documentation
 - Basic test suite with Minitest
 
-[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.38.2...HEAD
+[Unreleased]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.38.3...HEAD
+[0.38.3]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.38.2...v0.38.3
 [0.38.2]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.38.1...v0.38.2
 [0.38.1]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.38.0...v0.38.1
 [0.38.0]: https://github.com/bowerbird-app/RecordingStudio_support/compare/v0.37.0...v0.38.0

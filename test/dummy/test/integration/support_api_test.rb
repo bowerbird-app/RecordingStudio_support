@@ -73,6 +73,28 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     Current.actor = nil
   end
 
+  test "public capability actions are not routable" do
+    %w[SupportPage SupportTicket].each do |name|
+      assert_empty RecordingStudioApi.capability_actions_for(
+        "RecordingStudioSupport::#{name}",
+        api: :public
+      )
+    end
+
+    RecordingStudioApi.capability_actions_for(
+      "RecordingStudioSupport::SupportPage",
+      api: :operations
+    ).each do |action|
+      path = "#{PUBLIC_ROOT}/support_pages/#{@live.id}/actions/#{action.name}"
+      send(action.http_verb, path, headers: { "Accept" => "application/json" }, as: :json)
+      assert_response :unauthorized
+
+      send(action.http_verb, path, headers: auth(@workspace_token), as: :json)
+      assert_includes [404, 422], response.status, "#{action.name} #{response.body}"
+      assert_includes %w[not_found unsupported_action], response.parsed_body.dig("error", "code")
+    end
+  end
+
   test "missing token is unauthorized on the public API" do
     get "#{PUBLIC_ROOT}/support_pages", as: :json
 
@@ -816,6 +838,49 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     get "#{OPERATIONS_ROOT}/support_sections", headers: auth(@support_public_token), as: :json
 
     assert_includes [401, 403], response.status, response.body
+  end
+
+  test "public search returns published pages only" do
+    token = "Quill#{SecureRandom.hex(4)}"
+    live, draft, trashed, miss = record_as_support_team do
+      pages = [
+        record_support_page(@root, @section, title: "#{token} published", body: "Body"),
+        record_support_page(@root, @section, title: "#{token} draft", body: "Body"),
+        record_support_page(@root, @section, title: "#{token} trashed", body: "Body"),
+        record_support_page(@root, @section, title: "Other #{SecureRandom.hex(4)}", body: "Body")
+      ]
+      pages.each_with_index do |page, index|
+        publish!(page, slug: "#{token}-#{index}", status: index == 1 ? "draft" : "published")
+      end
+      RecordingStudioSupport::Pages.trash!(recording: pages[2], actor: @support_user)
+      pages
+    end
+
+    get "#{PUBLIC_ROOT}/support_page_search", params: { q: token }, as: :json
+
+    assert_response :unauthorized
+
+    [@workspace_token, @support_public_token].each do |bearer|
+      get "#{PUBLIC_ROOT}/support_page_search",
+          headers: auth(bearer),
+          params: { q: token },
+          as: :json
+
+      assert_response :success
+      titles = response.parsed_body.fetch("records").map { |record| record.fetch("title") }
+      assert_equal [live.recordable.title], titles
+      refute_includes titles, draft.recordable.title
+      refute_includes titles, trashed.recordable.title
+      refute_includes titles, miss.recordable.title
+      assert_equal token, response.parsed_body.fetch("meta").fetch("q")
+    end
+
+    get "#{PUBLIC_ROOT}/support/search",
+        headers: auth(@workspace_token),
+        params: { q: token },
+        as: :json
+
+    assert_response :not_found
   end
 
   test "general support search endpoint is gone" do

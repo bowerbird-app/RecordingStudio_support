@@ -376,7 +376,7 @@ Who can create, revise, publish, and trash is spelled out in [docs/process-flows
 
 ## JSON API
 
-Support does not gemspec-depend on `recording_studio_api`. If the host adds that gem, Support registers **public** page reads and ticket open/list/show, and **operations** SupportCenter (`index` / `show` / `create`) plus section reads and writes and ticket list/show/update. Operations `SupportPage` `operations:` include those writes so MCP `describe` matches `PATCH`.
+Support does not gemspec-depend on `recording_studio_api`. If the host adds that gem, Support registers **public** page list, show, and search, plus ticket open/list/show, and **operations** SupportCenter (`index` / `show` / `create`) plus section reads and writes and ticket list/show/update. Operations `SupportPage` `operations:` include those writes so MCP `describe` matches `PATCH`. Public page and ticket registrations pass `auto_capability_actions: false`, so publish, unpublish, move, and trash stay on operations.
 
 Full contract for hosts and AI agents: **[docs/api.md](docs/api.md)** (auth, fields, search, examples). Design notes: [docs/api-plan.md](docs/api-plan.md).
 
@@ -390,6 +390,7 @@ Bearer token: public `POST /recording_studio_api/oauth/token`; operations `POST 
 | --- | --- |
 | `GET` | `/recording_studio_api/api/v1/support_pages` |
 | `GET` | `/recording_studio_api/api/v1/support_pages/:id` |
+| `GET` | `/recording_studio_api/api/v1/support_page_search` |
 | `GET` | `/recording_studio_api/api/v1/support_tickets` |
 | `GET` | `/recording_studio_api/api/v1/support_tickets/:id` |
 | `POST` | `/recording_studio_api/api/v1/support_tickets` |
@@ -433,7 +434,7 @@ The support team with AdminRoot `:view` can read them. A public token or a non-a
 
 `support_page_views.over_time` (unit `views`) counts Views raw logs for `RecordingStudioSupport::SupportPage` (one per signed-in or public page show) by `created_at`, with `from`/`to`/`interval`. Identifier, unit, and series shape are unchanged. Views are not de-duplicated by visitor, and there is no `group_by` or filter, so no viewer or page identity is exposed. Daily summaries (`RecordingStudioViews::DailyViewSummary`) are for Logs aggregation, not this public metric.
 
-`GET support_pages?q=` on public uses `Pages.for_root` / `SupportPage.search`. There is no `GET support/search`. Instant UI is not used.
+`GET support_page_search?q=` on public uses `Pages.for_root` / `SupportPage.search` and `SupportPage.indexable`, so the result is published pages only. `GET support_pages?q=` still uses `Pages.for_root` and still shows drafts to a support-team token. There is no `GET support/search`. Instant UI is not used. MCP lists the search endpoint as Search support pages.
 
 Do not add a Support `ApiController`. Domain writes stay `Pages` / `Sections` / `Tickets`. Public anonymous browse stays `/help`.
 
