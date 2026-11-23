@@ -1,5 +1,22 @@
 # Upgrade notes
 
+## 0.38.7
+
+Public ticket reply and mark-read declare `required_role: :view` so Recording Studio API 1.21.7 can boot.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.38.7`.
+2. No Support migration.
+3. Who can reply or mark a ticket read is unchanged. Public still needs `:view` on the grant scope, then the ticket stays on that actor's list, then Accessible on the conversation. Operations still needs SupportCenter `:edit`.
+4. GET `support_ticket_messages/:id` does not need `required_role`. API 1.21.7 exempts GET. `GET support_ticket_unread_count` does not set `scope_id: false`.
+
+### Verify
+
+```bash
+cd test/dummy && bundle exec rails test test/integration/support_ticket_messages_api_test.rb
+```
+
 ## 0.38.6
 
 Named MCP tools for Support. Ticket message API keyed by the ticket recording id.

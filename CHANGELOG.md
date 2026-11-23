@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.38.7] - 2026-11-23
+
+Public ticket reply and mark-read declare `required_role: :view` so a host on Recording Studio API 1.21.7 can boot.
+
+### Fixed
+- Public `POST support_ticket_reply/:id` and `POST support_ticket_mark_read/:id` pass `required_role: :view` with `scope_id: false`. API 1.21.7 raises at boot when a non-GET endpoint sets `scope_id: false` and omits `required_role`. `:view` is the role `TicketAccess.authorize_view!` already requires on the grant scope. Ticket membership and the Accessible checks on the conversation stay in the handlers.
+- GET `support_ticket_messages/:id` stays without `required_role`. API 1.21.7 exempts GET. `GET support_ticket_unread_count` does not set `scope_id: false`. Operations message routes set `recordable_type` and do not set `scope_id: false`.
+
+### Upgrade notes
+- Bump to `0.38.7`.
+- No Support migration.
+- Who can reply or mark a ticket read is unchanged. A ticket owner with `:view` on the grant scope, and staff on the operations API, still can. Another person still cannot.
+
 ## [0.38.6] - 2026-11-23
 
 Named MCP tools for Support, plus ticket-message API endpoints keyed by the ticket recording id.
