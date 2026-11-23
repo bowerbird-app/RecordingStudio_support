@@ -151,7 +151,7 @@ class RecordingStudioSupportTest < Minitest::Test
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_metrics", tag: "v0.9.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_logs", tag: "v0.8.0"'
     assert_includes gemfile, 'github: "bowerbird-app/RecordingStudio_views", tag: "v0.14.0"'
-    assert_includes gemfile, 'gem "puma", "8.1.1"'
+    assert_includes gemfile, 'gem "puma", "8.1.2"'
     assert_includes gemfile, 'gem "msgpack", ">= 1.8.7"'
     refute_includes gemfile, "widen_recording_studio_requirement"
     refute_match(/^\s*gem\s+["'].*branch:\s*["']main["']/, gemfile)
