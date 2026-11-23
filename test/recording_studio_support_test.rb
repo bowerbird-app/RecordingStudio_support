@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.38.5", ::RecordingStudioSupport::VERSION
+    assert_equal "0.38.6", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version

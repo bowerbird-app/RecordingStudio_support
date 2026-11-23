@@ -123,6 +123,8 @@ class ApiTest < Minitest::Test
     refute_includes api, "types: [SECTION_TYPE, PAGE_TYPE, CENTER_TYPE]"
     assert_includes registration, "CenterType.register!"
     assert_includes api, "TicketType.register!"
+    assert_includes api, "TicketMessages.register!"
+    assert_includes engine, "RecordingStudioSupport::McpCopy.register!"
     assert_includes registration, "handler: Show, owns_scoping: true"
     assert_includes registration, "handler: CreateCenter"
     ticket_type = File.read(File.expand_path("../lib/recording_studio_support/api/ticket_type.rb", __dir__))

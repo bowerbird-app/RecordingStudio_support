@@ -394,9 +394,17 @@ Bearer token: public `POST /recording_studio_api/oauth/token`; operations `POST 
 | `GET` | `/recording_studio_api/api/v1/support_tickets` |
 | `GET` | `/recording_studio_api/api/v1/support_tickets/:id` |
 | `POST` | `/recording_studio_api/api/v1/support_tickets` |
+| `GET` | `/recording_studio_api/api/v1/support_ticket_messages/:id` |
+| `POST` | `/recording_studio_api/api/v1/support_ticket_reply/:id` |
+| `POST` | `/recording_studio_api/api/v1/support_ticket_mark_read/:id` |
+| `GET` | `/recording_studio_api/api/v1/support_ticket_unread_count` |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_tickets` |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_tickets/:id` |
 | `PATCH` | `/recording_studio_api/apis/operations/v1/support_tickets/:id` |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_ticket_messages/:id` |
+| `POST` | `/recording_studio_api/apis/operations/v1/support_ticket_reply/:id` |
+| `POST` | `/recording_studio_api/apis/operations/v1/support_ticket_mark_read/:id` |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_ticket_unread_count` |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_centers` |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_centers/:id` |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_centers` |
@@ -434,7 +442,20 @@ The support team with AdminRoot `:view` can read them. A public token or a non-a
 
 `support_page_views.over_time` (unit `views`) counts Views raw logs for `RecordingStudioSupport::SupportPage` (one per signed-in or public page show) by `created_at`, with `from`/`to`/`interval`. Identifier, unit, and series shape are unchanged. Views are not de-duplicated by visitor, and there is no `group_by` or filter, so no viewer or page identity is exposed. Daily summaries (`RecordingStudioViews::DailyViewSummary`) are for Logs aggregation, not this public metric.
 
-`GET support_page_search?q=` on public uses `Pages.for_root` / `SupportPage.search` and `SupportPage.indexable`, so the result is published pages only. `GET support_pages?q=` still uses `Pages.for_root` and still shows drafts to a support-team token. There is no `GET support/search`. Instant UI is not used. Public list, show, and search share the tag Support Page, in the group Support. Public tickets use the tag and group Support Ticket. Operations types stay on the tag Support, so trash actions stay in Support Trash. MCP lists the search endpoint as Search support pages.
+`GET support_page_search?q=` on public uses `Pages.for_root` / `SupportPage.search` and `SupportPage.indexable`, so the result is published pages only. `GET support_pages?q=` still uses `Pages.for_root` and still shows drafts to a support-team token. There is no `GET support/search`. Instant UI is not used. Public list, show, and search share the tag Support Page, in the group Support. Public tickets use the tag and group Support Ticket. Ticket message endpoints use the group Support Messages. Operations types stay on the tag Support, so trash actions stay in Support Trash.
+
+Recording Studio MCP is optional. When the host loads MCP 0.45.2, `RecordingStudioSupport::McpCopy.register!` registers named tools. Include them on each named server:
+
+```ruby
+RecordingStudioMcp.register_server(:public, api: :public) do
+  include_tools(*RecordingStudioSupport::McpCopy.tool_names(api: :public))
+end
+RecordingStudioMcp.register_server(:operations, api: :operations) do
+  include_tools(*RecordingStudioSupport::McpCopy.tool_names(api: :operations))
+end
+```
+
+`open_support_ticket` still creates the ticket, tagged conversation, and first message. Later replies use `reply_to_support_ticket` with that ticket recording id. Dummy does not pin MCP.
 
 Do not add a Support `ApiController`. Domain writes stay `Pages` / `Sections` / `Tickets`. Public anonymous browse stays `/help`.
 
