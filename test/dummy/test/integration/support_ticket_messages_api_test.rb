@@ -26,11 +26,19 @@ class SupportTicketMessagesApiTest < ActionDispatch::IntegrationTest
       role: :view,
       name: "Patron messages #{SecureRandom.hex(4)}"
     )
+    @other_user = create_support_user!(
+      email: "ticket-messages-other-#{SecureRandom.hex(4)}@example.com",
+      password: "Password",
+      first_name: "Other",
+      last_name: "Person",
+      time_zone: "UTC"
+    )
+    grant!(@root, @other_user, :admin)
     @stranger_token = provision_token(
       access_point: @root,
-      actor: @support_user,
+      actor: @other_user,
       role: :view,
-      name: "Stranger messages #{SecureRandom.hex(4)}"
+      name: "Other person messages #{SecureRandom.hex(4)}"
     )
     @editor_operations_token = provision_token(
       access_point: @admin_root,
@@ -151,7 +159,7 @@ class SupportTicketMessagesApiTest < ActionDispatch::IntegrationTest
     assert_equal "resolved", response.parsed_body.fetch("status")
   end
 
-  test "another users ticket messages are not found" do
+  test "another signed in person cannot reply or mark a ticket read" do
     ticket_id = open_ticket_via_api!
 
     get "#{PUBLIC_ROOT}/support_ticket_messages/#{ticket_id}", headers: auth(@stranger_token), as: :json
@@ -164,6 +172,37 @@ class SupportTicketMessagesApiTest < ActionDispatch::IntegrationTest
          as: :json
 
     assert_response :not_found
+
+    post "#{PUBLIC_ROOT}/support_ticket_mark_read/#{ticket_id}",
+         headers: auth(@stranger_token),
+         as: :json
+
+    assert_response :not_found
+  end
+
+  test "staff can mark a ticket read" do
+    ticket_id = open_ticket_via_api!
+
+    post "#{OPERATIONS_ROOT}/support_ticket_mark_read/#{ticket_id}",
+         headers: auth(@editor_operations_token),
+         as: :json
+
+    assert_response :success
+    assert_equal ticket_id, response.parsed_body.fetch("id")
+  end
+
+  test "anonymous cannot reply or mark a ticket read" do
+    ticket_id = open_ticket_via_api!
+
+    post "#{PUBLIC_ROOT}/support_ticket_reply/#{ticket_id}",
+         params: { body: "No token." },
+         as: :json
+
+    assert_response :unauthorized
+
+    post "#{PUBLIC_ROOT}/support_ticket_mark_read/#{ticket_id}", as: :json
+
+    assert_response :unauthorized
   end
 
   test "operations viewer is forbidden on ticket messages" do
@@ -195,8 +234,27 @@ class SupportTicketMessagesApiTest < ActionDispatch::IntegrationTest
         endpoint = RecordingStudioApi.registered_endpoint(name, api: api)
         assert endpoint, "#{name} missing on #{api}"
         assert_equal ["Support Messages"], endpoint.openapi_tags
+        endpoint.validate!
       end
     end
+  end
+
+  test "scope_id false writes declare required_role" do
+    unscoped_writes = []
+
+    %i[public operations].each do |api|
+      RecordingStudioApi.api(api).registered_endpoint_registry.all.each do |endpoint|
+        next unless endpoint.handler.to_s.start_with?("RecordingStudioSupport::")
+        next unless endpoint.instance_variable_get(:@scope_id) == false
+        next if endpoint.http_verb == :get
+
+        endpoint.validate!
+        assert_equal :view, endpoint.required_role, endpoint.name
+        unscoped_writes << endpoint.name
+      end
+    end
+
+    assert_equal %w[mark_support_ticket_read reply_to_support_ticket], unscoped_writes.sort
   end
 
   private

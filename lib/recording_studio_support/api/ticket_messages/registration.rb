@@ -51,6 +51,7 @@ module RecordingStudioSupport
           }
           options[:recordable_type] = TICKET_TYPE if api == Api::Registration::OPERATIONS_API
           options[:scope_id] = false if api == :public
+          options[:required_role] = :view if api == :public && spec.fetch(:verb) != :get
           options
         end
 
