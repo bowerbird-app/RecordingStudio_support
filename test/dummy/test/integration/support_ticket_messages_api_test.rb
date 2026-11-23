@@ -107,6 +107,25 @@ class SupportTicketMessagesApiTest < ActionDispatch::IntegrationTest
     assert_nil response.parsed_body["resolved_at"]
   end
 
+  test "operations lists messages and counts unread" do
+    ticket_id = open_ticket_via_api!
+
+    get "#{OPERATIONS_ROOT}/support_ticket_messages/#{ticket_id}",
+        headers: auth(@editor_operations_token),
+        as: :json
+
+    assert_response :success
+    bodies = response.parsed_body.fetch("records").map { |record| record.fetch("body") }
+    assert_equal ["Please take a look."], bodies
+
+    get "#{OPERATIONS_ROOT}/support_ticket_unread_count",
+        headers: auth(@editor_operations_token),
+        as: :json
+
+    assert_response :success
+    assert_operator response.parsed_body.fetch("unread_count"), :>=, 0
+  end
+
   test "staff reply does not reopen a resolved ticket" do
     ticket_id = open_ticket_via_api!
 

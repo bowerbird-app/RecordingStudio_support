@@ -34,7 +34,7 @@ Capability actions on the operations API set a per-type title. Pages: Move suppo
 
 Recording Studio MCP 0.45.2 named tools come from `RecordingStudioSupport::McpCopy`. Hosts that load MCP call `include_tools(*RecordingStudioSupport::McpCopy.tool_names(api: :public))` on the public server and the operations list on the operations server. Support does not gemspec-depend on MCP. Named typed tools sit under the Support type tags. The four ticket-message tools sit under Support Messages. Trash, restore, purge, and access grants stay on Trashable and Accessible; this gem does not register those names. Capability OpenAPI still sets per-type titles and `tag_suffix` Trash for operations trash actions. Public search stays `search_support_pages`.
 
-Recording Studio API 1.2.1 files a tag that is not a resource name under the Scalar folder API. The Support Trash tag is that kind of tag on the API document. Nested section page routes keep the API gem's own summaries.
+Recording Studio API 1.2.1 files a tag that is not a resource name under the Scalar folder API. Support Trash and Support Messages are that kind of tag. The four message operations still share one tag. Nested section page routes keep the API gem's own summaries.
 
 ## Auth
 

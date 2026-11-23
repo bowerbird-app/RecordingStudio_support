@@ -134,6 +134,7 @@ class SupportOperationDocsTest < ActiveSupport::TestCase
     assert_includes ticket_titles, "Show support ticket"
     assert_includes ticket_titles, "Open support ticket"
     assert_equal messages_tag, message_tags
+    assert_equal 4, message_operations.size
     assert_equal SUPPORT, groups.fetch("Support Page")
     assert_equal "Support Ticket", groups.fetch("Support Ticket")
     refute_includes groups.keys, "Support"

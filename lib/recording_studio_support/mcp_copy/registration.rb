@@ -60,9 +60,11 @@ module RecordingStudioSupport
       end
 
       def message_input(name)
-        return { "body" => { description: Api::TicketMessages::BODY } } if name == Api::TicketMessages::REPLY
+        return {} if name == Api::TicketMessages::UNREAD_COUNT
 
-        {}
+        fields = { "id" => { description: Api::TicketMessages::TICKET_ID } }
+        fields["body"] = { description: Api::TicketMessages::BODY } if name == Api::TicketMessages::REPLY
+        fields
       end
     end
   end
