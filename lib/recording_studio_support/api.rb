@@ -27,6 +27,7 @@ require_relative "api/operation_titles"
 require_relative "api/operation_docs"
 require_relative "api/ticket_openapi"
 require_relative "api/ticket_type"
+require_relative "api/ticket_messages"
 
 module RecordingStudioSupport
   module Api
@@ -48,6 +49,7 @@ module RecordingStudioSupport
         Registration.register!
         Search.register!
         TicketType.register!
+        TicketMessages.register!
         register_openapi!(api: :public, types: [PAGE_TYPE])
         register_openapi!(api: Registration::OPERATIONS_API, types: [SECTION_TYPE, PAGE_TYPE])
         OperationDocs.apply_capability_titles!

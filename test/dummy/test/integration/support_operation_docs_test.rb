@@ -93,8 +93,10 @@ class SupportOperationDocsTest < ActiveSupport::TestCase
     page = RecordingStudioApi.recordable_registration_for(PAGE, api: :public)
     ticket = RecordingStudioApi.recordable_registration_for(TICKET, api: :public)
     endpoint = RecordingStudioApi.registered_endpoint(:search_support_pages, api: :public)
+    messages = RecordingStudioApi.registered_endpoint(:list_support_ticket_messages, api: :public)
     page_tag = ["Support Page"]
     ticket_tag = ["Support Ticket"]
+    messages_tag = ["Support Messages"]
 
     assert_equal %i[index show], page.operations
     assert_equal %i[create index show], ticket.operations
@@ -106,6 +108,8 @@ class SupportOperationDocsTest < ActiveSupport::TestCase
     assert_equal ticket_tag, ticket.openapi.fetch(:tags)
     assert_equal "Support Ticket", ticket.openapi.dig(:tag, :group)
     assert_equal ticket_tag, mcp_type_tags(:public, TICKET)
+    assert_equal messages_tag, messages.openapi_tags
+    assert_equal "Support Messages", messages.openapi.dig(:tag, :group)
     assert_equal ["Support"], mcp_type_tags(:operations, PAGE)
     assert_equal ["Support"], mcp_type_tags(:operations, TICKET)
 
@@ -117,6 +121,8 @@ class SupportOperationDocsTest < ActiveSupport::TestCase
     ticket_operations = public_ticket_operations(document)
     ticket_titles = ticket_operations.map { |_path, _verb, operation| operation[:title] }
     ticket_tags = ticket_operations.flat_map { |_path, _verb, operation| Array(operation[:tags]) }.uniq
+    message_operations = public_message_operations(document)
+    message_tags = message_operations.flat_map { |_path, _verb, operation| Array(operation[:tags]) }.uniq
 
     assert_equal page_tag, page_tags
     assert_includes page_titles, "List support pages"
@@ -127,6 +133,8 @@ class SupportOperationDocsTest < ActiveSupport::TestCase
     assert_includes ticket_titles, "List support tickets"
     assert_includes ticket_titles, "Show support ticket"
     assert_includes ticket_titles, "Open support ticket"
+    assert_equal messages_tag, message_tags
+    assert_equal 4, message_operations.size
     assert_equal SUPPORT, groups.fetch("Support Page")
     assert_equal "Support Ticket", groups.fetch("Support Ticket")
     refute_includes groups.keys, "Support"
@@ -179,6 +187,8 @@ class SupportOperationDocsTest < ActiveSupport::TestCase
       refute_match(/\A(Trash|Ticket) -/, title)
       if tags == [TRASH]
         assert_equal [TRASH], tags
+      elsif tags == ["Support Messages"]
+        assert_equal ["Support Messages"], tags
       else
         assert_equal SUPPORT, groups.fetch(tags.first)
       end
@@ -249,11 +259,29 @@ class SupportOperationDocsTest < ActiveSupport::TestCase
   def public_ticket_operations(document)
     document.fetch(:paths).flat_map do |path, verbs|
       next [] unless path.include?("/support_tickets")
+      next [] if message_path?(path)
 
       verbs.filter_map do |verb, operation|
         [path, verb, operation] if operation.is_a?(Hash)
       end
     end
+  end
+
+  def public_message_operations(document)
+    document.fetch(:paths).flat_map do |path, verbs|
+      next [] unless message_path?(path) || path.end_with?("/support_ticket_unread_count")
+
+      verbs.filter_map do |verb, operation|
+        [path, verb, operation] if operation.is_a?(Hash)
+      end
+    end
+  end
+
+  def message_path?(path)
+    path.include?("/support_ticket_messages") ||
+      path.include?("/support_ticket_reply") ||
+      path.include?("/support_ticket_mark_read") ||
+      path.end_with?("/support_ticket_unread_count")
   end
 
   def public_search_operation(document)

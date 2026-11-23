@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.38.6] - 2026-11-23
+
+Named MCP tools for Support, plus ticket-message API endpoints keyed by the ticket recording id.
+
+### Added
+- `RecordingStudioSupport::McpCopy` registers named MCP tools when the host loads Recording Studio MCP 0.45.2 (`register_tool` / `register_type`). The gem still does not depend on MCP. Hosts pass `RecordingStudioSupport::McpCopy.tool_names(api: :public)` or `api: :operations` into `include_tools`.
+- Public tools: `list_support_pages`, `show_support_page`, `search_support_pages`, `list_support_tickets`, `show_support_ticket`, `open_support_ticket`, plus the four Support Messages tools.
+- Operations tools: `list`/`show`/`create_support_center`; `list`/`show`/`create`/`update_support_section`; `list`/`show`/`create`/`update_support_page`; `move_support_page`, `publish_support_page`, `unpublish_support_page`; `list`/`show`/`update_support_ticket`; plus the same four Support Messages tools. Trash, restore, purge, and access grants stay on Trashable and Accessible.
+- Ticket message API on public and operations: `GET support_ticket_messages/:id`, `POST support_ticket_reply/:id`, `POST support_ticket_mark_read/:id`, `GET support_ticket_unread_count`. These wrap Messages `message_recordings`, `send_message`, `mark_read`, and `viewable_group_recordings`. They do not place the Messages `:support` preset. A requester reply reopens a resolved ticket through the existing after-record hook. The paths stay off `support_tickets/:id` because the API treats that prefix as the ticket resource.
+- MCP docs: Support types use named tools (`register_type` / `register_tool`). The four message tools use the OpenAPI group Support Messages. Public ticket list/show/open stay in the group Support Ticket.
+
+### Upgrade notes
+- Bump to `0.38.6`.
+- No Support migration.
+- Add Recording Studio MCP `~> 0.45.2` in the host if you want named Support tools, then `include_tools(*RecordingStudioSupport::McpCopy.tool_names(api: :public))` on the public server and the operations list on the operations server. Dummy does not pin MCP (it would force API, Admin, and Oauth floors this dummy is not on).
+- Ticket message routes are new: `GET support_ticket_messages/:id`, `POST support_ticket_reply/:id`, `POST support_ticket_mark_read/:id`, `GET support_ticket_unread_count`. They are not nested under `support_tickets/:id`, because the API treats that prefix as the ticket resource.
+
 ## [0.38.5] - 2026-11-18
 
 Help icons render as inline SVG from FlatPack 0.2.0. The section and page icon fields preview that SVG from the server.

@@ -1,5 +1,24 @@
 # Upgrade notes
 
+## 0.38.6
+
+Named MCP tools for Support. Ticket message API keyed by the ticket recording id.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.38.6`.
+2. No Support migration.
+3. Ticket routes for list, show, open, and update are unchanged. New routes: `GET …/support_ticket_messages/:id`, `POST …/support_ticket_reply/:id`, `POST …/support_ticket_mark_read/:id`, and `GET …/support_ticket_unread_count` on public and operations.
+4. Public ticket OpenAPI stays in the group Support Ticket. Message tools sit in Support Messages.
+5. Hosts that load Recording Studio MCP `~> 0.45.2` include `RecordingStudioSupport::McpCopy.tool_names(api: :public)` and `api: :operations`. Support does not gemspec-depend on MCP.
+
+### Verify
+
+```bash
+cd test/dummy && bundle exec rails test test/integration/support_ticket_messages_api_test.rb test/integration/support_operation_docs_test.rb test/integration/support_tickets_api_test.rb
+bundle exec rake test TEST=test/mcp_copy_test.rb
+```
+
 ## 0.38.5
 
 Help icons are inline SVG from FlatPack 0.2.0. The admin icon field asks the server for a new preview when the name changes.
