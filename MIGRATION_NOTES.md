@@ -1,5 +1,23 @@
 # Upgrade notes
 
+## 0.38.8
+
+`open_support_ticket` input lists `subject`, `body`, and `priority`. Operations MCP can close a ticket.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.38.8`.
+2. No Support migration. Re-pin the gem. No other host step.
+3. `priority` on open is `low`, `normal`, or `high`, from `SupportTicket::PRIORITIES`. Leave `parent_id` blank. MCP 0.45.2 still shows that field for a non-root create. Support files the ticket under the support centre.
+4. Operations tool `close_support_ticket` resolves a ticket. It is not on the public server. A requester reply still reopens a resolved ticket.
+
+### Verify
+
+```bash
+cd test/dummy && bundle exec rails test test/integration/support_tickets_api_test.rb
+bundle exec rake test TEST=test/mcp_copy_test.rb
+```
+
 ## 0.38.7
 
 Public ticket reply and mark-read declare `required_role: :view` so Recording Studio API 1.21.7 can boot.

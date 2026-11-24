@@ -4,7 +4,7 @@ require "test_helper"
 
 class RecordingStudioSupportTest < Minitest::Test
   def test_version_matches_release
-    assert_equal "0.38.7", ::RecordingStudioSupport::VERSION
+    assert_equal "0.38.8", ::RecordingStudioSupport::VERSION
   end
 
   def test_lockfiles_pin_this_gem_version
@@ -102,6 +102,7 @@ class RecordingStudioSupportTest < Minitest::Test
       /recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages
       /recording_studio_api/apis/operations/v1/support_pages
       /recording_studio_api/apis/operations/v1/support_pages/:id/actions/move
+      /recording_studio_api/apis/operations/v1/support_ticket_close/:id
       /recording_studio_api/apis/operations/v1/metrics/support_tickets/open
       /recording_studio_api/apis/operations/v1/metrics/support_pages/total
     ].each { |path| assert_includes reference, path }

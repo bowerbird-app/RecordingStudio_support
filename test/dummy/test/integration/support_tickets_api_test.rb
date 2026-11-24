@@ -104,6 +104,154 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
     assert_not_nil response.parsed_body["resolved_at"]
   end
 
+  test "open accepts subject and body and rejects a missing body" do
+    post "#{PUBLIC_ROOT}/support_tickets",
+         headers: auth(@patron_token),
+         params: { subject: "Crop note #{SecureRandom.hex(4)}", body: "The gate sticks." },
+         as: :json
+
+    assert_response :created
+    assert_equal "open", response.parsed_body.fetch("status")
+
+    before = RecordingStudioSupport::SupportTicket.count
+    post "#{PUBLIC_ROOT}/support_tickets",
+         headers: auth(@patron_token),
+         params: { subject: "No message #{SecureRandom.hex(4)}" },
+         as: :json
+
+    assert_response :unprocessable_entity
+    assert_equal before, RecordingStudioSupport::SupportTicket.count
+  end
+
+  test "open support ticket mcp input matches the open body" do
+    tools = []
+    recorder = Module.new
+    recorder.define_singleton_method(:register_tool) { |**kwargs| tools << kwargs }
+    recorder.define_singleton_method(:register_type) { |**| }
+    Object.const_set(:RecordingStudioMcp, recorder)
+    RecordingStudioSupport::McpCopy.register!
+
+    tool = tools.find { |entry| entry.fetch(:name) == "open_support_ticket" }
+    schema = RecordingStudioSupport::Api::TicketOpenapi.open_body.dig(:content, "application/json", :schema)
+    input = tool.fetch(:input)
+    required = schema.fetch(:required)
+    priorities = RecordingStudioSupport::SupportTicket::PRIORITIES
+
+    assert_equal %w[subject body priority], schema.fetch(:properties).keys.map(&:to_s)
+    refute schema.fetch(:properties).key?(:parent_id)
+    refute schema.fetch(:properties).key?("parent_id")
+    assert_equal %w[subject body], required
+    assert_equal required, input.select { |_name, meta| meta.fetch(:required) }.keys
+    assert_equal priorities, schema.dig(:properties, :priority, :enum)
+    assert_equal priorities, input.dig("priority", :enum)
+    refute input.fetch("priority").fetch(:required)
+    assert input.dig("subject", :required)
+    assert input.dig("body", :required)
+    assert_equal "string", input.dig("body", :type)
+    assert_includes tool.fetch(:description), priorities.join(", ")
+    assert_includes tool.fetch(:description), "Leave parent_id blank"
+    refute input.key?("parent_id")
+
+    close = tools.find { |entry| entry.fetch(:name) == "close_support_ticket" }
+    assert_equal :close_support_ticket, close.fetch(:endpoint)
+    assert_equal ["id"], close.fetch(:input).keys
+    refute_includes RecordingStudioSupport::McpCopy.tool_names(api: :public), "close_support_ticket"
+    assert_nil RecordingStudioApi.registered_endpoint(:close_support_ticket, api: :public)
+    assert RecordingStudioApi.registered_endpoint(:close_support_ticket, api: :operations)
+  ensure
+    Object.send(:remove_const, :RecordingStudioMcp) if Object.const_defined?(:RecordingStudioMcp, false)
+  end
+
+  test "staff can close a ticket and closing again changes nothing" do
+    ticket_id = open_ticket_via_api!
+
+    post "#{OPERATIONS_ROOT}/support_ticket_close/#{ticket_id}",
+         headers: auth(@editor_operations_token),
+         as: :json
+
+    assert_response :success
+    assert_equal "resolved", response.parsed_body.fetch("status")
+    resolved_at = response.parsed_body.fetch("resolved_at")
+    assert resolved_at.present?
+
+    post "#{OPERATIONS_ROOT}/support_ticket_close/#{ticket_id}",
+         headers: auth(@editor_operations_token),
+         as: :json
+
+    assert_response :success
+    assert_equal "resolved", response.parsed_body.fetch("status")
+    assert_equal resolved_at, response.parsed_body.fetch("resolved_at")
+  end
+
+  test "close then a requester reply reopens the ticket" do
+    ticket_id = open_ticket_via_api!
+    post "#{OPERATIONS_ROOT}/support_ticket_close/#{ticket_id}",
+         headers: auth(@editor_operations_token),
+         as: :json
+
+    assert_response :success
+
+    post "#{PUBLIC_ROOT}/support_ticket_reply/#{ticket_id}",
+         headers: auth(@patron_token),
+         params: { body: "It broke again." },
+         as: :json
+
+    assert_response :success
+
+    get "#{PUBLIC_ROOT}/support_tickets/#{ticket_id}", headers: auth(@patron_token), as: :json
+
+    assert_response :success
+    assert_equal "open", response.parsed_body.fetch("status")
+    assert_nil response.parsed_body["resolved_at"]
+  end
+
+  test "ticket owner who is not staff cannot close" do
+    ticket_id = open_ticket_via_api!
+
+    post "#{OPERATIONS_ROOT}/support_ticket_close/#{ticket_id}",
+         headers: auth(@patron_token),
+         as: :json
+
+    assert_includes [401, 403], response.status
+    assert_equal "open", ticket_status(ticket_id)
+  end
+
+  test "anonymous cannot close a ticket" do
+    ticket_id = open_ticket_via_api!
+
+    post "#{OPERATIONS_ROOT}/support_ticket_close/#{ticket_id}", as: :json
+
+    assert_response :unauthorized
+    assert_equal "open", ticket_status(ticket_id)
+  end
+
+  test "another signed in non staff user cannot close" do
+    ticket_id = open_ticket_via_api!
+
+    post "#{OPERATIONS_ROOT}/support_ticket_close/#{ticket_id}",
+         headers: auth(@stranger_token),
+         as: :json
+
+    assert_includes [401, 403], response.status
+
+    post "#{OPERATIONS_ROOT}/support_ticket_close/#{ticket_id}",
+         headers: auth(@viewer_operations_token),
+         as: :json
+
+    assert_response :forbidden
+    assert_equal "open", ticket_status(ticket_id)
+  end
+
+  test "public server does not register close support ticket" do
+    ticket_id = open_ticket_via_api!
+
+    post "#{PUBLIC_ROOT}/support_ticket_close/#{ticket_id}",
+         headers: auth(@patron_token),
+         as: :json
+
+    assert_response :not_found
+  end
+
   test "missing token is unauthorized on tickets" do
     get "#{PUBLIC_ROOT}/support_tickets", as: :json
 
@@ -285,6 +433,15 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
     yield
   ensure
     Current.actor = previous
+  end
+
+  def ticket_status(ticket_id)
+    get "#{OPERATIONS_ROOT}/support_tickets/#{ticket_id}",
+        headers: auth(@editor_operations_token),
+        as: :json
+
+    assert_response :success
+    response.parsed_body.fetch("status")
   end
 
   def open_ticket_via_api!(token: @patron_token)
