@@ -62,13 +62,22 @@ module RecordingStudioSupport
       end
 
       def register_handler(action, api:, handler:, owns_scoping: false, parent: nil)
-        return Registration.register_handler(TICKET_TYPE, action, api:, handler:, owns_scoping:) if parent.nil?
+        unless parent && server_parent_supported?
+          return Registration.register_handler(TICKET_TYPE, action, api:, handler:, owns_scoping:)
+        end
 
         return if RecordingStudioApi.resource_handler(TICKET_TYPE, action, api: api)
 
         RecordingStudioApi.register_resource_handler(
           TICKET_TYPE, action, api:, handler:, owns_scoping:, parent:
         )
+      end
+
+      def server_parent_supported?
+        return false unless defined?(RecordingStudioApi)
+        return false unless RecordingStudioApi.respond_to?(:register_resource_handler)
+
+        RecordingStudioApi.method(:register_resource_handler).parameters.any? { |_, name| name == :parent }
       end
     end
   end

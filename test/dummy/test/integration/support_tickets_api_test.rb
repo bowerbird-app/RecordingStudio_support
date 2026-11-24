@@ -162,6 +162,31 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
     assert_equal before, RecordingStudioSupport::SupportTicket.count
   end
 
+  test "older api registers ticket create without parent and keeps the blank parent note" do
+    recorded = nil
+    older_api = lambda do |type, action, api:, handler:, owns_scoping: false|
+      recorded = { type: type, action: action, api: api, handler: handler, owns_scoping: owns_scoping }
+    end
+
+    RecordingStudioSupport::Api::TicketType.stub(:server_parent_supported?, false) do
+      RecordingStudioApi.stub(:resource_handler, nil) do
+        RecordingStudioApi.stub(:register_resource_handler, older_api) do
+          RecordingStudioSupport::Api::TicketType.register_handler(
+            :create, api: :public, handler: RecordingStudioSupport::Api::TicketOpen, parent: :server
+          )
+        end
+      end
+      note = RecordingStudioSupport::McpCopy::TicketOperationCopy.create_note
+      assert_includes note, "Leave parent_id blank"
+    end
+
+    assert_equal "RecordingStudioSupport::SupportTicket", recorded.fetch(:type)
+    assert_equal :create, recorded.fetch(:action)
+    assert_equal :public, recorded.fetch(:api)
+    assert_equal RecordingStudioSupport::Api::TicketOpen, recorded.fetch(:handler)
+    refute recorded.key?(:parent)
+  end
+
   test "open support ticket mcp input matches the open body" do
     tools = []
     recorder = Module.new
@@ -189,6 +214,7 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
     assert_equal "string", input.dig("body", :type)
     assert_includes tool.fetch(:description), priorities.join(", ")
     refute_includes tool.fetch(:description), "parent_id"
+    refute_includes tool.fetch(:description), "Leave parent_id blank"
     refute input.key?("parent_id")
 
     close = tools.find { |entry| entry.fetch(:name) == "close_support_ticket" }

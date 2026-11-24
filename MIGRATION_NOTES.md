@@ -2,16 +2,12 @@
 
 ## 0.38.9
 
-Public open-ticket create no longer takes `parent_id`. The server files the ticket under the support centre.
+Public open-ticket create passes `parent: :server` when the loaded API accepts that keyword. An older API keeps the 0.38.8 registration and still boots.
 
 ### Host app
 
-1. Bump `recording_studio_support` to `0.38.9`.
-2. Hosts that load Recording Studio API must use `recording_studio_api` `>= 1.22.0`, `< 2.0` (tag `v1.22.0`). That gem requires Recording Studio `>= 7.7.0` and Accessible `>= 0.50.0`. When Admin is loaded, use Admin `>= 2.19.0`.
-3. Add `config/recording_studio_api.yml`. API 1.22 calls `config_for` and Rails raises when the file is missing.
-4. Run `bin/rails generate recording_studio_api:migrations` and migrate. The new migration adds nullable `owner_type` and `owner_id` on `recording_studio_api_api_clients`. There is no Support migration.
-5. Bump Notifications to `>= 0.19.5` and Users to `>= 0.33.0` when those gems register a non-GET endpoint with `scope_id: false` and no `required_role`. API 1.22 refuses to boot that shape. Dummy pins `v0.19.5` and `v0.33.0`.
-6. Open a ticket with `subject`, `body`, and optional `priority` (`low`, `normal`, or `high`). Do not send `parent_id`. Support files the ticket under the current SupportCenter. The conversation stays on that centre's `:support` mount.
+1. Bump `recording_studio_support` to `0.38.9`. No Support migration. A host that keeps its current `recording_studio_api` has no other step. Open a ticket the same way as 0.38.8: `subject`, `body`, and optional `priority` (`low`, `normal`, or `high`). Leave `parent_id` blank. The MCP open description still says so.
+2. Only if you upgrade `recording_studio_api` to 1.22.0 (`>= 1.22.0`, `< 2.0`): that gem requires Recording Studio `>= 7.7.0` and Accessible `>= 0.50.0`, and Admin `>= 2.19.0` when Admin is loaded. Add `config/recording_studio_api.yml`. API 1.22 calls `config_for` and Rails raises when the file is missing. Run `bin/rails generate recording_studio_api:migrations` and migrate. That migration adds nullable `owner_type` and `owner_id` on `recording_studio_api_api_clients`. Bump Notifications to `>= 0.19.5` and Users to `>= 0.33.0` when those gems register a non-GET endpoint with `scope_id: false` and no `required_role`. Dummy pins `v0.19.5` and `v0.33.0`. With that API, the create docs and the MCP input omit `parent_id`, and a sent `parent_id` is ignored. Support files the ticket under the current SupportCenter. The conversation stays on that centre's `:support` mount.
 
 ### Verify
 

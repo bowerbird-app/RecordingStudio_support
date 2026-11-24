@@ -6,7 +6,7 @@ Help pages sit in a section under SupportCenter. Each page has a title and a for
 
 ## Install
 
-Add the gem next to Recording Studio 7.7.0, Accessible 0.50.0, Admin 2.19.0, Attachable 0.31.0, Publishable 1.1.0, Messages 0.31.0, Search 0.14.0, and Flatpack 0.2.0. Those GitHub tags are the dummy-tested pins in `test/dummy/Gemfile.lock`. The constraint block below is the gemspec floor. GitHub hosting is not a reason to skip the gemspec pins. ViewComponent stays on `>= 4.14, < 5` (this repo locks `4.19.0`).
+Add the gem next to Recording Studio, Accessible, Admin, Attachable, Publishable, Messages, Search, and Flatpack. The tags in the first block are the dummy-tested pins in `test/dummy/Gemfile.lock` (Recording Studio 7.7.0, Accessible 0.50.0, Admin 2.19.0). Support 0.38.9 does not require those pins. The constraint block below is the gemspec floor. GitHub hosting is not a reason to skip the gemspec pins. ViewComponent stays on `>= 4.14, < 5` (this repo locks `4.19.0`).
 
 ```ruby
 # Gemfile
@@ -55,7 +55,7 @@ gem "recording_studio_notifications", ">= 0.18.0", "< 2.0"
 gem "recording_studio_notifications_email", ">= 0.5.4", "< 2.0"
 ```
 
-Pin the GitHub release tags above. Those releases accept Recording Studio 7, so this repo does not rewrite sibling gemspecs at Bundler load. Messages `v0.31.0` keeps the conversation header hooks Support uses for support-team Status. Hosts need Messages `>= 0.30.0` and Accessible `>= 0.44.0`. The support mount uses `access: :inherited`, and a customer reply notifies everyone with effective `:view`, including inherited access, and never the sender. Staff reach a ticket message group only through that inherited grant. They are not seated on the group. The ticket creator gets `:edit` on that one group. Attachable `v0.31.0`, Publishable `v1.1.0`, Notifications `v0.19.5`, and Users `v0.33.0` depend on API `>= 1.1.0`, `< 2.0`. The dummy Gemfile pins API `v1.22.0`. API 1.22 requires Recording Studio `>= 7.7.0` and Accessible `>= 0.50.0`, and Admin `>= 2.19.0` when Admin is loaded. Add `config/recording_studio_api.yml`. API 1.22 loads that file at boot and Rails raises when it is missing. API stays off the Support gemspec. Recording Studio 7 refuses writes unless the host sets `config.authorize_write`. `root_recording_for` only finds a root. Create one with `create_root_recording!(recordable, actor:)`. Dummy's callback allows the write because seeds and tests record help before Accessible grants exist. A production host checks the actor and the root. Copy Recording Studio's events migration so `recording_studio_events.root_recording_id` exists before writing events. Kept page, section, center, and ticket reads use `Recording.kept` and `RecordingStudio.kept_sql`. Trashable `v1.0.1` registers `:trashable` and no longer ships `kept_sql`. Admin `v2.18.0` resolves the admin root with `access_recording_resolver`. Root Switchable `v0.16.0` requires Accessible `:view` on the mounted switch page when a current root is selected.
+Pin the GitHub release tags above. Those releases accept Recording Studio 7, so this repo does not rewrite sibling gemspecs at Bundler load. Messages `v0.31.0` keeps the conversation header hooks Support uses for support-team Status. Hosts need Messages `>= 0.30.0` and Accessible `>= 0.44.0`. The support mount uses `access: :inherited`, and a customer reply notifies everyone with effective `:view`, including inherited access, and never the sender. Staff reach a ticket message group only through that inherited grant. They are not seated on the group. The ticket creator gets `:edit` on that one group. Attachable `v0.31.0`, Publishable `v1.1.0`, Notifications `v0.19.5`, and Users `v0.33.0` depend on API `>= 1.1.0`, `< 2.0`. The dummy Gemfile pins API `v1.22.0`. API stays off the Support gemspec. Support 0.38.9 boots on an older API: public ticket create passes `parent: :server` only when `register_resource_handler` accepts that keyword. Only if you upgrade `recording_studio_api` to 1.22, that release needs Recording Studio `>= 7.7.0`, Accessible `>= 0.50.0`, Admin `>= 2.19.0` when Admin is loaded, and `config/recording_studio_api.yml`. API 1.22 loads that file at boot and Rails raises when it is missing. Recording Studio 7 refuses writes unless the host sets `config.authorize_write`. `root_recording_for` only finds a root. Create one with `create_root_recording!(recordable, actor:)`. Dummy's callback allows the write because seeds and tests record help before Accessible grants exist. A production host checks the actor and the root. Copy Recording Studio's events migration so `recording_studio_events.root_recording_id` exists before writing events. Kept page, section, center, and ticket reads use `Recording.kept` and `RecordingStudio.kept_sql`. Trashable `v1.0.1` registers `:trashable` and no longer ships `kept_sql`. Admin `v2.18.0` resolves the admin root with `access_recording_resolver`. Root Switchable `v0.16.0` requires Accessible `:view` on the mounted switch page when a current root is selected.
 
 Then:
 
@@ -455,11 +455,11 @@ RecordingStudioMcp.register_server(:operations, api: :operations) do
 end
 ```
 
-`open_support_ticket` still creates the ticket, tagged conversation, and first message. Send `subject` and `body`. `priority` is optional: `low`, `normal`, or `high`. The input has no `parent_id`. Support files the ticket under the support centre. Later replies use `reply_to_support_ticket` with that ticket recording id. Operations servers also get `close_support_ticket`, which resolves that ticket. It is not on the public server. Dummy does not pin MCP.
+`open_support_ticket` still creates the ticket, tagged conversation, and first message. Send `subject` and `body`. `priority` is optional: `low`, `normal`, or `high`. On API 1.22 the input has no `parent_id` and a sent `parent_id` is ignored. On an older API the description still says to leave `parent_id` blank. Support files the ticket under the support centre. Later replies use `reply_to_support_ticket` with that ticket recording id. Operations servers also get `close_support_ticket`, which resolves that ticket. It is not on the public server. Dummy does not pin MCP.
 
 Do not add a Support `ApiController`. Domain writes stay `Pages` / `Sections` / `Tickets`. Public anonymous browse stays `/help`.
 
-Host sketch:
+Dummy pin. Optional. API 1.22 drops `parent_id` from public ticket open. An older API still boots.
 
 ```ruby
 gem "recording_studio_api", ">= 1.22.0", "< 2.0", github: "bowerbird-app/RecordingStudio_api", tag: "v1.22.0"
@@ -527,7 +527,7 @@ Dummy kit pins:
 | Views | `v0.14.0` |
 | Metrics | `v0.9.0` |
 | Cache | `v0.7.0` (dummy only; Users and Root Switchable rate limiting) |
-| API | `v1.22.0` (dummy pin `>= 1.22.0`, `< 2.0`; not a Support gemspec dependency). Needs Recording Studio `>= 7.7.0`, Accessible `>= 0.50.0`, and `config/recording_studio_api.yml`. |
+| API | `v1.22.0` (dummy pin `>= 1.22.0`, `< 2.0`; not a Support gemspec dependency). Optional. On 1.22, public ticket create omits `parent_id`. That release needs Recording Studio `>= 7.7.0`, Accessible `>= 0.50.0`, and `config/recording_studio_api.yml`. |
 | Internationalization | `v0.3.0` (dummy only; not a Support gemspec dependency) |
 | FlatPack | `0.2.0` |
 | ViewComponent | `4.19.0` |
