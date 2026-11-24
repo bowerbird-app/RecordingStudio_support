@@ -104,6 +104,45 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
     assert_not_nil response.parsed_body["resolved_at"]
   end
 
+  test "public create docs omit parent_id and a sent parent_id is ignored" do
+    endpoint = public_ticket_create_endpoint
+    schema = endpoint.dig(:openapi, :request_body, :content, "application/json", :schema)
+    properties = schema.fetch(:properties)
+    priorities = RecordingStudioSupport::SupportTicket::PRIORITIES
+
+    refute properties.key?(:parent_id)
+    refute properties.key?("parent_id")
+    assert_equal "server", endpoint[:parent]
+    assert_equal %w[subject body], Array(schema[:required]).map(&:to_s)
+    assert_equal priorities, (properties.dig(:priority, :enum) || properties.dig("priority", "enum"))
+
+    document = RecordingStudioApi::Services::OpenapiDocument.call
+    operation = document.dig(:paths, "/recording_studio_api/api/v1/support_tickets", "post")
+    assert_equal "server", operation[:"x-parent"] || operation["x-parent"]
+    document_schema = operation.dig(:requestBody, :content, "application/json", :schema)
+    refute document_schema.fetch(:properties).key?(:parent_id)
+    refute document_schema.fetch(:properties).key?("parent_id")
+
+    other = Workspace.create!(name: "Other ticket parent #{SecureRandom.hex(4)}")
+    other_root = RecordingStudio.create_root_recording!(other, actor: @support_user)
+    subject = "Stray parent #{SecureRandom.hex(4)}"
+
+    post "#{PUBLIC_ROOT}/support_tickets",
+         headers: auth(@patron_token),
+         params: { subject: subject, body: "Ignore the other workspace.", parent_id: other_root.id },
+         as: :json
+
+    assert_response :created
+    ticket = RecordingStudio::Recording.find(response.parsed_body.fetch("id"))
+    assert_equal @center.id, ticket.parent_recording_id
+    refute_equal other_root.id, ticket.parent_recording_id
+    assert_equal "RecordingStudioSupport::SupportCenter", ticket.parent_recording.recordable_type
+
+    mount = RecordingStudioSupport::Messages.ensure_message_mount(actor: @support_user)
+    group = RecordingStudioSupport::Tickets.group_recording_for(ticket.recordable)
+    assert_equal mount.id, group.parent_recording_id
+  end
+
   test "open accepts subject and body and rejects a missing body" do
     post "#{PUBLIC_ROOT}/support_tickets",
          headers: auth(@patron_token),
@@ -121,6 +160,31 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
 
     assert_response :unprocessable_entity
     assert_equal before, RecordingStudioSupport::SupportTicket.count
+  end
+
+  test "older api registers ticket create without parent and keeps the blank parent note" do
+    recorded = nil
+    older_api = lambda do |type, action, api:, handler:, owns_scoping: false|
+      recorded = { type: type, action: action, api: api, handler: handler, owns_scoping: owns_scoping }
+    end
+
+    RecordingStudioSupport::Api::TicketType.stub(:server_parent_supported?, false) do
+      RecordingStudioApi.stub(:resource_handler, nil) do
+        RecordingStudioApi.stub(:register_resource_handler, older_api) do
+          RecordingStudioSupport::Api::TicketType.register_handler(
+            :create, api: :public, handler: RecordingStudioSupport::Api::TicketOpen, parent: :server
+          )
+        end
+      end
+      note = RecordingStudioSupport::McpCopy::TicketOperationCopy.create_note
+      assert_includes note, "Leave parent_id blank"
+    end
+
+    assert_equal "RecordingStudioSupport::SupportTicket", recorded.fetch(:type)
+    assert_equal :create, recorded.fetch(:action)
+    assert_equal :public, recorded.fetch(:api)
+    assert_equal RecordingStudioSupport::Api::TicketOpen, recorded.fetch(:handler)
+    refute recorded.key?(:parent)
   end
 
   test "open support ticket mcp input matches the open body" do
@@ -149,7 +213,8 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
     assert input.dig("body", :required)
     assert_equal "string", input.dig("body", :type)
     assert_includes tool.fetch(:description), priorities.join(", ")
-    assert_includes tool.fetch(:description), "Leave parent_id blank"
+    refute_includes tool.fetch(:description), "parent_id"
+    refute_includes tool.fetch(:description), "Leave parent_id blank"
     refute input.key?("parent_id")
 
     close = tools.find { |entry| entry.fetch(:name) == "close_support_ticket" }
@@ -483,6 +548,13 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
   def truthy_meta?(meta, key)
     value = meta[key] || meta[key.to_sym]
     value == true || value == "true"
+  end
+
+  def public_ticket_create_endpoint
+    section = RecordingStudioApi::Services::DocumentationCatalog.call
+                                                                .fetch(:resources)
+                                                                .find { |resource| resource.fetch(:resource) == "support_tickets" }
+    section.fetch(:endpoints).find { |endpoint| endpoint.fetch(:action) == "resources#create" }
   end
 
   def auth(token)

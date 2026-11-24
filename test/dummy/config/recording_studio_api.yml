@@ -1,0 +1,12 @@
+# API 1.22 loads this file at boot. Rails raises when it is missing.
+shared:
+  timeout: 5
+
+development:
+  timeout: 5
+
+test:
+  timeout: 5
+
+production:
+  timeout: 5
