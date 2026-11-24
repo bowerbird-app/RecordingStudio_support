@@ -2,9 +2,9 @@
 
 How a host, person, or AI agent talks to Support sections and pages over **Recording Studio API**. Public anonymous browse stays `/help`. This surface is authenticated.
 
-Support does **not** gemspec-depend on `recording_studio_api`. Add that gem in the **host** (floor `>= 1.1.0`, `< 2.0`, dummy pins `v1.2.1`). If the constant is missing, Support boots with no JSON routes.
+Support does **not** gemspec-depend on `recording_studio_api`. Add that gem in the **host** (floor `>= 1.22.0`, `< 2.0`, dummy pins `v1.22.0`). If the constant is missing, Support boots with no JSON routes. API 1.22 requires Recording Studio `>= 7.7.0` and Accessible `>= 0.50.0`. Add `config/recording_studio_api.yml`. Rails raises at boot when that file is missing.
 
-API refuses a registered path that captures `:id` unless that endpoint passes `recordable_type` or `scope_id: false`. Recording Studio API 1.21.7 also refuses to boot when a non-GET endpoint sets `scope_id: false` and omits `required_role`. Public reply and mark-read pass `required_role: :view`, the same role as `access_grant.authorize!` on the grant scope. GET `support_ticket_messages/:id` is exempt. `GET support_ticket_unread_count` does not set `scope_id: false`. Operations message routes pass `recordable_type` and leave `scope_id` unset. Messages `v0.31.0` declares the conversation recordable type, so send, read, rename, and mark-read scope the message group. Notifications `v0.19.1` and Users `v0.32.0` pass `scope_id: false` because those ids are notification rows and user rows. The dummy initializer `recording_studio_api_sibling_scope.rb` still passes `scope_id: false` for any of those endpoint names that arrive without either declaration. Support's own page and ticket routes are resource handlers. They do not use that initializer.
+API refuses a registered path that captures `:id` unless that endpoint passes `recordable_type` or `scope_id: false`. Recording Studio API 1.21.7 also refuses to boot when a non-GET endpoint sets `scope_id: false` and omits `required_role`. Public reply and mark-read pass `required_role: :view`, the same role as `access_grant.authorize!` on the grant scope. GET `support_ticket_messages/:id` is exempt. `GET support_ticket_unread_count` does not set `scope_id: false`. Operations message routes pass `recordable_type` and leave `scope_id` unset. Messages `v0.31.0` declares the conversation recordable type, so send, read, rename, and mark-read scope the message group. Notifications `v0.19.5` and Users `v0.33.0` pass `scope_id: false` and `required_role` because those ids are notification rows and user rows. API 1.22 refuses to boot a non-GET endpoint that sets `scope_id: false` and omits `required_role`. The dummy initializer `recording_studio_api_sibling_scope.rb` still passes `scope_id: false` for any of those endpoint names that arrive without either declaration. Support's own page and ticket routes are resource handlers. They do not use that initializer.
 
 Support **does** depend on `recording_studio_metrics` and registers site-wide Support metrics. The host calls `RecordingStudioMetrics::Api.register!(api: :operations)` once.
 
@@ -13,7 +13,7 @@ Do not add a Support `ApiController`. Writes go through `Pages` / `Sections`. Ac
 ## Install (host)
 
 ```ruby
-gem "recording_studio_api", ">= 1.1.0", "< 2.0", github: "bowerbird-app/RecordingStudio_api", tag: "v1.2.1"
+gem "recording_studio_api", ">= 1.22.0", "< 2.0", github: "bowerbird-app/RecordingStudio_api", tag: "v1.22.0"
 ```
 
 ```bash
@@ -155,7 +155,7 @@ Sections serialize `title`, `slug`, `icon`. Writable: `title`, `icon`. Slug is S
 
 Pages serialize `title`, `description`, `icon`, `body`. Writable: those four. Body is sanitized (`Body.sanitize`).
 
-Tickets serialize `subject`, `status`, `priority`, `resolved_at`. Public writable on open: `subject`, `body`, `priority`. `subject` and `body` are required. `priority` is optional and must be one of `SupportTicket::PRIORITIES` (`low`, `normal`, `high`). The open body Support registers does not take `parent_id`. Support files the ticket under the support centre. Recording Studio API 1.2.1 still adds `parent_id` to the published create schema. Leave it blank. Operations writable on update: `status`, `priority`. Close takes the ticket id only. Status: `open`, `resolved`. Priority: `low`, `normal`, `high`.
+Tickets serialize `subject`, `status`, `priority`, `resolved_at`. Public writable on open: `subject`, `body`, `priority`. `subject` and `body` are required. `priority` is optional and must be one of `SupportTicket::PRIORITIES` (`low`, `normal`, `high`). Public create registers `parent: :server`, so the published create schema, catalog, and MCP input do not include `parent_id`. A sent `parent_id` is ignored. Support files the ticket under the support centre. Operations writable on update: `status`, `priority`. Close takes the ticket id only. Status: `open`, `resolved`. Priority: `low`, `normal`, `high`.
 
 Recording Studio API also returns recording ids, type, and relationship metadata on each record.
 

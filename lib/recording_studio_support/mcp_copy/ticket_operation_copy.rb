@@ -23,7 +23,7 @@ module RecordingStudioSupport
       def create_note
         "Pass subject and body at the root, not nested under attributes. body is the first message. " \
           "priority is optional (#{SupportTicket::PRIORITIES.join(', ')}). " \
-          "Leave parent_id blank. Support files the ticket under the support centre. " \
+          "Support files the ticket under the support centre. " \
           "This also creates the conversation and posts that first message. " \
           "Later replies use reply_to_support_ticket."
       end

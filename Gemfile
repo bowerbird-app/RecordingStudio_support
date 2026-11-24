@@ -7,12 +7,12 @@ gemspec
 
 # These gems are not published to RubyGems; resolve the gemspec pins from GitHub.
 gem "flat_pack", ">= 0.2.0", "< 1.0", github: "bowerbird-app/flatpack", tag: "v0.2.0"
-gem "recording_studio", ">= 7.0", "< 8.0", github: "bowerbird-app/RecordingStudio", tag: "v7.0.0"
-gem "recording_studio_accessible", ">= 0.44.0", "< 1.0",
-    github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.44.0"
-gem "recording_studio_admin", ">= 2.16.0", "< 3.0", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.16.0"
-gem "recording_studio_attachable", ">= 0.28.0", "< 1.0",
-    github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.28.0"
+gem "recording_studio", ">= 7.0", "< 8.0", github: "bowerbird-app/RecordingStudio", tag: "v7.7.0"
+gem "recording_studio_accessible", ">= 0.50.0", "< 1.0",
+    github: "bowerbird-app/RecordingStudio_accessible", tag: "v0.50.0"
+gem "recording_studio_admin", ">= 2.19.0", "< 3.0", github: "bowerbird-app/RecordingStudio_admin", tag: "v2.19.0"
+gem "recording_studio_attachable", ">= 0.31.0", "< 1.0",
+    github: "bowerbird-app/RecordingStudio_attachable", tag: "v0.31.0"
 gem "recording_studio_icons", github: "bowerbird-app/RecordingStudio_icons", tag: "v0.2.1"
 gem "recording_studio_logs", ">= 0.8.0", "< 1.0", github: "bowerbird-app/RecordingStudio_logs", tag: "v0.8.0"
 gem "recording_studio_messages", ">= 0.30.0", "< 1.0", github: "bowerbird-app/RecordingStudio_messages", tag: "v0.30.0"
@@ -24,14 +24,15 @@ gem "recording_studio_notifications_email", ">= 0.5.4", "< 1.0",
     github: "bowerbird-app/RecordingStudio_notifications_email", tag: "v0.5.4"
 gem "recording_studio_orderable", ">= 0.10.0", "< 1.0",
     github: "bowerbird-app/RecordingStudio_orderable", tag: "v0.10.0"
-gem "recording_studio_publishable", ">= 0.18.1", "< 1.0",
-    github: "bowerbird-app/RecordingStudio_publishable", tag: "v0.18.1"
+gem "recording_studio_publishable", ">= 1.1.0", "< 2.0",
+    github: "bowerbird-app/RecordingStudio_publishable", tag: "v1.1.0"
 gem "recording_studio_search", ">= 0.14.0", "< 1.0", github: "bowerbird-app/RecordingStudio_search", tag: "v0.14.0"
 gem "recording_studio_trashable", ">= 0.17.0", "< 1.0",
     github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.17.0"
 gem "recording_studio_views", ">= 0.14.0", "< 1.0", github: "bowerbird-app/RecordingStudio_views", tag: "v0.14.0"
-# Attachable 0.28 and Publishable 0.18 depend on API. Not a Support gemspec dependency.
-gem "recording_studio_api", ">= 0.26.0", "< 1.0", github: "bowerbird-app/RecordingStudio_api", tag: "v0.26.0"
+# Attachable 0.31 and Publishable 1.1 depend on API. Not a Support gemspec dependency.
+# API 1.22 needs Recording Studio >= 7.7 and Accessible >= 0.50.
+gem "recording_studio_api", ">= 1.22.0", "< 2.0", github: "bowerbird-app/RecordingStudio_api", tag: "v1.22.0"
 gem "view_component", "4.19.0"
 
 gem "devise"

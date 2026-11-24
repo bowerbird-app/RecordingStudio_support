@@ -30,7 +30,7 @@ module RecordingStudioSupport
         )
         register_handler(:index, api: :public, handler: TicketIndex)
         register_handler(:show, api: :public, handler: TicketShow, owns_scoping: true)
-        register_handler(:create, api: :public, handler: TicketOpen)
+        register_handler(:create, api: :public, handler: TicketOpen, parent: :server)
       end
 
       def register_operations!
@@ -61,13 +61,13 @@ module RecordingStudioSupport
         options
       end
 
-      def register_handler(action, api:, handler:, owns_scoping: false)
-        Registration.register_handler(
-          TICKET_TYPE,
-          action,
-          api: api,
-          handler: handler,
-          owns_scoping: owns_scoping
+      def register_handler(action, api:, handler:, owns_scoping: false, parent: nil)
+        return Registration.register_handler(TICKET_TYPE, action, api:, handler:, owns_scoping:) if parent.nil?
+
+        return if RecordingStudioApi.resource_handler(TICKET_TYPE, action, api: api)
+
+        RecordingStudioApi.register_resource_handler(
+          TICKET_TYPE, action, api:, handler:, owns_scoping:, parent:
         )
       end
     end

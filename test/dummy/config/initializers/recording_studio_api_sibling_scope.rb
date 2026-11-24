@@ -1,9 +1,10 @@
 # frozen_string_literal: true
 
 # API 0.26 refuses a path that captures :id unless the endpoint passes
-# recordable_type or scope_id: false. Notifications, Messages, and Users
-# still register those paths and resolve the id themselves. Those ids are
-# not Support recordings. Declare scope_id: false until those gems do.
+# recordable_type or scope_id: false. API 1.22 also refuses a non-GET
+# endpoint that sets scope_id: false and omits required_role. Notifications
+# 0.19.5 and Users 0.33 set required_role. This wrapper still marks sibling
+# ids that are not recordings when a gem has not declared a scope.
 module RecordingStudioApiSiblingScope
   module_function
 

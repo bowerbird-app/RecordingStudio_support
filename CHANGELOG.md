@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.38.9] - 2026-11-24
+
+Public open-ticket create no longer asks for `parent_id`. The server files the ticket under the support centre.
+
+### Fixed
+- Public `SupportTicket` create registers with `parent: :server`. The documentation catalog, the OpenAPI create schema, and the MCP `open_support_ticket` input list `subject`, `body`, and optional `priority` (`low`, `normal`, `high`). A sent `parent_id` is ignored. `TicketOpen` still calls `Tickets.open!`, which parents the ticket on the current SupportCenter. The conversation stays on that centre's `:support` mount.
+
+### Changed
+- Development and dummy bundles pin Recording Studio API `v1.22.0` (`>= 1.22.0`, `< 2.0`). API stays off the Support gemspec.
+- API 1.22 requires Recording Studio `>= 7.7.0`, Accessible `>= 0.50.0`, and Admin `>= 2.19.0` when Admin is loaded. Dummy pins those tags. The development bundle also pins Attachable `v0.31.0` and Publishable `v1.1.0`, because `v0.28.0` and `v0.18.1` require API `< 1.0`.
+- Dummy pins Notifications `v0.19.5` and Users `v0.33.0`. API 1.22 refuses to boot a non-GET endpoint that sets `scope_id: false` and omits `required_role`. Those tags set the role. Notifications `0.19.1` and Users `0.32.0` do not.
+- Dummy adds `config/recording_studio_api.yml`. API 1.22 calls `config_for` and Rails raises when that file is missing.
+- Dummy copies API migration `add_owner_to_recording_studio_api_api_clients`. It adds nullable `owner_type` and `owner_id` on `recording_studio_api_api_clients`.
+
+### Upgrade notes
+- Bump to `0.38.9`.
+- Hosts that load Recording Studio API must use `recording_studio_api` `>= 1.22.0`, `< 2.0` (tag `v1.22.0`). That gem requires Recording Studio `>= 7.7.0` and Accessible `>= 0.50.0`. When Admin is loaded, use Admin `>= 2.19.0`.
+- Add `config/recording_studio_api.yml`. A missing file raises at boot.
+- Run `bin/rails generate recording_studio_api:migrations` and migrate. The new migration adds the owner columns above. There is no Support migration.
+- Bump Notifications to `>= 0.19.5` and Users to `>= 0.33.0` if those gems still register a non-GET endpoint with `scope_id: false` and no `required_role`.
+- Do not send `parent_id` when opening a ticket. Support files it under the current SupportCenter.
+
 ## [0.38.8] - 2026-11-24
 
 MCP open-ticket input matches the server, and operations can close a ticket.
