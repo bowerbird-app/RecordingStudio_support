@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.38.8] - 2026-11-24
+
+MCP open-ticket input matches the server, and operations can close a ticket.
+
+### Fixed
+- `open_support_ticket` registers an input schema with `subject` and `body` required and `priority` optional. `priority` is the `SupportTicket::PRIORITIES` enum (`low`, `normal`, `high`). The schema does not include `parent_id`. The tool description says to leave `parent_id` blank, because Recording Studio MCP 0.45.2 still adds that field for a non-root create.
+- The public ticket open body uses that same enum. The body Support registers does not list `parent_id`. Recording Studio API 1.2.1 still inserts `parent_id` into the published create schema.
+
+### Added
+- Operations MCP tool `close_support_ticket`. It takes the ticket recording id and resolves the ticket through `Tickets.update!`, the same write as `update_support_ticket`. Staff need Accessible `:edit` on the SupportCenter. Closing a resolved ticket returns the ticket unchanged. A later requester reply still reopens it. The tool is not on the public server.
+
+### Upgrade notes
+- Bump to `0.38.8`.
+- No Support migration. Re-pin the gem. No other host step.
+- Operations MCP servers that include `RecordingStudioSupport::McpCopy.tool_names(api: :operations)` gain `close_support_ticket`. Public tool lists are unchanged.
+- `POST /recording_studio_api/apis/operations/v1/support_ticket_close/:id` is the operations endpoint that tool calls. It is not on the public API.
+
 ## [0.38.7] - 2026-11-23
 
 Public ticket reply and mark-read declare `required_role: :view` so a host on Recording Studio API 1.21.7 can boot.

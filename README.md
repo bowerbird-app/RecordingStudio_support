@@ -455,7 +455,7 @@ RecordingStudioMcp.register_server(:operations, api: :operations) do
 end
 ```
 
-`open_support_ticket` still creates the ticket, tagged conversation, and first message. Later replies use `reply_to_support_ticket` with that ticket recording id. Dummy does not pin MCP.
+`open_support_ticket` still creates the ticket, tagged conversation, and first message. Send `subject` and `body`. `priority` is optional: `low`, `normal`, or `high`. Leave `parent_id` blank. Support files the ticket under the support centre. Later replies use `reply_to_support_ticket` with that ticket recording id. Operations servers also get `close_support_ticket`, which resolves that ticket. It is not on the public server. Dummy does not pin MCP.
 
 Do not add a Support `ApiController`. Domain writes stay `Pages` / `Sections` / `Tickets`. Public anonymous browse stays `/help`.
 

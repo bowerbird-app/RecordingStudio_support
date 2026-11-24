@@ -31,6 +31,7 @@ class McpCopyTest < Minitest::Test
     list_support_tickets
     show_support_ticket
     update_support_ticket
+    close_support_ticket
     move_support_page
     publish_support_page
     unpublish_support_page
@@ -50,6 +51,7 @@ class McpCopyTest < Minitest::Test
     assert_equal OPERATIONS_TOOLS, RecordingStudioSupport::McpCopy.tool_names(api: :operations)
     refute_includes RecordingStudioSupport::McpCopy.tool_names(api: :public), "create_support_page"
     refute_includes RecordingStudioSupport::McpCopy.tool_names(api: :public), "update_support_ticket"
+    refute_includes RecordingStudioSupport::McpCopy.tool_names(api: :public), "close_support_ticket"
     refute_includes RecordingStudioSupport::McpCopy.tool_names, "trash_support_page"
     refute_includes RecordingStudioSupport::McpCopy.tool_names, "restore_support_page"
     refute_includes RecordingStudioSupport::McpCopy.tool_names, "purge_support_page"
@@ -61,8 +63,9 @@ class McpCopyTest < Minitest::Test
     type = File.read(File.expand_path("../lib/recording_studio_support/mcp_copy/type_descriptions.rb", __dir__))
     operations_path = "../lib/recording_studio_support/mcp_copy/operation_descriptions.rb"
     operations = File.read(File.expand_path(operations_path, __dir__))
+    tickets = File.read(File.expand_path("../lib/recording_studio_support/mcp_copy/ticket_operation_copy.rb", __dir__))
     messages = File.read(File.expand_path("../lib/recording_studio_support/api/ticket_messages/copy.rb", __dir__))
-    [type, operations, messages].each do |text|
+    [type, operations, tickets, messages].each do |text|
       refute_match(/\bAccess(ible)?\b/, text)
       refute_match(/\b(view|edit|admin) grant\b/i, text)
       refute_includes text, "operations token"

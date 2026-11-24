@@ -11,6 +11,7 @@ module RecordingStudioSupport
         register_named_actions
         register_search
         register_message_tools
+        register_close_tool
       end
 
       def register_types
@@ -55,8 +56,44 @@ module RecordingStudioSupport
           name: McpCopy.tool_name(type, verb), type: type, **target,
           title: OperationDescriptions.title_for(type, verb),
           description: OperationDescriptions.description_for(type, verb),
-          input: {}, output: OperationDescriptions.output_for(type, verb)
+          input: tool_input(type, verb), output: OperationDescriptions.output_for(type, verb)
         )
+      end
+
+      def register_close_tool
+        ::RecordingStudioMcp.register_tool(
+          name: CLOSE, endpoint: Api::TicketClose::NAME,
+          title: TicketOperationCopy.close_title,
+          description: TicketOperationCopy.close_description,
+          input: { "id" => { description: Api::TicketMessages::TICKET_ID } },
+          output: "The support ticket after it is resolved."
+        )
+      end
+
+      def tool_input(type, verb)
+        return open_ticket_input if type.to_s == TICKET && verb.to_sym == :create
+
+        {}
+      end
+
+      def open_ticket_input
+        schema = Api::TicketOpenapi.open_body.dig(:content, "application/json", :schema)
+        required = Array(schema.fetch(:required)).map(&:to_s)
+        schema.fetch(:properties).to_h { |name, property| [name.to_s, input_field(property, required, name)] }
+      end
+
+      def input_field(property, required, name)
+        field = input_field_base(property, required, name)
+        field[:enum] = property[:enum] if property[:enum]
+        field
+      end
+
+      def input_field_base(property, required, name)
+        {
+          type: property.fetch(:type),
+          required: required.include?(name.to_s),
+          description: property.fetch(:description)
+        }
       end
 
       def message_input(name)

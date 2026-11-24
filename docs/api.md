@@ -32,7 +32,7 @@ Live OpenAPI (Scalar) is optional and owned by the API gem. Generate it in the h
 
 Capability actions on the operations API set a per-type title. Pages: Move support page, Publish support page, Unpublish support page, Update support page publishing. Sections: Reorder support section, Move page in support section. Centers: List support center access, Grant support center access, Update support center access, Revoke support center access. Trash actions (trash, restore, purge, list) use the group Support Trash and titles such as Trash support page, Restore support page, Trash support section, Purge support trash, and List support trash. Publish support page and Unpublish support page are Support's own titles, so a shared Publish press kit title on the capability action does not replace them. The public API does not register those actions.
 
-Recording Studio MCP 0.45.2 named tools come from `RecordingStudioSupport::McpCopy`. Hosts that load MCP call `include_tools(*RecordingStudioSupport::McpCopy.tool_names(api: :public))` on the public server and the operations list on the operations server. Support does not gemspec-depend on MCP. Named typed tools sit under the Support type tags. The four ticket-message tools sit under Support Messages. Trash, restore, purge, and access grants stay on Trashable and Accessible; this gem does not register those names. Capability OpenAPI still sets per-type titles and `tag_suffix` Trash for operations trash actions. Public search stays `search_support_pages`.
+Recording Studio MCP 0.45.2 named tools come from `RecordingStudioSupport::McpCopy`. Hosts that load MCP call `include_tools(*RecordingStudioSupport::McpCopy.tool_names(api: :public))` on the public server and the operations list on the operations server. Support does not gemspec-depend on MCP. Named typed tools sit under the Support type tags. The four ticket-message tools sit under Support Messages. Operations also includes `close_support_ticket`. That name is not on the public server. Trash, restore, purge, and access grants stay on Trashable and Accessible; this gem does not register those names. Capability OpenAPI still sets per-type titles and `tag_suffix` Trash for operations trash actions. Public search stays `search_support_pages`.
 
 Recording Studio API 1.2.1 files a tag that is not a resource name under the Scalar folder API. Support Trash and Support Messages are that kind of tag. The four message operations still share one tag. Nested section page routes keep the API gem's own summaries.
 
@@ -103,6 +103,7 @@ Public `support_sections` list/show and nested section-pages are not registered 
 | `GET` | `/recording_studio_api/apis/operations/v1/support_tickets` | SupportCenter `:edit` | List current tickets (`Tickets.current`) |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_tickets/:id` | SupportCenter `:edit` | One ticket (`Tickets.find!`) |
 | `PATCH` | `/recording_studio_api/apis/operations/v1/support_tickets/:id` | SupportCenter `:edit` | `status` (`open`, `resolved`) and/or `priority` (`low`, `normal`, `high`) via `Tickets.update!` |
+| `POST` | `/recording_studio_api/apis/operations/v1/support_ticket_close/:id` | SupportCenter `:edit` | Resolve that ticket through `Tickets.update!`. Already resolved is unchanged. Not on the public API. MCP name `close_support_ticket` |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_ticket_messages/:id` | SupportCenter `:edit`, then Accessible `:view` on the conversation | Same ticket-keyed message list as public |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_ticket_reply/:id` | SupportCenter `:edit`, then Accessible `:edit` on the conversation | Staff reply. Does not reopen a resolved ticket |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_ticket_mark_read/:id` | SupportCenter `:edit` | Marks that conversation read for the grant actor |
@@ -154,7 +155,7 @@ Sections serialize `title`, `slug`, `icon`. Writable: `title`, `icon`. Slug is S
 
 Pages serialize `title`, `description`, `icon`, `body`. Writable: those four. Body is sanitized (`Body.sanitize`).
 
-Tickets serialize `subject`, `status`, `priority`, `resolved_at`. Public writable on open: `subject`, `body`, `priority`. Operations writable on update: `status`, `priority`. Status: `open`, `resolved`. Priority: `low`, `normal`, `high`.
+Tickets serialize `subject`, `status`, `priority`, `resolved_at`. Public writable on open: `subject`, `body`, `priority`. `subject` and `body` are required. `priority` is optional and must be one of `SupportTicket::PRIORITIES` (`low`, `normal`, `high`). The open body Support registers does not take `parent_id`. Support files the ticket under the support centre. Recording Studio API 1.2.1 still adds `parent_id` to the published create schema. Leave it blank. Operations writable on update: `status`, `priority`. Close takes the ticket id only. Status: `open`, `resolved`. Priority: `low`, `normal`, `high`.
 
 Recording Studio API also returns recording ids, type, and relationship metadata on each record.
 

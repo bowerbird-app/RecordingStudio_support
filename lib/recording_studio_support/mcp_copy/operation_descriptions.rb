@@ -12,11 +12,7 @@ module RecordingStudioSupport
         "RecordingStudioSupport::SupportPage" =>
           "Pass parent_id as the SupportSection recording id from list_support_sections. " \
           "Send title at the root, not nested under attributes. body, description, and icon are optional. " \
-          "Publish with publish_support_page so people can read it.",
-        "RecordingStudioSupport::SupportTicket" =>
-          "Pass subject and body at the root, not nested under attributes. body is the first message. " \
-          "priority is optional (low, normal, or high). This also creates the conversation and posts " \
-          "that first message. Later replies use reply_to_support_ticket."
+          "Publish with publish_support_page so people can read it."
       }.freeze
 
       UPDATE_NOTES = {
@@ -24,10 +20,7 @@ module RecordingStudioSupport
           "Pass the section recording id. Send title or icon at the root, not nested under attributes.",
         "RecordingStudioSupport::SupportPage" =>
           "Pass the page recording id. Send title, description, icon, or body at the root, not nested " \
-          "under attributes. Publishing is publish_support_page, not this tool.",
-        "RecordingStudioSupport::SupportTicket" =>
-          "Pass the ticket recording id. Send status (open or resolved) and/or priority (low, normal, " \
-          "or high) at the root, not nested under attributes. Replies use reply_to_support_ticket."
+          "under attributes. Publishing is publish_support_page, not this tool."
       }.freeze
 
       INDEX_NOTES = {
@@ -97,6 +90,8 @@ module RecordingStudioSupport
       end
 
       def note_for(type, verb)
+        return TicketOperationCopy.note_for(verb) if type.to_s == Api::TICKET_TYPE
+
         case verb.to_sym
         when :create then CREATE_NOTES[type.to_s]
         when :update then UPDATE_NOTES[type.to_s]

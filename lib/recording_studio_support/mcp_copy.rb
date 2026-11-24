@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative "mcp_copy/type_descriptions"
+require_relative "mcp_copy/ticket_operation_copy"
 require_relative "mcp_copy/operation_descriptions"
 require_relative "mcp_copy/registration"
 
@@ -13,6 +14,7 @@ module RecordingStudioSupport
     CENTER = Api::CENTER_TYPE
     TICKET = Api::TICKET_TYPE
     SEARCH = Api::Search::NAME.to_s
+    CLOSE = "close_support_ticket"
     MESSAGE_NAMES = Api::TicketMessages::NAMES.map(&:to_s).freeze
 
     PUBLIC_OPERATIONS = [
@@ -62,9 +64,10 @@ module RecordingStudioSupport
     end
 
     def operations_tool_names
-      OPERATIONS_OPERATIONS.map { |type, verb| tool_name(type, verb) } +
-        OPERATIONS_ACTIONS.map { |type, verb| tool_name(type, verb) } +
-        MESSAGE_NAMES
+      names = OPERATIONS_OPERATIONS.map { |type, verb| tool_name(type, verb) }
+      update_at = names.index("update_support_ticket")
+      names.insert(update_at + 1, CLOSE)
+      names + OPERATIONS_ACTIONS.map { |type, verb| tool_name(type, verb) } + MESSAGE_NAMES
     end
 
     def tool_name(type, verb)
