@@ -9,6 +9,7 @@ An unknown ticket `priority` on open or update is `invalid_input`.
 1. Bump `recording_studio_support` to `0.38.11`.
 2. No Support migration. Re-pin the gem. No other host step.
 3. `open_support_ticket` and `update_support_ticket` (and the matching HTTP routes) reject a value that is not in `SupportTicket::PRIORITIES`. The message is `priority must be` plus that list joined with `or`. Close does not take `priority`.
+4. Operations `GET …/support_tickets/:id` accepts a SupportTicket id or a recording id (`Tickets.find!`). PATCH, close, and ticket-message routes still take a recording id (`owns_scoping` is read-only in Recording Studio API).
 
 ### Verify
 

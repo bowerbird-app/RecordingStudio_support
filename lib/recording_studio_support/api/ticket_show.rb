@@ -25,9 +25,7 @@ module RecordingStudioSupport
       end
 
       def shown_recording
-        return TicketAccess.find_recording!(context) unless Access.operations_api?(context)
-
-        Lookup.routed!(context)
+        TicketAccess.find_recording!(context)
       end
     end
   end

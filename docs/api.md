@@ -101,8 +101,8 @@ Public `support_sections` list/show and nested section-pages are not registered 
 | `GET` | `/recording_studio_api/apis/operations/v1/support_centers/:id` | AdminRoot `:view` | One SupportCenter |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_centers` | AdminRoot `:edit` | Body: `parent_id` (AdminRoot recording). No extra serializer keys |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_tickets` | AdminRoot `:view` | List current tickets (`Tickets.current`) |
-| `GET` | `/recording_studio_api/apis/operations/v1/support_tickets/:id` | AdminRoot `:view` | One ticket (`Tickets.find!`) |
-| `PATCH` | `/recording_studio_api/apis/operations/v1/support_tickets/:id` | SupportCenter `:edit` | `status` (`open`, `resolved`) and/or `priority` (`low`, `normal`, `high`) via `Tickets.update!` |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_tickets/:id` | AdminRoot `:view` | One ticket (`Tickets.find!`). Id may be the recording id or the SupportTicket id |
+| `PATCH` | `/recording_studio_api/apis/operations/v1/support_tickets/:id` | SupportCenter `:edit` | `status` (`open`, `resolved`) and/or `priority` (`low`, `normal`, `high`) via `Tickets.update!`. Id is the recording id |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_ticket_close/:id` | SupportCenter `:edit` | Resolve that ticket through `Tickets.update!`. Already resolved is unchanged. Not on the public API. MCP name `close_support_ticket` |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_ticket_messages/:id` | AdminRoot `:view`, then Accessible `:view` on the conversation | Same ticket-keyed message list as public |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_ticket_reply/:id` | SupportCenter `:edit`, then Accessible `:edit` on the conversation | Staff reply. Does not reopen a resolved ticket |
