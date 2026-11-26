@@ -101,8 +101,8 @@ Public `support_sections` list/show and nested section-pages are not registered 
 | `GET` | `/recording_studio_api/apis/operations/v1/support_centers/:id` | AdminRoot `:view` | One SupportCenter |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_centers` | AdminRoot `:edit` | Body: `parent_id` (AdminRoot recording). No extra serializer keys |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_tickets` | AdminRoot `:view` | List current tickets (`Tickets.current`) |
-| `GET` | `/recording_studio_api/apis/operations/v1/support_tickets/:id` | AdminRoot `:view` | One ticket (`Tickets.find!`) |
-| `PATCH` | `/recording_studio_api/apis/operations/v1/support_tickets/:id` | SupportCenter `:edit` | `status` (`open`, `resolved`) and/or `priority` (`low`, `normal`, `high`) via `Tickets.update!` |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_tickets/:id` | AdminRoot `:view` | One ticket (`Tickets.find!`). Id may be the recording id or the SupportTicket id |
+| `PATCH` | `/recording_studio_api/apis/operations/v1/support_tickets/:id` | SupportCenter `:edit` | `status` (`open`, `resolved`) and/or `priority` (`low`, `normal`, `high`) via `Tickets.update!`. Id is the recording id |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_ticket_close/:id` | SupportCenter `:edit` | Resolve that ticket through `Tickets.update!`. Already resolved is unchanged. Not on the public API. MCP name `close_support_ticket` |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_ticket_messages/:id` | AdminRoot `:view`, then Accessible `:view` on the conversation | Same ticket-keyed message list as public |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_ticket_reply/:id` | SupportCenter `:edit`, then Accessible `:edit` on the conversation | Staff reply. Does not reopen a resolved ticket |
@@ -155,7 +155,7 @@ Sections serialize `title`, `slug`, `icon`. Writable: `title`, `icon`. Slug is S
 
 Pages serialize `title`, `description`, `icon`, `body`. Writable: those four. Body is sanitized (`Body.sanitize`).
 
-Tickets serialize `subject`, `status`, `priority`, `resolved_at`. Public writable on open: `subject`, `body`, `priority`. `subject` and `body` are required. `priority` is optional and must be one of `SupportTicket::PRIORITIES` (`low`, `normal`, `high`). When the loaded API accepts `parent:` on `register_resource_handler` (API 1.22), public create registers `parent: :server`. The published create schema, catalog, and MCP input then omit `parent_id`, and a sent `parent_id` is ignored. On an older API the registration matches 0.38.8 and the MCP open description says to leave `parent_id` blank. Support files the ticket under the support centre either way. Operations writable on update: `status`, `priority`. Close takes the ticket id only. Status: `open`, `resolved`. Priority: `low`, `normal`, `high`.
+Tickets serialize `subject`, `status`, `priority`, `resolved_at`. Public writable on open: `subject`, `body`, `priority`. `subject` and `body` are required. `priority` is optional and must be one of `SupportTicket::PRIORITIES` (`low`, `normal`, `high`). An unknown value (for example `urgent`) is `invalid_input` with `priority must be` plus that list joined with `or`. The same check runs on operations update. When the loaded API accepts `parent:` on `register_resource_handler` (API 1.22), public create registers `parent: :server`. The published create schema, catalog, and MCP input then omit `parent_id`, and a sent `parent_id` is ignored. On an older API the registration matches 0.38.8 and the MCP open description says to leave `parent_id` blank. Support files the ticket under the support centre either way. Operations writable on update: `status`, `priority`. Close takes the ticket id only. Status: `open`, `resolved`. Priority: `low`, `normal`, `high`.
 
 Recording Studio API also returns recording ids, type, and relationship metadata on each record.
 

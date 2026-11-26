@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.38.11] - 2026-11-26
+
+An invalid ticket priority on open or update is a validation error built from `SupportTicket::PRIORITIES`.
+
+### Fixed
+- Public `open_support_ticket` / `POST …/support_tickets` and operations `update_support_ticket` / `PATCH …/support_tickets/:id` reject an unknown `priority` (for example `urgent`) with `invalid_input`. The message is `priority must be` plus `SupportTicket::PRIORITIES` joined with `or` (`low, normal or high`). `Tickets.open!` and `Tickets.update!` raise that `ArgumentError` before the enum assignment. The API handlers still map it through `TicketAccess.invalid_input!`. Other errors stay as they were. Close does not take `priority`.
+- Operations ticket show owns its id lookup through `TicketAccess.find_recording!` (`Tickets.find!`), so a SupportTicket id and a recording id both resolve. It no longer depends on API `ScopedRecording.find!` / `Lookup.routed!`, which only matched recording ids. Authorization is still `TicketAccess.authorize_read!`. Operations update uses the same `find_recording!` lookup inside the handler; the API only allows `owns_scoping` on reads, so PATCH still requires a recording id.
+
+### Upgrade notes
+- Bump to `0.38.11`. No Support migration. Re-pin the gem. No other host step. Clients that sent a bad priority already failed; they now get `invalid_input` instead of a server error.
+
 ## [0.38.10] - 2026-11-26
 
 Customer replies reopen resolved tickets under a host write policy, view-only staff can read tickets, customers see published noindex help, and operations MCP `tool_names` includes Support metrics.

@@ -178,9 +178,9 @@ class ApiTest < Minitest::Test
     show = File.read(File.expand_path("../lib/recording_studio_support/api/show.rb", __dir__))
     publish = File.read(File.expand_path("../lib/recording_studio_support/api/publishable_transition.rb", __dir__))
 
-    assert_includes ticket_update, "Lookup.routed!"
-    refute_includes ticket_update, "Tickets.find!"
-    assert_includes ticket_show, "Lookup.routed!"
+    assert_includes ticket_update, "TicketAccess.find_recording!"
+    refute_includes ticket_update, "Lookup.routed!"
+    refute_includes ticket_show, "Lookup.routed!"
     assert_includes ticket_show, "TicketAccess.find_recording!"
     assert_includes ticket_show, "TicketAccess.authorize_read!"
     assert_includes ticket_index, "TicketAccess.authorize_read!"

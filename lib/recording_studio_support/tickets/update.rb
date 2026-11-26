@@ -18,6 +18,7 @@ module RecordingStudioSupport
       end
 
       def call
+        Tickets.require_known_priority!(@priority)
         recording = coerce_recording
         recording.with_lock do
           current = recording.reload.recordable

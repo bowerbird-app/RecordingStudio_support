@@ -976,7 +976,7 @@ class SupportApiTest < ActionDispatch::IntegrationTest
       refute_predicate registration_for(page, action, operations), :owns_scoping?
     end
     refute_predicate registration_for(ticket, :update, operations), :owns_scoping?
-    refute_predicate registration_for(ticket, :show, operations), :owns_scoping?
+    assert_predicate registration_for(ticket, :show, operations), :owns_scoping?
 
     assert_sibling_id_unscoped("notifications.show", :public)
     message_send = RecordingStudioApi.registered_endpoint("messages_send_message", api: :public)

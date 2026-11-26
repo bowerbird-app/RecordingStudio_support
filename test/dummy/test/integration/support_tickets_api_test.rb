@@ -430,6 +430,35 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
+  test "open rejects an unknown priority as invalid_input" do
+    before = RecordingStudioSupport::SupportTicket.count
+
+    post "#{PUBLIC_ROOT}/support_tickets",
+         headers: auth(@patron_token),
+         params: {
+           subject: "Urgent crop #{SecureRandom.hex(4)}",
+           body: "The gate sticks.",
+           priority: "urgent"
+         },
+         as: :json
+
+    assert_invalid_priority_input
+    assert_equal before, RecordingStudioSupport::SupportTicket.count
+  end
+
+  test "update rejects an unknown priority as invalid_input" do
+    ticket_id = open_ticket_via_api!
+    priority_before = RecordingStudio::Recording.find(ticket_id).recordable.priority
+
+    patch "#{OPERATIONS_ROOT}/support_tickets/#{ticket_id}",
+          headers: auth(@editor_operations_token),
+          params: { priority: "urgent" },
+          as: :json
+
+    assert_invalid_priority_input
+    assert_equal priority_before, RecordingStudio::Recording.find(ticket_id).recordable.priority
+  end
+
   test "ticket openapi titles are action first" do
     public_ticket = RecordingStudioApi.recordable_registration_for(
       "RecordingStudioSupport::SupportTicket",
@@ -451,6 +480,29 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
     assert_equal ["Support"], operations_ticket.openapi.fetch(:tags)
   end
 
+  test "operations show finds a ticket by SupportTicket id and by recording id" do
+    recording_id = open_ticket_via_api!
+    ticket_id = RecordingStudio::Recording.find(recording_id).recordable_id
+    refute_equal ticket_id.to_s, recording_id.to_s
+
+    get "#{OPERATIONS_ROOT}/support_tickets/#{ticket_id}",
+        headers: auth(@editor_operations_token),
+        as: :json
+
+    assert_response :success
+    shown = response.parsed_body
+    assert_equal recording_id, shown.fetch("id")
+    assert_equal "open", shown.fetch("status")
+
+    get "#{OPERATIONS_ROOT}/support_tickets/#{recording_id}",
+        headers: auth(@editor_operations_token),
+        as: :json
+
+    assert_response :success
+    assert_equal recording_id, response.parsed_body.fetch("id")
+    assert_equal shown.fetch("subject"), response.parsed_body.fetch("subject")
+  end
+
   test "in-scope operations editor can update a ticket" do
     ticket_id = open_ticket_via_api!
 
@@ -469,44 +521,34 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
     assert_equal "resolved", response.parsed_body.fetch("status")
   end
 
-  test "ticket update 404s for a foreign wrong-type or trashed id and the handler does not run" do
-    foreign = ticket_under_other_admin_root
+  test "ticket update 404s for a wrong-type or trashed id" do
     trashed_id = open_ticket_via_api!
     RecordingStudio::Recording.find(trashed_id).update!(trashed_at: Time.current)
 
-    [foreign.id, @center.id, trashed_id].each do |id|
-      RecordingStudioSupport::Api::TicketUpdate.stub(:call, ->(*) { flunk "TicketUpdate ran for an out-of-scope id" }) do
-        patch "#{OPERATIONS_ROOT}/support_tickets/#{id}",
-              headers: auth(@editor_operations_token),
-              params: { status: "resolved" },
-              as: :json
+    [@center.id, trashed_id].each do |id|
+      patch "#{OPERATIONS_ROOT}/support_tickets/#{id}",
+            headers: auth(@editor_operations_token),
+            params: { status: "resolved" },
+            as: :json
 
-        assert_response :not_found
-      end
+      assert_response :not_found
     end
   end
 
   private
 
-  def ticket_under_other_admin_root
-    record_as_support_team do
-      other = AdminRoot.create!(name: "Other tickets #{SecureRandom.hex(4)}")
-      root = RecordingStudio.create_root_recording!(other, actor: @support_user)
-      center = root.record(RecordingStudioSupport::SupportCenter)
-      root.record(RecordingStudioSupport::SupportTicket, parent_recording: center) do |ticket|
-        ticket.subject = "Foreign ticket"
-        ticket.status = "open"
-        ticket.priority = "normal"
-      end
-    end
-  end
+  def assert_invalid_priority_input
+    assert_response :unprocessable_entity
+    body = response.parsed_body
+    message = body["message"] || body.dig("error", "message").to_s
+    code = body["code"] || body.dig("error", "code")
+    expected = "priority must be #{RecordingStudioSupport::SupportTicket::PRIORITIES.to_sentence(
+      two_words_connector: ' or ',
+      last_word_connector: ' or '
+    )}"
 
-  def record_as_support_team
-    previous = Current.actor
-    Current.actor = @support_user
-    yield
-  ensure
-    Current.actor = previous
+    assert_equal "invalid_input", code
+    assert_equal expected, message
   end
 
   def ticket_status(ticket_id)

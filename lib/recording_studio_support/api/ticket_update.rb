@@ -23,7 +23,7 @@ module RecordingStudioSupport
       def update_ticket!
         attrs = Payload.attributes(context)
         Tickets.update!(
-          Lookup.routed!(context),
+          TicketAccess.find_recording!(context),
           actor: TicketAccess.actor(context),
           **ticket_changes(attrs)
         )
