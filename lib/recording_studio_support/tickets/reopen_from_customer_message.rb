@@ -29,6 +29,7 @@ module RecordingStudioSupport
         apply_reopen!(ticket, writer)
       end
 
+      # test seam
       def edit_holders(recording)
         RecordingStudioAccessible.actors_with_access(
           recording: recording,

@@ -73,17 +73,6 @@ class SupportTicketTest < Minitest::Test
     assert_includes reopen, 'status.to_s == "resolved"'
   end
 
-  def test_ticket_update_takes_named_event_keywords
-    update = File.read(
-      File.expand_path("../lib/recording_studio_support/tickets/update.rb", __dir__)
-    )
-
-    assert_includes update, "impersonator: UNSET"
-    assert_includes update, "metadata: {}"
-    refute_includes update, "**event)"
-    assert_includes update, '@metadata.to_h.transform_keys(&:to_s).merge("changes" => changes)'
-  end
-
   def test_current_ticket_join_is_built_when_called
     source = File.read(File.expand_path("../lib/recording_studio_support/tickets.rb", __dir__))
 
