@@ -198,13 +198,19 @@ class PagesTest < Minitest::Test
 
   def test_public_index_uses_indexable_pages_not_copied_logic
     pages = File.read(File.expand_path("../lib/recording_studio_support/pages/lookups.rb", __dir__))
+    visibility = File.read(
+      File.expand_path("../lib/recording_studio_support/pages/customer_visibility.rb", __dir__)
+    )
     public_index = File.read(
       File.expand_path("../app/views/recording_studio_support/public_pages/index.html.erb", __dir__)
     )
     support_page = File.read(File.expand_path("../app/models/recording_studio_support/support_page.rb", __dir__))
 
-    assert_includes pages, "SupportPage.indexable"
-    assert_includes pages, "def public_indexable(query: nil)"
+    assert_includes visibility, "SupportPage.published"
+    assert_includes pages, "customer_visible_pages"
+    refute_includes pages, "SupportPage.indexable"
+    refute_includes visibility, "SupportPage.indexable"
+    assert_includes pages, "def public_indexable(query: nil"
     assert_includes pages, "def public_for_section"
     assert_includes pages, "def related_public_for"
     assert_includes pages, ".distinct.reorder(:title)"

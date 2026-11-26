@@ -24,7 +24,7 @@ AdminRoot (config.parent_root_type, Accessible)
 | Move between sections | Changes parent under the **same** SupportCenter. |
 | Support team gate | Accessible `:edit` on the SupportCenter or its admin root (same bar as `/admin`). Fail closed. |
 | Public | `/help` only. Visitors do not need admin-root access. `/admin/support` is never anonymous. |
-| Customer tickets | Direct Accessible grant on that customer’s MessageGroup only. |
+| Customer tickets | Direct Accessible grant on that customer’s MessageGroup only. A customer reply on a resolved ticket reopens it through `Tickets.update!` as an Accessible `:edit` holder on the ticket, not as the customer. The web composer, API, and MCP all post with `RecordingStudioMessages.send_message`. |
 | Support ticket controls | Status is a Button dropdown (`open` / `resolved`) in the Messages thread header. Accessible `:edit` on the SupportCenter. Customers do not see it. A created Message reopens a resolved ticket from `RecordingStudio.configuration.hooks.after_record`. |
 
 Do not invent a second permission system. If a host needs section- or page-scoped authors, **stop and extend Accessible**.
@@ -87,7 +87,7 @@ Engine root `/admin/support` redirects to `/admin`. Admin tables replace the old
 | Support preview **QuickActions** | Publishable dropdown on the page. Closed button is Draft, a scheduled date, or Published. Menu: Publish now, Schedule / Change schedule, Unpublish, Preview or View, SEO, Social. Inline publish/unpublish stay on this screen. |
 | Support team **Preview** / **View** | Preview is `/recordings/:id/publishable/preview` (signed-in people who can see the page). View is the public URL. Logged-out visitors get 404 on Preview. |
 | Unpublish | **Unpublish** in QuickActions (inline). Schedule and SEO/Social open Publishable job screens. |
-| Public `/help` | Hide drafts (`indexable` / `public_for_section`). |
+| Public `/help` | Hide drafts (`published` plus Accessible view audience / `public_for_section`). `indexable` is for search engines. |
 | Support team section show | Kept drafts + status badge; open support team preview. |
 | Admin status column | Badge via `currently_published?`. |
 

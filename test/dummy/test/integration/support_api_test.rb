@@ -1079,6 +1079,38 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_equal parent_id, @live.reload.parent_recording_id
   end
 
+  test "customers can list search and show a published page that is not indexable" do
+    token = "Unlisted#{SecureRandom.hex(4)}"
+    page = record_as_support_team do
+      record_support_page(@admin_root, @section, title: "#{token} published without url", body: "<p>#{token}</p>")
+    end
+    publish!(page, slug: "unlisted-#{SecureRandom.hex(4)}", status: "published", canonical_url: "notaurl")
+    page.reload
+    assert page.recordable.published?
+    refute page.recordable.indexable?
+
+    get "#{PUBLIC_ROOT}/support_pages",
+        headers: auth(@workspace_token),
+        params: { q: token },
+        as: :json
+
+    assert_response :success
+    assert_includes response.parsed_body.fetch("records").map { |record| record.fetch("id") }, page.id
+
+    get "#{PUBLIC_ROOT}/support_page_search",
+        headers: auth(@workspace_token),
+        params: { q: token },
+        as: :json
+
+    assert_response :success
+    assert_includes response.parsed_body.fetch("records").map { |record| record.fetch("id") }, page.id
+
+    get "#{PUBLIC_ROOT}/support_pages/#{page.id}", headers: auth(@workspace_token), as: :json
+
+    assert_response :success
+    assert_equal "#{token} published without url", response.parsed_body.fetch("title")
+  end
+
   test "public page show returns only a published page in the current support centre" do
     other = published_page_in_another_center
     current_id = RecordingStudioSupport::SupportCenters.current.id
@@ -1207,11 +1239,13 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     grant_role!(recording, actor, role)
   end
 
-  def publish!(page_recording, slug:, status:)
+  def publish!(page_recording, slug:, status:, canonical_url: nil)
+    attributes = { slug: slug, status: status }
+    attributes[:canonical_url] = canonical_url unless canonical_url.nil?
     result = RecordingStudioPublishable::Services::Publishables::Update.call(
       parent_recording: page_recording,
       actor: @support_user,
-      attributes: { slug: slug, status: status }
+      attributes: attributes
     )
     raise result.error if result.failure?
   end

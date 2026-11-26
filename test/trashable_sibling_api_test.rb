@@ -9,6 +9,7 @@ class TrashableSiblingApiTest < Minitest::Test
     "lib/recording_studio_support/pages/lookups.rb" => %w[
       kept_pages kept_pages_for_center kept_pages_for_section find_kept! recording_for
     ],
+    "lib/recording_studio_support/pages/customer_visibility.rb" => %w[kept_page_recordings_for],
     "lib/recording_studio_support/pages/counts.rb" => %w[kept_pages_for_sections],
     "lib/recording_studio_support/sections.rb" => %w[kept kept_sections],
     "lib/recording_studio_support/sections/lookups.rb" => %w[find_kept! default_parent_root],

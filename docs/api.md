@@ -63,14 +63,14 @@ Accept: application/json
 
 The API client’s `AccessGrant.actor` is the Accessible actor (person, machine, or agent). Same rules for all of them. A public token is rejected on the operations API.
 
-| Actor | Public page `index` / `show` | Public ticket `index` / `show` / `open` | Operations section / nested-page `index` / `show` | Operations ticket `index` / `show` / `update` | Operations `create` / `update` / trash / move / publish / unpublish |
-| --- | --- | --- | --- | --- | --- |
-| Accessible `:edit` on **AdminRoot** (operations token) | Yes, with a public token that can view | Yes, with a public token (`authorize!` `:view` on the grant scope). Open and list are the grant actor's tickets | Yes | Yes when the grant also satisfies `:edit` on **SupportCenter** (HTML support team) | Yes |
-| Accessible `:view` on **AdminRoot** (operations token) | Yes, with a public token that can view | Yes, as above | Yes | No — `403` (below support-team `:edit` on SupportCenter) | No — `403` |
-| Workspace `:view` (or stronger) **without** AdminRoot | Yes (that workspace; drafts hidden) | Yes for that actor's tickets; another person's ticket is `404` | No — `403` | No — `403` | No — `403`; writes are not on public |
-| Public token on operations | — | — | Rejected | Rejected | Rejected |
-| Missing token | `401` | `401` | `401` | `401` | `401` |
-| No Accessible grant | `403` / `401` | `403` / `401` | `403` / `401` | `403` / `401` | `403` / `401` |
+| Actor | Public page `index` / `show` | Public ticket `index` / `show` / `open` | Operations section / nested-page `index` / `show` | Operations ticket `index` / `show` | Operations ticket `update` / close / reply | Operations `create` / `update` / trash / move / publish / unpublish |
+| --- | --- | --- | --- | --- | --- | --- |
+| Accessible `:edit` on **AdminRoot** (operations token) | Yes, with a public token that can view | Yes, with a public token (`authorize!` `:view` on the grant scope). Open and list are the grant actor's tickets | Yes | Yes | Yes when the grant also satisfies `:edit` on **SupportCenter** (HTML support team) | Yes |
+| Accessible `:view` on **AdminRoot** (operations token) | Yes, with a public token that can view | Yes, as above | Yes | Yes | No — `403` (below support-team `:edit` on SupportCenter) | No — `403` |
+| Workspace `:view` (or stronger) **without** AdminRoot | Yes (that workspace; drafts hidden) | Yes for that actor's tickets; another person's ticket is `404` | No — `403` | No — `403` | No — `403` | No — `403`; writes are not on public |
+| Public token on operations | — | — | Rejected | Rejected | Rejected | Rejected |
+| Missing token | `401` | `401` | `401` | `401` | `401` | `401` |
+| No Accessible grant | `403` / `401` | `403` / `401` | `403` / `401` | `403` / `401` | `403` / `401` | `403` / `401` |
 
 HTML ticket roles: `UserMessagesController` needs a signed-in actor to list, show, and open. The list is `Tickets.for_actor`. A customer's list is conversations they can `:view` (their `:edit` grant). A support-team actor's list is tickets they created, so inherited access does not list every ticket. Show allows Accessible `:view` on that conversation, which covers the customer and staff who inherit access from SupportCenter or AdminRoot. Anyone else is denied. `SupportTicketsController#update` needs the support team: Accessible `:edit` on SupportCenter (or its parent / admin root). The JSON actor is always `AccessGrant.actor`, never a body field. Public ticket index and show use `Tickets.for_actor`, so a support-team public client sees tickets that client created. Operations ticket index and show stay `Tickets.current`.
 
@@ -100,14 +100,14 @@ Public `support_sections` list/show and nested section-pages are not registered 
 | `GET` | `/recording_studio_api/apis/operations/v1/support_centers` | AdminRoot `:view` | List SupportCenters |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_centers/:id` | AdminRoot `:view` | One SupportCenter |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_centers` | AdminRoot `:edit` | Body: `parent_id` (AdminRoot recording). No extra serializer keys |
-| `GET` | `/recording_studio_api/apis/operations/v1/support_tickets` | SupportCenter `:edit` | List current tickets (`Tickets.current`) |
-| `GET` | `/recording_studio_api/apis/operations/v1/support_tickets/:id` | SupportCenter `:edit` | One ticket (`Tickets.find!`) |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_tickets` | AdminRoot `:view` | List current tickets (`Tickets.current`) |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_tickets/:id` | AdminRoot `:view` | One ticket (`Tickets.find!`) |
 | `PATCH` | `/recording_studio_api/apis/operations/v1/support_tickets/:id` | SupportCenter `:edit` | `status` (`open`, `resolved`) and/or `priority` (`low`, `normal`, `high`) via `Tickets.update!` |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_ticket_close/:id` | SupportCenter `:edit` | Resolve that ticket through `Tickets.update!`. Already resolved is unchanged. Not on the public API. MCP name `close_support_ticket` |
-| `GET` | `/recording_studio_api/apis/operations/v1/support_ticket_messages/:id` | SupportCenter `:edit`, then Accessible `:view` on the conversation | Same ticket-keyed message list as public |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_ticket_messages/:id` | AdminRoot `:view`, then Accessible `:view` on the conversation | Same ticket-keyed message list as public |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_ticket_reply/:id` | SupportCenter `:edit`, then Accessible `:edit` on the conversation | Staff reply. Does not reopen a resolved ticket |
 | `POST` | `/recording_studio_api/apis/operations/v1/support_ticket_mark_read/:id` | SupportCenter `:edit` | Marks that conversation read for the grant actor |
-| `GET` | `/recording_studio_api/apis/operations/v1/support_ticket_unread_count` | SupportCenter `:edit` | `unread_count` across current tickets |
+| `GET` | `/recording_studio_api/apis/operations/v1/support_ticket_unread_count` | AdminRoot `:view` | `unread_count` across current tickets |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_sections` | AdminRoot `:view` | List sections. `?q=` searches title and slug |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_sections/:id` | AdminRoot `:view` | One section |
 | `GET` | `/recording_studio_api/apis/operations/v1/support_sections/:parent_id/pages` | AdminRoot `:view` | Pages in that section |
@@ -161,7 +161,7 @@ Recording Studio API also returns recording ids, type, and relationship metadata
 
 ## Search
 
-There is no `GET support/search`. Public `GET …/support_page_search?q=` uses `Pages.for_root` / `SupportPage.search` (pg_trgm on title and body) and keeps `SupportPage.indexable` rows, so drafts and trashed pages stay out of the result for every token. Public `GET …/support_pages?q=` uses the same search and still returns drafts to a support-team token. Operations `GET …/support_sections?q=` uses `Sections.public_index(query:)` / `SupportSection.search` (trigram on title and slug). Nested operations `GET …/support_sections/:parent_id/pages?q=` uses `Pages.for_section`. Public page show returns a published page in the current support centre. A draft, or a page in another centre, is not found. The API does not resolve that id through the workspace token. Operations AdminRoot `:view` readers see drafts.
+There is no `GET support/search`. Public `GET …/support_page_search?q=` uses `Pages.for_root` / `SupportPage.search` (pg_trgm on title and body) and keeps customer-visible published pages (Accessible view audience), so drafts and trashed pages stay out and a published page with no indexable URL stays in. Public `GET …/support_pages?q=` uses the same search and still returns drafts to a support-team token. Operations `GET …/support_sections?q=` uses `Sections.public_index(query:)` / `SupportSection.search` (trigram on title and slug). Nested operations `GET …/support_sections/:parent_id/pages?q=` uses `Pages.for_section`. Public page show returns a published page in the current support centre. A draft, or a page in another centre, is not found. The API does not resolve that id through the workspace token. Operations AdminRoot `:view` readers see drafts. Operations AdminRoot `:view` can list and show tickets and ticket messages. Ticket update, close, reply, and mark-read still need SupportCenter `:edit`.
 
 ## Examples
 

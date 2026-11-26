@@ -50,7 +50,7 @@ module RecordingStudioSupport
       def hide_draft!(recording)
         return if Access.can_view_as_support_team?(context)
         return unless recording.recordable_type == Api::PAGE_TYPE
-        return if recording.recordable.indexable?
+        return if Pages.customer_visible_recording?(recording, actor: Access.actor_for(context))
 
         raise RecordingStudioApi::NotFoundError, "Resource was not found in this API scope"
       end

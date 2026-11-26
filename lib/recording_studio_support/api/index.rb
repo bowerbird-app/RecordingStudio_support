@@ -121,7 +121,9 @@ module RecordingStudioSupport
         relation = Pages.for_root(center, query: search_term)
         return relation if Access.can_view_as_support_team?(context)
 
-        relation.where(recordable_id: SupportPage.indexable.select(:id))
+        relation.where(
+          recordable_id: Pages.customer_visible_pages(actor: Access.actor_for(context)).select(:id)
+        )
       end
 
       def search_term

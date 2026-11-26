@@ -28,7 +28,9 @@ module RecordingStudioSupport
       end
 
       def published_pages_in(pages)
-        pages.where(recordable_id: SupportPage.indexable.where(id: pages.select(:recordable_id)).select(:id))
+        pages.where(
+          recordable_id: Pages.customer_visible_pages.where(id: pages.select(:recordable_id)).select(:id)
+        )
       end
     end
   end

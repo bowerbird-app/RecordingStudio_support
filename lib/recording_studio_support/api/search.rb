@@ -74,7 +74,7 @@ module RecordingStudioSupport
 
       def published_recordings
         Pages.for_root(SupportCenters.current, query: search_term).where(
-          recordable_id: SupportPage.indexable.select(:id)
+          recordable_id: Pages.customer_visible_pages(actor: Access.actor_for(context)).select(:id)
         )
       end
 

@@ -114,7 +114,7 @@ class ApiTest < Minitest::Test
     assert_includes search, 'PATH = "support_page_search"'
     assert_includes search, 'TITLE = "Search support pages"'
     assert_includes search, "PUBLIC_PAGE_TAG"
-    assert_includes search, "SupportPage.indexable"
+    assert_includes search, "customer_visible_pages"
     assert_includes registration, "ADMIN_NESTED_PAGE_OPERATIONS = (READ_OPERATIONS + WRITE_OPERATIONS)"
     assert_includes registration, "ADMIN_PAGE_OPERATIONS = (READ_OPERATIONS + WRITE_OPERATIONS)"
     assert_includes registration, "operations: ADMIN_PAGE_OPERATIONS"

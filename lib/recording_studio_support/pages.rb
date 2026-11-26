@@ -2,15 +2,18 @@
 
 require_relative "pages/lookups"
 require_relative "pages/counts"
+require_relative "pages/customer_visibility"
 
 module RecordingStudioSupport
   module Pages
     extend Lookups
     extend Counts
+    extend CustomerVisibility
 
     module_function
 
     SUPPORT_PAGE_TYPE = "RecordingStudioSupport::SupportPage"
+    CUSTOMER_VIEW_ACTION = :"recording_studio_views.view"
 
     # rubocop:disable Metrics/ParameterLists, Metrics/MethodLength -- public write API keeps optional fields explicit
     def create!(parent_recording:, title:, body:, description: nil, icon: nil, actor: nil)
