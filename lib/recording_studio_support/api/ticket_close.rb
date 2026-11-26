@@ -18,7 +18,7 @@ module RecordingStudioSupport
 
         RecordingStudioApi.register_endpoint(
           NAME, api: Registration::OPERATIONS_API, http_verb: :post, path: PATH,
-                handler: self, recordable_type: TICKET_TYPE, openapi: openapi,
+                handler: self, recordable_type: TICKET_TYPE, owns_scoping: true, openapi: openapi,
                 input_contract: { reject_unknown: false, fields: {} }
         )
       end
@@ -55,7 +55,11 @@ module RecordingStudioSupport
       attr_reader :context
 
       def close_ticket!
-        Tickets.update!(Lookup.routed!(context), actor: TicketAccess.actor(context), status: :resolved)
+        Tickets.update!(
+          TicketAccess.find_recording!(context),
+          actor: TicketAccess.actor(context),
+          status: :resolved
+        )
       rescue ArgumentError, ActiveRecord::RecordInvalid => e
         TicketAccess.invalid_input!(e)
       end

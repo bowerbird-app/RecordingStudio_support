@@ -47,7 +47,7 @@ module RecordingStudioSupport
           options = {
             api: api, http_verb: spec.fetch(:verb), path: spec.fetch(:path), handler: spec.fetch(:handler),
             input_contract: { reject_unknown: false, fields: spec[:fields] || {} },
-            openapi: member_openapi(name)
+            openapi: member_openapi(name), owns_scoping: api == Api::Registration::OPERATIONS_API
           }
           options[:recordable_type] = TICKET_TYPE if api == Api::Registration::OPERATIONS_API
           options[:scope_id] = false if api == :public

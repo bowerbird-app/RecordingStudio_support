@@ -1,5 +1,22 @@
 # Upgrade notes
 
+## 0.38.13
+
+Operations ticket message, close, and update routes accept a SupportTicket id or a recording id.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.38.13`.
+2. No Support migration. Re-pin the gem.
+3. Dummy pins Recording Studio API `v1.24.0` because that release allows `owns_scoping` on write endpoints. Hosts that use the operations API must pin `recording_studio_api` to `1.24.0` (`>= 1.24.0`, `< 2.0`). An older API raises at boot when Support registers those writes.
+4. Operations list messages, reply, mark-read, close, and update take a SupportTicket id or a recording id (`Tickets.find!`). The conversation comes from the ticket's message-group tag, not the current SupportCenter mount.
+
+### Verify
+
+```bash
+cd test/dummy && bundle exec rails test test/integration/support_ticket_messages_api_test.rb test/integration/support_tickets_api_test.rb
+```
+
 ## 0.38.11
 
 An unknown ticket `priority` on open or update is `invalid_input`.

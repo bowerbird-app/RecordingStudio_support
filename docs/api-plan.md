@@ -33,7 +33,7 @@ API 0.26 resolves each operations route id through the token scope and requires 
 
 Support does **not** gemspec-depend on `recording_studio_api` (same pattern as Moveable). If the constant is missing, Support boots with no JSON routes.
 
-The **host** adds the API gem, runs its install/migrations, mounts the engine, names `:operations`, enables `:accessible` and `:api_access_point` on roots that hold API keys, and provisions clients. Dummy wires this (API `v1.22.0`, optional for hosts) and sets Trashable / Moveable host hooks to `support_team_permission`. An older API still boots. Public ticket create passes `parent: :server` only when that keyword exists.
+The **host** adds the API gem, runs its install/migrations, mounts the engine, names `:operations`, enables `:accessible` and `:api_access_point` on roots that hold API keys, and provisions clients. Dummy wires this (API `v1.24.0`, optional for hosts that skip the operations API) and sets Trashable / Moveable host hooks to `support_team_permission`. Operations ticket writes need API 1.24.0. Public ticket create passes `parent: :server` only when that keyword exists.
 
 Support registers Metrics definitions; the host calls `RecordingStudioMetrics::Api.register!(api: :operations)`.
 

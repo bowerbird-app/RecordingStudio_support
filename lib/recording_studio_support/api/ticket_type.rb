@@ -42,7 +42,7 @@ module RecordingStudioSupport
         )
         register_handler(:index, api: Registration::OPERATIONS_API, handler: TicketIndex)
         register_handler(:show, api: Registration::OPERATIONS_API, handler: TicketShow, owns_scoping: true)
-        register_handler(:update, api: Registration::OPERATIONS_API, handler: TicketUpdate)
+        register_handler(:update, api: Registration::OPERATIONS_API, handler: TicketUpdate, owns_scoping: true)
       end
 
       def register_type(api:, writable_attributes:, operations:, openapi:)

@@ -22,7 +22,8 @@ module RecordingStudioSupport
       UNREAD_COUNT = :count_unread_support_tickets
       NAMES = [LIST, REPLY, MARK_READ, UNREAD_COUNT].freeze
       APIS = %i[public operations].freeze
-      TICKET_ID = "Support ticket recording id from list_support_tickets, show_support_ticket, or open_support_ticket."
+      TICKET_ID = "Support ticket id or recording id from list_support_tickets, " \
+                  "show_support_ticket, or open_support_ticket."
       BODY = "Message text posted on the ticket thread."
 
       module_function
@@ -40,14 +41,13 @@ module RecordingStudioSupport
       end
 
       def ticket_recording!(context)
-        return TicketAccess.find_recording!(context) unless Access.operations_api?(context)
-
-        Lookup.routed!(context)
+        TicketAccess.find_recording!(context)
       end
 
       def conversation!(context)
         recording = ticket_recording!(context)
-        group = Tickets.group_recording_for(recording.recordable)
+        group_id = Tickets.group_id_for_ticket_recording(recording)
+        group = RecordingStudio::Recording.kept.find_by(id: group_id) if group_id.present?
         raise RecordingStudioApi::NotFoundError, "Resource was not found in this API scope" if group.blank?
 
         authorize_conversation!(context, group)

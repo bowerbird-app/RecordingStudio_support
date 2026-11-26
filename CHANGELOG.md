@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.38.13] - 2026-11-26
+
+Operations staff ticket message, close, and update routes look up the ticket themselves, so a SupportTicket id and a recording id both work.
+
+### Fixed
+- Operations `list_support_ticket_messages`, `reply_to_support_ticket`, `mark_support_ticket_read`, `close_support_ticket`, and `update_support_ticket` register `owns_scoping: true`. Recording Studio API 1.24.0 skips grant-scoped recording lookup on those writes and authorizes `:edit` on the grant scope. The handlers load the ticket with `TicketAccess.find_recording!` (`Tickets.find!`). A SupportTicket id, a recording id, or a snapshot id all resolve. A `:view` operations token is refused with the authorization error, not `404`.
+- Ticket conversations are loaded from `Tickets.group_id_for_ticket_recording`, not `Tickets.group_recording_for` on `SupportCenters.current`. A second SupportCenter under the same AdminRoot no longer hides the thread. List messages does not call `ensure_message_mount` without an actor, so it does not leak `actor is required for RecordingStudio writes`. Unread-count listing uses the same tag helper. When a mount still has to be created, the request actor is passed.
+
+### Changed
+- Development and dummy bundles pin Recording Studio API `v1.24.0`. API stays off the Support gemspec.
+
+### Upgrade notes
+- Bump to `0.38.13`. No Support migration. Re-pin the gem.
+- Dummy needs Recording Studio API `1.24.0` so `owns_scoping` is allowed on those write endpoints. Hosts that use the operations API must pin `recording_studio_api` to `1.24.0` (`>= 1.24.0`, `< 2.0`). An older API raises at boot when Support registers those writes. Public-only hosts that still load Support's operations registrations have the same requirement. No other host step.
+
 ## [0.38.11] - 2026-11-26
 
 An invalid ticket priority on open or update is a validation error built from `SupportTicket::PRIORITIES`.

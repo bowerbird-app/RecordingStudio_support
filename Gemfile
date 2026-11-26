@@ -31,8 +31,8 @@ gem "recording_studio_trashable", ">= 0.17.0", "< 1.0",
     github: "bowerbird-app/RecordingStudio_trashable", tag: "v0.17.0"
 gem "recording_studio_views", ">= 0.14.0", "< 1.0", github: "bowerbird-app/RecordingStudio_views", tag: "v0.14.0"
 # Attachable 0.31 and Publishable 1.1 depend on API. Not a Support gemspec dependency.
-# API 1.22 needs Recording Studio >= 7.7 and Accessible >= 0.50.
-gem "recording_studio_api", ">= 1.22.0", "< 2.0", github: "bowerbird-app/RecordingStudio_api", tag: "v1.22.0"
+# API 1.24 needs Recording Studio >= 7.7 and Accessible >= 0.50. owns_scoping on writes.
+gem "recording_studio_api", ">= 1.24.0", "< 2.0", github: "bowerbird-app/RecordingStudio_api", tag: "v1.24.0"
 gem "view_component", "4.19.0"
 
 gem "devise"

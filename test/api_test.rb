@@ -131,6 +131,7 @@ class ApiTest < Minitest::Test
     assert_includes ticket_type, "api: :public"
     assert_includes ticket_type, "auto_capability_actions"
     assert_includes ticket_type, "handler: TicketOpen"
+    assert_includes ticket_type, "handler: TicketUpdate, owns_scoping: true"
     assert File.exist?(File.expand_path("../lib/recording_studio_support/api/ticket_open.rb", __dir__))
     refute_includes registration, "handler: Update, owns_scoping: true"
     refute_includes registration, "handler: Destroy, owns_scoping: true"
@@ -180,6 +181,17 @@ class ApiTest < Minitest::Test
 
     assert_includes ticket_update, "TicketAccess.find_recording!"
     refute_includes ticket_update, "Lookup.routed!"
+    refute_includes ticket_messages, "Lookup.routed!"
+    assert_includes ticket_messages, "TicketAccess.find_recording!"
+    assert_includes ticket_messages, "group_id_for_ticket_recording"
+    ticket_close = File.read(File.expand_path("../lib/recording_studio_support/api/ticket_close.rb", __dir__))
+    assert_includes ticket_close, "TicketAccess.find_recording!"
+    refute_includes ticket_close, "Lookup.routed!"
+    assert_includes ticket_close, "owns_scoping: true"
+    ticket_messages_registration = File.read(
+      File.expand_path("../lib/recording_studio_support/api/ticket_messages/registration.rb", __dir__)
+    )
+    assert_includes ticket_messages_registration, "owns_scoping: api == Api::Registration::OPERATIONS_API"
     refute_includes ticket_show, "Lookup.routed!"
     assert_includes ticket_show, "TicketAccess.find_recording!"
     assert_includes ticket_show, "TicketAccess.authorize_read!"
@@ -188,6 +200,8 @@ class ApiTest < Minitest::Test
     refute_includes ticket_messages, "def authorize_read!"
     assert_includes ticket_messages_list, "TicketAccess.authorize_read!"
     assert_includes ticket_messages_unread, "TicketAccess.authorize_read!"
+    assert_includes ticket_messages_unread, "group_id_for_ticket_recording"
+    refute_includes ticket_messages_unread, "group_recording_for"
     refute_includes ticket_index, "Access.authorize_support_team_view!"
     refute_includes ticket_show, "Access.authorize_support_team_view!"
     refute_includes ticket_messages, "Access.authorize_support_team_view!"

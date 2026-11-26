@@ -247,6 +247,58 @@ class SupportTicketMessagesApiTest < ActionDispatch::IntegrationTest
     assert_response :unauthorized
   end
 
+  test "operations ticket messages work by SupportTicket id and recording id" do
+    recording_id = open_ticket_via_api!
+    ticket_id = RecordingStudio::Recording.find(recording_id).recordable_id
+    refute_equal ticket_id.to_s, recording_id.to_s
+
+    [ticket_id, recording_id].each do |id|
+      get "#{OPERATIONS_ROOT}/support_ticket_messages/#{id}",
+          headers: auth(@editor_operations_token),
+          as: :json
+
+      assert_response :success
+      bodies = response.parsed_body.fetch("records").map { |record| record.fetch("body") }
+      assert_includes bodies, "Please take a look."
+      refute_includes response.body, "actor is required"
+
+      post "#{OPERATIONS_ROOT}/support_ticket_reply/#{id}",
+           headers: auth(@editor_operations_token),
+           params: { body: "Staff note #{id}." },
+           as: :json
+
+      assert_response :success
+      assert_equal "Staff note #{id}.", response.parsed_body.fetch("body")
+
+      post "#{OPERATIONS_ROOT}/support_ticket_mark_read/#{id}",
+           headers: auth(@editor_operations_token),
+           as: :json
+
+      assert_response :success
+      assert_equal recording_id, response.parsed_body.fetch("id")
+    end
+  end
+
+  test "operations list messages finds the conversation when a second SupportCenter exists" do
+    recording_id = open_ticket_via_api!
+    ticket_id = RecordingStudio::Recording.find(recording_id).recordable_id
+    Current.actor = @support_user
+    second = RecordingStudioSupport::SupportCenters.create!(parent_recording: @admin_root, actor: @support_user)
+    Current.actor = nil
+
+    RecordingStudioSupport::SupportCenters.stub(:current, second) do
+      get "#{OPERATIONS_ROOT}/support_ticket_messages/#{ticket_id}",
+          headers: auth(@editor_operations_token),
+          as: :json
+
+      assert_response :success
+      bodies = response.parsed_body.fetch("records").map { |record| record.fetch("body") }
+      assert_equal ["Please take a look."], bodies
+      refute_includes response.body, "actor is required"
+      refute_includes response.body, "Resource was not found in this API scope"
+    end
+  end
+
   test "operations viewer can list ticket messages and cannot reply" do
     ticket_id = open_ticket_via_api!
 
@@ -271,6 +323,7 @@ class SupportTicketMessagesApiTest < ActionDispatch::IntegrationTest
          as: :json
 
     assert_response :forbidden
+    refute_equal 404, response.status
   end
 
   test "missing token is unauthorized on ticket messages" do
@@ -286,6 +339,13 @@ class SupportTicketMessagesApiTest < ActionDispatch::IntegrationTest
         assert endpoint, "#{name} missing on #{api}"
         assert_equal ["Support Messages"], endpoint.openapi_tags
         endpoint.validate!
+        next if name == :count_unread_support_tickets
+
+        if api == :operations
+          assert_predicate endpoint, :owns_scoping?
+        else
+          refute_predicate endpoint, :owns_scoping?
+        end
       end
     end
   end

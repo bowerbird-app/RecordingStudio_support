@@ -222,7 +222,9 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
     assert_equal ["id"], close.fetch(:input).keys
     refute_includes RecordingStudioSupport::McpCopy.tool_names(api: :public), "close_support_ticket"
     assert_nil RecordingStudioApi.registered_endpoint(:close_support_ticket, api: :public)
-    assert RecordingStudioApi.registered_endpoint(:close_support_ticket, api: :operations)
+    close_endpoint = RecordingStudioApi.registered_endpoint(:close_support_ticket, api: :operations)
+    assert close_endpoint
+    assert_predicate close_endpoint, :owns_scoping?
   ensure
     Object.send(:remove_const, :RecordingStudioMcp) if Object.const_defined?(:RecordingStudioMcp, false)
   end
@@ -351,6 +353,14 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
           as: :json
 
     assert_response :forbidden
+    refute_equal 404, response.status
+
+    post "#{OPERATIONS_ROOT}/support_ticket_close/#{ticket_id}",
+         headers: auth(@viewer_operations_token),
+         as: :json
+
+    assert_response :forbidden
+    refute_equal 404, response.status
   end
 
   test "another users ticket is not found" do
@@ -478,6 +488,43 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
     assert_equal ["Support Ticket"], public_ticket.openapi.fetch(:tags)
     assert_equal "Support Ticket", public_ticket.openapi.dig(:tag, :group)
     assert_equal ["Support"], operations_ticket.openapi.fetch(:tags)
+  end
+
+  test "operations close and update work by SupportTicket id and recording id" do
+    recording_id = open_ticket_via_api!
+    ticket_id = RecordingStudio::Recording.find(recording_id).recordable_id
+    refute_equal ticket_id.to_s, recording_id.to_s
+
+    patch "#{OPERATIONS_ROOT}/support_tickets/#{ticket_id}",
+          headers: auth(@editor_operations_token),
+          params: { priority: "high" },
+          as: :json
+
+    assert_response :success
+    assert_equal "high", response.parsed_body.fetch("priority")
+    assert_equal recording_id, response.parsed_body.fetch("id")
+
+    post "#{OPERATIONS_ROOT}/support_ticket_close/#{recording_id}",
+         headers: auth(@editor_operations_token),
+         as: :json
+
+    assert_response :success
+    assert_equal "resolved", response.parsed_body.fetch("status")
+
+    patch "#{OPERATIONS_ROOT}/support_tickets/#{recording_id}",
+          headers: auth(@editor_operations_token),
+          params: { status: "open" },
+          as: :json
+
+    assert_response :success
+    assert_equal "open", response.parsed_body.fetch("status")
+
+    post "#{OPERATIONS_ROOT}/support_ticket_close/#{ticket_id}",
+         headers: auth(@editor_operations_token),
+         as: :json
+
+    assert_response :success
+    assert_equal "resolved", response.parsed_body.fetch("status")
   end
 
   test "operations show finds a ticket by SupportTicket id and by recording id" do

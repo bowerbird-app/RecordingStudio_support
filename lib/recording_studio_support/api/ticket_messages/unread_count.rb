@@ -43,7 +43,12 @@ module RecordingStudioSupport
                     else
                       Tickets.for_actor(actor)
                     end
-          tickets.filter_map { |ticket| Tickets.group_recording_for(ticket)&.id }
+          tickets.filter_map do |ticket|
+            recording = Tickets.ticket_recording_for(ticket)
+            next if recording.blank?
+
+            Tickets.group_id_for_ticket_recording(recording)
+          end
         end
       end
     end

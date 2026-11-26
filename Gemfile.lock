@@ -33,10 +33,10 @@ GIT
 
 GIT
   remote: https://github.com/bowerbird-app/RecordingStudio_api.git
-  revision: 50293c5c7e9665d465a4f59adc717397ab2841c3
-  tag: v1.22.0
+  revision: 3015996f5d2b461afafc5ebc8016cc238a064aac
+  tag: v1.24.0
   specs:
-    recording_studio_api (1.22.0)
+    recording_studio_api (1.24.0)
       flat_pack (>= 0.1.356, < 2.0)
       rails (~> 8.1.0)
       recording_studio (>= 7.7.0, < 8.0)
@@ -209,7 +209,7 @@ GIT
 PATH
   remote: .
   specs:
-    recording_studio_support (0.38.11)
+    recording_studio_support (0.38.13)
       flat_pack (>= 0.2.0, < 1.0)
       rails (~> 8.1.0)
       recording_studio (>= 7.0.0, < 8.0)
@@ -511,7 +511,7 @@ GEM
     websocket-driver (0.9.0)
       base64
       websocket-extensions (>= 0.2.0)
-    websocket-extensions (0.2.0)
+    websocket-extensions (0.3.0)
     zeitwerk (2.8.3)
 
 PLATFORMS
@@ -533,7 +533,7 @@ DEPENDENCIES
   recording_studio (>= 7.0, < 8.0)!
   recording_studio_accessible (>= 0.50.0, < 1.0)!
   recording_studio_admin (>= 2.19.0, < 3.0)!
-  recording_studio_api (>= 1.22.0, < 2.0)!
+  recording_studio_api (>= 1.24.0, < 2.0)!
   recording_studio_attachable (>= 0.31.0, < 1.0)!
   recording_studio_icons!
   recording_studio_logs (>= 0.8.0, < 1.0)!
@@ -636,7 +636,7 @@ CHECKSUMS
   recording_studio (7.7.0)
   recording_studio_accessible (0.50.0)
   recording_studio_admin (2.19.0)
-  recording_studio_api (1.22.0)
+  recording_studio_api (1.24.0)
   recording_studio_attachable (0.31.0)
   recording_studio_icons (0.2.1)
   recording_studio_logs (0.8.0)
@@ -648,7 +648,7 @@ CHECKSUMS
   recording_studio_orderable (0.10.0)
   recording_studio_publishable (1.1.0)
   recording_studio_search (0.14.0)
-  recording_studio_support (0.38.11)
+  recording_studio_support (0.38.13)
   recording_studio_trashable (0.17.0)
   recording_studio_views (0.14.0)
   redis (5.4.1) sha256=b5e675b57ad22b15c9bcc765d5ac26f60b675408af916d31527af9bd5a81faae
@@ -679,7 +679,7 @@ CHECKSUMS
   view_component (4.19.0) sha256=e75d3d5cf1f56c47118752436173e0d417d31ce79412919bc4232060257fe615
   warden (1.2.9) sha256=46684f885d35a69dbb883deabf85a222c8e427a957804719e143005df7a1efd0
   websocket-driver (0.9.0) sha256=4dfcc6ac0ea1b6771daf5fb54cbbca131e4d5922ea0a65ba2da980370dadbe9f
-  websocket-extensions (0.2.0) sha256=6fb0d0f687aa8adc8eafa5ce68db36dfd6a8ebf232515040ce27c33c1291e589
+  websocket-extensions (0.3.0) sha256=1492aabd79218294b564e67e9ee6a90abdac1a2981d35a49848bbc39754f0752
   zeitwerk (2.8.3) sha256=2c85125a8467ce069e20123d1e709a08955c9d29c118c25b46b7b7fafdbb92e5
 
 BUNDLED WITH
