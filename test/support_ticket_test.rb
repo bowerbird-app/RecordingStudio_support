@@ -58,6 +58,9 @@ class SupportTicketTest < Minitest::Test
     assert_includes reopen, "Messages.support_team_actor?"
     assert_includes reopen, "RecordingStudioAccessible.actors_with_access"
     assert_includes reopen, "Api::Access.person?"
+    assert_includes reopen, "impersonator: @actor"
+    assert_includes reopen, '"message_id"'
+    assert_includes reopen, '"message_group_id"'
     assert_includes reopen, 'status.to_s == "resolved"'
   end
 

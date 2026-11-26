@@ -24,7 +24,7 @@ AdminRoot (config.parent_root_type, Accessible)
 | Move between sections | Changes parent under the **same** SupportCenter. |
 | Support team gate | Accessible `:edit` on the SupportCenter or its admin root (same bar as `/admin`). Fail closed. |
 | Public | `/help` only. Visitors do not need admin-root access. `/admin/support` is never anonymous. |
-| Customer tickets | Direct Accessible grant on that customer’s MessageGroup only. A customer reply on a resolved ticket reopens it through `Tickets.update!` as an Accessible `:edit` holder on the ticket, not as the customer. The web composer, API, and MCP all post with `RecordingStudioMessages.send_message`. |
+| Customer tickets | Direct Accessible grant on that customer’s MessageGroup only. A customer reply on a resolved ticket reopens it through `Tickets.update!` as a support-team person with Accessible `:edit` on the ticket. That event’s `actor` is the staff person, `impersonator` is the customer, and `metadata` has Messages `message_id` / `message_group_id`. The web composer, API, and MCP all post with `RecordingStudioMessages.send_message`. |
 | Support ticket controls | Status is a Button dropdown (`open` / `resolved`) in the Messages thread header. Accessible `:edit` on the SupportCenter. Customers do not see it. A created Message reopens a resolved ticket from `RecordingStudio.configuration.hooks.after_record`. |
 
 Do not invent a second permission system. If a host needs section- or page-scoped authors, **stop and extend Accessible**.

@@ -123,8 +123,9 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
       role: :edit
     )
 
+    message = nil
     with_strict_write_policy do
-      RecordingStudioMessages.send_message(
+      message = RecordingStudioMessages.send_message(
         group_recording: group,
         body: "Still broken on my side.",
         actor: @patron
@@ -137,6 +138,7 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     assert_nil current.resolved_at
     assert_equal "updated", event.action
     assert_reopen_writer event
+    assert_reopen_cause event, message_recording: message, group_recording: group
     assert_equal({ "status" => %w[resolved open] }, event.metadata["changes"])
   end
 
@@ -146,7 +148,7 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     group = RecordingStudioSupport::Tickets.group_recording_for(recording.recordable)
     assert_not_nil recording.recordable.resolved_at
 
-    RecordingStudioMessages.send_message(
+    message = RecordingStudioMessages.send_message(
       group_recording: group,
       body: "Still broken on my side.",
       actor: @patron
@@ -158,6 +160,7 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     assert_nil current.resolved_at
     assert_equal "updated", event.action
     assert_reopen_writer event
+    assert_reopen_cause event, message_recording: message, group_recording: group
     assert_equal({ "status" => %w[resolved open] }, event.metadata["changes"])
   end
 
@@ -250,5 +253,11 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     refute_equal @patron, event.actor
     assert RecordingStudioSupport::Api::Access.person?(event.actor)
     assert RecordingStudioSupport::Messages.support_team_actor?(event.actor)
+  end
+
+  def assert_reopen_cause(event, message_recording:, group_recording:)
+    assert_equal @patron, event.impersonator
+    assert_equal message_recording.id.to_s, event.metadata["message_id"].to_s
+    assert_equal group_recording.id.to_s, event.metadata["message_group_id"].to_s
   end
 end

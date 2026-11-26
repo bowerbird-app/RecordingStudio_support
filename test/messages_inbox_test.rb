@@ -96,6 +96,7 @@ class MessagesInboxTest < Minitest::Test
     assert_includes reopen, "Tickets::ReopenFromCustomerMessage.call"
     assert_includes reopen, "event.recording.parent_recording"
     assert_includes reopen, "event.actor"
+    assert_includes reopen, "message_recording: event.recording"
     refute_includes reopen, "to_prepare"
     refute_includes reopen, "singleton_class.prepend"
     refute File.exist?(File.expand_path("../lib/recording_studio_support/messages/send_message_reopen.rb", __dir__))
