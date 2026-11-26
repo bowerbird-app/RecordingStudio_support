@@ -39,6 +39,25 @@ class McpCopyTest < Minitest::Test
     reply_to_support_ticket
     mark_support_ticket_read
     count_unread_support_tickets
+    support_tickets-open
+    support_tickets-oldest_open_age
+    support_tickets-by_status
+    support_tickets-by_priority
+    support_tickets-opened
+    support_tickets-avg_time_to_resolve
+    support_pages-total
+    support_page_views-over_time
+  ].freeze
+
+  OPERATIONS_METRICS = %w[
+    support_tickets-open
+    support_tickets-oldest_open_age
+    support_tickets-by_status
+    support_tickets-by_priority
+    support_tickets-opened
+    support_tickets-avg_time_to_resolve
+    support_pages-total
+    support_page_views-over_time
   ].freeze
 
   def test_register_is_a_noop_without_recording_studio_mcp
@@ -56,6 +75,17 @@ class McpCopyTest < Minitest::Test
     refute_includes RecordingStudioSupport::McpCopy.tool_names, "restore_support_page"
     refute_includes RecordingStudioSupport::McpCopy.tool_names, "purge_support_page"
     refute_includes RecordingStudioSupport::McpCopy.tool_names, "grant_support_center_access"
+  end
+
+  def test_operations_tool_names_include_support_metric_names
+    names = RecordingStudioSupport::McpCopy.tool_names(api: :operations)
+
+    assert_equal RecordingStudioSupport::McpCopy::OPERATIONS_METRIC_NAMES, OPERATIONS_METRICS
+    public_names = RecordingStudioSupport::McpCopy.tool_names(api: :public)
+    OPERATIONS_METRICS.each do |name|
+      assert_includes names, name
+      refute_includes public_names, name
+    end
   end
 
   def test_mcp_copy_names_the_thing_and_omits_access_wording

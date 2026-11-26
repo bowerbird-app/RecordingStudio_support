@@ -41,6 +41,17 @@ module RecordingStudioSupport
       "count_unread_support_tickets" => "unread_count for the signed-in person."
     }.freeze
     TOOL_NAME_OVERRIDES = { [TICKET, :create] => "open_support_ticket" }.freeze
+    # Catalog metrics are not register_tool targets. Hosts include them by name.
+    OPERATIONS_METRIC_NAMES = %w[
+      support_tickets-open
+      support_tickets-oldest_open_age
+      support_tickets-by_status
+      support_tickets-by_priority
+      support_tickets-opened
+      support_tickets-avg_time_to_resolve
+      support_pages-total
+      support_page_views-over_time
+    ].freeze
 
     module_function
 
@@ -67,7 +78,7 @@ module RecordingStudioSupport
       names = OPERATIONS_OPERATIONS.map { |type, verb| tool_name(type, verb) }
       update_at = names.index("update_support_ticket")
       names.insert(update_at + 1, CLOSE)
-      names + OPERATIONS_ACTIONS.map { |type, verb| tool_name(type, verb) } + MESSAGE_NAMES
+      names + OPERATIONS_ACTIONS.map { |type, verb| tool_name(type, verb) } + MESSAGE_NAMES + OPERATIONS_METRIC_NAMES
     end
 
     def tool_name(type, verb)
