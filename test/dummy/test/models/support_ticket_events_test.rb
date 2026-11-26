@@ -113,6 +113,33 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     end
   end
 
+  test "a customer message reopens a resolved ticket under a host write policy" do
+    ticket = open_ticket!
+    recording = RecordingStudioSupport::Tickets.update!(ticket, actor: @support_user, status: :resolved)
+    group = RecordingStudioSupport::Tickets.group_recording_for(recording.recordable)
+    refute RecordingStudioAccessible.authorized?(
+      actor: @patron,
+      recording: RecordingStudioSupport::Tickets.recording_for!(recording.recordable),
+      role: :edit
+    )
+
+    with_strict_write_policy do
+      RecordingStudioMessages.send_message(
+        group_recording: group,
+        body: "Still broken on my side.",
+        actor: @patron
+      )
+    end
+
+    current = RecordingStudioSupport::Tickets.find!(ticket.id)
+    event = latest_event(RecordingStudioSupport::Tickets.recording_for!(current))
+    assert_equal "open", current.status
+    assert_nil current.resolved_at
+    assert_equal "updated", event.action
+    assert_equal @support_user, event.actor
+    assert_equal({ "status" => %w[resolved open] }, event.metadata["changes"])
+  end
+
   test "a customer message reopens a resolved ticket through update" do
     ticket = open_ticket!
     recording = RecordingStudioSupport::Tickets.update!(ticket, actor: @support_user, status: :resolved)
@@ -130,7 +157,7 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     assert_equal "open", current.status
     assert_nil current.resolved_at
     assert_equal "updated", event.action
-    assert_equal @patron, event.actor
+    assert_equal @support_user, event.actor
     assert_equal({ "status" => %w[resolved open] }, event.metadata["changes"])
   end
 

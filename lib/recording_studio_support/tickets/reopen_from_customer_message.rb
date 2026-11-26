@@ -21,7 +21,23 @@ module RecordingStudioSupport
         return if ticket.blank?
         return unless ticket.status.to_s == "resolved"
 
-        Tickets.update!(ticket, actor: @actor, status: :open)
+        writer = writer_for(ticket)
+        return if writer.blank?
+
+        Tickets.update!(ticket, actor: writer, status: :open)
+      end
+
+      private
+
+      def writer_for(ticket)
+        recording = Tickets.ticket_recording_for(ticket)
+        return if recording.blank?
+
+        editors = RecordingStudioAccessible.actors_with_access(
+          recording: recording,
+          minimum_role: :edit
+        ).map(&:actor)
+        editors.find { |person| Messages.support_team_actor?(person) } || editors.first
       end
     end
   end

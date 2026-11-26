@@ -90,6 +90,33 @@ class SupportTicketMessagesApiTest < ActionDispatch::IntegrationTest
     assert_equal 0, response.parsed_body.fetch("unread_count")
   end
 
+  test "requester reply reopens a resolved ticket when the host write policy refuses the customer" do
+    ticket_id = open_ticket_via_api!
+
+    patch "#{OPERATIONS_ROOT}/support_tickets/#{ticket_id}",
+          headers: auth(@editor_operations_token),
+          params: { status: "resolved" },
+          as: :json
+
+    assert_response :success
+    assert_equal "resolved", response.parsed_body.fetch("status")
+
+    with_strict_write_policy do
+      post "#{PUBLIC_ROOT}/support_ticket_reply/#{ticket_id}",
+           headers: auth(@patron_token),
+           params: { body: "It broke again." },
+           as: :json
+    end
+
+    assert_response :success
+
+    get "#{PUBLIC_ROOT}/support_tickets/#{ticket_id}", headers: auth(@patron_token), as: :json
+
+    assert_response :success
+    assert_equal "open", response.parsed_body.fetch("status")
+    assert_nil response.parsed_body["resolved_at"]
+  end
+
   test "requester reply reopens a resolved ticket" do
     ticket_id = open_ticket_via_api!
 
@@ -205,14 +232,23 @@ class SupportTicketMessagesApiTest < ActionDispatch::IntegrationTest
     assert_response :unauthorized
   end
 
-  test "operations viewer is forbidden on ticket messages" do
+  test "operations viewer can list ticket messages and cannot reply" do
     ticket_id = open_ticket_via_api!
 
     get "#{OPERATIONS_ROOT}/support_ticket_messages/#{ticket_id}",
         headers: auth(@viewer_operations_token),
         as: :json
 
-    assert_response :forbidden
+    assert_response :success
+    bodies = response.parsed_body.fetch("records").map { |record| record.fetch("body") }
+    assert_equal ["Please take a look."], bodies
+
+    get "#{OPERATIONS_ROOT}/support_ticket_unread_count",
+        headers: auth(@viewer_operations_token),
+        as: :json
+
+    assert_response :success
+    assert_operator response.parsed_body.fetch("unread_count"), :>=, 0
 
     post "#{OPERATIONS_ROOT}/support_ticket_reply/#{ticket_id}",
          headers: auth(@viewer_operations_token),
