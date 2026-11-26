@@ -36,6 +36,8 @@ module RecordingStudioSupport
         raise ArgumentError, "actor is required" if @actor.blank?
         raise ArgumentError, "subject is required" if @subject.blank?
         raise ArgumentError, "body is required" if @body.blank?
+
+        Tickets.require_known_priority!(@priority)
       end
 
       def create_ticket!

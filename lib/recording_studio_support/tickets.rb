@@ -37,6 +37,16 @@ module RecordingStudioSupport
       Update.call(...)
     end
 
+    def require_known_priority!(priority)
+      return unless Copy.provided?(priority)
+      return if SupportTicket::PRIORITIES.include?(priority.to_s)
+
+      raise ArgumentError, "priority must be #{SupportTicket::PRIORITIES.to_sentence(
+        two_words_connector: ' or ',
+        last_word_connector: ' or '
+      )}"
+    end
+
     def current
       current_relation(SupportTicket.all)
     end

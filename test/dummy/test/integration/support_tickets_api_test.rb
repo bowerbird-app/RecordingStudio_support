@@ -430,6 +430,35 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
     assert_response :unprocessable_entity
   end
 
+  test "open rejects an unknown priority as invalid_input" do
+    before = RecordingStudioSupport::SupportTicket.count
+
+    post "#{PUBLIC_ROOT}/support_tickets",
+         headers: auth(@patron_token),
+         params: {
+           subject: "Urgent crop #{SecureRandom.hex(4)}",
+           body: "The gate sticks.",
+           priority: "urgent"
+         },
+         as: :json
+
+    assert_invalid_priority_input
+    assert_equal before, RecordingStudioSupport::SupportTicket.count
+  end
+
+  test "update rejects an unknown priority as invalid_input" do
+    ticket_id = open_ticket_via_api!
+    priority_before = RecordingStudio::Recording.find(ticket_id).recordable.priority
+
+    patch "#{OPERATIONS_ROOT}/support_tickets/#{ticket_id}",
+          headers: auth(@editor_operations_token),
+          params: { priority: "urgent" },
+          as: :json
+
+    assert_invalid_priority_input
+    assert_equal priority_before, RecordingStudio::Recording.find(ticket_id).recordable.priority
+  end
+
   test "ticket openapi titles are action first" do
     public_ticket = RecordingStudioApi.recordable_registration_for(
       "RecordingStudioSupport::SupportTicket",
@@ -507,6 +536,20 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
     yield
   ensure
     Current.actor = previous
+  end
+
+  def assert_invalid_priority_input
+    assert_response :unprocessable_entity
+    body = response.parsed_body
+    message = body["message"] || body.dig("error", "message").to_s
+    code = body["code"] || body.dig("error", "code")
+    expected = "priority must be #{RecordingStudioSupport::SupportTicket::PRIORITIES.to_sentence(
+      two_words_connector: ' or ',
+      last_word_connector: ' or '
+    )}"
+
+    assert_equal "invalid_input", code
+    assert_equal expected, message
   end
 
   def ticket_status(ticket_id)
