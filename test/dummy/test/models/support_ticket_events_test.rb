@@ -188,17 +188,19 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     ticket = open_ticket!
     RecordingStudioSupport::Tickets.update!(ticket, actor: @support_user, status: :resolved)
     group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
-    RecordingStudio::Access.where(actor: @support_user).delete_all
+    client = RecordingStudioApi::ApiClient.new
+    grant = Struct.new(:actor).new(client)
     log = StringIO.new
     previous_logger = Rails.logger
     Rails.logger = ActiveSupport::Logger.new(log)
 
     begin
-      RecordingStudioMessages.send_message(
-        group_recording: group,
-        body: "Still broken on my side.",
-        actor: @patron
-      )
+      with_reopen_editors([grant], support_team: [client]) do
+        RecordingStudioSupport::Tickets::ReopenFromCustomerMessage.call(
+          group_recording: group,
+          actor: @patron
+        )
+      end
     ensure
       Rails.logger = previous_logger
     end
@@ -278,6 +280,21 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     refute_equal @patron, event.actor
     assert RecordingStudioSupport::Api::Access.person?(event.actor)
     assert RecordingStudioSupport::Messages.support_team_actor?(event.actor)
+  end
+
+  def with_reopen_editors(grants, support_team:)
+    accessible = class << RecordingStudioAccessible; self; end
+    messages = class << RecordingStudioSupport::Messages; self; end
+    accessible.alias_method :actors_with_access_without_test, :actors_with_access
+    accessible.define_method(:actors_with_access) { |**| grants }
+    messages.alias_method :support_team_actor_without_test, :support_team_actor?
+    messages.define_method(:support_team_actor?) { |actor| support_team.any? { |person| person.equal?(actor) } }
+    yield
+  ensure
+    accessible.alias_method :actors_with_access, :actors_with_access_without_test
+    accessible.remove_method :actors_with_access_without_test
+    messages.alias_method :support_team_actor?, :support_team_actor_without_test
+    messages.remove_method :support_team_actor_without_test
   end
 
   def assert_reopen_cause(event, message_recording:, group_recording:)
