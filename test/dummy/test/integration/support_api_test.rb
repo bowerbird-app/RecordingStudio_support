@@ -324,6 +324,8 @@ class SupportApiTest < ActionDispatch::IntegrationTest
   end
 
   test "operations editor token can write sections nested pages and pages including move" do
+    assert RecordingStudioAccessible.authorized?(actor: @support_user, recording: @admin_root, role: :edit)
+
     post "#{OPERATIONS_ROOT}/support_sections",
          headers: auth(@editor_operations_token),
          params: { title: "Created section #{SecureRandom.hex(4)}", parent_id: @admin_root.id, icon: "sparkles" },
@@ -484,9 +486,25 @@ class SupportApiTest < ActionDispatch::IntegrationTest
   end
 
   test "operations viewer is forbidden to write" do
+    assert RecordingStudioAccessible.authorized?(actor: @support_user, recording: @admin_root, role: :edit)
+
     post "#{OPERATIONS_ROOT}/support_sections",
          headers: auth(@viewer_operations_token),
          params: { title: "Nope", parent_id: @root.id },
+         as: :json
+
+    assert_response :forbidden
+
+    patch "#{OPERATIONS_ROOT}/support_sections/#{@section.id}",
+          headers: auth(@viewer_operations_token),
+          params: { title: "Hijack section" },
+          as: :json
+
+    assert_response :forbidden
+
+    post "#{OPERATIONS_ROOT}/support_pages",
+         headers: auth(@viewer_operations_token),
+         params: { title: "Nope", body: "<p>Hi</p>", parent_id: @section.id },
          as: :json
 
     assert_response :forbidden
@@ -542,6 +560,18 @@ class SupportApiTest < ActionDispatch::IntegrationTest
            as: :json
 
     assert_response :forbidden
+  end
+
+  test "delegated view grant cannot edit even when the person can" do
+    assert RecordingStudioAccessible.authorized?(actor: @support_user, recording: @admin_root, role: :edit)
+
+    view_payload = provision_operations_client(role: :view)
+    assert_raises(RecordingStudioApi::AuthorizationError) do
+      RecordingStudioSupport::Api::Access.authorize_edit!(delegated_edit_context(view_payload))
+    end
+
+    edit_payload = provision_operations_client(role: :edit)
+    RecordingStudioSupport::Api::Access.authorize_edit!(delegated_edit_context(edit_payload))
   end
 
   test "operations token scoped to a workspace cannot write admin-root help" do
@@ -1199,6 +1229,30 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     yield
   ensure
     Current.actor = previous
+  end
+
+  def provision_operations_client(role:)
+    result = RecordingStudioApi::Services::ProvisionApiClient.call(
+      access_point_recording: @admin_root,
+      manager_actor: @support_user,
+      role: role,
+      name: "Delegated #{role} #{SecureRandom.hex(4)}",
+      api: :operations
+    )
+    raise result.error unless result.success?
+
+    result.value
+  end
+
+  def delegated_edit_context(payload)
+    grant = RecordingStudioApi::AccessGrant.new(
+      api_client: payload.fetch(:api_client),
+      credential: payload.fetch(:credential),
+      access_recording: payload.fetch(:access_recording),
+      root_recording: @admin_root,
+      authorized_by: @support_user
+    )
+    Struct.new(:actor, :access_grant).new(@support_user, grant)
   end
 
   def provision_token(access_point:, actor:, role:, name:, admin_root_recording: nil, admin_root_role: :edit, api: :public)

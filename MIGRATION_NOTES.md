@@ -1,5 +1,20 @@
 # Upgrade notes
 
+## 0.38.12
+
+Delegated OAuth on Recording Studio API 1.23.0 or later: a `:view` token cannot write help even when the person has `:edit`. Top-level help create was the hole (HandlerGuard skips `:create`). App-only tokens were already refused.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.38.12`.
+2. No Support migration. Re-pin the gem. No other host step.
+
+### Verify
+
+```bash
+cd test/dummy && bundle exec rails test test/integration/support_api_test.rb
+```
+
 ## 0.38.11
 
 An unknown ticket `priority` on open or update is `invalid_input`.

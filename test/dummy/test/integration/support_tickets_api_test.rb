@@ -299,6 +299,8 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
 
     assert_includes [401, 403], response.status
 
+    assert RecordingStudioAccessible.authorized?(actor: @support_user, recording: @admin_root, role: :edit)
+
     post "#{OPERATIONS_ROOT}/support_ticket_close/#{ticket_id}",
          headers: auth(@viewer_operations_token),
          as: :json
@@ -330,6 +332,7 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
   end
 
   test "operations viewer can list and show tickets and cannot update" do
+    assert RecordingStudioAccessible.authorized?(actor: @support_user, recording: @admin_root, role: :edit)
     ticket_id = open_ticket_via_api!
 
     get "#{OPERATIONS_ROOT}/support_tickets", headers: auth(@viewer_operations_token), as: :json
