@@ -71,6 +71,20 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     end
   end
 
+  test "update metadata keeps caller keys and lets changes win" do
+    ticket = open_ticket!
+    recording = RecordingStudioSupport::Tickets.update!(
+      ticket,
+      actor: @support_user,
+      status: :resolved,
+      metadata: { "message_id" => "note-1", "changes" => "ignored" }
+    )
+    event = latest_event(recording)
+
+    assert_equal({ "status" => %w[open resolved] }, event.metadata["changes"])
+    assert_equal "note-1", event.metadata["message_id"]
+  end
+
   test "one update can record several fields on a single event" do
     ticket = open_ticket!
     recording = RecordingStudioSupport::Tickets.recording_for!(ticket)
@@ -113,13 +127,42 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     end
   end
 
+  test "a customer message reopens a resolved ticket under a host write policy" do
+    ticket = open_ticket!
+    recording = RecordingStudioSupport::Tickets.update!(ticket, actor: @support_user, status: :resolved)
+    group = RecordingStudioSupport::Tickets.group_recording_for(recording.recordable)
+    refute RecordingStudioAccessible.authorized?(
+      actor: @patron,
+      recording: RecordingStudioSupport::Tickets.recording_for!(recording.recordable),
+      role: :edit
+    )
+
+    message = nil
+    with_strict_write_policy do
+      message = RecordingStudioMessages.send_message(
+        group_recording: group,
+        body: "Still broken on my side.",
+        actor: @patron
+      )
+    end
+
+    current = RecordingStudioSupport::Tickets.find!(ticket.id)
+    event = latest_event(RecordingStudioSupport::Tickets.recording_for!(current))
+    assert_equal "open", current.status
+    assert_nil current.resolved_at
+    assert_equal "updated", event.action
+    assert_reopen_writer event
+    assert_reopen_cause event, message_recording: message, group_recording: group
+    assert_equal({ "status" => %w[resolved open] }, event.metadata["changes"])
+  end
+
   test "a customer message reopens a resolved ticket through update" do
     ticket = open_ticket!
     recording = RecordingStudioSupport::Tickets.update!(ticket, actor: @support_user, status: :resolved)
     group = RecordingStudioSupport::Tickets.group_recording_for(recording.recordable)
     assert_not_nil recording.recordable.resolved_at
 
-    RecordingStudioMessages.send_message(
+    message = RecordingStudioMessages.send_message(
       group_recording: group,
       body: "Still broken on my side.",
       actor: @patron
@@ -130,7 +173,9 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     assert_equal "open", current.status
     assert_nil current.resolved_at
     assert_equal "updated", event.action
-    assert_equal @patron, event.actor
+    assert_reopen_writer event
+    assert_edit_holders_prefer_a_person current
+    assert_reopen_cause event, message_recording: message, group_recording: group
     assert_equal({ "status" => %w[resolved open] }, event.metadata["changes"])
   end
 
@@ -152,6 +197,32 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     assert_equal "resolved", current.status
     assert_equal "high", current.priority
     assert_not_nil current.resolved_at
+  end
+
+  test "a customer message does not reopen when no support-team person can edit" do
+    ticket = open_ticket!
+    RecordingStudioSupport::Tickets.update!(ticket, actor: @support_user, status: :resolved)
+    group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
+    client = RecordingStudioApi::ApiClient.new
+    grant = Struct.new(:actor).new(client)
+    log = StringIO.new
+    previous_logger = Rails.logger
+    Rails.logger = ActiveSupport::Logger.new(log)
+
+    begin
+      reopener = RecordingStudioSupport::Tickets::ReopenFromCustomerMessage.new(
+        group_recording: group,
+        actor: @patron
+      )
+      reopener.stub(:edit_holders, [grant]) { reopener.call }
+    ensure
+      Rails.logger = previous_logger
+    end
+
+    current = RecordingStudioSupport::Tickets.find!(ticket.id)
+    assert_equal "resolved", current.status
+    assert_not_nil current.resolved_at
+    assert_includes log.string, "no support-team person"
   end
 
   test "a support team message does not reopen a resolved ticket" do
@@ -217,5 +288,27 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
 
   def latest_event(recording)
     recording.events.order(occurred_at: :desc, created_at: :desc).first
+  end
+
+  def assert_reopen_writer(event)
+    refute_equal @patron, event.actor
+    assert RecordingStudioSupport::Api::Access.person?(event.actor)
+    assert RecordingStudioSupport::Messages.support_team_actor?(event.actor)
+  end
+
+  def assert_edit_holders_prefer_a_person(ticket)
+    recording = RecordingStudioSupport::Tickets.ticket_recording_for(ticket)
+    holders = RecordingStudioSupport::Tickets::ReopenFromCustomerMessage.new(
+      group_recording: RecordingStudioSupport::Tickets.group_recording_for(ticket),
+      actor: @patron
+    ).edit_holders(recording)
+
+    assert_kind_of RecordingStudioApi::ApiClient, holders.first.actor
+  end
+
+  def assert_reopen_cause(event, message_recording:, group_recording:)
+    assert_equal @patron, event.impersonator
+    assert_equal message_recording.id.to_s, event.metadata["message_id"].to_s
+    assert_equal group_recording.id.to_s, event.metadata["message_group_id"].to_s
   end
 end

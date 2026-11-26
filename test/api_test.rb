@@ -114,7 +114,7 @@ class ApiTest < Minitest::Test
     assert_includes search, 'PATH = "support_page_search"'
     assert_includes search, 'TITLE = "Search support pages"'
     assert_includes search, "PUBLIC_PAGE_TAG"
-    assert_includes search, "SupportPage.indexable"
+    assert_includes search, "customer_visible_pages"
     assert_includes registration, "ADMIN_NESTED_PAGE_OPERATIONS = (READ_OPERATIONS + WRITE_OPERATIONS)"
     assert_includes registration, "ADMIN_PAGE_OPERATIONS = (READ_OPERATIONS + WRITE_OPERATIONS)"
     assert_includes registration, "operations: ADMIN_PAGE_OPERATIONS"
@@ -166,6 +166,15 @@ class ApiTest < Minitest::Test
   def test_route_handlers_read_the_scoped_recording
     ticket_update = File.read(File.expand_path("../lib/recording_studio_support/api/ticket_update.rb", __dir__))
     ticket_show = File.read(File.expand_path("../lib/recording_studio_support/api/ticket_show.rb", __dir__))
+    ticket_index = File.read(File.expand_path("../lib/recording_studio_support/api/ticket_index.rb", __dir__))
+    ticket_access = File.read(File.expand_path("../lib/recording_studio_support/api/ticket_access.rb", __dir__))
+    ticket_messages = File.read(File.expand_path("../lib/recording_studio_support/api/ticket_messages.rb", __dir__))
+    ticket_messages_list = File.read(
+      File.expand_path("../lib/recording_studio_support/api/ticket_messages/list.rb", __dir__)
+    )
+    ticket_messages_unread = File.read(
+      File.expand_path("../lib/recording_studio_support/api/ticket_messages/unread_count.rb", __dir__)
+    )
     show = File.read(File.expand_path("../lib/recording_studio_support/api/show.rb", __dir__))
     publish = File.read(File.expand_path("../lib/recording_studio_support/api/publishable_transition.rb", __dir__))
 
@@ -173,6 +182,15 @@ class ApiTest < Minitest::Test
     refute_includes ticket_update, "Tickets.find!"
     assert_includes ticket_show, "Lookup.routed!"
     assert_includes ticket_show, "TicketAccess.find_recording!"
+    assert_includes ticket_show, "TicketAccess.authorize_read!"
+    assert_includes ticket_index, "TicketAccess.authorize_read!"
+    assert_includes ticket_access, "def authorize_read!(context)"
+    refute_includes ticket_messages, "def authorize_read!"
+    assert_includes ticket_messages_list, "TicketAccess.authorize_read!"
+    assert_includes ticket_messages_unread, "TicketAccess.authorize_read!"
+    refute_includes ticket_index, "Access.authorize_support_team_view!"
+    refute_includes ticket_show, "Access.authorize_support_team_view!"
+    refute_includes ticket_messages, "Access.authorize_support_team_view!"
     assert_includes show, "SupportCenters.current"
     assert_includes show, "Pages.kept_pages_for_center"
     assert_includes publish, "Lookup.routed!"

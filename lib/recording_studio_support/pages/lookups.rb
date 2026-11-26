@@ -17,15 +17,18 @@ module RecordingStudioSupport
         scope.reorder(:recording_studio_orderable_position, :created_at, :id).preload(:recordable)
       end
 
-      def public_indexable(query: nil)
-        apply_page_query(SupportPage.indexable, query).distinct.reorder(:title)
+      def public_indexable(query: nil, actor: nil)
+        apply_page_query(customer_visible_pages(actor: actor), query).distinct.reorder(:title)
       end
 
-      def public_for_section(section_recording, query: nil)
+      def public_for_section(section_recording, query: nil, actor: nil)
         return SupportPage.none unless section_recording
 
-        page_ids = kept_pages_for_section(section_recording).pluck(:recordable_id)
-        apply_page_query(SupportPage.indexable.where(id: page_ids), query).distinct.reorder(:title)
+        page_ids = kept_pages_for_section(section_recording).select(:recordable_id)
+        apply_page_query(
+          customer_visible_pages(actor: actor, ids: page_ids),
+          query
+        ).distinct.reorder(:title)
       end
 
       def related_public_for(page, section_recording: nil)

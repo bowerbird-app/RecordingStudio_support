@@ -4,6 +4,7 @@ ENV["RAILS_ENV"] ||= "test"
 
 require_relative "../config/environment"
 require "rails/test_help"
+require_relative "recording_studio_write_policy"
 
 module SupportRecordHelpers
   def record_support_center(parent_recording)
@@ -125,6 +126,16 @@ module SupportRecordHelpers
     RecordingStudioAccessible.access_recordings_for_actor(recording: recording, actor: actor).map do |access|
       access.recordable.role.to_s
     end
+  end
+
+  def with_strict_write_policy
+    previous = RecordingStudio.configuration.authorize_write
+    RecordingStudio.configuration.authorize_write = lambda { |**context|
+      RecordingStudioSupportDummy::RecordingStudioWritePolicy.allowed?(**context)
+    }
+    yield
+  ensure
+    RecordingStudio.configuration.authorize_write = previous
   end
 
   def grant_admin!(recording, actor)

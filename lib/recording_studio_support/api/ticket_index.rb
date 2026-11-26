@@ -6,11 +6,7 @@ module RecordingStudioSupport
       private
 
       def authorize_index!
-        if Access.operations_api?(context)
-          TicketAccess.authorize_support_team!(context)
-        else
-          TicketAccess.authorize_view!(context)
-        end
+        TicketAccess.authorize_read!(context)
       end
 
       def filtered_recordings

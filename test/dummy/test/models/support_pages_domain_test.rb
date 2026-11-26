@@ -186,6 +186,18 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
     assert_empty RecordingStudioSupport::Pages.public_indexable(query: draft_only)
     assert live.recordable.indexable?
     refute draft.recordable.indexable?
+
+    unlisted = RecordingStudioSupport::Pages.create!(
+      parent_recording: @section_recording,
+      title: "Unlisted help #{token}",
+      body: "Published without a public URL #{token}.",
+      actor: @user
+    )
+    publish!(unlisted, slug: "unlisted-help-#{token}", status: "published", canonical_url: "notaurl")
+    refute unlisted.recordable.indexable?
+    assert unlisted.recordable.published?
+    titles = RecordingStudioSupport::Pages.public_indexable.map(&:title)
+    assert_includes titles, "Unlisted help #{token}"
   end
 
   test "instant pages hits use allowlisted trigram and stay in the section" do
@@ -233,11 +245,13 @@ class SupportPagesDomainTest < ActiveSupport::TestCase
 
   private
 
-  def publish!(page_recording, slug:, status:)
+  def publish!(page_recording, slug:, status:, canonical_url: nil)
+    attributes = { slug: slug, status: status }
+    attributes[:canonical_url] = canonical_url unless canonical_url.nil?
     result = RecordingStudioPublishable::Services::Publishables::Update.call(
       parent_recording: page_recording,
       actor: @user,
-      attributes: { slug: slug, status: status }
+      attributes: attributes
     )
     raise result.error if result.failure?
   end

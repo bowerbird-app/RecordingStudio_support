@@ -56,6 +56,20 @@ class SupportTicketTest < Minitest::Test
     )
     assert_includes reopen, "Tickets.update!"
     assert_includes reopen, "Messages.support_team_actor?"
+    assert_includes reopen, "def edit_holders(recording)"
+    assert_includes reopen, "RecordingStudioAccessible.actors_with_access"
+    assert_includes reopen, "Api::Access.person?"
+    assert_includes reopen, "people.find { |actor| Messages.support_team_actor?(actor) }"
+    assert_match(
+      /select \{ \|actor\| Api::Access\.person\?\(actor\) \}\n\s*people\.find/,
+      reopen
+    )
+    refute_includes reopen, "staff.presence || editors"
+    refute_includes reopen, "preferred.first"
+    assert_includes reopen, "Rails.logger.warn"
+    assert_includes reopen, "impersonator: @actor"
+    assert_includes reopen, '"message_id"'
+    assert_includes reopen, '"message_group_id"'
     assert_includes reopen, 'status.to_s == "resolved"'
   end
 

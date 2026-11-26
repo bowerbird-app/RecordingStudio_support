@@ -8,20 +8,77 @@ module RecordingStudioSupport
         new(...).call
       end
 
-      def initialize(group_recording:, actor:)
+      def initialize(group_recording:, actor:, message_recording: nil)
         @group_recording = group_recording
         @actor = actor
+        @message_recording = message_recording
       end
 
       def call
-        return if @group_recording.blank? || @actor.blank?
-        return if Messages.support_team_actor?(@actor)
+        return unless customer_reply?
 
-        ticket = Tickets.tickets_by_group_id([@group_recording.id])[@group_recording.id]
-        return if ticket.blank?
-        return unless ticket.status.to_s == "resolved"
+        ticket = ticket_for_group
+        return unless resolved?(ticket)
 
-        Tickets.update!(ticket, actor: @actor, status: :open)
+        writer = writer_for(ticket)
+        if writer.blank?
+          log_missing_writer(ticket)
+          return
+        end
+
+        apply_reopen!(ticket, writer)
+      end
+
+      # test seam
+      def edit_holders(recording)
+        RecordingStudioAccessible.actors_with_access(
+          recording: recording,
+          minimum_role: :edit
+        )
+      end
+
+      private
+
+      def customer_reply?
+        @group_recording.present? && @actor.present? && !Messages.support_team_actor?(@actor)
+      end
+
+      def ticket_for_group
+        Tickets.tickets_by_group_id([@group_recording.id])[@group_recording.id]
+      end
+
+      def resolved?(ticket)
+        ticket.present? && ticket.status.to_s == "resolved"
+      end
+
+      def apply_reopen!(ticket, writer)
+        Tickets.update!(
+          ticket,
+          actor: writer,
+          impersonator: @actor,
+          status: :open,
+          metadata: {
+            "message_id" => @message_recording&.id,
+            "message_group_id" => @group_recording.id
+          }.compact
+        )
+      end
+
+      def writer_for(ticket)
+        recording = Tickets.ticket_recording_for(ticket)
+        return if recording.blank?
+
+        people = edit_holders(recording).map(&:actor).select { |actor| Api::Access.person?(actor) }
+        people.find { |actor| Messages.support_team_actor?(actor) }
+      end
+
+      def log_missing_writer(ticket)
+        return unless defined?(Rails) && Rails.logger
+
+        Rails.logger.warn(
+          "RecordingStudioSupport could not reopen ticket #{ticket.id}: " \
+          "no support-team person with edit access."
+        )
       end
     end
   end

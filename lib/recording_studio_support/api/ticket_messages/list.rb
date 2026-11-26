@@ -13,7 +13,7 @@ module RecordingStudioSupport
         end
 
         def call
-          TicketMessages.authorize!(@context)
+          TicketAccess.authorize_read!(@context)
           group = TicketMessages.conversation!(@context)
           rows = RecordingStudioMessages.message_recordings(group)
           { records: rows.map { |row| TicketMessages.serialize_message(row) } }

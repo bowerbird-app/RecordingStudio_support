@@ -2,11 +2,13 @@
 
 require_relative "pages/lookups"
 require_relative "pages/counts"
+require_relative "pages/customer_visibility"
 
 module RecordingStudioSupport
   module Pages
     extend Lookups
     extend Counts
+    extend CustomerVisibility
 
     module_function
 

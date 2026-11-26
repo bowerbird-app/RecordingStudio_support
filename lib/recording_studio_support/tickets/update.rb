@@ -8,11 +8,13 @@ module RecordingStudioSupport
         new(...).call
       end
 
-      def initialize(ticket_or_recording, actor:, status: UNSET, priority: UNSET)
+      def initialize(ticket_or_recording, actor:, status: UNSET, priority: UNSET, **event)
         @ticket_or_recording = ticket_or_recording
         @actor = actor
         @status = status
         @priority = priority
+        @impersonator = event.key?(:impersonator) ? event[:impersonator] : UNSET
+        @metadata = event[:metadata] || {}
       end
 
       def call
@@ -51,11 +53,13 @@ module RecordingStudioSupport
       end
 
       def revise(recording, changes, attributes)
-        recording.root_recording.revise(
-          recording,
+        options = {
           actor: @actor,
-          metadata: { "changes" => changes }
-        ) do |ticket|
+          metadata: @metadata.to_h.transform_keys(&:to_s).merge("changes" => changes)
+        }
+        options[:impersonator] = @impersonator if Copy.provided?(@impersonator)
+
+        recording.root_recording.revise(recording, **options) do |ticket|
           attributes.each { |name, value| ticket.public_send(:"#{name}=", value) }
           ticket.created_at = recording.created_at
         end

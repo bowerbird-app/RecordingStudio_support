@@ -1,5 +1,25 @@
 # Upgrade notes
 
+## 0.38.10
+
+Customer replies reopen resolved tickets under a host write policy. View-only staff can list and read tickets. Customers see published noindex help. Operations MCP tool_names includes Support metrics.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.38.10`.
+2. No Support migration. Re-pin the gem. No other host step.
+3. A requester reply still uses `reply_to_support_ticket` / the web Messages composer. The reopen write is a support-team person with Accessible `:edit` on the ticket, never an ApiClient. The `updated` event `actor` is that person, `impersonator` is the customer who replied, and `metadata` keeps `changes` plus Messages `message_id` and `message_group_id`. If no such person exists, the ticket stays resolved and Rails logs a warning. A host `authorize_write` that refuses the customer on the ticket recording still reopens it.
+4. Operations AdminRoot `:view` can list and show tickets and list ticket messages. Writes stay at SupportCenter `:edit`.
+5. Customer help list/show/search uses published pages (including noindex) plus Views `tracking_access_action`. Search Instant engine hits still use `indexable`.
+6. Operations MCP `include_tools(*RecordingStudioSupport::McpCopy.tool_names(api: :operations))` now includes Support metric names. Drop any host copy of those names. Catalog metrics stay off `register_tool`.
+
+### Verify
+
+```bash
+cd test/dummy && bundle exec rails test test/integration/support_ticket_messages_api_test.rb test/integration/support_tickets_api_test.rb test/integration/support_api_test.rb test/models/support_ticket_events_test.rb test/models/support_pages_domain_test.rb
+bundle exec rake test TEST=test/mcp_copy_test.rb
+```
+
 ## 0.38.9
 
 Public open-ticket create passes `parent: :server` when the loaded API accepts that keyword. An older API keeps the 0.38.8 registration and still boots.

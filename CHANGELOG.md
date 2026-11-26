@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.38.10] - 2026-11-26
+
+Customer replies reopen resolved tickets under a host write policy, view-only staff can read tickets, customers see published noindex help, and operations MCP `tool_names` includes Support metrics.
+
+### Fixed
+- A requester reply on a resolved ticket still posts through `RecordingStudioMessages.send_message` (the same path as the web composer). The after-record reopen calls `Tickets.update!` as a trusted support-team person with Accessible `:edit` on the ticket, not as the customer. That `updated` event keeps the person as `actor`, stores the customer on `impersonator`, and adds Messages `message_id` / `message_group_id` beside `metadata["changes"]`. An ApiClient or other non-person `:edit` holder is not used. If no support-team person can edit, the ticket stays resolved and Rails logs a warning. Host `authorize_write` that only grants the customer `:edit` on the conversation no longer swallows the reopen.
+- Operations ticket list/show and ticket-message list/unread-count authorize Accessible `:view` on the admin root through `TicketAccess.authorize_read!`. Ticket update, close, reply, and mark-read still need SupportCenter `:edit`.
+- Customer help list, show, search, and public Instant in a section use published pages plus Views `tracking_access_action` through Accessible `authorized_action?`. Published noindex pages now show to customers. `SupportPage.indexable` stays on Search Instant engine hits.
+- Operations `McpCopy.tool_names(api: :operations)` includes Support metric names (`support_tickets-open` and the rest of the Support catalog). Catalog metrics stay off `register_tool`. A host that already splat that list can drop its own Support metric names.
+
+### Upgrade notes
+- Bump to `0.38.10`. No Support migration. Re-pin the gem. Operations MCP `include_tools(*RecordingStudioSupport::McpCopy.tool_names(api: :operations))` now includes Support metrics. Drop any host copy of those names. No other host step.
+
 ## [0.38.9] - 2026-11-24
 
 Public open-ticket create passes `parent: :server` when the loaded Recording Studio API accepts that keyword. An older API keeps the 0.38.8 registration.

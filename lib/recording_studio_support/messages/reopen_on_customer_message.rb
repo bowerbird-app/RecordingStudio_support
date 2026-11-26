@@ -24,7 +24,8 @@ module RecordingStudioSupport
 
           Tickets::ReopenFromCustomerMessage.call(
             group_recording: event.recording.parent_recording,
-            actor: event.actor
+            actor: event.actor,
+            message_recording: event.recording
           )
         end
 
