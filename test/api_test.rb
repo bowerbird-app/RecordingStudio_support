@@ -169,6 +169,12 @@ class ApiTest < Minitest::Test
     ticket_index = File.read(File.expand_path("../lib/recording_studio_support/api/ticket_index.rb", __dir__))
     ticket_access = File.read(File.expand_path("../lib/recording_studio_support/api/ticket_access.rb", __dir__))
     ticket_messages = File.read(File.expand_path("../lib/recording_studio_support/api/ticket_messages.rb", __dir__))
+    ticket_messages_list = File.read(
+      File.expand_path("../lib/recording_studio_support/api/ticket_messages/list.rb", __dir__)
+    )
+    ticket_messages_unread = File.read(
+      File.expand_path("../lib/recording_studio_support/api/ticket_messages/unread_count.rb", __dir__)
+    )
     show = File.read(File.expand_path("../lib/recording_studio_support/api/show.rb", __dir__))
     publish = File.read(File.expand_path("../lib/recording_studio_support/api/publishable_transition.rb", __dir__))
 
@@ -179,7 +185,9 @@ class ApiTest < Minitest::Test
     assert_includes ticket_show, "TicketAccess.authorize_read!"
     assert_includes ticket_index, "TicketAccess.authorize_read!"
     assert_includes ticket_access, "def authorize_read!(context)"
-    assert_includes ticket_messages, "TicketAccess.authorize_read!"
+    refute_includes ticket_messages, "def authorize_read!"
+    assert_includes ticket_messages_list, "TicketAccess.authorize_read!"
+    assert_includes ticket_messages_unread, "TicketAccess.authorize_read!"
     refute_includes ticket_index, "Access.authorize_support_team_view!"
     refute_includes ticket_show, "Access.authorize_support_team_view!"
     refute_includes ticket_messages, "Access.authorize_support_team_view!"

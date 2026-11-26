@@ -8,14 +8,23 @@ module RecordingStudioSupport
         new(...).call
       end
 
-      def initialize(ticket_or_recording, actor:, status: UNSET, priority: UNSET, **event)
+      # rubocop:disable Metrics/ParameterLists -- impersonator and metadata stay named, not **event
+      def initialize(
+        ticket_or_recording,
+        actor:,
+        status: UNSET,
+        priority: UNSET,
+        impersonator: UNSET,
+        metadata: {}
+      )
         @ticket_or_recording = ticket_or_recording
         @actor = actor
         @status = status
         @priority = priority
-        @impersonator = event.key?(:impersonator) ? event[:impersonator] : UNSET
-        @metadata = event[:metadata] || {}
+        @impersonator = impersonator
+        @metadata = metadata
       end
+      # rubocop:enable Metrics/ParameterLists
 
       def call
         recording = coerce_recording
@@ -55,7 +64,7 @@ module RecordingStudioSupport
       def revise(recording, changes, attributes)
         options = {
           actor: @actor,
-          metadata: { "changes" => changes }.merge(@metadata.to_h.transform_keys(&:to_s))
+          metadata: @metadata.to_h.transform_keys(&:to_s).merge("changes" => changes)
         }
         options[:impersonator] = @impersonator if Copy.provided?(@impersonator)
 

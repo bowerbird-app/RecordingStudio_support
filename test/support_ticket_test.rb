@@ -56,9 +56,14 @@ class SupportTicketTest < Minitest::Test
     )
     assert_includes reopen, "Tickets.update!"
     assert_includes reopen, "Messages.support_team_actor?"
+    assert_includes reopen, "def edit_holders(recording)"
     assert_includes reopen, "RecordingStudioAccessible.actors_with_access"
     assert_includes reopen, "Api::Access.person?"
-    assert_includes reopen, "staff.find { |actor| Api::Access.person?(actor) }"
+    assert_includes reopen, "people.find { |actor| Messages.support_team_actor?(actor) }"
+    assert_match(
+      /select \{ \|actor\| Api::Access\.person\?\(actor\) \}\n\s*people\.find/,
+      reopen
+    )
     refute_includes reopen, "staff.presence || editors"
     refute_includes reopen, "preferred.first"
     assert_includes reopen, "Rails.logger.warn"
@@ -66,6 +71,17 @@ class SupportTicketTest < Minitest::Test
     assert_includes reopen, '"message_id"'
     assert_includes reopen, '"message_group_id"'
     assert_includes reopen, 'status.to_s == "resolved"'
+  end
+
+  def test_ticket_update_takes_named_event_keywords
+    update = File.read(
+      File.expand_path("../lib/recording_studio_support/tickets/update.rb", __dir__)
+    )
+
+    assert_includes update, "impersonator: UNSET"
+    assert_includes update, "metadata: {}"
+    refute_includes update, "**event)"
+    assert_includes update, '@metadata.to_h.transform_keys(&:to_s).merge("changes" => changes)'
   end
 
   def test_current_ticket_join_is_built_when_called

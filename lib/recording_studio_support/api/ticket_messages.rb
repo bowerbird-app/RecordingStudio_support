@@ -39,10 +39,6 @@ module RecordingStudioSupport
         end
       end
 
-      def authorize_read!(context)
-        TicketAccess.authorize_read!(context)
-      end
-
       def ticket_recording!(context)
         return TicketAccess.find_recording!(context) unless Access.operations_api?(context)
 

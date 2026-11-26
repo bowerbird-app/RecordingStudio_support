@@ -71,6 +71,20 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     end
   end
 
+  test "update metadata keeps caller keys and lets changes win" do
+    ticket = open_ticket!
+    recording = RecordingStudioSupport::Tickets.update!(
+      ticket,
+      actor: @support_user,
+      status: :resolved,
+      metadata: { "message_id" => "note-1", "changes" => "ignored" }
+    )
+    event = latest_event(recording)
+
+    assert_equal({ "status" => %w[open resolved] }, event.metadata["changes"])
+    assert_equal "note-1", event.metadata["message_id"]
+  end
+
   test "one update can record several fields on a single event" do
     ticket = open_ticket!
     recording = RecordingStudioSupport::Tickets.recording_for!(ticket)
@@ -160,6 +174,7 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     assert_nil current.resolved_at
     assert_equal "updated", event.action
     assert_reopen_writer event
+    assert_edit_holders_prefer_a_person current
     assert_reopen_cause event, message_recording: message, group_recording: group
     assert_equal({ "status" => %w[resolved open] }, event.metadata["changes"])
   end
@@ -195,12 +210,11 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     Rails.logger = ActiveSupport::Logger.new(log)
 
     begin
-      with_reopen_editors([grant], support_team: [client]) do
-        RecordingStudioSupport::Tickets::ReopenFromCustomerMessage.call(
-          group_recording: group,
-          actor: @patron
-        )
-      end
+      reopener = RecordingStudioSupport::Tickets::ReopenFromCustomerMessage.new(
+        group_recording: group,
+        actor: @patron
+      )
+      reopener.stub(:edit_holders, [grant]) { reopener.call }
     ensure
       Rails.logger = previous_logger
     end
@@ -282,19 +296,14 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     assert RecordingStudioSupport::Messages.support_team_actor?(event.actor)
   end
 
-  def with_reopen_editors(grants, support_team:)
-    accessible = class << RecordingStudioAccessible; self; end
-    messages = class << RecordingStudioSupport::Messages; self; end
-    accessible.alias_method :actors_with_access_without_test, :actors_with_access
-    accessible.define_method(:actors_with_access) { |**| grants }
-    messages.alias_method :support_team_actor_without_test, :support_team_actor?
-    messages.define_method(:support_team_actor?) { |actor| support_team.any? { |person| person.equal?(actor) } }
-    yield
-  ensure
-    accessible.alias_method :actors_with_access, :actors_with_access_without_test
-    accessible.remove_method :actors_with_access_without_test
-    messages.alias_method :support_team_actor?, :support_team_actor_without_test
-    messages.remove_method :support_team_actor_without_test
+  def assert_edit_holders_prefer_a_person(ticket)
+    recording = RecordingStudioSupport::Tickets.ticket_recording_for(ticket)
+    holders = RecordingStudioSupport::Tickets::ReopenFromCustomerMessage.new(
+      group_recording: RecordingStudioSupport::Tickets.group_recording_for(ticket),
+      actor: @patron
+    ).edit_holders(recording)
+
+    assert_kind_of RecordingStudioApi::ApiClient, holders.first.actor
   end
 
   def assert_reopen_cause(event, message_recording:, group_recording:)

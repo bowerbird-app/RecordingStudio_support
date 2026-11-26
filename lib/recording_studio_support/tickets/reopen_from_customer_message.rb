@@ -29,6 +29,13 @@ module RecordingStudioSupport
         apply_reopen!(ticket, writer)
       end
 
+      def edit_holders(recording)
+        RecordingStudioAccessible.actors_with_access(
+          recording: recording,
+          minimum_role: :edit
+        )
+      end
+
       private
 
       def customer_reply?
@@ -60,11 +67,8 @@ module RecordingStudioSupport
         recording = Tickets.ticket_recording_for(ticket)
         return if recording.blank?
 
-        staff = RecordingStudioAccessible.actors_with_access(
-          recording: recording,
-          minimum_role: :edit
-        ).map(&:actor).select { |actor| Messages.support_team_actor?(actor) }
-        staff.find { |actor| Api::Access.person?(actor) }
+        people = edit_holders(recording).map(&:actor).select { |actor| Api::Access.person?(actor) }
+        people.find { |actor| Messages.support_team_actor?(actor) }
       end
 
       def log_missing_writer(ticket)
