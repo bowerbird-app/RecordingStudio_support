@@ -13,7 +13,7 @@ module RecordingStudioSupport
         end
 
         def call
-          TicketMessages.authorize!(@context)
+          TicketMessages.authorize_read!(@context)
           actor = TicketAccess.actor(@context)
           Access.deny! if actor.blank?
 

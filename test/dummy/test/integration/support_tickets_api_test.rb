@@ -329,12 +329,21 @@ class SupportTicketsApiTest < ActionDispatch::IntegrationTest
     assert_response :unauthorized
   end
 
-  test "operations viewer is forbidden below support team edit" do
+  test "operations viewer can list and show tickets and cannot update" do
     ticket_id = open_ticket_via_api!
 
     get "#{OPERATIONS_ROOT}/support_tickets", headers: auth(@viewer_operations_token), as: :json
 
-    assert_response :forbidden
+    assert_response :success
+    ids = response.parsed_body.fetch("records").map { |record| record.fetch("id") }
+    assert_includes ids, ticket_id
+
+    get "#{OPERATIONS_ROOT}/support_tickets/#{ticket_id}",
+        headers: auth(@viewer_operations_token),
+        as: :json
+
+    assert_response :success
+    assert_equal "open", response.parsed_body.fetch("status")
 
     patch "#{OPERATIONS_ROOT}/support_tickets/#{ticket_id}",
           headers: auth(@viewer_operations_token),
