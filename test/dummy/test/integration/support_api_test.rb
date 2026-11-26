@@ -562,21 +562,16 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
-  test "authorize_edit without a grant only checks live Accessible edit" do
-    allowed = Struct.new(:actor, :access_grant).new(@support_user, nil)
-    RecordingStudioSupport::Api::Access.authorize_edit!(allowed)
+  test "delegated view grant cannot edit even when the person can" do
+    assert RecordingStudioAccessible.authorized?(actor: @support_user, recording: @admin_root, role: :edit)
 
-    viewer = User.create!(
-      email: "html-viewer-#{SecureRandom.hex(4)}@example.com",
-      password: "Password",
-      password_confirmation: "Password"
-    )
-    grant!(@admin_root, viewer, :view)
-    denied = Struct.new(:actor, :access_grant).new(viewer, nil)
-
+    view_payload = provision_operations_client(role: :view)
     assert_raises(RecordingStudioApi::AuthorizationError) do
-      RecordingStudioSupport::Api::Access.authorize_edit!(denied)
+      RecordingStudioSupport::Api::Access.authorize_edit!(delegated_edit_context(view_payload))
     end
+
+    edit_payload = provision_operations_client(role: :edit)
+    RecordingStudioSupport::Api::Access.authorize_edit!(delegated_edit_context(edit_payload))
   end
 
   test "operations token scoped to a workspace cannot write admin-root help" do
@@ -1234,6 +1229,30 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     yield
   ensure
     Current.actor = previous
+  end
+
+  def provision_operations_client(role:)
+    result = RecordingStudioApi::Services::ProvisionApiClient.call(
+      access_point_recording: @admin_root,
+      manager_actor: @support_user,
+      role: role,
+      name: "Delegated #{role} #{SecureRandom.hex(4)}",
+      api: :operations
+    )
+    raise result.error unless result.success?
+
+    result.value
+  end
+
+  def delegated_edit_context(payload)
+    grant = RecordingStudioApi::AccessGrant.new(
+      api_client: payload.fetch(:api_client),
+      credential: payload.fetch(:credential),
+      access_recording: payload.fetch(:access_recording),
+      root_recording: @admin_root,
+      authorized_by: @support_user
+    )
+    Struct.new(:actor, :access_grant).new(@support_user, grant)
   end
 
   def provision_token(access_point:, actor:, role:, name:, admin_root_recording: nil, admin_root_role: :edit, api: :public)
