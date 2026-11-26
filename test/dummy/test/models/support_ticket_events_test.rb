@@ -136,7 +136,7 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     assert_equal "open", current.status
     assert_nil current.resolved_at
     assert_equal "updated", event.action
-    assert_equal @support_user, event.actor
+    assert_reopen_writer event
     assert_equal({ "status" => %w[resolved open] }, event.metadata["changes"])
   end
 
@@ -157,7 +157,7 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     assert_equal "open", current.status
     assert_nil current.resolved_at
     assert_equal "updated", event.action
-    assert_equal @support_user, event.actor
+    assert_reopen_writer event
     assert_equal({ "status" => %w[resolved open] }, event.metadata["changes"])
   end
 
@@ -244,5 +244,11 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
 
   def latest_event(recording)
     recording.events.order(occurred_at: :desc, created_at: :desc).first
+  end
+
+  def assert_reopen_writer(event)
+    refute_equal @patron, event.actor
+    assert RecordingStudioSupport::Api::Access.person?(event.actor)
+    assert RecordingStudioSupport::Messages.support_team_actor?(event.actor)
   end
 end

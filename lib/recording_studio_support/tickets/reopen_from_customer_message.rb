@@ -37,7 +37,9 @@ module RecordingStudioSupport
           recording: recording,
           minimum_role: :edit
         ).map(&:actor)
-        editors.find { |person| Messages.support_team_actor?(person) } || editors.first
+        staff = editors.select { |person| Messages.support_team_actor?(person) }
+        preferred = staff.presence || editors
+        preferred.find { |person| Api::Access.person?(person) } || preferred.first
       end
     end
   end
