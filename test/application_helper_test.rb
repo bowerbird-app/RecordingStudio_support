@@ -110,6 +110,7 @@ class ApplicationHelperTest < Minitest::Test
     assert set_idx < edit_idx
     assert parent_idx < edit_idx
     assert_includes application, "admin_access_recording"
+    refute_includes application, "access_grant"
     refute_includes application, "content_root_for_authorization"
     refute_includes application, "recordings_for_support_authorization"
   end

@@ -73,9 +73,12 @@ module RecordingStudioSupport
       end
 
       def authorize_edit!(context)
-        return if can_edit?(context)
+        deny! unless can_edit?(context)
 
-        deny!
+        grant = context.respond_to?(:access_grant) ? context.access_grant : nil
+        return if grant.blank?
+
+        grant.authorize!(recording: admin_root_recording, role: :edit)
       end
 
       def authorize_view!(context, recording)

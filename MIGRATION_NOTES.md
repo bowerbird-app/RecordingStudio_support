@@ -1,5 +1,21 @@
 # Upgrade notes
 
+## 0.38.12
+
+An operations token with `:view` cannot write help or tickets when the person behind it has live `:edit`.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.38.12`.
+2. No Support migration. Re-pin the gem. No other host step.
+3. Help page and section create/update, page move/publish/unpublish, and ticket update/close require the token grant to satisfy `:edit` as well as Accessible `:edit` on the person. HTML `/admin/support` is unchanged.
+
+### Verify
+
+```bash
+cd test/dummy && bundle exec rails test test/integration/support_api_test.rb test/integration/support_tickets_api_test.rb test/integration/admin_support_section_test.rb
+```
+
 ## 0.38.11
 
 An unknown ticket `priority` on open or update is `invalid_input`.

@@ -75,6 +75,7 @@ class ApiTest < Minitest::Test
     assert_includes access, "admin_root_recording"
     assert_includes access, "RecordingStudioAccessible.authorized?"
     assert_includes access, "authorized_on_admin_root?(context, :edit)"
+    assert_includes access, "grant.authorize!(recording: admin_root_recording, role: :edit)"
     assert_includes create, "Access.authorize_edit!"
     assert_includes move, "Access.authorize_edit!"
     refute_includes access, "user.admin?"
@@ -165,6 +166,7 @@ class ApiTest < Minitest::Test
 
   def test_route_handlers_read_the_scoped_recording
     ticket_update = File.read(File.expand_path("../lib/recording_studio_support/api/ticket_update.rb", __dir__))
+    ticket_close = File.read(File.expand_path("../lib/recording_studio_support/api/ticket_close.rb", __dir__))
     ticket_show = File.read(File.expand_path("../lib/recording_studio_support/api/ticket_show.rb", __dir__))
     ticket_index = File.read(File.expand_path("../lib/recording_studio_support/api/ticket_index.rb", __dir__))
     ticket_access = File.read(File.expand_path("../lib/recording_studio_support/api/ticket_access.rb", __dir__))
@@ -178,6 +180,9 @@ class ApiTest < Minitest::Test
     show = File.read(File.expand_path("../lib/recording_studio_support/api/show.rb", __dir__))
     publish = File.read(File.expand_path("../lib/recording_studio_support/api/publishable_transition.rb", __dir__))
 
+    assert_includes ticket_update, "TicketAccess.authorize_support_team!"
+    assert_includes ticket_close, "TicketAccess.authorize_support_team!"
+    assert_includes ticket_access, "access_grant.authorize!(recording: center, role: :edit)"
     assert_includes ticket_update, "TicketAccess.find_recording!"
     refute_includes ticket_update, "Lookup.routed!"
     refute_includes ticket_show, "Lookup.routed!"

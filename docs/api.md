@@ -8,7 +8,7 @@ API refuses a registered path that captures `:id` unless that endpoint passes `r
 
 Support **does** depend on `recording_studio_metrics` and registers site-wide Support metrics. The host calls `RecordingStudioMetrics::Api.register!(api: :operations)` once.
 
-Do not add a Support `ApiController`. Writes go through `Pages` / `Sections`. Access is **Accessible** only.
+Do not add a Support `ApiController`. Writes go through `Pages` / `Sections`. Access is **Accessible** on the person, and on an API request the token grant must pass `access_grant.authorize!` too.
 
 ## Install (host)
 

@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.38.12] - 2026-11-26
+
+An operations token with `:view` cannot write help or tickets, even when the person behind it has live `:edit`.
+
+### Fixed
+- `Access.authorize_edit!` still requires Accessible `:edit` on the admin root. When the request has an `access_grant`, it also calls `access_grant.authorize!(recording: admin_root, role: :edit)`. HandlerGuard does not token-cap custom `:create`, so help page and section create now go through that same grant check. Page update, trash, move, publish, and unpublish use the helper already.
+- Ticket close and ticket update already call `access_grant.authorize!(recording: SupportCenter, role: :edit)` in `TicketAccess.authorize_support_team!`. Unchanged. HTML support screens still use `authorize_support!` with no grant.
+
+### Upgrade notes
+- Bump to `0.38.12`. No Support migration. Re-pin the gem. No other host step. A view-scoped operations token that could create help because the actor had `:edit` is now `403`.
+
 ## [0.38.11] - 2026-11-26
 
 An invalid ticket priority on open or update is a validation error built from `SupportTicket::PRIORITIES`.

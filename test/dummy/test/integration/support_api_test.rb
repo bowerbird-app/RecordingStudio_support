@@ -324,6 +324,8 @@ class SupportApiTest < ActionDispatch::IntegrationTest
   end
 
   test "operations editor token can write sections nested pages and pages including move" do
+    assert RecordingStudioAccessible.authorized?(actor: @support_user, recording: @admin_root, role: :edit)
+
     post "#{OPERATIONS_ROOT}/support_sections",
          headers: auth(@editor_operations_token),
          params: { title: "Created section #{SecureRandom.hex(4)}", parent_id: @admin_root.id, icon: "sparkles" },
@@ -484,9 +486,25 @@ class SupportApiTest < ActionDispatch::IntegrationTest
   end
 
   test "operations viewer is forbidden to write" do
+    assert RecordingStudioAccessible.authorized?(actor: @support_user, recording: @admin_root, role: :edit)
+
     post "#{OPERATIONS_ROOT}/support_sections",
          headers: auth(@viewer_operations_token),
          params: { title: "Nope", parent_id: @root.id },
+         as: :json
+
+    assert_response :forbidden
+
+    patch "#{OPERATIONS_ROOT}/support_sections/#{@section.id}",
+          headers: auth(@viewer_operations_token),
+          params: { title: "Hijack section" },
+          as: :json
+
+    assert_response :forbidden
+
+    post "#{OPERATIONS_ROOT}/support_pages",
+         headers: auth(@viewer_operations_token),
+         params: { title: "Nope", body: "<p>Hi</p>", parent_id: @section.id },
          as: :json
 
     assert_response :forbidden
@@ -542,6 +560,23 @@ class SupportApiTest < ActionDispatch::IntegrationTest
            as: :json
 
     assert_response :forbidden
+  end
+
+  test "authorize_edit without a grant only checks live Accessible edit" do
+    allowed = Struct.new(:actor, :access_grant).new(@support_user, nil)
+    RecordingStudioSupport::Api::Access.authorize_edit!(allowed)
+
+    viewer = User.create!(
+      email: "html-viewer-#{SecureRandom.hex(4)}@example.com",
+      password: "Password",
+      password_confirmation: "Password"
+    )
+    grant!(@admin_root, viewer, :view)
+    denied = Struct.new(:actor, :access_grant).new(viewer, nil)
+
+    assert_raises(RecordingStudioApi::AuthorizationError) do
+      RecordingStudioSupport::Api::Access.authorize_edit!(denied)
+    end
   end
 
   test "operations token scoped to a workspace cannot write admin-root help" do

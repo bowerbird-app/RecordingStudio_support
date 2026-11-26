@@ -161,7 +161,7 @@ Stock Index/Show stay on public pages if they honor `:view` on workspace **or** 
 Replace Create / Update / Destroy with Support handlers (same intercept on public and operations):
 
 1. Resolve admin root the same way support UI does (`RecordingStudioAdmin` access recording resolver). Fail closed if missing.
-2. `access_grant.authorize!(recording: admin_root, role: :edit)` — or `RecordingStudioAccessible.authorized?` with the grant actor.
+2. `RecordingStudioAccessible.authorized?` on the live actor for AdminRoot `:edit`, and when a grant is present `access_grant.authorize!(recording: admin_root, role: :edit)`.
 3. Call `Sections.create!` / `revise!` / `trash!` or `Pages.create!` / `revise!` / `trash!` with `actor: access_grant.actor`.
 4. Sanitize body through `Body.sanitize`. Slug stays Support-owned (`SupportSection.slug_for`).
 5. Never `SupportPage.create!` plus `Recording.create!`.
