@@ -12,6 +12,14 @@ module RecordingStudioSupport
         context.access_grant.authorize!(recording: scope, role: :view)
       end
 
+      def authorize_read!(context)
+        if Access.operations_api?(context)
+          Access.authorize_support_team_view!(context)
+        else
+          authorize_view!(context)
+        end
+      end
+
       def authorize_support_team!(context)
         center = SupportCenters.current
         Access.deny! if center.blank?

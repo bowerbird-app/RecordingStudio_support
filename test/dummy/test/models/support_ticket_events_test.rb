@@ -184,6 +184,31 @@ class SupportTicketEventsTest < ActiveSupport::TestCase
     assert_not_nil current.resolved_at
   end
 
+  test "a customer message does not reopen when no support-team person can edit" do
+    ticket = open_ticket!
+    RecordingStudioSupport::Tickets.update!(ticket, actor: @support_user, status: :resolved)
+    group = RecordingStudioSupport::Tickets.group_recording_for(ticket)
+    RecordingStudio::Access.where(actor: @support_user).delete_all
+    log = StringIO.new
+    previous_logger = Rails.logger
+    Rails.logger = ActiveSupport::Logger.new(log)
+
+    begin
+      RecordingStudioMessages.send_message(
+        group_recording: group,
+        body: "Still broken on my side.",
+        actor: @patron
+      )
+    ensure
+      Rails.logger = previous_logger
+    end
+
+    current = RecordingStudioSupport::Tickets.find!(ticket.id)
+    assert_equal "resolved", current.status
+    assert_not_nil current.resolved_at
+    assert_includes log.string, "no support-team person"
+  end
+
   test "a support team message does not reopen a resolved ticket" do
     ticket = open_ticket!
     RecordingStudioSupport::Tickets.update!(ticket, actor: @support_user, status: :resolved)

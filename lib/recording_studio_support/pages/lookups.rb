@@ -24,9 +24,9 @@ module RecordingStudioSupport
       def public_for_section(section_recording, query: nil, actor: nil)
         return SupportPage.none unless section_recording
 
-        page_ids = kept_pages_for_section(section_recording).pluck(:recordable_id)
+        page_ids = kept_pages_for_section(section_recording).select(:recordable_id)
         apply_page_query(
-          customer_visible_pages(actor: actor).where(id: page_ids),
+          customer_visible_pages(actor: actor, ids: page_ids),
           query
         ).distinct.reorder(:title)
       end

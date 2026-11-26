@@ -21,7 +21,10 @@ module RecordingStudioSupport
         return unless resolved?(ticket)
 
         writer = writer_for(ticket)
-        return if writer.blank?
+        if writer.blank?
+          log_missing_writer(ticket)
+          return
+        end
 
         apply_reopen!(ticket, writer)
       end
@@ -57,13 +60,20 @@ module RecordingStudioSupport
         recording = Tickets.ticket_recording_for(ticket)
         return if recording.blank?
 
-        editors = RecordingStudioAccessible.actors_with_access(
+        staff = RecordingStudioAccessible.actors_with_access(
           recording: recording,
           minimum_role: :edit
-        ).map(&:actor)
-        staff = editors.select { |person| Messages.support_team_actor?(person) }
-        preferred = staff.presence || editors
-        preferred.find { |person| Api::Access.person?(person) } || preferred.first
+        ).map(&:actor).select { |actor| Messages.support_team_actor?(actor) }
+        staff.find { |actor| Api::Access.person?(actor) }
+      end
+
+      def log_missing_writer(ticket)
+        return unless defined?(Rails) && Rails.logger
+
+        Rails.logger.warn(
+          "RecordingStudioSupport could not reopen ticket #{ticket.id}: " \
+          "no support-team person with edit access."
+        )
       end
     end
   end

@@ -87,7 +87,7 @@ Engine root `/admin/support` redirects to `/admin`. Admin tables replace the old
 | Support preview **QuickActions** | Publishable dropdown on the page. Closed button is Draft, a scheduled date, or Published. Menu: Publish now, Schedule / Change schedule, Unpublish, Preview or View, SEO, Social. Inline publish/unpublish stay on this screen. |
 | Support team **Preview** / **View** | Preview is `/recordings/:id/publishable/preview` (signed-in people who can see the page). View is the public URL. Logged-out visitors get 404 on Preview. |
 | Unpublish | **Unpublish** in QuickActions (inline). Schedule and SEO/Social open Publishable job screens. |
-| Public `/help` | Hide drafts (`published` plus Accessible view audience / `public_for_section`). `indexable` is for search engines. |
+| Public `/help` | Hide drafts (`published`, including noindex, plus Views `tracking_access_action` / `public_for_section`). `indexable` is for search engines. |
 | Support team section show | Kept drafts + status badge; open support team preview. |
 | Admin status column | Badge via `currently_published?`. |
 

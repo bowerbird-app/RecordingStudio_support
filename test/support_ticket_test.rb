@@ -58,6 +58,10 @@ class SupportTicketTest < Minitest::Test
     assert_includes reopen, "Messages.support_team_actor?"
     assert_includes reopen, "RecordingStudioAccessible.actors_with_access"
     assert_includes reopen, "Api::Access.person?"
+    assert_includes reopen, "staff.find { |actor| Api::Access.person?(actor) }"
+    refute_includes reopen, "staff.presence || editors"
+    refute_includes reopen, "preferred.first"
+    assert_includes reopen, "Rails.logger.warn"
     assert_includes reopen, "impersonator: @actor"
     assert_includes reopen, '"message_id"'
     assert_includes reopen, '"message_group_id"'

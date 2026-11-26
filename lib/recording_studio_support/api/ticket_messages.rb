@@ -40,11 +40,7 @@ module RecordingStudioSupport
       end
 
       def authorize_read!(context)
-        if Access.operations_api?(context)
-          Access.authorize_support_team_view!(context)
-        else
-          TicketAccess.authorize_view!(context)
-        end
+        TicketAccess.authorize_read!(context)
       end
 
       def ticket_recording!(context)

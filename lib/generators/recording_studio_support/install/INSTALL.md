@@ -29,7 +29,7 @@ Support UI:
 
 Public UI:
 1. Open http://localhost:3000/help without signing in
-2. Only live, indexable pages appear
+2. Only published pages appear, including noindex pages
 3. Drafts stay hidden until you publish them
 
 ===============================================================================

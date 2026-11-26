@@ -158,7 +158,21 @@ class SupportTicketMessagesApiTest < ActionDispatch::IntegrationTest
         as: :json
 
     assert_response :success
-    assert_operator response.parsed_body.fetch("unread_count"), :>=, 0
+    unread_before_read = response.parsed_body.fetch("unread_count")
+    assert_equal 1, unread_before_read
+
+    post "#{OPERATIONS_ROOT}/support_ticket_mark_read/#{ticket_id}",
+         headers: auth(@editor_operations_token),
+         as: :json
+
+    assert_response :success
+
+    get "#{OPERATIONS_ROOT}/support_ticket_unread_count",
+        headers: auth(@editor_operations_token),
+        as: :json
+
+    assert_response :success
+    assert_equal 0, response.parsed_body.fetch("unread_count")
   end
 
   test "staff reply does not reopen a resolved ticket" do
