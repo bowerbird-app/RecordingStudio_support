@@ -42,8 +42,8 @@ module RecordingStudioSupport
           "Unpublishes a support page. Pass the page recording id. The page must already exist.",
         destroy:
           "Removes a help page from the SupportCenter. That page is an article staff publish for " \
-          "people to read. It moves to trash the same way staff delete it on the admin site. " \
-          "It is no longer live. It needs an ops API client with edit. Pass the page recording id."
+          "people to read. It moves to trash the same way staff delete it on the admin site, so " \
+          "it is no longer live. Pass the page recording id."
       }.freeze
       PAGE_OUTPUTS = {
         move: "The support page after the move.",

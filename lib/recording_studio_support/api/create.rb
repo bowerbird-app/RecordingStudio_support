@@ -20,7 +20,7 @@ module RecordingStudioSupport
         store_idempotent_response(result)
         result
       rescue ActiveRecord::RecordInvalid => e
-        Access.invalid_input!(e)
+        TicketAccess.invalid_input!(e)
       end
 
       private

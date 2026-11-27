@@ -16,7 +16,7 @@ module RecordingStudioSupport
         Access.authorize_edit!(context)
         { json: Serialize.recording(revise_recording!, context: context) }
       rescue ActiveRecord::RecordInvalid => e
-        Access.invalid_input!(e)
+        TicketAccess.invalid_input!(e)
       end
 
       private

@@ -73,17 +73,12 @@ module RecordingStudioSupport
       end
 
       def authorize_edit!(context)
+        deny! unless can_edit?(context)
+
         grant = context.respond_to?(:access_grant) ? context.access_grant : nil
         deny! if grant.blank?
 
         grant.authorize!(recording: admin_root_recording, role: :edit)
-      end
-
-      def invalid_input!(error)
-        raise RecordingStudioApi::InvalidActionInputError.new(
-          error.message,
-          details: invalid_input_details(error)
-        )
       end
 
       def authorize_view!(context, recording)
@@ -123,19 +118,6 @@ module RecordingStudioSupport
           recording: recording,
           role: role
         )
-      end
-
-      def invalid_input_details(error)
-        return [] unless error.is_a?(ActiveRecord::RecordInvalid)
-
-        error.record.errors.map do |item|
-          {
-            attribute: item.attribute,
-            message: item.message,
-            full_message: item.full_message,
-            type: item.type
-          }
-        end
       end
     end
   end

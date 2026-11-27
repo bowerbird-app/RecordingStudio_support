@@ -155,8 +155,6 @@ Sections serialize `title`, `slug`, `icon`. Writable: `title`, `icon`. Slug is S
 
 Pages serialize `title`, `description`, `icon`, `body`. Writable: those four. Body is sanitized (`Body.sanitize`). Page `icon` uses the same FlatPack lookup.
 
-Operations create for sections and pages authorizes through `Access.authorize_edit!` (`access_grant.authorize!` on the admin root, role `:edit`). A view-only ops token is 403 with `This action needs a grant with the edit role or higher.`, the same message as update, publish, and destroy.
-
 Tickets serialize `subject`, `status`, `priority`, `resolved_at`. Public writable on open: `subject`, `body`, `priority`. `subject` and `body` are required. `priority` is optional and must be one of `SupportTicket::PRIORITIES` (`low`, `normal`, `high`). An unknown value (for example `urgent`) is `invalid_input` with `priority must be` plus that list joined with `or`. The same check runs on operations update. When the loaded API accepts `parent:` on `register_resource_handler` (API 1.22), public create registers `parent: :server`. The published create schema, catalog, and MCP input then omit `parent_id`, and a sent `parent_id` is ignored. On an older API the registration matches 0.38.8 and the MCP open description says to leave `parent_id` blank. Support files the ticket under the support centre either way. Operations writable on update: `status`, `priority`. Close takes the ticket id only. Status: `open`, `resolved`. Priority: `low`, `normal`, `high`.
 
 Recording Studio API also returns recording ids, type, and relationship metadata on each record.

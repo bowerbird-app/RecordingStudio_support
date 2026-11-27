@@ -2,7 +2,7 @@
 
 ## 0.38.14
 
-Public help articles load, unknown section icons are rejected on save, and a view-only ops create is refused like update.
+Public help articles load, and unknown section icons are rejected on save.
 
 ### Host app
 
@@ -10,7 +10,7 @@ Public help articles load, unknown section icons are rejected on save, and a vie
 2. No Support migration. Re-pin the gem. No other host step.
 3. Public article URLs under `/help/:uuid/:slug` now link back to the section. Hosts that already installed `as: :public_help` and `as: :public_help_section` need no route change.
 4. `icon` on sections and pages must be a name FlatPack already exposes (or blank). An unknown name such as `book` is `invalid_input`. Existing bad icons still 500 on `/help` until revised.
-5. Operations MCP `destroy_support_page` copy is punctuation only. Tool names and behavior are unchanged.
+5. Operations MCP `destroy_support_page` description no longer mentions an ops API client. Tool names and behavior are unchanged.
 
 ### Verify
 

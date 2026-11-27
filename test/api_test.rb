@@ -77,12 +77,12 @@ class ApiTest < Minitest::Test
     assert_includes access, "authorized_on_admin_root?(context, :edit)"
     assert_includes access, "grant.authorize!(recording: admin_root_recording, role: :edit)"
     assert_includes access, "deny! if grant.blank?"
-    refute_includes access, "deny! unless can_edit?(context)"
+    assert_includes access, "deny! unless can_edit?(context)"
     assert_includes create, "Access.authorize_edit!"
-    assert_includes create, "Access.invalid_input!"
+    assert_includes create, "TicketAccess.invalid_input!"
     assert_includes create, "ActiveRecord::RecordInvalid"
     assert_includes File.read(File.expand_path("../lib/recording_studio_support/api/update.rb", __dir__)),
-                    "Access.invalid_input!"
+                    "TicketAccess.invalid_input!"
     assert_includes move, "Access.authorize_edit!"
     refute_includes access, "user.admin?"
   end

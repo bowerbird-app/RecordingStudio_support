@@ -528,24 +528,6 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_equal "book-open", RecordingStudio::Recording.find(response.parsed_body.fetch("id")).recordable.icon
   end
 
-  test "operations viewer create is forbidden with an edit-role message" do
-    expected = RecordingStudioApi::AuthorizationError.for_required_role(:edit)
-
-    post "#{OPERATIONS_ROOT}/support_sections",
-         headers: auth(@viewer_operations_token),
-         params: { title: "Nope", parent_id: @root.id },
-         as: :json
-
-    assert_forbidden_edit_role(expected)
-
-    post "#{OPERATIONS_ROOT}/support_pages",
-         headers: auth(@viewer_operations_token),
-         params: { title: "Nope", body: "<p>Hi</p>", parent_id: @section.id },
-         as: :json
-
-    assert_forbidden_edit_role(expected)
-  end
-
   test "operations viewer is forbidden to write" do
     assert RecordingStudioAccessible.authorized?(actor: @support_user, recording: @admin_root, role: :edit)
 
@@ -1253,17 +1235,6 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_includes message, name
     assert_includes message, "FlatPack"
     assert(details.any? { |detail| detail.fetch("attribute").to_s == "icon" }, body)
-  end
-
-  def assert_forbidden_edit_role(expected)
-    assert_response :forbidden
-    body = response.parsed_body
-    message = body["message"] || body.dig("error", "message").to_s
-    code = body["code"] || body.dig("error", "code")
-
-    refute_equal "not_found", code
-    assert_equal expected, message
-    refute_match(/not found/i, message)
   end
 
   def registration_for(type, action, api)
