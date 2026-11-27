@@ -1,5 +1,21 @@
 # Upgrade notes
 
+## 0.38.13
+
+Operations MCP names `destroy_support_page` for the existing operations page trash.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.38.13`.
+2. No Support migration. Re-pin the gem. No other host step.
+3. Operations MCP `include_tools(*RecordingStudioSupport::McpCopy.tool_names(api: :operations))` now includes `destroy_support_page`. That tool calls operations `DELETE …/support_pages/:id` (`Access.authorize_edit!` then `Pages.trash!`). It is not on the public server.
+
+### Verify
+
+```bash
+cd test/dummy && bundle exec rails test test/integration/support_api_test.rb
+```
+
 ## 0.38.12
 
 Delegated OAuth on Recording Studio API 1.23.0 or later: a `:view` token cannot write help even when the person has `:edit`. Top-level help create was the hole (HandlerGuard skips `:create`). App-only tokens were already refused.
