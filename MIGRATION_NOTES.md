@@ -1,5 +1,23 @@
 # Upgrade notes
 
+## 0.38.14
+
+Public help articles load, unknown section icons are rejected on save, and a view-only ops create is refused like update.
+
+### Host app
+
+1. Bump `recording_studio_support` to `0.38.14`.
+2. No Support migration. Re-pin the gem. No other host step.
+3. Public article URLs under `/help/:uuid/:slug` now link back to the section. Hosts that already installed `as: :public_help` and `as: :public_help_section` need no route change.
+4. `icon` on sections and pages must be a name FlatPack already exposes (or blank). An unknown name such as `book` is `invalid_input`. Existing bad icons still 500 on `/help` until revised.
+5. Operations MCP `destroy_support_page` copy is punctuation only. Tool names and behavior are unchanged.
+
+### Verify
+
+```bash
+cd test/dummy && bundle exec rails test test/integration/public_support_pages_test.rb test/integration/support_api_test.rb test/models/support_icon_test.rb
+```
+
 ## 0.38.13
 
 Operations MCP names `destroy_support_page` for the existing operations page trash.

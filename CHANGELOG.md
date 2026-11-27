@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.38.14] - 2026-11-27
+
+Public help articles load, section icons must be real FlatPack names, and a view-only ops create is refused like update.
+
+### Fixed
+- Public article show uses the host routes `public_help_section_path` and `public_help_path`. Publishable renders that template on its own controller, so `support_public_section_path` was a missing route helper. The back control goes to the section. Publishable's published controller also includes Support helpers.
+- Section and page `icon` is validated on save against `FlatPack::Heroicons.fetch` (the same lookup FlatPack's icon component uses, including its name map). Blank stays allowed. An unknown name such as `book` is `invalid_input` and names the icon.
+- Operations create for sections and pages uses `Access.authorize_edit!` → `access_grant.authorize!(recording: admin_root, role: :edit)` without the early capability `deny!`. A view-only ops token gets 403 and `This action needs a grant with the edit role or higher.`, matching update, publish, and destroy. Destroy wording and role are unchanged.
+
+### Changed
+- Operations MCP `destroy_support_page` description and output are full sentences with periods and commas. No Access, grant, or role wording was added.
+
+### Upgrade notes
+- Bump to `0.38.14`. No Support migration. Re-pin the gem. No other host step. Rows that already stored an unknown icon still fail on `/help` until they are revised.
+
 ## [0.38.13] - 2026-11-27
 
 Operations MCP names `destroy_support_page` for the existing operations trash handler.
