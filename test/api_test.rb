@@ -77,7 +77,12 @@ class ApiTest < Minitest::Test
     assert_includes access, "authorized_on_admin_root?(context, :edit)"
     assert_includes access, "grant.authorize!(recording: admin_root_recording, role: :edit)"
     assert_includes access, "deny! if grant.blank?"
+    refute_includes access, "deny! unless can_edit?(context)"
     assert_includes create, "Access.authorize_edit!"
+    assert_includes create, "Access.invalid_input!"
+    assert_includes create, "ActiveRecord::RecordInvalid"
+    assert_includes File.read(File.expand_path("../lib/recording_studio_support/api/update.rb", __dir__)),
+                    "Access.invalid_input!"
     assert_includes move, "Access.authorize_edit!"
     refute_includes access, "user.admin?"
   end
@@ -90,6 +95,8 @@ class ApiTest < Minitest::Test
     assert_includes engine, 'initializer "recording_studio_support.api"'
     assert_includes engine, "RecordingStudioSupport::Api.register!"
     prepares = File.read(File.expand_path("../lib/recording_studio_support/engine/runtime_prepares.rb", __dir__))
+    assert_includes prepares, 'initializer "recording_studio_support.publishable_helpers"'
+    assert_includes prepares, "RecordingStudioPublishable::PublishedController.helper"
     assert_includes prepares, 'initializer "recording_studio_support.metrics"'
     assert_includes prepares, "RecordingStudioSupport::Metrics.register!"
     refute_includes engine, "RecordingStudioMetrics::Api.register!"

@@ -13,6 +13,11 @@ class SupportSectionIconTest < Minitest::Test
     assert_includes source, 'tr("_", "-")'
     assert_includes source, "allow_blank: true"
     assert_includes source, "Heroicons name"
+    assert_includes source, "icon_is_known_flatpack_heroicon"
+    assert_includes source, "def self.known_heroicon?"
+    assert_includes source, "FlatPack::Heroicons.fetch"
+    assert_includes source, "FlatPack::Shared::IconComponent::NAME_MAP"
+    refute_includes source, "%w["
   end
 
   def test_support_section_and_page_include_has_heroicon
