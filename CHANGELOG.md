@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.38.13] - 2026-11-27
+
+Operations MCP names `destroy_support_page` for the existing operations trash handler.
+
+### Added
+- Operations `McpCopy.tool_names(api: :operations)` includes `destroy_support_page`. That tool is the named MCP surface for operations `DELETE …/support_pages/:id`, which already calls `Access.authorize_edit!` then `Pages.trash!` (the same trash as web admin). It is not on the public server. Restore, purge, and Trashable `trash_support_page` names stay off this gem.
+
+### Upgrade notes
+- Bump to `0.38.13`. No Support migration. Re-pin the gem. Operations MCP `include_tools(*RecordingStudioSupport::McpCopy.tool_names(api: :operations))` now includes `destroy_support_page`. No other host step.
+
 ## [0.38.12] - 2026-11-26
 
 Delegated OAuth on Recording Studio API 1.23.0 or later: a `:view` token cannot write help even when the person has `:edit`.

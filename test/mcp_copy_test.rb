@@ -28,6 +28,7 @@ class McpCopyTest < Minitest::Test
     show_support_page
     create_support_page
     update_support_page
+    destroy_support_page
     list_support_tickets
     show_support_ticket
     update_support_ticket
@@ -69,6 +70,8 @@ class McpCopyTest < Minitest::Test
     assert_equal PUBLIC_TOOLS, RecordingStudioSupport::McpCopy.tool_names(api: :public)
     assert_equal OPERATIONS_TOOLS, RecordingStudioSupport::McpCopy.tool_names(api: :operations)
     refute_includes RecordingStudioSupport::McpCopy.tool_names(api: :public), "create_support_page"
+    refute_includes RecordingStudioSupport::McpCopy.tool_names(api: :public), "destroy_support_page"
+    refute_includes RecordingStudioSupport::McpCopy.tool_names(api: :public), "delete_support_page"
     refute_includes RecordingStudioSupport::McpCopy.tool_names(api: :public), "update_support_ticket"
     refute_includes RecordingStudioSupport::McpCopy.tool_names(api: :public), "close_support_ticket"
     refute_includes RecordingStudioSupport::McpCopy.tool_names, "trash_support_page"
@@ -106,6 +109,14 @@ class McpCopyTest < Minitest::Test
     tools = File.read(File.expand_path("../lib/recording_studio_support/mcp_copy/registration.rb", __dir__))
     assert_includes copy, "register_tool"
     assert_includes tools, "register_type"
+    destroy = RecordingStudioSupport::McpCopy::OperationDescriptions.description_for(
+      RecordingStudioSupport::Api::PAGE_TYPE,
+      :destroy
+    )
+    assert_includes destroy, "help page"
+    assert_includes destroy, "SupportCenter"
+    assert_includes destroy, "ops API client with edit"
+    refute_includes destroy, "not found"
   end
 
   def test_ticket_message_handlers_wrap_messages_services

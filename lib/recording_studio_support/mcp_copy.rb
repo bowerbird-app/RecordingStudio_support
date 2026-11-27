@@ -23,7 +23,7 @@ module RecordingStudioSupport
     OPERATIONS_OPERATIONS = [
       [CENTER, :index], [CENTER, :show], [CENTER, :create],
       [SECTION, :index], [SECTION, :show], [SECTION, :create], [SECTION, :update],
-      [PAGE, :index], [PAGE, :show], [PAGE, :create], [PAGE, :update],
+      [PAGE, :index], [PAGE, :show], [PAGE, :create], [PAGE, :update], [PAGE, :destroy],
       [TICKET, :index], [TICKET, :show], [TICKET, :update]
     ].freeze
     OPERATIONS_ACTIONS = [[PAGE, :move], [PAGE, :publish], [PAGE, :unpublish]].freeze

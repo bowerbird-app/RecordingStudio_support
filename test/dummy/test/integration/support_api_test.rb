@@ -562,6 +562,23 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_response :forbidden
   end
 
+  test "operations viewer cannot trash a help page and the page stays live" do
+    title = @live.recordable.title
+
+    delete "#{OPERATIONS_ROOT}/support_pages/#{@live.id}",
+           headers: auth(@viewer_operations_token),
+           as: :json
+
+    assert_response :forbidden
+    refute_equal "not_found", response.parsed_body.dig("error", "code")
+    message = response.parsed_body["message"] || response.parsed_body.dig("error", "message").to_s
+    assert_match(/edit role or higher|not authorized|not allowed/i, message)
+    refute_match(/not found/i, message)
+    @live.reload
+    assert_nil @live.trashed_at
+    assert_equal title, @live.recordable.title
+  end
+
   test "delegated view grant cannot edit even when the person can" do
     assert RecordingStudioAccessible.authorized?(actor: @support_user, recording: @admin_root, role: :edit)
 
