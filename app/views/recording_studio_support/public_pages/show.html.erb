@@ -1,9 +1,13 @@
-<% back_path = @section_recording ? support_public_section_path(@section_recording) : support_public_help_path %>
+<% back_path = if @section_recording
+     main_app.public_help_section_path(support_public_section_slug(@section_recording))
+   else
+     main_app.public_help_path
+   end %>
 <% support_page_chrome(
      title: @page.title,
      subtitle: support_page_updated_on(@updated_at),
      back_href: back_path,
-     anchor_href: support_public_help_path,
+     anchor_href: main_app.public_help_path,
      anchor_icon: "home",
      anchor_tooltip: support_t("help.home")
    ) %>

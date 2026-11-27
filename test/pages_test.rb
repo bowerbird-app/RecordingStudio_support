@@ -264,6 +264,10 @@ class PagesTest < Minitest::Test
     assert_includes show, 'class="w-fit"'
     refute_includes show, "FlatPack::PageTitle::Component"
     assert_includes show, "support_page_chrome"
+    assert_includes show, "main_app.public_help_section_path"
+    assert_includes show, "main_app.public_help_path"
+    assert_includes show, "support_public_section_slug"
+    refute_includes show, "support_public_section_path"
     assert_includes show, "items-center"
     assert_includes show, "text-center"
     assert_includes show, "subtitle: support_page_updated_on(@updated_at)"
@@ -397,6 +401,8 @@ class PagesTest < Minitest::Test
     assert_includes frame, "support_icon_preview"
     assert_includes helper, "def support_icon_preview"
     assert_includes helper, "FlatPack::Shared::IconComponent"
+    assert_includes helper, "Concerns::HasHeroicon.known_heroicon?"
+    refute_includes helper, "def known_heroicon?"
     refute_includes helper, "heroicons.js"
   end
 

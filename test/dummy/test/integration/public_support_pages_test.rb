@@ -110,6 +110,7 @@ class PublicSupportPagesTest < ActionDispatch::IntegrationTest
     assert_includes response.body, "data-recording-studio-views-context"
     assert_includes response.body, "flat-pack-page-nav"
     assert_select "[aria-label='Go back']"
+    assert_select "a[aria-label='Go back'][href='/help/sections/getting-started']"
     assert_select "a[aria-label='Home'][href='/help']"
     assert_select "[aria-label='Close']", count: 0
     refute_includes response.body, "flat-pack-top-nav"
