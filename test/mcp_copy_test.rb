@@ -113,10 +113,25 @@ class McpCopyTest < Minitest::Test
       RecordingStudioSupport::Api::PAGE_TYPE,
       :destroy
     )
+    lead = RecordingStudioSupport::McpCopy::OperationDescriptions.lead_for(
+      RecordingStudioSupport::Api::PAGE_TYPE,
+      :destroy
+    )
+    output = RecordingStudioSupport::McpCopy::OperationDescriptions.output_for(
+      RecordingStudioSupport::Api::PAGE_TYPE,
+      :destroy
+    )
     assert_includes destroy, "help page"
     assert_includes destroy, "SupportCenter"
-    assert_includes destroy, "ops API client with edit"
+    refute_includes destroy, "ops API client with edit"
     refute_includes destroy, "not found"
+    assert_equal(
+      "Removes a help page from the SupportCenter. That page is an article staff publish for " \
+      "people to read. It moves to trash the same way staff delete it on the admin site, so " \
+      "it is no longer live. Pass the page recording id.",
+      lead
+    )
+    assert_equal "Returns the help page after it is moved to trash.", output
   end
 
   def test_ticket_message_handlers_wrap_messages_services

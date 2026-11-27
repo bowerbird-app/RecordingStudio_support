@@ -19,6 +19,8 @@ module RecordingStudioSupport
         result = { json: Serialize.recording(create_recording!, context: context), status: :created }
         store_idempotent_response(result)
         result
+      rescue ActiveRecord::RecordInvalid => e
+        TicketAccess.invalid_input!(e)
       end
 
       private

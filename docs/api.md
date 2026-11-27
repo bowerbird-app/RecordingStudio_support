@@ -151,9 +151,9 @@ Orderable reorder is not allowlisted on Support pages.
 
 SupportCenters have no extra serializer keys or writable attributes. Create takes `parent_id` only.
 
-Sections serialize `title`, `slug`, `icon`. Writable: `title`, `icon`. Slug is Support-owned.
+Sections serialize `title`, `slug`, `icon`. Writable: `title`, `icon`. Slug is Support-owned. `icon` must be blank or a name FlatPack already exposes (`FlatPack::Heroicons.fetch`, including FlatPack's icon name map). An unknown name such as `book` is `invalid_input`.
 
-Pages serialize `title`, `description`, `icon`, `body`. Writable: those four. Body is sanitized (`Body.sanitize`).
+Pages serialize `title`, `description`, `icon`, `body`. Writable: those four. Body is sanitized (`Body.sanitize`). Page `icon` uses the same FlatPack lookup.
 
 Tickets serialize `subject`, `status`, `priority`, `resolved_at`. Public writable on open: `subject`, `body`, `priority`. `subject` and `body` are required. `priority` is optional and must be one of `SupportTicket::PRIORITIES` (`low`, `normal`, `high`). An unknown value (for example `urgent`) is `invalid_input` with `priority must be` plus that list joined with `or`. The same check runs on operations update. When the loaded API accepts `parent:` on `register_resource_handler` (API 1.22), public create registers `parent: :server`. The published create schema, catalog, and MCP input then omit `parent_id`, and a sent `parent_id` is ignored. On an older API the registration matches 0.38.8 and the MCP open description says to leave `parent_id` blank. Support files the ticket under the support centre either way. Operations writable on update: `status`, `priority`. Close takes the ticket id only. Status: `open`, `resolved`. Priority: `low`, `normal`, `high`.
 

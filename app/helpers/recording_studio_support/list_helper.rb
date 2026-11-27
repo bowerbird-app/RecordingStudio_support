@@ -38,7 +38,7 @@ module RecordingStudioSupport
       normalized = name.to_s.strip.downcase.tr("_", "-")
       return if normalized.blank?
       return unless normalized.match?(Concerns::HasHeroicon::ICON_FORMAT)
-      return unless known_heroicon?(normalized)
+      return unless Concerns::HasHeroicon.known_heroicon?(normalized)
 
       render FlatPack::Shared::IconComponent.new(name: normalized, size: size)
     end
@@ -78,14 +78,6 @@ module RecordingStudioSupport
       Array(section_recordings).each_with_object({}) do |recording, map|
         map[recording.id.to_s] = support_section_icon_name(recording).to_s
       end
-    end
-
-    private
-
-    def known_heroicon?(name)
-      canonical = FlatPack::Shared::IconComponent::NAME_MAP.fetch(name, name)
-      variant = FlatPack.configuration.default_icon_variant
-      FlatPack::Heroicons.fetch(variant, canonical).present?
     end
   end
 end

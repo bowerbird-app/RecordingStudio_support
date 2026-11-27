@@ -23,6 +23,14 @@ module RecordingStudioSupport
       end
     end
 
+    initializer "recording_studio_support.publishable_helpers" do
+      config.to_prepare do
+        next unless defined?(RecordingStudioPublishable::PublishedController)
+
+        RecordingStudioPublishable::PublishedController.helper RecordingStudioSupport::ApplicationHelper
+      end
+    end
+
     def self.register_message_received_with_email!
       return unless defined?(RecordingStudioMessages) && defined?(RecordingStudioNotifications)
 

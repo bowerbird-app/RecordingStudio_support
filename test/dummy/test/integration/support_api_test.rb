@@ -485,6 +485,49 @@ class SupportApiTest < ActionDispatch::IntegrationTest
     assert_includes [401, 403], response.status, response.body
   end
 
+  test "section and page create reject an unknown icon as invalid_input" do
+    post "#{OPERATIONS_ROOT}/support_sections",
+         headers: auth(@editor_operations_token),
+         params: { title: "Bad icon section #{SecureRandom.hex(4)}", parent_id: @admin_root.id, icon: "book" },
+         as: :json
+
+    assert_unknown_icon_input("book")
+
+    post "#{OPERATIONS_ROOT}/support_pages",
+         headers: auth(@editor_operations_token),
+         params: {
+           title: "Bad icon page #{SecureRandom.hex(4)}",
+           body: "<p>Hi</p>",
+           parent_id: @section.id,
+           icon: "book"
+         },
+         as: :json
+
+    assert_unknown_icon_input("book")
+  end
+
+  test "section create keeps a blank icon and accepts a known FlatPack icon" do
+    post "#{OPERATIONS_ROOT}/support_sections",
+         headers: auth(@editor_operations_token),
+         params: { title: "No icon section #{SecureRandom.hex(4)}", parent_id: @admin_root.id },
+         as: :json
+
+    assert_response :created
+    assert_nil RecordingStudio::Recording.find(response.parsed_body.fetch("id")).recordable.icon
+
+    post "#{OPERATIONS_ROOT}/support_sections",
+         headers: auth(@editor_operations_token),
+         params: {
+           title: "Known icon section #{SecureRandom.hex(4)}",
+           parent_id: @admin_root.id,
+           icon: "book-open"
+         },
+         as: :json
+
+    assert_response :created
+    assert_equal "book-open", RecordingStudio::Recording.find(response.parsed_body.fetch("id")).recordable.icon
+  end
+
   test "operations viewer is forbidden to write" do
     assert RecordingStudioAccessible.authorized?(actor: @support_user, recording: @admin_root, role: :edit)
 
@@ -1180,6 +1223,19 @@ class SupportApiTest < ActionDispatch::IntegrationTest
   end
 
   private
+
+  def assert_unknown_icon_input(name)
+    assert_response :unprocessable_entity
+    body = response.parsed_body
+    message = body["message"] || body.dig("error", "message").to_s
+    code = body["code"] || body.dig("error", "code")
+    details = body["details"] || body.dig("error", "details") || []
+
+    assert_equal "invalid_input", code
+    assert_includes message, name
+    assert_includes message, "FlatPack"
+    assert(details.any? { |detail| detail.fetch("attribute").to_s == "icon" }, body)
+  end
 
   def registration_for(type, action, api)
     RecordingStudioApi.resource_handler_registration(type, action, api: api)

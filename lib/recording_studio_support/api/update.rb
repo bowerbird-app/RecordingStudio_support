@@ -15,6 +15,8 @@ module RecordingStudioSupport
         reject_parent_id_input!
         Access.authorize_edit!(context)
         { json: Serialize.recording(revise_recording!, context: context) }
+      rescue ActiveRecord::RecordInvalid => e
+        TicketAccess.invalid_input!(e)
       end
 
       private
